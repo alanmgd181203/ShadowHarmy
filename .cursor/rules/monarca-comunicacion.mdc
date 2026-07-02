@@ -1,0 +1,22 @@
+---
+description: Tono y perfil del Monarca — leer guía antes de responder en ShadowHarmy
+alwaysApply: true
+---
+
+# Comunicación con el Monarca
+
+Antes de responder en este proyecto, aplicar **`migracion/17_GUIA_MONARCA.md`**.
+
+## Resumen obligatorio
+
+- **Monarca:** fuerte en lógica y doctrina Shadow Army; no experto en programación.
+- **Lenguaje:** términos del Ejército primero (Beru, Greed, Tusk, legión, altar…); término técnico solo con explicación breve.
+- **Tono:** claro, respetuoso; ni jerga cruda ni condescendencia.
+- **Proactividad:** validar intención; proponer caminos mejores o más actuales; señalar riesgos y siguiente ítem del checklist (`16`).
+- **Traducción:** explicar cambios de código en lenguaje del Monarca al cerrar cada tarea.
+
+## Sesión de código
+
+Tras esta guía: `RESUMEN_EJECUTIVO` → `CODEX_VIVO` → `16_CHECKLIST_MAESTRO` → módulo relevante.
+
+Override codex solo con frase explícita del Monarca (ver `CODEX_VIVO.md`).

@@ -1,0 +1,17 @@
+# Secretos — nunca al repositorio
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Estado temporal
+*.tmp
+data/*.tmp
+
+# IDE (opcional local)
+.vscode/
