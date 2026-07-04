@@ -278,6 +278,23 @@ class GreedFrancotirador:
         mejor_frente = max(frentes_activos, key=frentes_activos.get)
         masa_extraida = min(intencion.masa, self.tusk.pesos[mejor_frente][dir_key])
 
+        # En modo live: orden de reducción real
+        if not config.MODO_SIMULACION and self.bridge:
+            side = "Sell" if dir_key == "long" else "Buy"
+            symbol = self._frente_a_symbol(mejor_frente)
+            resultado = await self.bridge.place_order(symbol, side, masa_extraida, order_type="Market")
+
+            if not resultado.exito:
+                await self.tusk.liberar_reserva(intencion.uid)
+                await self.bel.anotar("GREED", "PODA_ORDEN_FALLIDA", resultado.mensaje)
+                return
+
+            fill = await self.bridge.esperar_fill(symbol, order_id=resultado.order_id, timeout_s=30)
+            if not fill.exito:
+                await self.tusk.liberar_reserva(intencion.uid)
+                await self.bel.anotar("GREED", "PODA_SIN_FILL", f"Timeout para {resultado.order_id}")
+                return
+
         self.tusk.pesos[mejor_frente][dir_key] -= masa_extraida
 
         await self.tusk.liberar_reserva(intencion.uid)
@@ -290,6 +307,22 @@ class GreedFrancotirador:
 
         limpieza_l = min(intencion.masa, self.tusk.pesos[m_l]["long"])
         limpieza_s = min(intencion.masa, self.tusk.pesos[m_s]["short"])
+
+        # En modo live: cerrar ambos lados
+        if not config.MODO_SIMULACION and self.bridge:
+            sym_l = self._frente_a_symbol(m_l)
+            sym_s = self._frente_a_symbol(m_s)
+
+            res_l = await self.bridge.place_order(sym_l, "Sell", limpieza_l, order_type="Market")
+            res_s = await self.bridge.place_order(sym_s, "Buy", limpieza_s, order_type="Market")
+
+            if not res_l.exito or not res_s.exito:
+                await self.tusk.liberar_reserva(intencion.uid)
+                await self.bel.anotar("GREED", "ESPEJOS_ORDEN_FALLIDA", "Una o ambas patas fallaron")
+                return
+
+            await self.bridge.esperar_fill(sym_l, order_id=res_l.order_id, timeout_s=30)
+            await self.bridge.esperar_fill(sym_s, order_id=res_s.order_id, timeout_s=30)
 
         self.tusk.pesos[m_l]["long"] -= limpieza_l
         self.tusk.pesos[m_s]["short"] -= limpieza_s
@@ -309,7 +342,7 @@ class GreedFrancotirador:
             ctx_map, intencion.masa, is_long_cosecha
         )
 
-        beneficio = abs(p_ef - barco.precio_entrada_real) / barco.precio_entrada_real
+        beneficio = abs(p_ef - barco.precio_entrada_real) / barco.precio_entrada_real if barco.precio_entrada_real > 0 else 0
 
         if beneficio < config.UMBRAL_COSECHA_MIN:
             barco.estado = "NEGOCIANDO"
@@ -317,6 +350,27 @@ class GreedFrancotirador:
             return
 
         if await self.tusk.solicitar_reserva(intencion.uid, intencion.masa, "GREED", "LONG" if is_long_cosecha else "SHORT"):
+            # --- MODO LIVE: cierre real por Bridge ---
+            if not config.MODO_SIMULACION and self.bridge:
+                side = "Sell" if barco.direccion == "LONG" else "Buy"
+                symbol = self._frente_a_symbol(mejor_frente)
+                resultado = await self.bridge.place_order(symbol, side, intencion.masa, order_type="Market")
+
+                if not resultado.exito:
+                    await self.tusk.liberar_reserva(intencion.uid)
+                    await self.bel.anotar("GREED", "COSECHA_ORDEN_FALLIDA", resultado.mensaje)
+                    barco.estado = "NEGOCIANDO"
+                    return
+
+                fill = await self.bridge.esperar_fill(symbol, order_id=resultado.order_id, timeout_s=60)
+                if not fill.exito:
+                    await self.tusk.liberar_reserva(intencion.uid)
+                    await self.bel.anotar("GREED", "COSECHA_SIN_FILL", f"Timeout para {resultado.order_id}")
+                    barco.estado = "NEGOCIANDO"
+                    return
+
+                p_ef = fill.datos.get("avgPrice", p_ef)
+
             await self.tusk.consumar_cosecha_atomica(intencion.uid, mejor_frente, barco)
 
             barco.frente_salida = mejor_frente
@@ -340,7 +394,29 @@ class GreedFrancotirador:
             await self.bel.anotar("GREED", "CAZA_BLOQUEADA", f"Banda de {mejor_f} no permite {intencion.direccion}")
             return
 
-        await self.tusk.confirmar_reserva(intencion.uid, mejor_f, intencion.direccion)
+        # --- MODO LIVE: orden real por Bridge ---
+        if not config.MODO_SIMULACION and self.bridge:
+            side = "Buy" if is_long else "Sell"
+            symbol = self._frente_a_symbol(mejor_f)
+            resultado = await self.bridge.place_order(symbol, side, intencion.masa, order_type="Market")
+
+            if not resultado.exito:
+                await self.tusk.liberar_reserva(intencion.uid)
+                await self.bel.anotar("GREED", "CAZA_ORDEN_FALLIDA", resultado.mensaje)
+                return
+
+            fill = await self.bridge.esperar_fill(symbol, order_id=resultado.order_id, timeout_s=60)
+            if not fill.exito:
+                await self.tusk.liberar_reserva(intencion.uid)
+                await self.bel.anotar("GREED", "CAZA_SIN_FILL", f"Timeout para {resultado.order_id}")
+                return
+
+            p_ef = fill.datos.get("avgPrice", p_ef)
+            await self.tusk.confirmar_reserva(intencion.uid, mejor_f, intencion.direccion, fill_confirmado=True)
+        else:
+            # --- MODO SIMULACIÓN: confirma directo ---
+            await self.tusk.confirmar_reserva(intencion.uid, mejor_f, intencion.direccion)
+
         if intencion.barco_ref:
             intencion.barco_ref.frente_asignado = mejor_f
             intencion.barco_ref.precio_entrada_real = p_ef
@@ -368,6 +444,17 @@ class GreedFrancotirador:
     def _es_valida_internamente(self, intencion: IntencionAccion) -> bool:
         """Verifica si el contrato aún es aire fresco según config.py."""
         return (time.time() - intencion.timestamp) * 1000 <= config.TTL_ORDEN_MS
+
+    def _frente_a_symbol(self, frente):
+        """Traduce el nombre interno del frente al símbolo Bybit."""
+        mapa = {
+            "LTCUSDT_LINEAL": "LTCUSDT",
+            "LTCUSDC_LINEAL": "LTCUSDC",
+            "LTCUSD_INVERSE": "LTCUSD",
+            "LTCUSDT_SPOT": "LTCUSDT",
+            "LTCUSDC_SPOT": "LTCUSDC",
+        }
+        return mapa.get(frente, "LTCUSDT")
 
     # === ATAQUE SIMULADO ===
 

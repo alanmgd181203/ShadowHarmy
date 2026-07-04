@@ -75,9 +75,9 @@
 - [x] **2.2.3** `confirmar_reserva` solo tras fill real cuando modo live
 
 ### 2.3 Cableado Greed → Bridge
-- [ ] **2.3.1** `_ejecutar_caza_multiverse` → orden real + fill → luego `confirmar_reserva`
-- [ ] **2.3.2** `_ejecutar_cosecha_multiverse` → cierre real + fill
-- [ ] **2.3.3** Poda / espejos → órdenes de reducción reales (o sim hasta validar lógica)
+- [x] **2.3.1** `_ejecutar_caza_multiverse` → orden real + fill → luego `confirmar_reserva`
+- [x] **2.3.2** `_ejecutar_cosecha_multiverse` → cierre real + fill
+- [x] **2.3.3** Poda / espejos → órdenes de reducción reales (o sim hasta validar lógica)
 
 ### 2.4 Tusk — coherencia NAV
 - [ ] **2.4.1** Tras fill, reconciliar `pesos` con posiciones exchange
