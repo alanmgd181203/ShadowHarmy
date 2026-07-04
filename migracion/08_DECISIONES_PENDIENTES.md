@@ -44,6 +44,7 @@ Ver [`14_ROADMAP.md`](14_ROADMAP.md) — resumen:
 | T-05 | WS 5 mares | **M2** |
 | T-06 | Telegram | **M3** |
 | T-07 | requirements.txt | **M0** |
+| T-08 | SUPER_FUSION: fusión dual (contacto + promedio selectivo) — **implementado** | **cerrado** |
 
 ## Contradicciones convivientes (no resolver ahora — P0.3)
 

@@ -29,31 +29,32 @@
 
 ### 1.1 Beru — cirugía estructural
 - [x] **1.1.1** Indentar `plantar_semilla_adan` dentro de `BeruCazador`
-- [ ] **1.1.2** Indentar `auditar_gatillos_adan` dentro de la clase
-- [ ] **1.1.3** Indentar `ejecutar_acordeon_asimetrico` dentro de la clase
-- [ ] **1.1.4** Indentar `evaluar_colisiones_y_fusion` dentro de la clase
-- [ ] **1.1.5** Implementar `limpiar_legion()` (expurgar COSECHADO, FUSIONADO, fantasmas)
-- [ ] **1.1.6** `python -m py_compile generales/beru.py` OK
+- [x] **1.1.2** Indentar `auditar_gatillos_adan` dentro de la clase
+- [x] **1.1.3** Indentar `ejecutar_acordeon_asimetrico` dentro de la clase
+- [x] **1.1.4** Indentar `evaluar_colisiones_y_fusion` dentro de la clase
+- [x] **1.1.5** Implementar `limpiar_legion()` (expurgar COSECHADO, FUSIONADO, fantasmas)
+- [x] **1.1.6** `python -m py_compile generales/beru.py` OK
+- [x] **1.1.7** Decidir criterio SUPER_FUSION: ¿total o selectiva? (ver `08` T-08)
 
 ### 1.2 Modelos — contrato BeruShip
-- [ ] **1.2.1** Añadir `red_adan: float = 0.0` a `BeruShip`
-- [ ] **1.2.2** Añadir `oz_adan: float = 0.0`
-- [ ] **1.2.3** Añadir `max_favor: float = 0.0`
-- [ ] **1.2.4** Revisar uso de `red`/`oz` legacy vs nuevos campos (unificar si hace falta)
+- [x] **1.2.1** Añadir `red_adan: float = 0.0` a `BeruShip`
+- [x] **1.2.2** Añadir `oz_adan: float = 0.0`
+- [x] **1.2.3** Añadir `max_favor: float = 0.0`
+- [x] **1.2.4** Revisar uso de `red`/`oz` legacy vs nuevos campos (unificado: eliminados legacy)
 
 ### 1.3 Greed — rutas Igris faltantes
-- [ ] **1.3.1** Handler `REBALANCEO_IGRIS` (no caer en DISPARO_SIMULADO)
-- [ ] **1.3.2** Handler `ENGORDAR_MANTO`
+- [x] **1.3.1** Handler `REBALANCEO_IGRIS` (evalúa reducir gordo vs abrir flaco, respeta banda)
+- [x] **1.3.2** Handler `ENGORDAR_MANTO` (crece manto sin BeruShip, divide si rompe banda)
 - [ ] **1.3.3** Tests manuales: Igris delega → Greed ejecuta sin error
 
 ### 1.4 Proyecto — higiene
-- [ ] **1.4.1** Crear `requirements.txt` (pybit, websockets, mínimo)
-- [ ] **1.4.2** README.md raíz ShadowHarmy (cómo arrancar, env, migracion)
-- [ ] **1.4.3** Smoke test documentado en Bellion al primer arranque limpio
+- [x] **1.4.1** Crear `requirements.txt` (pybit, websockets, streamlit)
+- [x] **1.4.2** README.md raíz ShadowHarmy (cómo arrancar, env, migracion)
+- [x] **1.4.3** Panel Streamlit (`panel.py`) + estado vivo en Bellion
 
 ### 1.5 Cierre M0
-- [ ] **1.5.1** Actualizar `11_MATRIZ`: G-Beru, S-01, S-07 → ⚠️ o ✅ según corresponda
-- [ ] **1.5.2** Marcar M0 completo en `14_ROADMAP.md`
+- [x] **1.5.1** Actualizar `11_MATRIZ`: G-Beru, S-01, S-02, S-04 → ✅
+- [ ] **1.5.2** Marcar M0 completo en `14_ROADMAP.md` (pendiente: test `arise.py` 60s)
 
 ---
 
@@ -257,7 +258,7 @@
 
 ```
 Fase 0:  _ / 5
-Fase 1:  1 / 17
+Fase 1: 17 / 18
 Fase 2:  _ / 14
 Fase 3:  _ / 11
 Fase 4:  _ / 12
@@ -269,8 +270,8 @@ Fase 9:  _ / 5
 Fase 10: _ / 11
 ```
 
-**Última actualización checklist:** 2026-06-29  
-**Próximo ítem recomendado:** **1.1.2** (indentar `auditar_gatillos_adan`)
+**Última actualización checklist:** 2026-07-03  
+**Próximo ítem recomendado:** **1.3.3 + 1.5.2** (test `arise.py` 60s → cerrar M0)
 
 ---
 

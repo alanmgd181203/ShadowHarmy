@@ -58,7 +58,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 
 - **Fase A+B:** 2026-06-30
 - **Estado código:** M0 pendiente — ver `16_CHECKLIST_MAESTRO.md`
-- **Próximo ítem:** 1.1.2 (indentar `auditar_gatillos_adan`)
+- **Próximo ítem:** 1.3.3 (test arise.py) → 1.4 (higiene)
 
 ---
 

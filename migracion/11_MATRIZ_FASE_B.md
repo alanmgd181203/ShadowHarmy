@@ -33,9 +33,9 @@
 | ID | Spec | Archivo | Estado | Notas |
 |----|------|---------|--------|-------|
 | G-Tusk | Reservas + oxígeno | `tusk.py` | ✅ | confirmar/liberar/consumar |
-| G-Greed | Altar + TTL | `greed.py` | ⚠️ | altar OK; sin orden real |
-| G-Beru | Legión + acordeón | `beru.py` | ❌ | **IndentationError L98**; sin limpiar_legion |
-| G-Igris | Manto 80-95% | `igris.py` | ✅ | poda, espejos, delta |
+| G-Greed | Altar + TTL | `greed.py` | ⚠️ | altar OK; handlers Igris OK; banda adaptativa + slippage; sin orden real (M1) |
+| G-Beru | Legión + acordeón | `beru.py` | ✅ | Compila; fusión dual; limpiar_legion; modelo completo |
+| G-Igris | Manto 80-95% | `igris.py` | ✅ | poda, espejos, delta adaptativo (45-55→50-50 según margen) |
 | G-Tank | 5 mares + semáforo | `tank.py` | ⚠️ | estructura OK; 1 precio real WS |
 | G-Bellion | Audit | `bellion.py` | ⚠️ | log OK; sin clasificación activos |
 | G-Cap | ADN clima | `capitanes.py` | ✅ | 3 capitanes wired vía Tank |
@@ -58,7 +58,7 @@
 | R-Muro 95% | implícito | MURO_LEY_MARCIAL | ✅ | |
 | R-Expansión 80% | implícito | RANGO_EXPANSION_MIN | ✅ | |
 | R-Limpieza 90% | implícito | RANGO_LIMPIEZA_MAX | ✅ | |
-| R-Delta 48-52% | implícito | igris límites | ✅ | |
+| R-Delta 48-52% | implícito | igris/greed banda adaptativa | ✅ | 45-55→50-50 dinámico + slippage por frente |
 
 ## P1 — Notificaciones
 
@@ -73,10 +73,10 @@
 
 | ID | Spec | Estado | Notas |
 |----|------|--------|-------|
-| S-01 | BeruShip ciclo | ⚠️ | diseño completo; beru roto |
-| S-02 | Acordeón 1.1/0.9 | ⚠️ | en beru.py (no compila) |
+| S-01 | BeruShip ciclo | ✅ | modelo con red_adan/oz_adan/max_favor; sincronizado |
+| S-02 | Acordeón 1.1/0.9 | ✅ | compila; engorde + negociador |
 | S-03 | Arbitraje USDT/USDC | ⚠️ | radar OK; precios USDC=0 |
-| S-04 | Fusión super_beru | ⚠️ | evaluar_colisiones en beru |
+| S-04 | Fusión super_beru | ✅ | fusión dual: contacto (bola de nieve) + promedio selectivo |
 | S-05 | Escalera desbalance | 🔮 | manual |
 | S-06 | Bellion Ratio activos | 🔮 | manual |
 | S-07 | Igris REBALANCEO handler | ❌ | intención sin ruta greed |

@@ -37,6 +37,7 @@
 
 | Idea | Fuente |
 |------|--------|
+| Indicador de slippage real por frente (reemplazar `SLIPPAGE_FACTOR` manual) | Monarca sesión 2026-07-03 |
 | Reporte automático órdenes/hora | infraestructura_api |
 | Simulador infierno / Maestro del Dolor | 01_capas, logica_tecnica |
 | Ojo del Oráculo v2.4 diagnóstico | 04_logica_tecnica |
@@ -51,7 +52,7 @@
 |-------------|-------------------------------|
 | ADN Capitanes por clima Tank | Parametriza vacío Adán sin LLM |
 | Acordeón 1.1/0.9 + engorde 0.1% | Más concreto que "grid" abstracto |
-| Delta 48–52% Igris | Regla clara vs narrativa |
+| Delta adaptativo + personalidad slippage por frente | Banda viva según margen + riesgo moneda |
 | Bizantino 4 nodos Tank | Tolerancia glitch 0.2% |
 | Cosecha con UMBRAL_COSECHA_MIN | Evita salidas prematuras |
 

@@ -14,27 +14,31 @@ import core.config as config
 class BeruShip:
     """Representación física de un barco en el Pentiverso."""
     uid: str
-    centro_local: float       
-    masa: float               
-    direccion: str            
-    estado: str = "ACECHANDO" 
-    red: float = 0.0
-    oz: float = 0.0
-    distancia_gatillo: float = 0.005  
-    es_super_beru: bool = False       
-    generacion: int = 1               
+    centro_local: float
+    masa: float
+    direccion: str
+    estado: str = "ACECHANDO"
+    red_adan: float = 0.0
+    oz_adan: float = 0.0
+    max_favor: float = 0.0
+    distancia_gatillo: float = 0.005
+    es_super_beru: bool = False
+    generacion: int = 1
     is_veterano: bool = False
-    
+
     # Pasaporte inmutable tras la materialización
-    adn_capitan: ADN_Capitan = None 
-    
+    adn_capitan: ADN_Capitan = None
+
     # Trazabilidad Multipolar (Entrada)
-    frente_asignado: str = "INDEFINIDO" 
-    precio_entrada_real: float = 0.0     
+    frente_asignado: str = "INDEFINIDO"
+    precio_entrada_real: float = 0.0
 
     # Trazabilidad de Cuarzo (Cosecha/Salida)
     frente_salida: str = "INDEFINIDO"
     precio_salida_real: float = 0.0
+
+    # Flag de sincronización con Greed
+    sincronizado: bool = False
 
 
 

@@ -28,9 +28,36 @@ VERSION = "2.0.0"
 SISTEMA_NOMBRE = f"LILIT DE {FASE_ACTUAL} V{VERSION}"
 
 # === [SUBTEMA: RANGOS OPERATIVOS DE IGRIS] ===
-RANGO_EXPANSION_MIN = 80.0  
-RANGO_LIMPIEZA_MAX = 90.0   
-MURO_LEY_MARCIAL = 95.0    
+RANGO_EXPANSION_MIN = 80.0
+RANGO_LIMPIEZA_MAX = 90.0
+MURO_LEY_MARCIAL = 95.0
+
+# === [SUBTEMA: BANDA ADAPTATIVA DE DELTA] ===
+# Tolerancia máxima al desbalance (±5% del 50%) cuando hay poco margen usado
+DELTA_TOLERANCIA_MAX = 0.05
+# Por debajo de este % de margen, la banda es máxima (45-55)
+DELTA_MARGEN_RELAJADO = 70.0
+# A partir de este % de margen, la banda es cero (50-50)
+DELTA_MARGEN_PARANOICO = 95.0
+
+# === [SUBTEMA: PERSONALIDAD DE SLIPPAGE POR FRENTE] ===
+# Factor 1.0 = moneda tranquila (casi sin slippage, banda completa).
+# Factor bajo = moneda caliente (mucho slippage histórico, banda apretada).
+# Fórmula: banda_frente = banda_general × factor
+# Valores pre-configurados (se reemplazarán con datos reales en M1+).
+SLIPPAGE_FACTOR = {
+    "LTCUSDT_LINEAL": 0.7,
+    "LTCUSDC_LINEAL": 0.7,
+    "LTCUSD_INVERSE": 0.5,
+    "LTCUSDC_SPOT": 0.8,
+    "LTCUSDT_SPOT": 0.8,
+    "BTCUSDT_LINEAL": 1.0,
+    "ETHUSDT_LINEAL": 0.9,
+    "FILUSDT_LINEAL": 0.25,
+    "WIFUSDT_LINEAL": 0.2,
+}
+# Frente desconocido → factor conservador
+SLIPPAGE_FACTOR_DEFAULT = 0.5
 
 # === [SUBTEMA: UMBRALES DE GREED] ===
 UMBRAL_COSECHA_MIN = 0.01   

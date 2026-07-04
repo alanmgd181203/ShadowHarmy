@@ -31,6 +31,13 @@ async def refrescar_dashboard(panel):
         panel.refrescar()
         await asyncio.sleep(1)
 
+async def publicar_estado_vivo(bellion, tusk, beru, igris):
+    """Publica snapshot para el panel Streamlit cada segundo."""
+    await asyncio.sleep(2)
+    while True:
+        await bellion.publicar_estado_vivo(tusk, beru.legion, igris)
+        await asyncio.sleep(1)
+
 # === [SUBTEMA: ORQUESTACIÓN DEL DESPERTAR] ===
 async def arise():
     print("\n" + "═"*45)
@@ -65,11 +72,12 @@ async def arise():
             tusk.latido_persistencia(beru.legion), 
             tank.vigilar_aguas(),                  
             bridge.conectar(),
-            bridge.hilo_sincronizacion_nav(), # <--- Nuevo motor de balance real
+            bridge.hilo_sincronizacion_nav(),
             beru.hilo_beru_berserker(),            
             igris.vigilar_manto_operativo(),       
             greed.arbitrar(),                      
-            refrescar_dashboard(panel)             
+            refrescar_dashboard(panel),
+            publicar_estado_vivo(bellion, tusk, beru, igris),
         )
 
     except Exception:

@@ -4,16 +4,18 @@
 
 ---
 
-## M0 — Desbloquear arranque (1 sesión)
+## M0 — Desbloquear arranque (**en progreso**)
 
-| # | Tarea | Archivo |
-|---|-------|---------|
-| 1 | Indentar métodos dentro `BeruCazador` | `generales/beru.py` |
-| 2 | Implementar `limpiar_legion()` (purga COSECHADO/FUSIONADO) | `beru.py` |
-| 3 | Añadir `red_adan`, `oz_adan`, `max_favor` a `BeruShip` | `core/models.py` |
-| 4 | Handlers Greed: `REBALANCEO_IGRIS`, `ENGORDAR_MANTO` | `generales/greed.py` |
-| 5 | `requirements.txt` (pybit, websockets) | raíz |
-| 6 | Verificar `python arise.py` arranca sin crash | — |
+| # | Tarea | Archivo | Estado |
+|---|-------|---------|--------|
+| 1 | Indentar métodos dentro `BeruCazador` | `generales/beru.py` | ✅ |
+| 2 | Implementar `limpiar_legion()` (purga COSECHADO/FUSIONADO) | `beru.py` | ✅ |
+| 3 | Añadir `red_adan`, `oz_adan`, `max_favor` a `BeruShip` | `core/models.py` | ✅ |
+| 4 | Handlers Greed: `REBALANCEO_IGRIS`, `ENGORDAR_MANTO` | `generales/greed.py` | ✅ |
+| 5 | `requirements.txt` (pybit, websockets, streamlit) | raíz | ✅ |
+| 6 | Verificar `python arise.py` arranca sin crash | — | ⏳ pendiente |
+
+**Extras sesión 2026-07-03:** fusión dual, banda adaptativa, personalidad slippage, panel Streamlit.
 
 **Criterio done:** `py_compile` OK + loop 60s sin excepción.
 
