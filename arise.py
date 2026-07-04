@@ -59,7 +59,7 @@ async def arise():
         # ⛓️ CONEXIÓN DE HIERRO: El puente ahora recibe todo el equipo y las llaves
         bridge = BybitBridge(tank, tusk, bellion, api_key, api_secret) 
 
-        greed = GreedFrancotirador(tusk, bellion, tank)
+        greed = GreedFrancotirador(tusk, bellion, tank, bridge=bridge)
         beru = BeruCazador(tusk, greed, bellion, tank)
         igris = IgrisEscudo(tusk, beru)
         panel = PanelDeControl(tusk, beru, igris)

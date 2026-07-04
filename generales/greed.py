@@ -7,7 +7,7 @@ import core.config as config
 
 
 class GreedFrancotirador:
-    def __init__(self, tusk, bellion, tank_cluster):
+    def __init__(self, tusk, bellion, tank_cluster, bridge=None):
         """
         Greed: El Ejecutor del Pentiverso.
         Juez y parte en la materialización de masa y arbitraje.
@@ -15,6 +15,7 @@ class GreedFrancotirador:
         self.tusk = tusk
         self.bel = bellion
         self.tank = tank_cluster
+        self.bridge = bridge
         self.altar = asyncio.PriorityQueue()
         self.dedupe_set = set()
 
@@ -371,7 +372,13 @@ class GreedFrancotirador:
     # === ATAQUE SIMULADO ===
 
     async def _ejecutar_ataque_autonomo(self, intencion, ctx_map):
-        """Ataque de Hierro: Un disparo, un muerto. Recarga de 10s para simulación."""
+        """Ataque de Hierro: disparo simulado (solo en MODO_SIMULACION=True)."""
+        if not config.MODO_SIMULACION:
+            await self.bel.anotar("GREED", "DISPARO_BLOQUEADO",
+                                  "MODO_SIMULACION=False → no se permiten disparos simulados")
+            await self.tusk.liberar_reserva(intencion.uid)
+            return
+
         try:
             ahora = time.time()
 

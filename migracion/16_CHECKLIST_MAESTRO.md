@@ -70,9 +70,9 @@
 - [x] **2.1.5** Documentar mainnet-ojos + testnet-manos en `04_INFRA_API.md`
 
 ### 2.2 Modo simulación vs real
-- [ ] **2.2.1** Flag `MODO_SIMULACION` en config (default True hasta validar)
-- [ ] **2.2.2** Si `MODO_SIMULACION=False` → prohibir `DISPARO_SIMULADO`
-- [ ] **2.2.3** `confirmar_reserva` solo tras fill real cuando modo live
+- [x] **2.2.1** Flag `MODO_SIMULACION` en config (default True hasta validar)
+- [x] **2.2.2** Si `MODO_SIMULACION=False` → prohibir `DISPARO_SIMULADO`
+- [x] **2.2.3** `confirmar_reserva` solo tras fill real cuando modo live
 
 ### 2.3 Cableado Greed → Bridge
 - [ ] **2.3.1** `_ejecutar_caza_multiverse` → orden real + fill → luego `confirmar_reserva`

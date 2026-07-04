@@ -131,19 +131,28 @@ class TuskBoveda:
             self.masa_reservada_ltc += masa
             return True
 
-    async def confirmar_reserva(self, uid: str, frente: str, direccion: str):
-        """Fija el peso de la sombra en un muelle real."""
+    async def confirmar_reserva(self, uid: str, frente: str, direccion: str, fill_confirmado=True):
+        """
+        Fija el peso de la sombra en un muelle real.
+        En MODO_SIMULACION=False, requiere fill_confirmado=True (caller debe verificar).
+        """
+        if not config.MODO_SIMULACION and not fill_confirmado:
+            await self.bel.anotar("TUSK", "ANCLAJE_RECHAZADO",
+                                  f"Modo live: fill no confirmado para {uid} en {frente}")
+            return False
+
         async with self._lock:
             if uid in self.reservas_activas:
                 sombra = self.reservas_activas[uid]
                 dir_key = "long" if direccion == "LONG" else "short"
-                
-                # Invasión: Si el frente no existe, lo crea
-                if frente not in self.pesos: 
+
+                if frente not in self.pesos:
                     self.pesos[frente] = {"long": 0.0, "short": 0.0}
-                
+
                 self.pesos[frente][dir_key] += sombra.masa
                 await self.bel.anotar("TUSK", "ANCLAJE", f"Masa {sombra.masa:.4f} fijada en {frente}.")
+                return True
+        return False
 
     async def liberar_reserva(self, uid: str):
         """Devuelve la masa al cofre si la misión falla."""

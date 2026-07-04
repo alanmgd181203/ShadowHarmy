@@ -22,6 +22,10 @@ API_KEY = os.getenv("BYBIT_API_KEY")
 API_SECRET = os.getenv("BYBIT_API_SECRET")
 TESTNET = os.getenv("MODO_TESTNET", "True").lower() == "true"
 
+# 🚦 MODO SIMULACIÓN — interruptor maestro de seguridad
+# True = Greed simula internamente (no toca exchange). False = órdenes van al Bridge real.
+MODO_SIMULACION = os.getenv("MODO_SIMULACION", "True").lower() == "true"
+
 # === [SUBTEMA: IDENTIDAD DEL SISTEMA] ===
 FASE_ACTUAL = "HIERRO"
 VERSION = "2.0.0"
