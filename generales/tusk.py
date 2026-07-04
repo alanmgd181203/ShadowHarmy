@@ -168,6 +168,90 @@ class TuskBoveda:
             if uid_reserva in self.reservas_activas:
                 sombra = self.reservas_activas.pop(uid_reserva)
                 self.masa_reservada_ltc -= sombra.masa
-                self.masa_autorizada += sombra.masa # Recuperamos el oxígeno
+                self.masa_autorizada += sombra.masa
                 self.total_ciclos_consumados += 1
                 await self.bel.anotar("TUSK", "ÉXITO", f"Ciclo {self.total_ciclos_consumados} sellado.")
+
+    # === RECONCILIACIÓN CON EXCHANGE (Fase 2.4) ===
+
+    async def reconciliar_con_exchange(self, bridge):
+        """
+        Compara posiciones reales del exchange con pesos internos.
+        Corrige discrepancias y registra en Bellion.
+        Solo opera si MODO_SIMULACION=False y hay sesión activa.
+        """
+        if config.MODO_SIMULACION or not bridge or not bridge.session:
+            return
+
+        try:
+            response = bridge.session.get_positions(category="linear", settleCoin="USDT")
+            if response.get("retCode") != 0:
+                await self.bel.anotar("TUSK", "RECONCILIACIÓN_ERROR", response.get("retMsg", "?"))
+                return
+
+            posiciones_reales = {}
+            for pos in response["result"].get("list", []):
+                symbol = pos.get("symbol", "")
+                side = pos.get("side", "")
+                size = float(pos.get("size", 0))
+
+                if size <= 0:
+                    continue
+
+                frente = self._symbol_a_frente(symbol)
+                if frente not in posiciones_reales:
+                    posiciones_reales[frente] = {"long": 0.0, "short": 0.0}
+
+                dir_key = "long" if side == "Buy" else "short"
+                posiciones_reales[frente][dir_key] += size
+
+            # Comparar con pesos internos y corregir
+            async with self._lock:
+                discrepancias = 0
+                for frente, real in posiciones_reales.items():
+                    interno = self.pesos.get(frente, {"long": 0.0, "short": 0.0})
+                    diff_l = abs(real["long"] - interno["long"])
+                    diff_s = abs(real["short"] - interno["short"])
+
+                    if diff_l > 0.0001 or diff_s > 0.0001:
+                        discrepancias += 1
+                        self.pesos[frente] = {"long": real["long"], "short": real["short"]}
+                        await self.bel.anotar(
+                            "TUSK", "RECONCILIACIÓN",
+                            f"{frente}: interno L:{interno['long']:.4f}/S:{interno['short']:.4f} → real L:{real['long']:.4f}/S:{real['short']:.4f}"
+                        )
+
+                # Frentes que internamente tenemos pero el exchange no
+                for frente in list(self.pesos.keys()):
+                    if frente not in posiciones_reales:
+                        if self.pesos[frente]["long"] > 0.0001 or self.pesos[frente]["short"] > 0.0001:
+                            discrepancias += 1
+                            await self.bel.anotar(
+                                "TUSK", "RECONCILIACIÓN_FANTASMA",
+                                f"{frente} existe interno pero no en exchange → reseteando"
+                            )
+                            self.pesos[frente] = {"long": 0.0, "short": 0.0}
+
+                if discrepancias == 0:
+                    pass  # Silencio si todo coincide
+
+        except Exception as e:
+            await self.bel.anotar("TUSK", "RECONCILIACIÓN_EXCEPCIÓN", str(e))
+
+    async def hilo_reconciliacion(self, bridge):
+        """Cada 60s reconcilia pesos internos con posiciones reales del exchange."""
+        if config.MODO_SIMULACION:
+            return
+        await asyncio.sleep(10)
+        while True:
+            await self.reconciliar_con_exchange(bridge)
+            await asyncio.sleep(60)
+
+    def _symbol_a_frente(self, symbol):
+        """Traduce símbolo Bybit al nombre interno del frente."""
+        mapa = {
+            "LTCUSDT": "LTCUSDT_LINEAL",
+            "LTCUSDC": "LTCUSDC_LINEAL",
+            "LTCUSD": "LTCUSD_INVERSE",
+        }
+        return mapa.get(symbol, f"{symbol}_LINEAL")

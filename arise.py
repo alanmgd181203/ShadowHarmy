@@ -70,6 +70,7 @@ async def arise():
         # Hemos añadido 'bridge.hilo_sincronizacion_nav()' al gather
         await asyncio.gather(
             tusk.latido_persistencia(beru.legion), 
+            tusk.hilo_reconciliacion(bridge),
             tank.vigilar_aguas(),                  
             bridge.conectar(),
             bridge.hilo_sincronizacion_nav(),

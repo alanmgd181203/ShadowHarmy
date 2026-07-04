@@ -80,8 +80,8 @@
 - [x] **2.3.3** Poda / espejos → órdenes de reducción reales (o sim hasta validar lógica)
 
 ### 2.4 Tusk — coherencia NAV
-- [ ] **2.4.1** Tras fill, reconciliar `pesos` con posiciones exchange
-- [ ] **2.4.2** No liberar reserva si orden rechazada
+- [x] **2.4.1** Tras fill, reconciliar `pesos` con posiciones exchange
+- [x] **2.4.2** No liberar reserva si orden rechazada
 
 ### 2.5 Validación M1
 - [ ] **2.5.1** 1 trade redondo testnet documentado (timestamp, ids, PnL)
