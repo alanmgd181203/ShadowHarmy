@@ -15,13 +15,29 @@
 
 ### Bridge (`BybitBridge`)
 
-**Debe:**
-- `conectar()` — WS loop con reconexión.
-- `_procesar_latido` — actualizar Tank/Tusk con last price.
-- `hilo_sincronizacion_nav` — poll balance + margen → `tusk.actualizar_nav_real`.
+**Ojos (Mainnet — precios reales siempre):**
+- `conectar()` — WS loop con reconexión automática.
+- `_procesar_latido` — actualizar Tank con last price + latencia.
 
-**No debe:**
-- Tragar excepciones con `pass` silencioso en producción (deuda prototipo).
+**Manos (Testnet por defecto — órdenes):**
+- `place_order(symbol, side, qty, order_type, price, link_id)` — envía orden con `orderLinkId` idempotente.
+- `cancel_order(symbol, order_id, link_id)` — cancela por ID o linkId.
+- `amend_order(symbol, order_id, link_id, new_qty, new_price)` — modifica precio/cantidad.
+- `esperar_fill(symbol, order_id, link_id, timeout_s)` — polling hasta fill confirmado (REGLA-R07).
+
+**Balance:**
+- `hilo_sincronizacion_nav` — poll balance + margen → `tusk.actualizar_nav_real`. Backoff exponencial en error + log Bellion.
+
+**Clase `OrdenResultado`:** respuesta estandarizada con `exito`, `order_id`, `link_id`, `mensaje`, `datos`.
+
+**Arquitectura híbrida:**
+```
+MAINNET ──precio WS──→ Tank (ojos)
+TESTNET ←──órdenes REST── Greed (manos)
+        ──fill poll──→ Tusk confirma reserva
+```
+
+Cuando `config.TESTNET=False`, las manos apuntan a mainnet (solo con validación completa Fase 6).
 
 ### Configuración
 
@@ -102,8 +118,9 @@ Monarca `requirements.txt` **no** incluye trading deps — el repo del ejército
 
 ## Checklist P0 infra (Fase B)
 
-- [ ] `place_order` con idempotencia
-- [ ] Confirmación fill antes de actualizar Tusk.pesos
-- [ ] Reconexión WS con jitter
-- [ ] Modo dry-run flag global
-- [ ] Logs sin secretos
+- [x] `place_order` con idempotencia (`orderLinkId` único por despacho)
+- [x] Confirmación fill antes de actualizar Tusk.pesos (`esperar_fill` polling)
+- [x] Reconexión WS con jitter (ojos) + backoff exponencial (NAV)
+- [x] `cancel_order` / `amend_order` wrappers
+- [ ] Modo dry-run flag global (ver 2.2.1 — `MODO_SIMULACION`)
+- [x] Logs sin secretos (Bellion registra acciones, no keys)

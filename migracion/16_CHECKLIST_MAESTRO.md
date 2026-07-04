@@ -63,11 +63,11 @@
 *Criterio fase:* 1 ciclo CAZA → fill confirmado → COSECHA en testnet, log en Bellion.
 
 ### 2.1 Bridge — manos (no solo ojos)
-- [ ] **2.1.1** `place_order(market/limit)` wrapper con idempotencia (`orderLinkId`)
-- [ ] **2.1.2** `cancel_order` / `amend_order` básico
-- [ ] **2.1.3** Poll o WS privado para **fill confirmado** (REGLA-R07)
-- [ ] **2.1.4** Reemplazar `except: pass` en NAV por log Bellion + reintento
-- [ ] **2.1.5** Documentar mainnet-ojos + testnet-manos en `04_INFRA_API.md`
+- [x] **2.1.1** `place_order(market/limit)` wrapper con idempotencia (`orderLinkId`)
+- [x] **2.1.2** `cancel_order` / `amend_order` básico
+- [x] **2.1.3** Poll o WS privado para **fill confirmado** (REGLA-R07)
+- [x] **2.1.4** Reemplazar `except: pass` en NAV por log Bellion + reintento
+- [x] **2.1.5** Documentar mainnet-ojos + testnet-manos en `04_INFRA_API.md`
 
 ### 2.2 Modo simulación vs real
 - [ ] **2.2.1** Flag `MODO_SIMULACION` en config (default True hasta validar)
