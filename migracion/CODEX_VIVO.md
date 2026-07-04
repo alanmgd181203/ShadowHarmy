@@ -57,8 +57,9 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 ### 5. Snapshot actual
 
 - **Fase A+B:** 2026-06-30
-- **Estado código:** M0 pendiente — ver `16_CHECKLIST_MAESTRO.md`
-- **Próximo ítem:** 1.3.3 (test arise.py) → 1.4 (higiene)
+- **M0:** COMPLETADO — 2026-07-03 (arise.py 51s+ sin crash)
+- **Estado código:** M1 siguiente — conectar Bridge a testnet
+- **Próximo ítem:** 2.1.1 (Bridge: `place_order` con idempotencia)
 
 ---
 

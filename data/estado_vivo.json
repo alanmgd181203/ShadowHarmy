@@ -1,0 +1,15 @@
+{
+  "ts": 1783140056.144244,
+  "sistema": "LILIT DE HIERRO V2.0.0",
+  "margen_ocupado": 0.0,
+  "masa_autorizada": 100.0,
+  "masa_bruta": 0,
+  "peso_long": 0,
+  "peso_short": 0,
+  "delta_ratio": 0.5,
+  "banda_min": 0.45,
+  "banda_max": 0.55,
+  "pesos_por_frente": {},
+  "legion": [],
+  "ciclos_consumados": 0
+}

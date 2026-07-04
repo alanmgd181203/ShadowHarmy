@@ -4,7 +4,7 @@
 
 ---
 
-## M0 — Desbloquear arranque (**en progreso**)
+## M0 — Desbloquear arranque (**COMPLETADO** — 2026-07-03)
 
 | # | Tarea | Archivo | Estado |
 |---|-------|---------|--------|
@@ -13,11 +13,11 @@
 | 3 | Añadir `red_adan`, `oz_adan`, `max_favor` a `BeruShip` | `core/models.py` | ✅ |
 | 4 | Handlers Greed: `REBALANCEO_IGRIS`, `ENGORDAR_MANTO` | `generales/greed.py` | ✅ |
 | 5 | `requirements.txt` (pybit, websockets, streamlit) | raíz | ✅ |
-| 6 | Verificar `python arise.py` arranca sin crash | — | ⏳ pendiente |
+| 6 | Verificar `python arise.py` arranca sin crash | — | ✅ (51s+) |
 
 **Extras sesión 2026-07-03:** fusión dual, banda adaptativa, personalidad slippage, panel Streamlit.
 
-**Criterio done:** `py_compile` OK + loop 60s sin excepción.
+**Criterio done:** `py_compile` OK + loop 60s sin excepción. **CUMPLIDO.**
 
 ---
 

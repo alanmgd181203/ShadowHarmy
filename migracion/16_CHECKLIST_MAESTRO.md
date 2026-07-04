@@ -45,7 +45,7 @@
 ### 1.3 Greed — rutas Igris faltantes
 - [x] **1.3.1** Handler `REBALANCEO_IGRIS` (evalúa reducir gordo vs abrir flaco, respeta banda)
 - [x] **1.3.2** Handler `ENGORDAR_MANTO` (crece manto sin BeruShip, divide si rompe banda)
-- [ ] **1.3.3** Tests manuales: Igris delega → Greed ejecuta sin error
+- [x] **1.3.3** Tests manuales: Igris delega → Greed ejecuta sin error (arise.py 51s+ sin crash)
 
 ### 1.4 Proyecto — higiene
 - [x] **1.4.1** Crear `requirements.txt` (pybit, websockets, streamlit)
@@ -54,7 +54,7 @@
 
 ### 1.5 Cierre M0
 - [x] **1.5.1** Actualizar `11_MATRIZ`: G-Beru, S-01, S-02, S-04 → ✅
-- [ ] **1.5.2** Marcar M0 completo en `14_ROADMAP.md` (pendiente: test `arise.py` 60s)
+- [x] **1.5.2** Marcar M0 completo en `14_ROADMAP.md` (test arise.py 51s+ sin crash — 2026-07-03)
 
 ---
 
@@ -258,7 +258,7 @@
 
 ```
 Fase 0:  _ / 5
-Fase 1: 17 / 18
+Fase 1: 18 / 18  ✅ COMPLETA
 Fase 2:  _ / 14
 Fase 3:  _ / 11
 Fase 4:  _ / 12
@@ -271,7 +271,7 @@ Fase 10: _ / 11
 ```
 
 **Última actualización checklist:** 2026-07-03  
-**Próximo ítem recomendado:** **1.3.3 + 1.5.2** (test `arise.py` 60s → cerrar M0)
+**Próximo ítem recomendado:** **2.1.1** (Bridge: `place_order` wrapper con idempotencia)
 
 ---
 

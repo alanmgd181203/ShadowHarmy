@@ -8,13 +8,14 @@
 
 ## Veredicto en una frase
 
-**Buena arquitectura async multi-General; Beru roto; sin órdenes reales aún — M0 desbloquea, M1 testnet.**
+**M0 COMPLETADO. Arquitectura async multi-General arranca limpia; panel Streamlit operativo. Siguiente: M1 testnet (órdenes reales).**
 
 ## Qué leer según urgencia
 
 | Urgencia | Documento |
 |----------|-----------|
-| Arreglar ya | [`14_ROADMAP.md`](14_ROADMAP.md) M0 |
+| Siguiente paso | [`14_ROADMAP.md`](14_ROADMAP.md) M1 |
+| Checklist detallado | [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md) Fase 2 |
 | Entender gaps | [`13_ANALISIS_SHADOWHARMY.md`](13_ANALISIS_SHADOWHARMY.md) |
 | Tabla ✅⚠️❌ | [`11_MATRIZ_FASE_B.md`](11_MATRIZ_FASE_B.md) |
 | Ideas manual sin perder | [`15_IDEAS_FUTURO.md`](15_IDEAS_FUTURO.md) |
@@ -22,14 +23,13 @@
 
 ## Bugs bloqueantes
 
-1. `beru.py` — IndentationError línea 98
-2. `limpiar_legion` — no existe
-3. Sin `place_order` / fill
-4. Greed sin ruta REBALANCEO/ENGORDAR
+~~Todos resueltos en M0.~~
+
+Ninguno bloqueante actualmente. El Bridge no envía órdenes reales aún (M1).
 
 ## Lo que ya funciona
 
-Tusk reservas · Igris manto · Tank clima+capitanes · Greed altar+TTL · Bridge WS+wallet · Bellion log · Dashboard
+Tusk reservas · Igris manto + banda adaptativa · Tank clima+capitanes · Greed altar+TTL+rebalanceo+engorde · Bridge WS+wallet · Bellion log+estado_vivo · Dashboard consola + Streamlit · Beru legión+acordeón+fusión dual · Modelo BeruShip completo
 
 ## Manual vs código
 
@@ -37,9 +37,9 @@ El Analista aportó ~139 specs; el código **ya supera** al manual en acordeón/
 
 ## Siguiente paso
 
-**Agente nuevo:** [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md) — empezar Fase 1, ítem 1.1.1.
+**Agente nuevo:** [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md) — empezar Fase 2, ítem 2.1.1.
 
-~~PR #1 en ShadowHarmy~~ — ver checklist Fase 1 completa.
+Fase 1 completada 2026-07-03. Fase 2 = conectar Bridge al testnet de Bybit.
 
 ---
 
