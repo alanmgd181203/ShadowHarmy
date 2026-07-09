@@ -23,26 +23,31 @@
     └─────────┘     └──────────┘     └────┬────┘
          │                               │
          └───────────────┬───────────────┘
+                         │
+         ┌───────────────┴───────────────┐
+         ▼                               ▼
+  ┌─────────────┐                 ┌─────────────┐
+  │    Greed    │                 │    Igris    │
+  │   (altar)   │                 │  (escudo)   │
+  │ arbitraje   │                 │    manto    │
+  └──────┬──────┘                 └──────┬──────┘
+         │                               │
+         └───────────────┬───────────────┘
                          ▼
                   ┌─────────────┐
-                  │    Greed    │  PriorityQueue + TTL
-                  │   (altar)   │  DISPARO → exchange
-                  └──────┬──────┘
-                         ▼
-                  ┌─────────────┐
-                  │    Igris    │  margen, espejos, poda
-                  │  (escudo)   │
+                  │   Bridge    │  órdenes + fill
                   └─────────────┘
 ```
 
 ## Flujo de una intención de trade
 
 1. **Tank** actualiza `MarketContext` por frente (precio, spread, volatilidad, latencia, semáforo VERDE/AMARILLO/ROJO).
-2. **Beru** / **Igris** crean `IntencionAccion` (tipo, masa, dirección, prioridad, `dedupe_key`, TTL).
-3. **Tusk** `solicitar_reserva` — valida oxígeno (`masa_autorizada`).
-4. **Greed** `arbitrar` — cola por prioridad; valida TTL y semáforo Tank; enruta a ejecutores.
-5. **Bridge** debería enviar orden y confirmar fill → hoy prototipo: **DISPARO_SIMULADO** (actualiza `pesos` en memoria).
-6. **Bellion** anota eventos; **Tusk** persiste `tusk_data.json` cada ~10s.
+2. **Beru** crea `IntencionAccion` → cola **Greed** (arbitraje, caza, cosecha spot).
+3. **Igris** decide maniobras de **manto** (poda, espejos, rebalanceo, engorde) y llama **Bridge directo** — no pasa por Greed.
+4. **Tusk** `solicitar_reserva` — valida oxígeno (`masa_autorizada`).
+5. **Greed** `arbitrar` — cola por prioridad; valida TTL y semáforo Tank; ejecuta vía Bridge.
+6. **Bridge** envía orden y confirma fill (testnet live cuando `MODO_SIMULACION=False`).
+7. **Bellion** anota eventos; **Tusk** persiste estado cada ~10s.
 
 ## Orquestación (`arise`)
 

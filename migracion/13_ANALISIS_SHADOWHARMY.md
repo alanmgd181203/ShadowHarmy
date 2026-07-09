@@ -66,9 +66,9 @@ Línea 43 `self.limpiar_legion()` — **AttributeError** si beru compilara.
 
 Código usa `red_adan`, `oz_adan`, `max_favor`; dataclass define `red`, `oz`. Funciona por atributos dinámicos pero **debe formalizarse** en `models.py`.
 
-### B-04 Greed: Igris REBALANCEO / ENGORDAR sin handler
+### B-04 Greed: Igris REBALANCEO / ENGORDAR sin handler — **CERRADO**
 
-`igris._delegar_maniobra` emite `REBALANCEO_IGRIS`, `ENGORDAR_MANTO` → Greed cae en `else` → `_ejecutar_ataque_autonomo` (simulado incorrecto).
+Igris ejecuta manto **directo en Bridge** (`generales/igris.py`). Greed solo Kaiser/VIP; `manto_touch` marca toques colaterales.
 
 ### B-05 Sin órdenes exchange
 
@@ -110,7 +110,7 @@ Bridge(WS) → Tank.nodos → Tusk.ultimo_precio
 Beru.hilo [ROTO] → IntencionAccion → Greed.altar
                 ↓
          confirmar_reserva → tusk.pesos (sim)
-Igris.vigilar → PODAR/LIMPIAR/REBALANCEO*/ENGORDAR* → Greed
+Igris.vigilar → PODAR/LIMPIAR/REBALANCEO*/ENGORDAR* → **Bridge directo**
 ```
 
 ---

@@ -1,0 +1,21 @@
+{
+    "timestamp": 1783228708.8201697,
+    "fase": "LILIT DE HIERRO V2.0.0",
+    "boveda": {
+        "pesos": {
+            "LTCUSDT_LINEAL": {
+                "long": 0.1,
+                "short": 0.1
+            }
+        },
+        "margen_ocupado": 0.0,
+        "masa_autorizada": 42.0,
+        "masa_bruta": 100.0,
+        "masa_bruta_real": 100.0,
+        "total_ciclos_consumados": 0,
+        "precio_perp": 0.0,
+        "precio_spot": 0.0
+    },
+    "legion": [],
+    "metria_margen": 0.0
+}

@@ -12,11 +12,18 @@ pip install -r requirements.txt
 #    BYBIT_API_KEY=tu_clave
 #    BYBIT_API_SECRET=tu_secreto
 #    MODO_TESTNET=True
+#    MODO_SIMULACION=True
+#    TICKER_BASE=BTC
 
-# 3. Despertar al ejército
+# 3. Validar estado (opcional, recomendado)
+python scripts/validar_checklist.py
+python scripts/validar_m2.py          # pentiverso 10 mares (~25s)
+python scripts/probar_ciclo_beru.py   # ciclo Beru CAZA→COSECHA (sim)
+
+# 4. Despertar al ejército
 python arise.py
 
-# 4. Panel visual (en otra terminal)
+# 5. Panel visual (en otra terminal)
 streamlit run panel.py
 ```
 
@@ -31,23 +38,31 @@ core/
   bridge.py           ← Ojos y manos hacia Bybit (WS + REST)
   bellion.py          ← Crónica y persistencia
   dashboard.py        ← Panel consola (legacy)
+  validacion.py       ← Gates checklist (Fases 3–4)
+  telegram.py         ← Stub Telegram (Fase 4)
 generales/
-  beru.py             ← Cazador (legión, acordeón, fusión)
-  greed.py            ← Ejecutor (altar, arbitraje, rebalanceo)
-  igris.py            ← Escudo (manto, delta, banda adaptativa)
+  beru.py             ← Cazador casa (CAZA/COSECHA directo Bridge)
+  greed.py            ← Regalo USDT×USDC dual LTC+BTC
+  igris.py            ← Escudo manto (FRENTES_MANTO_ALL)
   tusk.py             ← Bóveda (reservas, masa, NAV)
-  tank.py             ← Visión (5 mares, semáforo, capitanes)
+  tank.py             ← Visión (10 mares LTC+BTC, semáforo)
   capitanes.py        ← ADN por clima (Ansiedad, Cazador, Berserker)
+scripts/
+  validar_checklist.py
+  validar_m2.py
+  probar_ciclo_beru.py
 data/
-  estado_hierro.json  ← Snapshot del estado (Bellion)
-  estado_vivo.json    ← Estado en vivo para el panel Streamlit
+  validacion_checklist.json
+  validacion_m2.json
+  validacion_ciclo_ejercito.json
 migracion/            ← Codex operativo (planos, checklist, doctrina)
 ```
 
 ## Documentación
 
 Todo el conocimiento del ejército vive en `migracion/`:
-- `RESUMEN_EJECUTIVO.md` — estado en una página
+- `18_ARRANQUE_TESTNET.md` — runbook arranque y validación
+- `16_CHECKLIST_MAESTRO.md` — checklist por fases (0–3 ✅, 4 siguiente)
 - `16_CHECKLIST_MAESTRO.md` — qué toca hacer
 - `17_GUIA_MONARCA.md` — cómo hablar con el agente
 

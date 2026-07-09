@@ -14,6 +14,7 @@ Antes de responder en este proyecto, aplicar **`migracion/17_GUIA_MONARCA.md`**.
 - **Tono:** claro, respetuoso; ni jerga cruda ni condescendencia.
 - **Proactividad:** validar intención; proponer caminos mejores o más actuales; señalar riesgos y siguiente ítem del checklist (`16`).
 - **Traducción:** explicar cambios de código en lenguaje del Monarca al cerrar cada tarea.
+- **Formato:** explicar con párrafos y pocas secciones; no mapa mental (muchas viñetas/tables); no muro de texto. Ver sección «Formato de la respuesta» en `17_GUIA_MONARCA.md`.
 
 ## Sesión de código
 

@@ -1,0 +1,41 @@
+{
+  "ts": 1783628611.8476088,
+  "activo": "ETH",
+  "centro_usd": 3500.0,
+  "tier": "PROTO1",
+  "ok": true,
+  "escenarios": [
+    {
+      "nombre": "A_clonacion_residual",
+      "ok": true,
+      "pasos": [
+        "Capa1 SHORT @ 3528.00 masa=$50 oz=3524.50 red=3535.00",
+        "Engorde frontera red 3538.50 -> masa $55",
+        "Cosecha oz 3528.00 -> neg=1 red_residual=1 @ 3538.50",
+        "Clon Capa2 @ red_residual 3538.50 masa=$5"
+      ]
+    },
+    {
+      "nombre": "B_fusion_colision",
+      "ok": true,
+      "pasos": [
+        "Activos=1 fusionados=1",
+        "Líder ETH_NEG_A masa=$70"
+      ]
+    },
+    {
+      "nombre": "C_mega_beru",
+      "ok": true,
+      "pasos": [
+        "Mega ETH_MEGA_0 prom=5.00% masa=$105 super=True"
+      ]
+    },
+    {
+      "nombre": "D_engorde_frontera",
+      "ok": true,
+      "pasos": [
+        "Intermedio sin engorde @ red 3530.00 OK"
+      ]
+    }
+  ]
+}

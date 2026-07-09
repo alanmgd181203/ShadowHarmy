@@ -12,6 +12,8 @@ Vocabulario acordado (P0.1 **B**). Usar estos nombres en código, logs y docs.
 | **Igris** | Escudo; margen; senescal del manto |
 | **Tusk** | Tesorero; NAV; gaps; persistencia |
 | **Tank** | Hidra; radar; latencia; 5 mares |
+| **Kaiser** | Vocero interno; interpreta Tank → alertas / cola (no dispara) |
+| **Karmish** | Dragón antiguo; mundo externo / geometría — pausa |
 | **Greed** | Altar ejecutor; arbitraje; escuadrón suicida |
 | **Iron** | Arca / acumulación USDT; gaps; safe mode (histórico) |
 | **Bellion** | Auditor; mariscal; informes |

@@ -1,0 +1,16 @@
+{
+  "milestone": "M1-2.5.1",
+  "symbol": "BTCUSDT",
+  "category": "linear",
+  "env": "testnet",
+  "ticker_base": "BTC",
+  "timestamp_open": "2026-07-04T15:55:01.417901+00:00",
+  "timestamp_close": "2026-07-04T15:55:07.748369+00:00",
+  "buy_order_id": "ee46fc80-992e-4094-aa1d-9f48a18c130d",
+  "sell_order_id": "ecf03dc2-3839-4a1b-ad80-0fe472baea27",
+  "qty": "0.001",
+  "equity_before": 9994.24381862,
+  "equity_after": 9994.75749841,
+  "pnl_usd": 0.51368,
+  "open_positions_remaining": 0
+}

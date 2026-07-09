@@ -57,9 +57,17 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 ### 5. Snapshot actual
 
 - **Fase A+B:** 2026-06-30
-- **M0:** COMPLETADO — 2026-07-03 (arise.py 51s+ sin crash)
-- **Estado código:** M1 siguiente — conectar Bridge a testnet
-- **Próximo ítem:** 2.1.1 (Bridge: `place_order` con idempotencia)
+- **M0–M2:** COMPLETADO — 2026-07-05 (pentiverso dual + ciclo ejército)
+- **M2.7 Sentidos Tank:** COMPLETADO — 2026-07-05
+- **M2.8 Kaiser + Ancla + pipeline Greed:** COMPLETADO — 2026-07-05
+- **M2.9 Greed omnimercado v1:** multicruce + basis hold — 2026-07-05
+- **M2.10 Beru Proto:** capital + rail stable — 2026-07-05
+- **M2.11 Igris §E v1:** bootstrap inverse L + promedios — 2026-07-05 (Ancla maniobras pendiente)
+- **M2.12 Plan crecimiento v1:** `23_PLAN_CRECIMIENTO.md` + `plan_crecimiento.py` — checkpoint Monarca 2026-07-06
+- **Checklist global:** ~64% (100/160) · núcleo Fases 0–3 ~95%
+- **Estado código:** Fase 3 ~92% · pulir plan 23 + Fase 4 M3 ops
+- **Próximo ítem checklist:** confirmar knobs plan 23 · **3.5.8** Ancla Igris · **4.1.2** Telegram
+- **Validar:** `python scripts/validar_checklist.py` · smokes en `scripts/validar_*_smoke.py`
 
 ---
 

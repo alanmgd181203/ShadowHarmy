@@ -1,0 +1,270 @@
+{
+  "ts": 1783269342.699334,
+  "segundos": 25,
+  "matriz_spreads": {
+    "filas": [
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "OP",
+        "spread_pct": 0.3658,
+        "precio_lineal": 0.10701,
+        "precio_inverse": 0.10662,
+        "funding": 0.0001
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "BCH",
+        "spread_pct": 0.3232,
+        "precio_lineal": 239.0,
+        "precio_inverse": 238.23,
+        "funding": 0.0001
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "NEAR",
+        "spread_pct": 0.2345,
+        "precio_lineal": 1.9662,
+        "precio_inverse": 1.9616,
+        "funding": 7.554e-05
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "MNT",
+        "spread_pct": 0.2282,
+        "precio_lineal": 0.4393,
+        "precio_inverse": 0.4383,
+        "funding": 0.0001
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "UNI",
+        "spread_pct": 0.1912,
+        "precio_lineal": 3.144,
+        "precio_inverse": 3.138,
+        "funding": -9.357e-05
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "ETC",
+        "spread_pct": 0.1827,
+        "precio_lineal": 7.129,
+        "precio_inverse": 7.116,
+        "funding": 1.2e-06
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "LTC",
+        "spread_pct": 0.1776,
+        "precio_lineal": 45.12,
+        "precio_inverse": 45.04,
+        "funding": 0.0001
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "LINK",
+        "spread_pct": 0.1765,
+        "precio_lineal": 7.948,
+        "precio_inverse": 7.934,
+        "funding": -2.772e-05
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "XLM",
+        "spread_pct": 0.1708,
+        "precio_lineal": 0.19945,
+        "precio_inverse": 0.19911,
+        "funding": 0.0001
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "AAVE",
+        "spread_pct": 0.1684,
+        "precio_lineal": 89.21,
+        "precio_inverse": 89.06,
+        "funding": -6.673e-05
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "APT",
+        "spread_pct": 0.1599,
+        "precio_lineal": 0.6262,
+        "precio_inverse": 0.6252,
+        "funding": 9.93e-05
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "SUI",
+        "spread_pct": 0.1593,
+        "precio_lineal": 0.7547,
+        "precio_inverse": 0.7535,
+        "funding": 0.0001
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "SOL",
+        "spread_pct": 0.1333,
+        "precio_lineal": 81.098,
+        "precio_inverse": 80.99,
+        "funding": -6.344e-05
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "AVAX",
+        "spread_pct": 0.1301,
+        "precio_lineal": 6.925,
+        "precio_inverse": 6.916,
+        "funding": 5.416e-05
+      },
+      {
+        "tipo": "spot_vs_perp",
+        "base": "UNI",
+        "spread_pct": 0.1272,
+        "precio_spot": 3.148,
+        "precio_perp": 3.144,
+        "funding": -9.357e-05
+      },
+      {
+        "tipo": "spot_vs_perp",
+        "base": "DOT",
+        "spread_pct": 0.1256,
+        "precio_spot": 0.8767,
+        "precio_perp": 0.8756,
+        "funding": 5.794e-05
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "DOGE",
+        "spread_pct": 0.1171,
+        "precio_lineal": 0.07698,
+        "precio_inverse": 0.07689,
+        "funding": -0.00010255
+      },
+      {
+        "tipo": "spot_vs_perp",
+        "base": "FIL",
+        "spread_pct": 0.1148,
+        "precio_spot": 0.7852,
+        "precio_perp": 0.7843,
+        "funding": 0.0001
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "ETH",
+        "spread_pct": 0.1136,
+        "precio_lineal": 1771.96,
+        "precio_inverse": 1769.95,
+        "funding": 7.084e-05
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "ADA",
+        "spread_pct": 0.1055,
+        "precio_lineal": 0.1898,
+        "precio_inverse": 0.1896,
+        "funding": 0.0001
+      },
+      {
+        "tipo": "spot_vs_index",
+        "base": "OP",
+        "spread_pct": 0.1027,
+        "precio_spot": 0.1071,
+        "index_price": 0.10699,
+        "desvio_signed_pct": -0.1027
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "BTC",
+        "spread_pct": 0.1023,
+        "precio_lineal": 62627.3,
+        "precio_inverse": 62563.32,
+        "funding": 7.646e-05
+      },
+      {
+        "tipo": "lineal_vs_inverse",
+        "base": "XRP",
+        "spread_pct": 0.097,
+        "precio_lineal": 1.1347,
+        "precio_inverse": 1.1336,
+        "funding": -0.00016983
+      },
+      {
+        "tipo": "spot_vs_perp",
+        "base": "LTC",
+        "spread_pct": 0.0887,
+        "precio_spot": 45.16,
+        "precio_perp": 45.12,
+        "funding": 0.0001
+      },
+      {
+        "tipo": "spot_vs_perp",
+        "base": "OP",
+        "spread_pct": 0.0841,
+        "precio_spot": 0.1071,
+        "precio_perp": 0.10701,
+        "funding": 0.0001
+      }
+    ],
+    "top_n": 25,
+    "funding_vivos": 698,
+    "index_vivos": 698,
+    "ts_calc": 1783269331.2873967
+  },
+  "funding": {
+    "vivos": 698,
+    "top": [
+      {
+        "base": "BTC",
+        "funding_rate": -0.02056992,
+        "funding_pct": -2.056992
+      },
+      {
+        "base": "BTC",
+        "funding_rate": 0.00535621,
+        "funding_pct": 0.535621
+      },
+      {
+        "base": "BTC",
+        "funding_rate": 0.00429614,
+        "funding_pct": 0.429614
+      },
+      {
+        "base": "BTC",
+        "funding_rate": 0.00397839,
+        "funding_pct": 0.397839
+      },
+      {
+        "base": "BTC",
+        "funding_rate": 0.00334835,
+        "funding_pct": 0.334835
+      }
+    ]
+  },
+  "sentidos_extra": {
+    "spread_producto": {
+      "instrumentos": 0,
+      "vivos": 0,
+      "ts": 1783269308.1518705,
+      "top": []
+    },
+    "alpha": {
+      "tokens": 0,
+      "ts": 1783269307.8702493,
+      "muestra": []
+    },
+    "convert": {
+      "pares": 0,
+      "ts": 1783269308.1031246,
+      "muestra": []
+    },
+    "errores": {
+      "alpha": "HTTP 403: {\n     error:The Amazon CloudFront distribution is configured to block access from your country.\n}",
+      "convert": "You have breached the ip rate limit or your ip is from the usa. (ErrCode: 403) (ErrTime: 16:35:08).\nRequest \u2192 GET https://api-testnet.bybit.com/v5/asset/exchange/query-coin-list: accountType=eb_conver",
+      "spread": "You have breached the ip rate limit or your ip is from the usa. (ErrCode: 403) (ErrTime: 16:35:08).\nRequest \u2192 GET https://api-testnet.bybit.com/v5/spread/instrument: limit=500."
+    }
+  },
+  "ok_matriz": true,
+  "ok_funding": true,
+  "ok_spread_producto": true,
+  "ok_alpha": true,
+  "ok_convert": true
+}

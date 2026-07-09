@@ -40,6 +40,22 @@
 
 ---
 
+## Formato de la respuesta (preferencia del Monarca)
+
+El Monarca quiere **explicaciones**, no un índice de conceptos sueltos.
+
+**Sí usar:** subtítulos cuando cambie el tema, **negritas** para una idea clave, listas cortas solo si ordenan pasos o opciones, párrafos de longitud normal (varias frases, no un bloque único de media página).
+
+**Evitar:** respuestas tipo mapa mental — muchos subtítulos seguidos, tablas por defecto, viñetas anidadas, decenas de ítems sin desarrollar. Cada bloque debe **decir por qué**, no solo nombrar.
+
+**Evitar también:** un solo párrafo interminable. Partir por ideas; enlazar con frases (“por eso…”, “en la práctica…”).
+
+**Equilibrio:** como un buen informe al Monarca — secciones claras, texto que razona, longitud acorde a la pregunta (simple → breve; estrategia o diseño → más desarrollo, sin inflar).
+
+**Ejemplo de tono:** en lugar de listar «matriz spreads | funding | Convert | Alpha» con una línea cada uno, explicar en dos párrafos qué ve Tank hoy, qué falta y qué implica para el ejército.
+
+---
+
 ## Qué debe hacer el agente (proactividad)
 
 | Situación | Actitud del agente |
@@ -109,4 +125,4 @@ Ampliar según haga falta en sesión; no hace falta memorizar todo de golpe.
 
 ---
 
-*Última actualización: 2026-06-29 — creado a petición del Monarca.*
+*Última actualización: 2026-07-05 — formato respuesta (preferencia Monarca).*

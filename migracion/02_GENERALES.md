@@ -40,6 +40,24 @@ Cada General = **un módulo Python** con un hilo async y contratos claros hacia 
 
 ---
 
+## Kaiser — Vocero interno / Guardián de indicadores
+
+**Rol:** Capa entre Tank y el resto del ejército. **No abre ojos** (eso es Tank); **interpreta** snapshots ya calculados y emite alertas tipadas + cola de prioridad.
+
+**Debe hacer:**
+- Leer snapshots Tank; producir alertas + **perfiles multietiqueta** (corto 3d, mediano 1m, largo 1a).
+- Muestrear desvíos vs precio global (índice); backfill kline para plazo largo.
+- **Metaverso:** aristas precargadas por activo; rankear rutas (regalo neto − slippage estimado).
+- Registrar alertas críticas en Bellion (cooldown). **No ejecutar órdenes.**
+
+**Manual:** “Oído de Kaiser” — filtro interno (vs Karmish = mundo externo, pausa).
+
+**Doctrina acordada:** [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md) — §0 Ancla, §1–§2 cerrados; manos pendientes §3+.
+
+**Estado código:** `generales/kaiser.py` + `core/ancla.py` — Ancla + perfiles + metaverso; **Greed cableado** (incl. multicruce); Beru fuera por doctrina.
+
+---
+
 ## Capitanes — Ganglios tácticos
 
 **Rol:** Capa entre Tank y Beru; **binario o dos opciones**, no saturar al General.
@@ -60,36 +78,43 @@ Cada General = **un módulo Python** con un hilo async y contratos claros hacia 
 
 ## Beru — Cazador / Espada del Manto
 
-**Rol:** Ejecución ofensiva; legión de `BeruShip`; acordeón asimétrico; cosecha y relevo.
+**Rol:** Spot margen (casa); legión `BeruShip`; acordeón; cosecha.
 
-**Reglas Códice firmes:**
-- Umbral venta **0.012**; si volatilidad **> 0.035** → venta automática.
-- Posiciones cortadas **sin reparación** (Iron deshabilitado como cirujano).
+**Capitanes (solo 2):** Ansiedad **1,2 %** vacío | Normal **1,6 %**.
 
-**Debe hacer:**
-- Plantar semillas / gatillos / acordeón según precio y capitanes.
-- Emitir `IntencionAccion` CAZA / COSECHA hacia Greed.
-- Modo "guerra infinita" — no distinguir simulación de real (doctrina).
+**ProtoBeru:** tiers PLENO / PROTO1 / PROTO2 — pasos oz/red y manto escalado; arranque **ETH + PROTO1 + Negociador** (~**$50** manto).
 
-**Estado código (Fase B):** `beru.py` — **no compila** (IndentationError L98); falta `limpiar_legion`. Lógica diseñada: vacío Adán, acordeón 1.1/0.9, SUPER_FUSION.
+**Rail casa:** elige USDT/USDC/USDE/USD1 vía `beru_rail.py` + Ancla. **No** multicruce (Greed).
+
+Ver [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md).
+
+**Código:** `generales/beru.py`, `core/beru_capital.py`, `core/beru_tier.py`, `scripts/validar_beru_capital_smoke.py`
 
 ---
 
 ## Igris — Escudo / Senescal del Manto
 
-**Rol:** Margen, espejos, poda quirúrgica, limpieza de posiciones reflejo.
+**Rol:** Margen, espejos, poda quirúrgica, rebalanceo L/S, engorde del manto.
 
-**Reglas Códice:**
+**Ejecución:** **directo en Bridge** (órdenes manto); **no** pasa por el altar Greed. Greed = arbitraje; Beru = casa spot.
+
+**Ciclo (1 s):** poda ≥95% → limpieza espejos >90% → bootstrap → rebalanceo delta → engorde <80%.
+
+**Config (21 §A):**
+- `RANGO_EXPANSION_MIN` 80%, `RANGO_PISO_IDEAL` 85%, `RANGO_OBJETIVO_MARGEN` 90%
+- `RANGO_LIMPIEZA_MAX` 93% (espejos), `MURO_LEY_MARCIAL` 95% (poda)
+- `FRENTES_MANTO_ALL` — pentiverso LTC+BTC (lineal + inverse).
+
+**Greed y el manto:** Greed no administra el manto; si arbitra en un frente del manto, puede mover L/S brevemente — Igris rebalancea después.
+
+**Doctrina viva:** [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) — bloques A/C pendientes Monarca.
+
+**Reglas Códice (Fase 5 — no cableadas aún):**
 - Si vol **> 0.04** y fuga por spread **> 1.5%** del valor → cierre inmediato.
 
-**Config prototipo:**
-- `RANGO_EXPANSION_MIN` 80%, `RANGO_LIMPIEZA_MAX` 90%, `MURO_LEY_MARCIAL` 95%.
+**Código:** `generales/igris.py`, `core/igris_estado.py` (métricas panel).
 
-**Manual adicional:**
-- Administra la "semilla" del manto (no solo táctico).
-- Liberación atómica / red densa en versiones Iron+Igris históricas.
-
-**Prototipo:** `ShadowHarmy/generales/igris.py` — lógica margen parcial.
+**Smoke:** `python scripts/validar_igris_smoke.py`
 
 ---
 
@@ -98,10 +123,10 @@ Cada General = **un módulo Python** con un hilo async y contratos claros hacia 
 **Rol:** **Único ejecutor material** de intenciones (juez + parte); cola prioridad; anti-duplicado.
 
 **Debe hacer:**
-- `arbitrar` loop; respetar TTL (`TTL_ORDEN_MS` ~2000 ms).
-- Escuadrón suicida: desviación USDT/USDC ≥ `UMBRAL_REGALO_SQUAD`.
-- Cosecha multiverso, poda manto, limpieza espejos.
-- **En producción:** llamar API orden + confirmar fill (hoy `DISPARO_SIMULADO`).
+- Loop Kaiser+Ancla+VIP; **multicruce spot** 3–4 piernas (USDC/MNT/EUR vía `greed_multicruce.py`).
+- Escuadrón suicida USDT×USDC (legacy, apagado por defecto).
+- **No** ejecuta poda/rebalanceo/engorde del manto — eso es **Igris** (`igris.py` → Bridge).
+- Si arbitra en frente del manto, marca `toques_greed_manto` (cooldown rebalanceo Igris).
 
 **Doctrina:** Comandante exploración / mutación en tiempos de paz.
 
@@ -147,6 +172,7 @@ Marcar como **DISENO futuro** salvo promoción explícita.
 |---------|-------------------------|
 | Tusk | `generales/tusk.py` |
 | Tank | `generales/tank.py` |
+| Kaiser | `generales/kaiser.py` |
 | Beru | `generales/beru.py` |
 | Igris | `generales/igris.py` |
 | Greed | `generales/greed.py` |

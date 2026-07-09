@@ -10,13 +10,16 @@
 | D-04 | Greed es el ejecutor único vía cola prioridad |
 | D-05 | Tusk es dueño de reservas y NAV |
 | D-06 | Sin reparación Iron de posiciones cortadas (espíritu v2.3) |
-| D-07 | Fill confirmado antes de contar ejecución (REGLA-R07) — **pendiente implementar** |
+| D-07 | Fill confirmado antes de contar ejecución (REGLA-R07) — **implementado M1** |
 | D-08 | Jerarquía Telegram documentada en `06_NOTIFICACIONES.md` |
 | D-09 | Esta carpeta `migracion/` es fuente Cursor para implementación |
 | **D-10** | **Repo canónico = `C:\Users\alans\Desktop\ShadowHarmy`** — código manda |
 | **D-11** | **Sin módulo Iron** — rol en Tusk + Greed "Hierro" |
-| **D-12** | **Umbrales margen Igris 80/90/95%** — no 85% del manual |
+| **D-12** | **Umbrales margen Igris** — 80/90/95 código; **85% piso** y **90% ideal** meta despliegue; 90–93 solo Greed infla; ≥95 desinflar. Ver [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) §A |
 | **D-13** | **Beru acordeón/vacío Adán** — estrategia activa; umbral 0.012 manual → backlog |
+| **D-14** | **Kaiser ancla precio** — Igris/Beru: local Bybit + index; Greed/huérfanas: global (Binance+). Ver [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md) §1 |
+| **D-15** | **Kaiser perfiles** — mediano manda; sin DATOS_INSUFICIENTES no actuar; calor/extremos; neto positivo + entrada escalonada. Ver [`20`](20_DOCTRINA_KAISER.md) §2 |
+| **D-16** | **Ancla liquidez** — max = orderbook visible; segura = recomendación Kaiser; alertas `OPORTUNIDAD_LIQUIDEZ` sin perfiles. Ver [`20`](20_DOCTRINA_KAISER.md) §0 |
 
 ## Pendientes — humano
 
@@ -39,7 +42,7 @@ Ver [`14_ROADMAP.md`](14_ROADMAP.md) — resumen:
 |----|------|-----------|
 | T-01 | **beru.py no compila** + limpiar_legion | **M0** |
 | T-02 | Greed handlers REBALANCEO/ENGORDAR | **M0** |
-| T-03 | `place_order` + fill confirmado | **M1** |
+| T-03 | `place_order` + fill confirmado | **cerrado M1** (BTCUSDT testnet) |
 | T-04 | MODO_SIMULACION vs live | **M1** |
 | T-05 | WS 5 mares | **M2** |
 | T-06 | Telegram | **M3** |
@@ -50,7 +53,7 @@ Ver [`14_ROADMAP.md`](14_ROADMAP.md) — resumen:
 
 1. Códice MAP sin `<details>` vs sandbox con contexto Monarca.
 2. Iron en manual vs ausente en ShadowHarmy.
-3. Igris margen 80–95% vs protocolo 85% margen.
+3. ~~Igris margen 80–95% vs protocolo 85% margen.~~ → **resuelto D-12 / 21 §A** (85 = piso meta, no umbral alarma).
 4. Múltiples nombres legacy (Homunculus, Lilit, Verdugo).
 
 ## Milestone sugerido post-Fase B

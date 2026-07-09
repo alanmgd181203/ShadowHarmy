@@ -1,482 +1,464 @@
 import asyncio
 import time
-import uuid
 
-from core.models import IntencionAccion
+from core import greed_mision as mision
+from core import greed_vip as vip
+from core import mercado
 import core.config as config
+from core.manto_touch import registrar_toque_greed
+from core import greed_basis as basis
 
 
 class GreedFrancotirador:
-    def __init__(self, tusk, bellion, tank_cluster, bridge=None):
+    def __init__(self, tusk, bellion, tank_cluster, bridge=None, kaiser=None):
         """
-        Greed: El Ejecutor del Pentiverso.
-        Juez y parte en la materialización de masa y arbitraje.
+        Greed: cazador de regalos — Kaiser (Ancla+perfiles) + VIP micro-órdenes.
         """
         self.tusk = tusk
         self.bel = bellion
         self.tank = tank_cluster
         self.bridge = bridge
-        self.altar = asyncio.PriorityQueue()
-        self.dedupe_set = set()
+        self.kaiser = kaiser
+        self._ultimo_disparo = 0.0
+        self._ultimo_intento_oid: dict[str, float] = {}
+        self._vip_estado: dict[str, dict] = {}
+        self._basis_estado: dict[str, dict] = {}
 
-    # === EL ALTAR (BUCLE PRINCIPAL) ===
-
-    async def arbitrar(self):
-        """El pulso del Juez. Procesa intenciones según prioridad."""
-        print(f"[GREED] Altar activo bajo protocolo {config.FASE_ACTUAL}.")
-
-        asyncio.create_task(self._radar_escuadron_suicida())
-
+    async def vigilancia_oportunidades(self):
+        kaiser_on = getattr(config, "GREED_KAISER_ENABLED", True)
+        msg = "Kaiser+Ancla+VIP" if kaiser_on and self.kaiser else "legacy USDT×USDC"
+        print(f"[GREED] Radar {msg} ({config.FASE_ACTUAL}).")
         while True:
-            intencion = await self.altar.get()
-            self.dedupe_set.discard(intencion.dedupe_key)
+            if kaiser_on and self.kaiser:
+                await self._radar_kaiser()
+            elif getattr(config, "GREED_LEGACY_SQUAD_ENABLED", False):
+                await self._radar_escuadron_suicida()
+            await asyncio.sleep(float(getattr(config, "GREED_LOOP_INTERVAL_S", 0.15)))
 
-            if not self._es_valida_internamente(intencion):
-                if intencion.tipo not in ["COSECHA", "PODAR_MANTO", "LIMPIAR_ESPEJOS"]:
-                    await self.tusk.liberar_reserva(intencion.uid)
-                self.altar.task_done()
-                continue
+    def _tank_semaforo(self) -> str:
+        lider = self.tank._obtener_lider_verde()
+        return lider.estado_foco if lider else "ROJO"
 
-            ctx_map, estado_semaforo = await self.tank.vision_especulativa()
-            if estado_semaforo in ["GLITCH_DETECTADO", "ROJO"]:
-                if intencion.tipo not in ["COSECHA", "PODAR_MANTO", "LIMPIAR_ESPEJOS"]:
-                    await self.tusk.liberar_reserva(intencion.uid)
-                self.altar.task_done()
-                continue
+    def _abortadas_oids(self, slice_greed: dict) -> set[str]:
+        out: set[str] = set()
+        for ab in slice_greed.get("abortadas") or []:
+            out.add(mision.oid_oportunidad(ab))
+        return out
 
-            # Enrutamiento Táctico
-            if intencion.general == "BERU":
-                if intencion.tipo == "CAZA":
-                    await self._ejecutar_caza_multiverse(intencion, ctx_map)
-                elif intencion.tipo == "COSECHA":
-                    await self._ejecutar_cosecha_multiverse(intencion, ctx_map)
-            elif intencion.general == "IGRIS":
-                if intencion.tipo == "PODAR_MANTO":
-                    await self._ejecutar_poda_cirugia(intencion, ctx_map)
-                elif intencion.tipo == "LIMPIAR_ESPEJOS":
-                    await self._ejecutar_limpieza_espejos(intencion, ctx_map)
-                elif intencion.tipo == "REBALANCEO_IGRIS":
-                    await self._ejecutar_rebalanceo(intencion, ctx_map)
-                elif intencion.tipo == "ENGORDAR_MANTO":
-                    await self._ejecutar_engorde_manto(intencion, ctx_map)
-                else:
-                    await self.tusk.liberar_reserva(intencion.uid)
-            else:
-                await self._ejecutar_ataque_autonomo(intencion, ctx_map)
+    def _limpiar_vip_abortadas(self, abort_oids: set[str]) -> None:
+        for oid in list(self._vip_estado.keys()):
+            if oid in abort_oids:
+                del self._vip_estado[oid]
 
-            self.altar.task_done()
-
-    # === BANDA ADAPTATIVA (CANDADO DE DELTA) ===
-
-    def _calcular_banda(self):
-        """Banda general de tolerancia al desbalance según margen usado."""
-        margen = self.tusk.margen_ocupado
-        if margen <= config.DELTA_MARGEN_RELAJADO:
-            tolerancia = config.DELTA_TOLERANCIA_MAX
-        elif margen >= config.DELTA_MARGEN_PARANOICO:
-            tolerancia = 0.0
-        else:
-            progreso = (margen - config.DELTA_MARGEN_RELAJADO) / (config.DELTA_MARGEN_PARANOICO - config.DELTA_MARGEN_RELAJADO)
-            tolerancia = config.DELTA_TOLERANCIA_MAX * (1.0 - progreso)
-        return (0.50 - tolerancia, 0.50 + tolerancia)
-
-    def _calcular_banda_frente(self, frente):
-        """
-        Banda por frente: banda general × factor de personalidad (slippage).
-        Monedas calientes tienen banda más apretada.
-        """
-        margen = self.tusk.margen_ocupado
-        if margen <= config.DELTA_MARGEN_RELAJADO:
-            tolerancia_base = config.DELTA_TOLERANCIA_MAX
-        elif margen >= config.DELTA_MARGEN_PARANOICO:
-            tolerancia_base = 0.0
-        else:
-            progreso = (margen - config.DELTA_MARGEN_RELAJADO) / (config.DELTA_MARGEN_PARANOICO - config.DELTA_MARGEN_RELAJADO)
-            tolerancia_base = config.DELTA_TOLERANCIA_MAX * (1.0 - progreso)
-
-        factor = config.SLIPPAGE_FACTOR.get(frente, config.SLIPPAGE_FACTOR_DEFAULT)
-        tolerancia = tolerancia_base * factor
-        return (0.50 - tolerancia, 0.50 + tolerancia)
-
-    def _verificar_delta_post_maniobra(self, masa_long_nueva, masa_short_nueva):
-        """Verifica si tras una maniobra el ratio queda dentro de banda general."""
-        total = masa_long_nueva + masa_short_nueva
-        if total <= 0:
-            return True
-        ratio = masa_long_nueva / total
-        banda_min, banda_max = self._calcular_banda()
-        return banda_min <= ratio <= banda_max
-
-    def _verificar_delta_frente(self, frente, masa_long_frente, masa_short_frente):
-        """Verifica que un frente específico no exceda su banda local."""
-        total = masa_long_frente + masa_short_frente
-        if total <= 0:
-            return True
-        ratio = masa_long_frente / total
-        banda_min, banda_max = self._calcular_banda_frente(frente)
-        return banda_min <= ratio <= banda_max
-
-    # === REBALANCEO IGRIS ===
-
-    async def _ejecutar_rebalanceo(self, intencion, ctx_map):
-        """
-        Rebalanceo inteligente: evalúa reducir el lado pesado vs abrir en el flaco.
-        Elige la opción con mejor precio. Respeta banda adaptativa.
-        Puede hacer ambas patas si conviene.
-        """
-        frentes_disponibles = ["LTCUSD_INVERSE", "LTCUSDT_LINEAL", "LTCUSDC_LINEAL"]
-        peso_l = sum(f["long"] for f in self.tusk.pesos.values())
-        peso_s = sum(f["short"] for f in self.tusk.pesos.values())
-        masa_disponible = intencion.masa
-
-        # Dirección que Igris pidió reforzar
-        dir_refuerzo = intencion.direccion
-        dir_reducir = "SHORT" if dir_refuerzo == "LONG" else "LONG"
-        dir_key_reducir = "short" if dir_refuerzo == "LONG" else "long"
-
-        # Opción A: Reducir el lado pesado (cerrar del gordo)
-        frentes_pesados = {f: p[dir_key_reducir] for f, p in self.tusk.pesos.items() if p[dir_key_reducir] > 0}
-        puede_reducir = len(frentes_pesados) > 0
-
-        # Opción B: Abrir en el lado flaco (mejor precio)
-        _, precio_apertura = self._escanear_mejor_precio(frentes_disponibles, ctx_map, masa_disponible, dir_refuerzo == "LONG")
-        puede_abrir = precio_apertura > 0
-
-        masa_aplicada = 0.0
-
-        # Intentar reducir del lado pesado
-        if puede_reducir:
-            frente_gordo = max(frentes_pesados, key=frentes_pesados.get)
-            masa_reduccion = min(masa_disponible * 0.5, frentes_pesados[frente_gordo])
-
-            # Simular el resultado
-            nuevo_l = peso_l - (masa_reduccion if dir_key_reducir == "long" else 0)
-            nuevo_s = peso_s - (masa_reduccion if dir_key_reducir == "short" else 0)
-
-            if self._verificar_delta_post_maniobra(nuevo_l, nuevo_s) and masa_reduccion > 0:
-                self.tusk.pesos[frente_gordo][dir_key_reducir] -= masa_reduccion
-                masa_aplicada += masa_reduccion
-                peso_l, peso_s = nuevo_l, nuevo_s
-                await self.bel.anotar("GREED", "REBALANCEO_CORTE", f"Reducido {masa_reduccion:.4f} {dir_reducir} de {frente_gordo}")
-
-        # Intentar abrir en el lado flaco con lo que queda
-        masa_restante = masa_disponible - masa_aplicada
-        if puede_abrir and masa_restante > 0:
-            mejor_f, _ = self._escanear_mejor_precio(frentes_disponibles, ctx_map, masa_restante, dir_refuerzo == "LONG")
-            dir_key_abrir = "long" if dir_refuerzo == "LONG" else "short"
-
-            nuevo_l = peso_l + (masa_restante if dir_refuerzo == "LONG" else 0)
-            nuevo_s = peso_s + (masa_restante if dir_refuerzo == "SHORT" else 0)
-
-            if self._verificar_delta_post_maniobra(nuevo_l, nuevo_s):
-                await self.tusk.confirmar_reserva(intencion.uid, mejor_f, dir_refuerzo)
-                await self.bel.anotar("GREED", "REBALANCEO_APERTURA", f"Abierto {masa_restante:.4f} {dir_refuerzo} en {mejor_f}")
-                return
-
-        # Si no pudo abrir, liberar lo que sobre
-        await self.tusk.liberar_reserva(intencion.uid)
-
-    # === ENGORDAR MANTO ===
-
-    async def _ejecutar_engorde_manto(self, intencion, ctx_map):
-        """
-        Engorda el manto: abre posición en la dirección indicada por Igris.
-        Sin crear BeruShip — solo mueve masa en Tusk.
-        Respeta banda general + banda por frente (personalidad slippage).
-        """
-        frentes_disponibles = ["LTCUSD_INVERSE", "LTCUSDT_LINEAL", "LTCUSDC_LINEAL"]
-        peso_l = sum(f["long"] for f in self.tusk.pesos.values())
-        peso_s = sum(f["short"] for f in self.tusk.pesos.values())
-        masa = intencion.masa
-        dir_principal = intencion.direccion
-
-        # Simular apertura solo en la dirección pedida
-        nuevo_l = peso_l + (masa if dir_principal == "LONG" else 0)
-        nuevo_s = peso_s + (masa if dir_principal == "SHORT" else 0)
-
-        if self._verificar_delta_post_maniobra(nuevo_l, nuevo_s):
-            mejor_f, _ = self._escanear_mejor_precio(frentes_disponibles, ctx_map, masa, dir_principal == "LONG")
-
-            # Verificar banda local del frente elegido
-            pesos_f = self.tusk.pesos.get(mejor_f, {"long": 0.0, "short": 0.0})
-            fl = pesos_f["long"] + (masa if dir_principal == "LONG" else 0)
-            fs = pesos_f["short"] + (masa if dir_principal == "SHORT" else 0)
-
-            if self._verificar_delta_frente(mejor_f, fl, fs):
-                await self.tusk.confirmar_reserva(intencion.uid, mejor_f, dir_principal)
-                await self.bel.anotar("GREED", "ENGORDE", f"+{masa:.4f} {dir_principal} en {mejor_f}")
-                return
-
-        # Si no cabe en una dirección, dividir entre ambas
-        mitad = masa * 0.5
-        mejor_f_l, _ = self._escanear_mejor_precio(frentes_disponibles, ctx_map, mitad, True)
-        mejor_f_s, _ = self._escanear_mejor_precio(frentes_disponibles, ctx_map, mitad, False)
-
-        nuevo_l_mix = peso_l + mitad
-        nuevo_s_mix = peso_s + mitad
-
-        if self._verificar_delta_post_maniobra(nuevo_l_mix, nuevo_s_mix):
-            # Verificar banda local de ambos frentes
-            pf_l = self.tusk.pesos.get(mejor_f_l, {"long": 0.0, "short": 0.0})
-            pf_s = self.tusk.pesos.get(mejor_f_s, {"long": 0.0, "short": 0.0})
-
-            ok_l = self._verificar_delta_frente(mejor_f_l, pf_l["long"] + mitad, pf_l["short"])
-            ok_s = self._verificar_delta_frente(mejor_f_s, pf_s["long"], pf_s["short"] + mitad)
-
-            if ok_l and ok_s:
-                await self.tusk.confirmar_reserva(intencion.uid, mejor_f_l, "LONG")
-                uid_mitad = f"{intencion.uid}_S"
-                if await self.tusk.solicitar_reserva(uid_mitad, mitad, "GREED", "SHORT"):
-                    await self.tusk.confirmar_reserva(uid_mitad, mejor_f_s, "SHORT")
-                await self.bel.anotar("GREED", "ENGORDE_DUAL", f"+{mitad:.4f} L en {mejor_f_l} | +{mitad:.4f} S en {mejor_f_s}")
-                return
-
-        await self.tusk.liberar_reserva(intencion.uid)
-        await self.bel.anotar("GREED", "ENGORDE_BLOQUEADO", "Banda general o local no permite crecer")
-
-    # === RADAR DEL ESCUADRÓN SUICIDA ===
-
-    async def _radar_escuadron_suicida(self):
-        """Busca ineficiencias de precio (regalos) para disparos autónomos."""
-        while True:
-            ctx_map, estado = await self.tank.vision_especulativa()
-
-            if estado == "VERDE_SEGURO":
-                p_usdt = ctx_map.get("LTCUSDT_LINEAL").last_price
-                p_usdc = ctx_map.get("LTCUSDC_LINEAL").last_price
-
-                if p_usdt > 0.0 and p_usdc > 0.0:
-                    desviacion = abs(p_usdt - p_usdc) / p_usdt
-
-                    if desviacion >= config.UMBRAL_REGALO_SQUAD and self.tusk.masa_autorizada > 0.0:
-                        uid_regalo = f"SUICIDE_{int(time.time())}"
-                        direccion = "SHORT" if p_usdc > p_usdt else "LONG"
-
-                        intencion = IntencionAccion(
-                            prioridad=0, uid=uid_regalo, general="GREED_SQUAD",
-                            tipo="ATAQUE_OPORTUNISTA", masa=self.tusk.masa_autorizada * 0.5,
-                            direccion=direccion
-                        )
-
-                        if await self.tusk.solicitar_reserva(uid_regalo, intencion.masa, "GREED"):
-                            await self.altar.put(intencion)
-                            await self.bel.anotar("GREED", "ESCUADRON_SUICIDA", f"Botín detectado: {desviacion*100:.2f}%")
-
-            await asyncio.sleep(0.1)
-
-    # === MANIOBRAS DE ALIVIO (PODA Y ESPEJOS) ===
-
-    async def _ejecutar_poda_cirugia(self, intencion, ctx_map):
-        """Reduce peso en el muelle más saturado para recuperar margen."""
-        dir_key = "long" if intencion.direccion == "LONG" else "short"
-        frentes_activos = {f: p[dir_key] for f, p in self.tusk.pesos.items() if p[dir_key] > 0}
-
-        if not frentes_activos:
-            await self.tusk.liberar_reserva(intencion.uid)
+    async def _radar_kaiser(self):
+        semaforo = self._tank_semaforo()
+        equity = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0)
+        pausa, _ = mision.vetos_globales(
+            tank_semaforo=semaforo,
+            margen_ocupado_pct=float(self.tusk.margen_ocupado),
+            equity=equity,
+        )
+        if pausa:
             return
 
-        mejor_frente = max(frentes_activos, key=frentes_activos.get)
-        masa_extraida = min(intencion.masa, self.tusk.pesos[mejor_frente][dir_key])
+        slice_g = self.kaiser.consumir_greed()
+        digest = self.kaiser.snapshot()
+        vivas = slice_g.get("oportunidades_vivas") or []
+        abort_oids = self._abortadas_oids(slice_g)
+        self._limpiar_vip_abortadas(abort_oids)
 
-        # En modo live: orden de reducción real
-        if not config.MODO_SIMULACION and self.bridge:
-            side = "Sell" if dir_key == "long" else "Buy"
-            symbol = self._frente_a_symbol(mejor_frente)
-            resultado = await self.bridge.place_order(symbol, side, masa_extraida, order_type="Market")
+        if not vivas and not self._vip_estado and not self._basis_estado:
+            return
 
-            if not resultado.exito:
-                await self.tusk.liberar_reserva(intencion.uid)
-                await self.bel.anotar("GREED", "PODA_ORDEN_FALLIDA", resultado.mensaje)
-                return
+        await self._procesar_salidas_basis(vivas)
 
-            fill = await self.bridge.esperar_fill(symbol, order_id=resultado.order_id, timeout_s=30)
-            if not fill.exito:
-                await self.tusk.liberar_reserva(intencion.uid)
-                await self.bel.anotar("GREED", "PODA_SIN_FILL", f"Timeout para {resultado.order_id}")
-                return
+        cooldown = float(getattr(config, "GREED_REINTENTO_COOLDOWN_S", 2.0))
+        ahora = time.time()
 
-        self.tusk.pesos[mejor_frente][dir_key] -= masa_extraida
-
-        await self.tusk.liberar_reserva(intencion.uid)
-        await self.bel.anotar("GREED", "PODA", f"Extirpados {masa_extraida:.4f} LTC de {mejor_frente}")
-
-    async def _ejecutar_limpieza_espejos(self, intencion, ctx_map):
-        """Cancela masa enfrentada (L/S) para optimizar la Masa Bruta."""
-        m_l = max(self.tusk.pesos, key=lambda f: self.tusk.pesos[f]["long"])
-        m_s = max(self.tusk.pesos, key=lambda f: self.tusk.pesos[f]["short"])
-
-        limpieza_l = min(intencion.masa, self.tusk.pesos[m_l]["long"])
-        limpieza_s = min(intencion.masa, self.tusk.pesos[m_s]["short"])
-
-        # En modo live: cerrar ambos lados
-        if not config.MODO_SIMULACION and self.bridge:
-            sym_l = self._frente_a_symbol(m_l)
-            sym_s = self._frente_a_symbol(m_s)
-
-            res_l = await self.bridge.place_order(sym_l, "Sell", limpieza_l, order_type="Market")
-            res_s = await self.bridge.place_order(sym_s, "Buy", limpieza_s, order_type="Market")
-
-            if not res_l.exito or not res_s.exito:
-                await self.tusk.liberar_reserva(intencion.uid)
-                await self.bel.anotar("GREED", "ESPEJOS_ORDEN_FALLIDA", "Una o ambas patas fallaron")
-                return
-
-            await self.bridge.esperar_fill(sym_l, order_id=res_l.order_id, timeout_s=30)
-            await self.bridge.esperar_fill(sym_s, order_id=res_s.order_id, timeout_s=30)
-
-        self.tusk.pesos[m_l]["long"] -= limpieza_l
-        self.tusk.pesos[m_s]["short"] -= limpieza_s
-
-        await self.tusk.liberar_reserva(intencion.uid)
-        await self.bel.anotar("GREED", "LIMPIEZA", f"Espejos reducidos: {min(limpieza_l, limpieza_s):.4f} LTC.")
-
-    # === LOGÍSTICA DE COMBATE (CAZA Y COSECHA) ===
-
-    async def _ejecutar_cosecha_multiverse(self, intencion, ctx_map):
-        """Cosecha justificada con retorno táctico al combate si no hay botín."""
-        barco = intencion.barco_ref
-        is_long_cosecha = not (barco.direccion == "LONG")
-
-        mejor_frente, p_ef = self._escanear_mejor_precio(
-            ["LTCUSD_INVERSE", "LTCUSDT_LINEAL", "LTCUSDC_LINEAL"],
-            ctx_map, intencion.masa, is_long_cosecha
+        planes = mision.planes_desde_kaiser(
+            digest,
+            vivas,
+            equity=equity,
+            margen_ocupado_pct=float(self.tusk.margen_ocupado),
+            masa_autorizada=float(self.tusk.masa_autorizada),
+            tank_semaforo=semaforo,
+            abortadas_oids=abort_oids,
+            vip_oids_activos=set(self._vip_estado.keys()),
+        )
+        oids_basis = set(self._basis_estado.keys())
+        planes = [
+            p for p in planes
+            if not (p.get("es_basis") and p.get("oid") in oids_basis)
+        ]
+        if len(self._basis_estado) >= basis.max_holds_abiertos():
+            planes = [p for p in planes if not p.get("es_basis")]
+        margen = float(self.tusk.margen_ocupado)
+        planes = mision.filtrar_planes_ley_marcial(
+            planes, margen, vip_oids_activos=set(self._vip_estado.keys()),
         )
 
-        beneficio = abs(p_ef - barco.precio_entrada_real) / barco.precio_entrada_real if barco.precio_entrada_real > 0 else 0
+        # Continuar misiones VIP activas aunque no estén en top planes
+        oids_en_planes = {p["oid"] for p in planes}
+        for oid, estado in list(self._vip_estado.items()):
+            if oid not in oids_en_planes and oid not in abort_oids:
+                op = mision.op_viva_por_oid(vivas, oid)
+                if op:
+                    plan = mision.resolver_plan(
+                        op, digest,
+                        equity=equity,
+                        margen_ocupado_pct=float(self.tusk.margen_ocupado),
+                        masa_autorizada=float(self.tusk.masa_autorizada),
+                        tank_semaforo=semaforo,
+                    )
+                    if plan.get("ok") and plan.get("es_vip"):
+                        planes.insert(0, plan)
 
-        if beneficio < config.UMBRAL_COSECHA_MIN:
-            barco.estado = "NEGOCIANDO"
-            await self.bel.anotar("GREED", "PACIENCIA", f"Beneficio {beneficio*100:.2f}% insuficiente. Retornando a combate.")
+        if not planes:
             return
 
-        if await self.tusk.solicitar_reserva(intencion.uid, intencion.masa, "GREED", "LONG" if is_long_cosecha else "SHORT"):
-            # --- MODO LIVE: cierre real por Bridge ---
-            if not config.MODO_SIMULACION and self.bridge:
-                side = "Sell" if barco.direccion == "LONG" else "Buy"
-                symbol = self._frente_a_symbol(mejor_frente)
-                resultado = await self.bridge.place_order(symbol, side, intencion.masa, order_type="Market")
+        # Ley marcial: sin planes VIP y sin estado VIP activo → radar inerte
+        if margen >= float(getattr(config, "MURO_LEY_MARCIAL", 95.0)):
+            if not self._vip_estado and not any(p.get("es_vip") for p in planes):
+                return
 
-                if not resultado.exito:
-                    await self.tusk.liberar_reserva(intencion.uid)
-                    await self.bel.anotar("GREED", "COSECHA_ORDEN_FALLIDA", resultado.mensaje)
-                    barco.estado = "NEGOCIANDO"
-                    return
-
-                fill = await self.bridge.esperar_fill(symbol, order_id=resultado.order_id, timeout_s=60)
-                if not fill.exito:
-                    await self.tusk.liberar_reserva(intencion.uid)
-                    await self.bel.anotar("GREED", "COSECHA_SIN_FILL", f"Timeout para {resultado.order_id}")
-                    barco.estado = "NEGOCIANDO"
-                    return
-
-                p_ef = fill.datos.get("avgPrice", p_ef)
-
-            await self.tusk.consumar_cosecha_atomica(intencion.uid, mejor_frente, barco)
-
-            barco.frente_salida = mejor_frente
-            barco.precio_salida_real = p_ef
-            barco.estado = "COSECHADO"
-
-            await self.bel.anotar("GREED", "COSECHA", f"Botín asegurado @ {beneficio*100:.2f}%")
-
-    async def _ejecutar_caza_multiverse(self, intencion, ctx_map):
-        """Materializa el acecho de Beru en el mejor muelle disponible."""
-        is_long = intencion.direccion == "LONG"
-        mejor_f, p_ef = self._escanear_mejor_precio(["LTCUSD_INVERSE", "LTCUSDT_LINEAL", "LTCUSDC_LINEAL"], ctx_map, intencion.masa, is_long)
-
-        # Verificar banda del frente antes de anclar
-        pesos_frente = self.tusk.pesos.get(mejor_f, {"long": 0.0, "short": 0.0})
-        nuevo_l = pesos_frente["long"] + (intencion.masa if is_long else 0)
-        nuevo_s = pesos_frente["short"] + (intencion.masa if not is_long else 0)
-
-        if not self._verificar_delta_frente(mejor_f, nuevo_l, nuevo_s):
-            await self.tusk.liberar_reserva(intencion.uid)
-            await self.bel.anotar("GREED", "CAZA_BLOQUEADA", f"Banda de {mejor_f} no permite {intencion.direccion}")
+        global_cd = float(getattr(config, "GREED_DISPARO_COOLDOWN_S", 1.0))
+        if (ahora - self._ultimo_disparo) < global_cd:
             return
 
-        # --- MODO LIVE: orden real por Bridge ---
-        if not config.MODO_SIMULACION and self.bridge:
-            side = "Buy" if is_long else "Sell"
-            symbol = self._frente_a_symbol(mejor_f)
-            resultado = await self.bridge.place_order(symbol, side, intencion.masa, order_type="Market")
-
-            if not resultado.exito:
-                await self.tusk.liberar_reserva(intencion.uid)
-                await self.bel.anotar("GREED", "CAZA_ORDEN_FALLIDA", resultado.mensaje)
-                return
-
-            fill = await self.bridge.esperar_fill(symbol, order_id=resultado.order_id, timeout_s=60)
-            if not fill.exito:
-                await self.tusk.liberar_reserva(intencion.uid)
-                await self.bel.anotar("GREED", "CAZA_SIN_FILL", f"Timeout para {resultado.order_id}")
-                return
-
-            p_ef = fill.datos.get("avgPrice", p_ef)
-            await self.tusk.confirmar_reserva(intencion.uid, mejor_f, intencion.direccion, fill_confirmado=True)
-        else:
-            # --- MODO SIMULACIÓN: confirma directo ---
-            await self.tusk.confirmar_reserva(intencion.uid, mejor_f, intencion.direccion)
-
-        if intencion.barco_ref:
-            intencion.barco_ref.frente_asignado = mejor_f
-            intencion.barco_ref.precio_entrada_real = p_ef
-            intencion.barco_ref.estado = "NEGOCIANDO"
-        await self.bel.anotar("GREED", "CAZA", f"Anclado en {mejor_f} @ {p_ef:.2f}")
-
-    # === CEREBRO DE ARBITRAJE Y PRECIOS ===
-
-    def _escanear_mejor_precio(self, frentes, ctx_map, masa, is_long):
-        """Analiza los frentes y penaliza según la profundidad del muro."""
-        analisis = {}
-        for f in frentes:
-            ctx = ctx_map.get(f)
-            if not ctx or ctx.last_price <= 0:
+        max_int = int(getattr(config, "GREED_MAX_INTENTOS_POR_CICLO", 1))
+        intentos = 0
+        for plan in planes:
+            if intentos >= max_int:
+                break
+            oid = plan["oid"]
+            if (ahora - self._ultimo_intento_oid.get(oid, 0)) < cooldown:
                 continue
-            muro = ctx.muro_ask_volumen if is_long else ctx.muro_bid_volumen
-            penalidad = 0.0001 if muro > (masa * 10) else 0.0015
-            p_ef = ctx.last_price * (1 + penalidad) if is_long else ctx.last_price * (1 - penalidad)
-            analisis[f] = p_ef
-        if not analisis:
-            return "LTCUSDT_LINEAL", 0.0
-        ganador = min(analisis, key=analisis.get) if is_long else max(analisis, key=analisis.get)
-        return ganador, analisis[ganador]
+            if plan.get("es_vip"):
+                await self._ejecutar_plan_vip(plan, vivas)
+            elif plan.get("modo") == "BASIS_HOLD" or plan.get("es_basis"):
+                await self._ejecutar_entrada_basis(plan)
+            else:
+                await self._ejecutar_plan_normal(plan)
+            self._ultimo_intento_oid[oid] = time.time()
+            self._ultimo_disparo = time.time()
+            intentos += 1
 
-    def _es_valida_internamente(self, intencion: IntencionAccion) -> bool:
-        """Verifica si el contrato aún es aire fresco según config.py."""
-        return (time.time() - intencion.timestamp) * 1000 <= config.TTL_ORDEN_MS
+        self.tusk.greed_basis_abiertos = basis.resumen_holds(self._basis_estado)
 
-    def _frente_a_symbol(self, frente):
-        """Traduce el nombre interno del frente al símbolo Bybit."""
-        mapa = {
-            "LTCUSDT_LINEAL": "LTCUSDT",
-            "LTCUSDC_LINEAL": "LTCUSDC",
-            "LTCUSD_INVERSE": "LTCUSD",
-            "LTCUSDT_SPOT": "LTCUSDT",
-            "LTCUSDC_SPOT": "LTCUSDC",
-        }
-        return mapa.get(frente, "LTCUSDT")
+    async def _procesar_salidas_basis(self, vivas: list[dict]):
+        for oid, hold in list(self._basis_estado.items()):
+            op = mision.op_basis_por_hold(hold, vivas)
+            salir, motivo = basis.debe_salir_basis(hold, op)
+            registrar_toque_greed(self.tusk, hold.get("frentes") or [], motivo="BASIS_HOLD")
+            if not salir:
+                continue
+            await self._ejecutar_salida_basis(hold, motivo)
+            self._basis_estado.pop(oid, None)
 
-    # === ATAQUE SIMULADO ===
+    async def _ejecutar_entrada_basis(self, plan: dict):
+        if len(self._basis_estado) >= basis.max_holds_abiertos():
+            return
+        oid = plan["oid"]
+        if oid in self._basis_estado:
+            return
+        notional = float(plan["notional_usd"])
+        piernas = plan.get("piernas_entrada") or plan.get("piernas") or []
+        if len(piernas) < 2:
+            return
+        uid = f"BASIS_IN_{plan['base']}_{int(time.time() * 1000)}"
+        if not await self.tusk.solicitar_reserva(uid, notional, "GREED", "LONG"):
+            return
+        await self.bel.anotar(
+            "GREED", "BASIS_ENTRADA",
+            f"{plan['tipo_spread']} {plan['base']} ${notional:.2f} spread {plan.get('op', {}).get('spread_bruto_pct', 0):.2f}%",
+        )
+        sim = config.MODO_SIMULACION or not self.bridge
+        ok = await self._ejecutar_piernas(uid, notional, piernas, simulado=sim, tag="BASIS_ENTRADA")
+        if not ok:
+            return
+        hold = basis.crear_hold(plan, plan.get("op") or {})
+        self._basis_estado[oid] = hold
+        registrar_toque_greed(self.tusk, hold.get("frentes") or [], motivo="BASIS_HOLD")
 
-    async def _ejecutar_ataque_autonomo(self, intencion, ctx_map):
-        """Ataque de Hierro: disparo simulado (solo en MODO_SIMULACION=True)."""
-        if not config.MODO_SIMULACION:
-            await self.bel.anotar("GREED", "DISPARO_BLOQUEADO",
-                                  "MODO_SIMULACION=False → no se permiten disparos simulados")
-            await self.tusk.liberar_reserva(intencion.uid)
+    async def _ejecutar_salida_basis(self, hold: dict, motivo: str):
+        notional = float(hold.get("notional_usd") or hold.get("deployed_usd") or 0)
+        piernas = hold.get("piernas_salida") or []
+        if not piernas or notional <= 0:
+            return
+        uid = f"BASIS_OUT_{hold['base']}_{int(time.time() * 1000)}"
+        if not await self.tusk.solicitar_reserva(uid, notional, "GREED", "SHORT"):
+            return
+        spread_ent = float(hold.get("spread_entrada_pct") or 0)
+        await self.bel.anotar(
+            "GREED", "BASIS_SALIDA",
+            f"{hold['tipo_spread']} {hold['base']} ${notional:.2f} | {motivo} | spread_ent {spread_ent:.2f}%",
+        )
+        sim = config.MODO_SIMULACION or not self.bridge
+        await self._ejecutar_piernas(uid, notional, piernas, simulado=sim, tag="BASIS_SALIDA")
+
+    async def _ejecutar_plan_normal(self, plan: dict):
+        notional = float(plan["notional_usd"])
+        piernas = plan.get("piernas") or (plan.get("op") or {}).get("piernas")
+        base = plan["base"]
+        tipo = plan["tipo_spread"]
+        m = plan.get("mordida") or {}
+
+        uid = f"GREED_{base}_{int(time.time() * 1000)}"
+        if not await self.tusk.solicitar_reserva(uid, notional, "GREED", "LONG"):
             return
 
-        try:
-            ahora = time.time()
+        if piernas and len(piernas) > 2:
+            ruta = plan.get("via_quote") or plan.get("ruta_id") or tipo
+            await self.bel.anotar(
+                "GREED", "MISION_MULTICRUCE",
+                f"{tipo} {base} via {ruta} ${notional:.2f} | "
+                f"{len(piernas)} piernas | calor {m.get('calor', 0):.2f}",
+            )
+            sim = config.MODO_SIMULACION or not self.bridge
+            await self._ejecutar_piernas(uid, notional, piernas, simulado=sim)
+            return
 
-            if hasattr(self, '_ultima_recarga') and (ahora - self._ultima_recarga) < 10:
-                return
+        frente_buy = plan["frente_long"]
+        frente_sell = plan["frente_short"]
+        await self.bel.anotar(
+            "GREED", "MISION_KAISER",
+            f"{tipo} {base} ${notional:.2f} | calor {m.get('calor', 0):.2f} "
+            f"frac {m.get('fraccion', 0):.2f} | buy:{frente_buy} sell:{frente_sell}",
+        )
+        sim = config.MODO_SIMULACION or not self.bridge
+        await self._ejecutar_dos_piernas(uid, notional, frente_buy, frente_sell, simulado=sim)
 
-            mensaje = f"Impacto de Hierro | Masa: {intencion.masa:.4f} LTC | Dir: {intencion.direccion}"
-            await self.bel.anotar("GREED", "DISPARO_SIMULADO", mensaje)
+    async def _ejecutar_plan_vip(self, plan: dict, vivas: list[dict]):
+        oid = plan["oid"]
+        op = mision.op_viva_por_oid(vivas, oid) or plan["op"]
+        ruta = plan.get("ruta_idonea")
+        neto = vip.neto_efectivo_ruta(op, ruta)
 
-            self._ultima_recarga = ahora
-            await self.tusk.liberar_reserva(intencion.uid)
+        if not vip.debe_continuar(neto):
+            await self.bel.anotar(
+                "GREED", "VIP_STOP",
+                f"{oid} neto {neto:.2f}% < {vip.neto_continuar_min()}%",
+            )
+            self._vip_estado.pop(oid, None)
+            return
 
-        except Exception as e:
-            await self.bel.anotar("GREED", "ERROR_DISPARO", str(e))
+        equity = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0)
+        estado = self._vip_estado.get(oid)
+        if not estado:
+            estado = vip.crear_estado_vip(
+                plan,
+                equity=equity,
+                margen_ocupado_pct=float(self.tusk.margen_ocupado),
+            )
+            self._vip_estado[oid] = estado
+            await self.bel.anotar(
+                "GREED", "VIP_INICIO",
+                f"{estado['modo']} {oid} neto {neto:.2f}% techo ${estado['techo_vip_usd']:.2f}",
+            )
+
+        if not vip.puede_escalar(estado):
+            return
+
+        micro = vip.siguiente_micro_usd(estado)
+        if micro <= 0:
+            return
+
+        base = estado["base"]
+        frente_buy = estado["frente_buy"]
+        frente_sell = estado["frente_sell"]
+        uid = f"VIP_{base}_{estado['micros_total']}_{int(time.time() * 1000)}"
+
+        if not await self.tusk.solicitar_reserva(uid, micro, "GREED", "LONG"):
+            return
+
+        sim = config.MODO_SIMULACION or not self.bridge
+        ok = await self._ejecutar_dos_piernas(
+            uid, micro, frente_buy, frente_sell, simulado=sim,
+        )
+        if not ok:
+            await self.bel.anotar("GREED", "VIP_HUMO", f"{oid} micro falló — abort resto")
+            self._vip_estado.pop(oid, None)
+            return
+
+        estado = vip.tras_fill_ok(estado, micro, neto)
+        self._vip_estado[oid] = estado
+        techo = vip.techo_activo(estado)
+        tag = "MEGA" if estado.get("mega_desbloqueado") else estado["modo"]
+        await self.bel.anotar(
+            "GREED", "VIP_MICRO",
+            f"{tag} {oid} +${micro:.2f} ({estado['sondas_ok']} sondas) "
+            f"total ${estado['deployed_usd']:.2f}/{techo:.2f} neto {neto:.2f}%",
+        )
+
+        micros_ciclo = int(getattr(config, "GREED_VIP_MICROS_POR_CICLO", 1))
+        if estado["sondas_ok"] < vip.sondas_requeridas() and micros_ciclo > 1:
+            for _ in range(micros_ciclo - 1):
+                if not vip.puede_escalar(estado) or not vip.debe_continuar(neto):
+                    break
+                await self._micro_vip_extra(estado, oid, neto, vivas)
+
+    async def _micro_vip_extra(self, estado: dict, oid: str, neto: float, vivas: list[dict]):
+        micro = vip.siguiente_micro_usd(estado)
+        uid = f"VIP_{estado['base']}_{estado['micros_total']}_{int(time.time() * 1000)}"
+        if not await self.tusk.solicitar_reserva(uid, micro, "GREED", "LONG"):
+            return
+        sim = config.MODO_SIMULACION or not self.bridge
+        ok = await self._ejecutar_dos_piernas(
+            uid, micro, estado["frente_buy"], estado["frente_sell"], simulado=sim,
+        )
+        if not ok:
+            self._vip_estado.pop(oid, None)
+            return
+        self._vip_estado[oid] = vip.tras_fill_ok(estado, micro, neto)
+
+    async def _radar_escuadron_suicida(self):
+        """
+        Legacy USDT×USDC solo pentiverso — DUPLICA Kaiser+matriz usdt_vs_usdc.
+        Mantener APAGADO (GREED_LEGACY_SQUAD_ENABLED=false). No es Beru; es arbitraje Greed.
+        """
+        from core import greed_sizing as sizing
+
+        ctx_map, estado = await self.tank.vision_especulativa()
+        if estado != "VERDE_SEGURO" or not ctx_map:
+            return
+
+        regalo = mercado.escanear_mejor_regalo_usdt_usdc(ctx_map)
+        if not regalo:
+            return
+
+        desviacion, f_usdt, f_usdc, p_usdt, p_usdc = regalo
+        if desviacion < config.UMBRAL_REGALO_SQUAD:
+            return
+        equity = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0)
+        lev = sizing.apalancamiento_ruta([f_usdt, f_usdc])
+        cap_1pct = sizing.cap_notional_1pct_riesgo(equity, lev)
+        masa_legacy = min(
+            self.tusk.masa_autorizada * float(getattr(config, "GREED_SQUAD_MASA_FRACCION", 0.5)),
+            cap_1pct,
+        )
+        if masa_legacy <= 0:
+            return
+        if (time.time() - self._ultimo_disparo) < config.GREED_SQUAD_COOLDOWN_S:
+            return
+
+        if p_usdc > p_usdt:
+            frente_buy, frente_sell = f_usdt, f_usdc
+        else:
+            frente_buy, frente_sell = f_usdc, f_usdt
+
+        uid = f"SUICIDE_{int(time.time())}"
+        if not await self.tusk.solicitar_reserva(uid, masa_legacy, "GREED", "LONG"):
+            return
+
+        await self.bel.anotar(
+            "GREED", "ESCUADRON_SUICIDA",
+            f"USDT×USDC {frente_buy}↔{frente_sell} {desviacion*100:.2f}% | ${masa_legacy:.2f}",
+        )
+        sim = config.MODO_SIMULACION or not self.bridge
+        await self._ejecutar_dos_piernas(uid, masa_legacy, frente_buy, frente_sell, simulado=sim)
+        self._ultimo_disparo = time.time()
+
+    async def _ejecutar_piernas(
+        self,
+        uid: str,
+        masa: float,
+        piernas: list[dict],
+        *,
+        simulado: bool = False,
+        tag: str = "MULTICRUCE",
+    ) -> bool:
+        """Multicruce / basis Greed — piernas secuenciales."""
+        if not piernas:
+            return False
+        notional_por_leg = masa / len(piernas)
+        frentes_tocados: list[str] = []
+
+        for i, leg in enumerate(piernas):
+            frente = str(leg["frente"])
+            side = str(leg.get("side", "Buy"))
+            frentes_tocados.append(frente)
+            leg_uid = uid if i == 0 else f"{uid}_L{i}"
+            dir_res = "LONG" if side.upper() == "BUY" else "SHORT"
+
+            if simulado:
+                if i > 0:
+                    if not await self.tusk.solicitar_reserva(leg_uid, notional_por_leg, "GREED", dir_res):
+                        continue
+                await self.tusk.confirmar_reserva(leg_uid, frente, dir_res)
+                continue
+
+            sym = mercado.frente_a_symbol(frente)
+            cat = mercado.frente_a_category(frente)
+            if i > 0:
+                if not await self.tusk.solicitar_reserva(leg_uid, notional_por_leg, "GREED", dir_res):
+                    await self.bel.anotar("GREED", "MULTICRUCE_ABORT", f"Pierna {i} sin reserva")
+                    return False
+            res = await self.bridge.place_order(sym, side, notional_por_leg, category=cat)
+            if not res.exito:
+                if i > 0:
+                    await self.tusk.liberar_reserva(leg_uid)
+                else:
+                    await self.tusk.liberar_reserva(uid)
+                await self.bel.anotar("GREED", "MULTICRUCE_ABORT", f"Pierna {i} rechazada: {res.mensaje}")
+                return False
+            await self.bridge.esperar_fill(sym, order_id=res.order_id, category=cat)
+            await self.tusk.confirmar_reserva(leg_uid, frente, dir_res, fill_confirmado=True)
+
+        registrar_toque_greed(
+            self.tusk, frentes_tocados,
+            motivo=f"{tag}_SIM" if simulado else tag,
+        )
+        evento = "DISPARO_SIMULADO" if simulado else f"{tag}_EJECUTADO"
+        await self.bel.anotar(
+            "GREED", evento,
+            f"{len(piernas)} piernas | Masa:{masa:.4f} | {' → '.join(frentes_tocados)}",
+        )
+        return True
+
+    async def _ejecutar_dos_piernas(
+        self,
+        uid: str,
+        masa: float,
+        frente_buy: str,
+        frente_sell: str,
+        *,
+        simulado: bool = False,
+    ) -> bool:
+        mitad = masa * 0.5
+
+        if simulado:
+            await self.tusk.confirmar_reserva(uid, frente_buy, "LONG")
+            uid_s = f"{uid}_S"
+            if await self.tusk.solicitar_reserva(uid_s, mitad, "GREED", "SHORT"):
+                await self.tusk.confirmar_reserva(uid_s, frente_sell, "SHORT")
+            registrar_toque_greed(self.tusk, [frente_buy, frente_sell], motivo="SIMULADO")
+            await self.bel.anotar(
+                "GREED", "DISPARO_SIMULADO",
+                f"buy:{frente_buy} sell:{frente_sell} | Masa:{masa:.4f}",
+            )
+            return True
+
+        sym_l = mercado.frente_a_symbol(frente_buy)
+        cat_l = mercado.frente_a_category(frente_buy)
+        sym_s = mercado.frente_a_symbol(frente_sell)
+        cat_s = mercado.frente_a_category(frente_sell)
+
+        res_l = await self.bridge.place_order(sym_l, "Buy", mitad, category=cat_l)
+        res_s = await self.bridge.place_order(sym_s, "Sell", mitad, category=cat_s)
+
+        if not res_l.exito or not res_s.exito:
+            await self.tusk.liberar_reserva(uid)
+            await self.bel.anotar("GREED", "ARBITRAJE_FALLIDO", "Una pata rechazada")
+            return False
+
+        await self.bridge.esperar_fill(sym_l, order_id=res_l.order_id, category=cat_l)
+        await self.bridge.esperar_fill(sym_s, order_id=res_s.order_id, category=cat_s)
+        await self.tusk.confirmar_reserva(uid, frente_buy, "LONG", fill_confirmado=True)
+        uid_s = f"{uid}_S"
+        if await self.tusk.solicitar_reserva(uid_s, mitad, "GREED", "SHORT"):
+            await self.tusk.confirmar_reserva(uid_s, frente_sell, "SHORT", fill_confirmado=True)
+        registrar_toque_greed(self.tusk, [frente_buy, frente_sell], motivo="ARBITRAJE")
+        await self.bel.anotar(
+            "GREED", "ARBITRAJE_EJECUTADO", f"buy:{frente_buy} sell:{frente_sell}",
+        )
+        return True

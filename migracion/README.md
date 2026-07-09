@@ -39,6 +39,8 @@
 16. [`15_IDEAS_FUTURO.md`](15_IDEAS_FUTURO.md) — ideas manual (backlog)
 17. [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md) — **camino completo** tareas/subtareas (agente nuevo)
 18. [`17_GUIA_MONARCA.md`](17_GUIA_MONARCA.md) — **cómo hablar con el Monarca** (tono, perfil, proactividad)
+19. [`19_BACKLOG_SENTIDOS.md`](19_BACKLOG_SENTIDOS.md) — sentidos Tank + pendientes estrategia
+20. [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md) — **doctrina Kaiser** (anclas, perfiles, pendientes manos)
 
 ## Carpetas auxiliares
 

@@ -26,13 +26,15 @@ PLANTAR_SEMILLA → ACECHANDO → (gatillo) → ACTIVO → COSECHA / RELEVO
 
 ## Tipos de `IntencionAccion`
 
+> **Nota runtime:** el altar `PriorityQueue` de Greed **no está activo**. Beru/Igris manto van directo a Bridge. Tipos manto abajo = contrato legacy / futuro Beru.
+
 | Tipo | General | Efecto |
 |------|---------|--------|
-| CAZA | BERU / IGRI S | Abrir / aumentar |
+| CAZA | BERU | Abrir / aumentar spot |
 | COSECHA | BERU | Tomar ganancias multiverso |
-| PODAR_MANTO | IGRI S | Reducir muelle saturado |
-| LIMPIAR_ESPEJOS | IGRI S | Cerrar reflejos |
-| ATAQUE_OPORTUNISTA | GREED_SQUAD | Arbitraje rápido |
+| PODAR_MANTO | IGRIS (Bridge directo) | Reducir muelle saturado |
+| LIMPIAR_ESPEJOS | IGRIS (Bridge directo) | Cerrar reflejos |
+| ATAQUE_OPORTUNISTA | GREED | Arbitraje Kaiser / VIP |
 
 Prioridad menor número = más urgente (PriorityQueue).
 

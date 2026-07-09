@@ -34,6 +34,10 @@ class TuskBoveda:
         self.reservas_activas = {}      # Registro de soldados (Sombras) en combate
         
         self.total_ciclos_consumados = 0
+        self.toques_greed_manto: dict = {}
+        self.greed_basis_abiertos: list = []
+        self.nivel_monarca = "ASPIRANTE"
+        self.tier_beru_aplicado = str(getattr(config, "BERU_TIER_DEFAULT", "PROTO1"))
         self._verificar_infraestructura()
 
     # === [SUBTEMA: INFRAESTRUCTURA Y PERSISTENCIA] ===
@@ -89,13 +93,17 @@ class TuskBoveda:
             self.masa_bruta_real = balance_total
             self.margen_ocupado = margen_real
             
-            # 2. Recalculamos la potencia de disparo basada en la realidad del capital
+            # 2. Recalculamos la potencia de disparo basada en el capital real
             base = config.ESCALON_POTENCIA_BASE
             factor_seguro = max(config.FACTOR_MASA_AUTORIZADA, 0.001)
-            
-            # 🛡️ CÁLCULO DE HIERRO: El escalón se basa en el margen libre real
-            self.referencia_escalon = (margen_real // base) * base
+
+            self.referencia_escalon = (balance_total // base) * base
             self.masa_autorizada = self.referencia_escalon / factor_seguro
+
+            from core import plan_crecimiento as pc
+            plan = pc.nivel_por_equity(balance_total)
+            self.nivel_monarca = plan["nivel"]
+            self.tier_beru_aplicado = plan["tier_aplicado"]
             
             # 3. Registro en Bellion para auditoría (solo cada 50 eventos para no saturar)
             if self.total_ciclos_consumados % 50 == 0:
@@ -131,7 +139,7 @@ class TuskBoveda:
             self.masa_reservada_ltc += masa
             return True
 
-    async def confirmar_reserva(self, uid: str, frente: str, direccion: str, fill_confirmado=True):
+    async def confirmar_reserva(self, uid: str, frente: str, direccion: str, fill_confirmado=True, precio_fill: float | None = None):
         """
         Fija el peso de la sombra en un muelle real.
         En MODO_SIMULACION=False, requiere fill_confirmado=True (caller debe verificar).
@@ -149,6 +157,9 @@ class TuskBoveda:
                 if frente not in self.pesos:
                     self.pesos[frente] = {"long": 0.0, "short": 0.0}
 
+                if precio_fill and precio_fill > 0:
+                    from core import igris_manto as im
+                    im.actualizar_promedio(self.pesos, frente, direccion, sombra.masa, precio_fill)
                 self.pesos[frente][dir_key] += sombra.masa
                 await self.bel.anotar("TUSK", "ANCLAJE", f"Masa {sombra.masa:.4f} fijada en {frente}.")
                 return True
@@ -251,7 +262,33 @@ class TuskBoveda:
         """Traduce símbolo Bybit al nombre interno del frente."""
         mapa = {
             "LTCUSDT": "LTCUSDT_LINEAL",
-            "LTCUSDC": "LTCUSDC_LINEAL",
+            "LTCUSDC": "LTCUSDC_SPOT",
             "LTCUSD": "LTCUSD_INVERSE",
+            "BTCUSDT": "BTCUSDT_LINEAL",
+            "BTCUSDC": "BTCUSDC_SPOT",
+            "BTCUSD": "BTCUSD_INVERSE",
+            "ETHUSDT": "ETHUSDT_LINEAL",
         }
         return mapa.get(symbol, f"{symbol}_LINEAL")
+
+    def export_for_bellion(self):
+        return {
+            "pesos": {f: dict(p) for f, p in self.pesos.items()},
+            "margen_ocupado": self.margen_ocupado,
+            "masa_autorizada": self.masa_autorizada,
+            "masa_bruta": self.masa_bruta,
+            "masa_bruta_real": self.masa_bruta_real,
+            "total_ciclos_consumados": self.total_ciclos_consumados,
+            "precio_perp": self.precio_perp,
+            "precio_spot": self.precio_spot,
+        }
+
+    def restaurar_desde_bellion(self, data):
+        if not data:
+            return
+        self.pesos = data.get("pesos", self.pesos) or {}
+        self.margen_ocupado = data.get("margen_ocupado", self.margen_ocupado)
+        self.masa_autorizada = data.get("masa_autorizada", self.masa_autorizada)
+        self.masa_bruta = data.get("masa_bruta", self.masa_bruta)
+        self.masa_bruta_real = data.get("masa_bruta_real", self.masa_bruta_real)
+        self.total_ciclos_consumados = data.get("total_ciclos_consumados", self.total_ciclos_consumados)

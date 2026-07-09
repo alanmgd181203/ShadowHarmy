@@ -1,15 +1,35 @@
 {
-  "ts": 1783142305.027147,
+  "ts": 1783231337.7435796,
   "sistema": "LILIT DE HIERRO V2.0.0",
-  "margen_ocupado": 0.0,
-  "masa_autorizada": 100.0,
-  "masa_bruta": 0,
-  "peso_long": 0,
-  "peso_short": 0,
+  "margen_ocupado": 0.13246525183208713,
+  "masa_autorizada": 0.0,
+  "masa_bruta": 0.0,
+  "peso_long": 0.0,
+  "peso_short": 0.0,
   "delta_ratio": 0.5,
   "banda_min": 0.45,
   "banda_max": 0.55,
-  "pesos_por_frente": {},
-  "legion": [],
+  "pesos_por_frente": {
+    "ETHUSDT_LINEAL": {
+      "long": 0.0,
+      "short": 0.0
+    },
+    "BTCUSDT_LINEAL": {
+      "long": 0.0,
+      "short": 0.0
+    }
+  },
+  "legion": [
+    {
+      "uid": "BERU_SEM_1783166392",
+      "estado": "ACECHANDO",
+      "direccion": "LONG",
+      "centro": 44.36,
+      "masa": 0.0,
+      "max_favor": 0.0,
+      "es_super": false,
+      "generacion": 1
+    }
+  ],
   "ciclos_consumados": 0
 }

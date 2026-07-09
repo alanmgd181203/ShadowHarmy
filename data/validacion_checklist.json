@@ -1,0 +1,108 @@
+{
+  "ts": 1783313733.9722948,
+  "resumen": {
+    "stub": 2,
+    "pass": 10
+  },
+  "checks": [
+    {
+      "id": "3.0",
+      "fase": "3",
+      "titulo": "Fase 3 M2 cerrada",
+      "status": "stub",
+      "detalle": "Gates OK; parcial: ['3.5.8']",
+      "meta": {}
+    },
+    {
+      "id": "3.1",
+      "fase": "3",
+      "titulo": "Pentiverso dual LTC+BTC (10 mares)",
+      "status": "pass",
+      "detalle": "10/10 mares con precio",
+      "meta": {
+        "mares_con_precio": 10,
+        "esperados": 10
+      }
+    },
+    {
+      "id": "3.3",
+      "fase": "3",
+      "titulo": "Persistencia ley_de_sucesion + recovery",
+      "status": "pass",
+      "detalle": "data/estado_hierro.json",
+      "meta": {}
+    },
+    {
+      "id": "3.2.1",
+      "fase": "3",
+      "titulo": "Greed mezcla USDT×USDC (LTC+BTC)",
+      "status": "pass",
+      "detalle": "Radar cross USDT/USDC por activo",
+      "meta": {}
+    },
+    {
+      "id": "3.5",
+      "fase": "3",
+      "titulo": "Bootstrap manto Igris (código)",
+      "status": "pass",
+      "detalle": "BOOTSTRAP_MANTO_FRACCION=0.25",
+      "meta": {}
+    },
+    {
+      "id": "3.6.1",
+      "fase": "3",
+      "titulo": "Ciclo CAZA → COSECHA en Bellion",
+      "status": "pass",
+      "detalle": "Barco BERU_SEM_1783220570 LONG entrada=98.51 → COSECHADO=True",
+      "meta": {}
+    },
+    {
+      "id": "3.6.2",
+      "fase": "3",
+      "titulo": "Gate MODO_SIMULACION=False",
+      "status": "pass",
+      "detalle": "MODO_SIMULACION=True (seguro). Listo para probar live en testnet.",
+      "meta": {}
+    },
+    {
+      "id": "3.7",
+      "fase": "3",
+      "titulo": "Sentidos Tank Fase 1+2",
+      "status": "pass",
+      "detalle": "desvios_top=40 matriz_top=25 refs_binance=0 (Binance puede estar bloqueado por geo)",
+      "meta": {}
+    },
+    {
+      "id": "3.8.14",
+      "fase": "3",
+      "titulo": "Pipeline Kaiser→Greed",
+      "status": "pass",
+      "detalle": "Greed consume cola Kaiser + greed_mision",
+      "meta": {}
+    },
+    {
+      "id": "3.2.3",
+      "fase": "3",
+      "titulo": "Greed omnimercado v1",
+      "status": "pass",
+      "detalle": "multicruce + basis hold",
+      "meta": {}
+    },
+    {
+      "id": "3.5.7",
+      "fase": "3",
+      "titulo": "Beru Proto (capital + rail)",
+      "status": "pass",
+      "detalle": "beru_tier + beru_capital + beru_rail",
+      "meta": {}
+    },
+    {
+      "id": "3.5.8",
+      "fase": "3",
+      "titulo": "Igris §E manto",
+      "status": "stub",
+      "detalle": "bootstrap inverse L + promedios OK; Ancla maniobras pendiente",
+      "meta": {}
+    }
+  ]
+}

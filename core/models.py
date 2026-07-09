@@ -40,6 +40,26 @@ class BeruShip:
     # Flag de sincronización con Greed
     sincronizado: bool = False
 
+    # Tier Proto/Pleno + modo combate (caza simétrico / negociador asimétrico)
+    tier_id: str = ""
+    modo_combate: str = ""
+
+    # Cazador por capas (doctrina Monarca)
+    centro_manto: float = 0.0
+    oz_pct: float = 0.0
+    red_pct: float = 0.0
+    capa: int = 1
+
+    # Negociador post-cazador (abismo, condicional, ciclo 5+resorte)
+    neg_post_cazador: bool = False
+    ancla_cosecha_pct: float = 0.0
+    neg_oz_pct: float = 0.0
+    neg_red_pct: float = 0.0
+    neg_toques_ciclo: int = 0
+
+    # Ciclo infinito Cazador ↔ Negociador (masa congelada, sin engorde)
+    ciclo_infinito: bool = False
+    masa_congelada: float = 0.0
 
 
 # === [SUBTEMA: CONTEXTO DE MERCADO (MarketContext)] ===
@@ -76,7 +96,7 @@ class HealthState:
 
 @dataclass(order=True)
 class IntencionAccion:
-    """El mensaje contractual enviado al Altar de Greed."""
+    """Contrato legacy hacia altar Greed. Runtime: Beru spot; manto = Igris→Bridge directo."""
     prioridad: int
     timestamp: float = field(default_factory=time.time)
     uid: str = field(default_factory=lambda: str(uuid.uuid4())[:8], compare=False)
