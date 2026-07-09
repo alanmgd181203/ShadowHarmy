@@ -1,6 +1,7 @@
-# Secretos — nunca al repositorio
-.env
+# Secretos — .env testnet incluido en repo para despliegue; no subir .env.local
+.env.local
 .env.*
+!.env
 
 # Python
 __pycache__/
