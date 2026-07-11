@@ -24,6 +24,7 @@ class IgrisEscudo:
 
         self.ultimo_movimiento = time.time()
         self.cooldown_maniobra_s = 5.0
+        self._ultimo_log_engorde_bloqueado = 0.0
 
         self._capital_pre_vuelo = 0.0
         self._rango_progresion: str | None = None
@@ -31,6 +32,16 @@ class IgrisEscudo:
 
     def calcular_banda_delta(self):
         return mercado.calcular_banda_delta(self.tusk.margen_ocupado)
+
+    def masa_paso_engorde(self) -> float:
+        """Paso de engorde acotado: no tragar toda masa_autorizada de un golpe."""
+        peso_l = sum(f["long"] for f in self.tusk.pesos.values())
+        peso_s = sum(f["short"] for f in self.tusk.pesos.values())
+        masa_bruta = peso_l + peso_s
+        masa_auth = float(self.tusk.masa_autorizada)
+        fraccion = float(getattr(config, "ENGORDE_PASO_FRACCION", 0.05))
+        paso_min = float(getattr(config, "ENGORDE_PASO_MIN", 0.1))
+        return min(masa_auth, max(masa_bruta, paso_min, masa_auth * fraccion))
 
     async def vigilar_manto_operativo(self):
         print(f"[IGRIS] Vigilancia activa bajo protocolo {config.FASE_ACTUAL}.")
@@ -101,7 +112,7 @@ class IgrisEscudo:
                     await self._ejecutar_maniobra("REBALANCEO_IGRIS", "LONG", self.tusk.masa_autorizada)
                     return
             dir_engorde = "LONG" if peso_l_total <= peso_s_total else "SHORT"
-            await self._ejecutar_maniobra("ENGORDAR_MANTO", dir_engorde, self.tusk.masa_autorizada)
+            await self._ejecutar_maniobra("ENGORDAR_MANTO", dir_engorde, self.masa_paso_engorde())
             return
 
         # Entró en zona ideal → YIELD a Greed
@@ -370,29 +381,44 @@ class IgrisEscudo:
         margen = self.tusk.margen_ocupado
         peso_l = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s = sum(f["short"] for f in self.tusk.pesos.values())
+        masa_bruta = peso_l + peso_s
 
-        nuevo_l = peso_l + (masa if direccion == "LONG" else 0)
-        nuevo_s = peso_s + (masa if direccion == "SHORT" else 0)
+        # Bajo el piso ideal y manto equilibrado → priorizar dual L/S (crecer sin romper delta)
+        banda_min, banda_max = mercado.calcular_banda_delta(margen)
+        ratio = (peso_l / masa_bruta) if masa_bruta > 0 else 0.5
+        priorizar_dual = masa_bruta > 0 and banda_min <= ratio <= banda_max and margen < mj.piso_ideal()
 
-        if mercado.verificar_delta_post_maniobra(margen, nuevo_l, nuevo_s):
-            mejor_f, precio = await self._radar_manto(ctx_map, masa, direccion == "LONG")
-            pf = self.tusk.pesos.get(mejor_f, {"long": 0.0, "short": 0.0})
-            fl = pf["long"] + (masa if direccion == "LONG" else 0)
-            fs = pf["short"] + (masa if direccion == "SHORT" else 0)
-            if mercado.verificar_delta_frente(margen, mejor_f, fl, fs):
-                if await self._materializar_en_frente(uid, mejor_f, direccion, masa, precio):
-                    await self.bel.anotar("IGRIS", "ENGORDE", f"+{masa:.4f} {direccion} en {mejor_f}")
-                    return True
+        if not priorizar_dual:
+            nuevo_l = peso_l + (masa if direccion == "LONG" else 0)
+            nuevo_s = peso_s + (masa if direccion == "SHORT" else 0)
+            if mercado.verificar_delta_post_maniobra(margen, nuevo_l, nuevo_s):
+                mejor_f, precio = await self._radar_manto(ctx_map, masa, direccion == "LONG")
+                pf = self.tusk.pesos.get(mejor_f, {"long": 0.0, "short": 0.0})
+                fl = pf["long"] + (masa if direccion == "LONG" else 0)
+                fs = pf["short"] + (masa if direccion == "SHORT" else 0)
+                if mercado.verificar_delta_frente(margen, mejor_f, fl, fs):
+                    if await self._materializar_en_frente(uid, mejor_f, direccion, masa, precio):
+                        await self.bel.anotar("IGRIS", "ENGORDE", f"+{masa:.4f} {direccion} en {mejor_f}")
+                        return True
 
         mitad = masa * 0.5
         mejor_f_l, precio_l = await self._radar_manto(ctx_map, mitad, True)
         mejor_f_s, precio_s = await self._radar_manto(ctx_map, mitad, False)
-        if mercado.verificar_delta_post_maniobra(margen, peso_l + mitad, peso_s + mitad):
+        if precio_l > 0 and precio_s > 0 and mercado.verificar_delta_post_maniobra(margen, peso_l + mitad, peso_s + mitad):
             pf_l = self.tusk.pesos.get(mejor_f_l, {"long": 0.0, "short": 0.0})
             pf_s = self.tusk.pesos.get(mejor_f_s, {"long": 0.0, "short": 0.0})
-            ok_l = mercado.verificar_delta_frente(margen, mejor_f_l, pf_l["long"] + mitad, pf_l["short"])
-            ok_s = mercado.verificar_delta_frente(margen, mejor_f_s, pf_s["long"], pf_s["short"] + mitad)
-            if ok_l and ok_s:
+            # Mismo frente: validar L+S juntos (antes se miraba cada pata sola y bloqueaba)
+            if mejor_f_l == mejor_f_s:
+                ok_frentes = mercado.verificar_delta_frente(
+                    margen, mejor_f_l,
+                    pf_l["long"] + mitad,
+                    pf_l["short"] + mitad,
+                )
+            else:
+                ok_l = mercado.verificar_delta_frente(margen, mejor_f_l, pf_l["long"] + mitad, pf_l["short"])
+                ok_s = mercado.verificar_delta_frente(margen, mejor_f_s, pf_s["long"], pf_s["short"] + mitad)
+                ok_frentes = ok_l and ok_s
+            if ok_frentes:
                 if await self._materializar_en_frente(uid, mejor_f_l, "LONG", mitad, precio_l):
                     uid_s = f"{uid}_S"
                     if await self.tusk.solicitar_reserva(uid_s, mitad, "IGRIS", "SHORT"):
@@ -401,5 +427,14 @@ class IgrisEscudo:
                             return True
                     await self.tusk.liberar_reserva(uid_s)
 
-        await self.bel.anotar("IGRIS", "ENGORDE_BLOQUEADO", "Banda no permite crecer")
+        # Fallo: cooldown para no martillar el panel cada segundo
+        self.ultimo_movimiento = time.time()
+        log_cd = float(getattr(config, "ENGORDE_BLOQUEADO_LOG_S", 60.0))
+        ahora = time.time()
+        if ahora - self._ultimo_log_engorde_bloqueado >= log_cd:
+            self._ultimo_log_engorde_bloqueado = ahora
+            await self.bel.anotar(
+                "IGRIS", "ENGORDE_BLOQUEADO",
+                f"Banda/paso no permite crecer (margen {margen:.2f}% · paso {masa:.4f})",
+            )
         return False

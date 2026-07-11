@@ -102,7 +102,7 @@ class GreedFrancotirador:
             await self.igris._bootstrap_manto()
             return
         dir_engorde = "LONG" if peso_l <= peso_s else "SHORT"
-        await self.igris._ejecutar_maniobra("ENGORDAR_MANTO", dir_engorde, self.tusk.masa_autorizada)
+        await self.igris._ejecutar_maniobra("ENGORDAR_MANTO", dir_engorde, self.igris.masa_paso_engorde())
         await self._rebalancear_si_hace_falta()
 
     async def _poda_emergencia(self, orden: dict):

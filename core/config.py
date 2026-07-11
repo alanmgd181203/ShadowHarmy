@@ -282,6 +282,10 @@ GREED_VIP_SONDAS_MIN = int(os.getenv("GREED_VIP_SONDAS_MIN", "3"))
 GREED_VIP_MICROS_POR_CICLO = int(os.getenv("GREED_VIP_MICROS_POR_CICLO", "1"))
 
 BOOTSTRAP_MANTO_FRACCION = 0.25
+# Engorde: pasos duales L/S (no tragar toda masa_autorizada de un lado)
+ENGORDE_PASO_FRACCION = float(os.getenv("ENGORDE_PASO_FRACCION", "0.05"))
+ENGORDE_PASO_MIN = float(os.getenv("ENGORDE_PASO_MIN", "0.1"))
+ENGORDE_BLOQUEADO_LOG_S = float(os.getenv("ENGORDE_BLOQUEADO_LOG_S", "60"))
 
 FASE_ACTUAL = "HIERRO"
 VERSION = "2.0.0"

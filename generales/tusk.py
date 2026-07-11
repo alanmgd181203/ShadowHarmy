@@ -124,7 +124,7 @@ class TuskBoveda:
             
             # 3. Registro en Bellion para auditoría (solo cada 50 eventos para no saturar)
             if self.total_ciclos_consumados % 50 == 0:
-                await self.bel.anotar("TUSK", "NAV_SYNC", f"Capital: {balance_total:.2f} | Oxígeno: {self.masa_autorizada:.2f}%")
+                await self.bel.anotar("TUSK", "NAV_SYNC", f"Capital: {balance_total:.2f} | Masa auth: {self.masa_autorizada:.2f} | Margen: {margen_real:.2f}%")
 
     async def auditar_escalones_universales(self, margen_real: float):
         """Ajuste rápido de potencia si el margen fluctúa sin cambio de balance total."""
