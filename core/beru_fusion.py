@@ -8,8 +8,8 @@ from core import beru_negociador
 if TYPE_CHECKING:
     from core.models import BeruShip
 
-# Tolerancia colisión Hoz: 0.01% (doctrina Monarca)
-EPSILON_COLISION_PCT = 0.0001
+# Coincidencia exacta de hoz (doctrina Monarca); ε solo por float
+EPSILON_COLISION_PCT = 0.0
 
 
 def _masa_barco(b: BeruShip) -> float:
@@ -31,8 +31,7 @@ def promedio_ponderado(pares: list[tuple[float, float]]) -> float:
 def oz_colisionan(oz_a: float, oz_b: float) -> bool:
     if oz_a <= 0 or oz_b <= 0:
         return False
-    ref = min(oz_a, oz_b)
-    return abs(oz_a - oz_b) / ref <= EPSILON_COLISION_PCT + 1e-12
+    return abs(oz_a - oz_b) <= max(oz_a, oz_b) * 1e-12 + 1e-8
 
 
 def cazador_activo_colision(b: BeruShip) -> bool:

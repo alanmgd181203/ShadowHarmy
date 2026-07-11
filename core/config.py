@@ -22,6 +22,9 @@ TESTNET = os.getenv("MODO_TESTNET", "True").lower() == "true"
 MODO_SIMULACION = os.getenv("MODO_SIMULACION", "True").lower() == "true"
 SAFE_MODE = os.getenv("SAFE_MODE", "False").lower() == "true"
 
+# Testeo Igris — Beru y Greed hibernados; solo Igris + Tank + Tusk en arise.py
+MODO_ENFOQUE_IGRIS = os.getenv("MODO_ENFOQUE_IGRIS", "True").lower() in ("1", "true", "yes")
+
 # Fase 4 — ops Monarca (opcional en .env)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
@@ -36,12 +39,28 @@ ACTIVOS_PENTIVERSO = ["LTC", "BTC"]
 
 # Beru — semilla y flota (doctrina capital manto)
 BERU_ACTIVO_SEMILLA = os.getenv("BERU_ACTIVO_SEMILLA", "ETH").upper()
+
+# Casa Beru en Tank (WS + resonancia) — además del pentiverso LTC/BTC
+FRENTES_BERU_VIGILANCIA = [f"{BERU_ACTIVO_SEMILLA}USDT_SPOT"]
+# Activos con precio vivo en Tank: pentiverso + semilla Beru
+ACTIVOS_VIGILANCIA = list(dict.fromkeys(ACTIVOS_PENTIVERSO + [BERU_ACTIVO_SEMILLA]))
 BERU_TIER_DEFAULT = os.getenv("BERU_TIER_DEFAULT", "PROTO1").upper()  # arranque: ProtoBeru ETH
 BERU_MODO_COMBATE_DEFAULT = os.getenv("BERU_MODO_COMBATE_DEFAULT", "NEGOCIADOR").upper()
+# Legacy — el motor dinámico usa G_min + fricción 0.8% (beru_capital)
 BERU_PNL_OBJETIVO_POR_1PCT_USD = float(os.getenv("BERU_PNL_OBJETIVO_POR_1PCT_USD", "50"))
 BERU_SPOT_COLCHON_USD = float(os.getenv("BERU_SPOT_COLCHON_USD", "0"))  # spot margen: mismo equity, sin extra
 BERU_VACIO_ANSIEDAD = float(os.getenv("BERU_VACIO_ANSIEDAD", "0.012"))   # 1.2%
 BERU_VACIO_NORMAL = float(os.getenv("BERU_VACIO_NORMAL", "0.016"))         # 1.6%
+# Motor 5 Reglas — G_min Bybit (arranque estático) + fricción Soldado
+G_MIN_USD_DEFAULT = float(os.getenv("G_MIN_USD_DEFAULT", "5"))
+G_MIN_USD_BY_ASSET: dict[str, float] = {
+    "ETH": 5.0, "BTC": 5.0, "LTC": 5.0, "SOL": 5.0, "XRP": 5.0,
+    "DOGE": 5.0, "ADA": 5.0, "LINK": 5.0, "AVAX": 5.0, "FIL": 5.0,
+    "WIF": 5.0, "PEPE": 5.0,
+}
+BERU_FRICCION_SOLDADO_PCT = float(os.getenv("BERU_FRICCION_SOLDADO_PCT", "0.008"))  # 0.8%
+BERU_ABISMO_SALIDA_PCT = float(os.getenv("BERU_ABISMO_SALIDA_PCT", "0.02"))         # -2% salida
+BERU_ADAN_ARMADO_PCT = float(os.getenv("BERU_ADAN_ARMADO_PCT", "0.005"))           # 0.5% vacío Adán
 # Beru Cazador — capas, red/oz reactivas (doctrina Monarca 2026-07)
 BERU_CAZADOR_MORDIDA_USD = float(os.getenv("BERU_CAZADOR_MORDIDA_USD", "5"))
 BERU_CAZADOR_PASO_PCT = float(os.getenv("BERU_CAZADOR_PASO_PCT", "0.001"))
@@ -191,6 +210,8 @@ def _mares_de_activo(asset: str):
 MARES_PENTIVERSO_LTC = _mares_de_activo("LTC")
 MARES_PENTIVERSO_BTC = _mares_de_activo("BTC")
 MARES_PENTIVERSO_ALL = MARES_PENTIVERSO_LTC + MARES_PENTIVERSO_BTC
+# Pentiverso (10 mares) + frentes casa Beru para ctx_map / resonancia
+FRENTES_RESONANCIA_TANK = list(dict.fromkeys(MARES_PENTIVERSO_ALL + FRENTES_BERU_VIGILANCIA))
 
 FRENTES_CASA = [f"{TICKER_BASE}USDT_SPOT", f"{TICKER_BASE}USDC_SPOT"]
 FRENTES_MANTO = [f"{TICKER_BASE}USDT_LINEAL", f"{TICKER_BASE}USD_INVERSE"]
@@ -216,7 +237,8 @@ GREED_MULTICRUCE_VIA_QUOTES = tuple(
     if q.strip()
 )
 GREED_LEGACY_SQUAD_ENABLED = os.getenv("GREED_LEGACY_SQUAD_ENABLED", "false").lower() == "true"
-GREED_LOOP_INTERVAL_S = float(os.getenv("GREED_LOOP_INTERVAL_S", "0.15"))
+# 0 = yield inmediato (doctrina: sin sleeps pasivos; solo cede el event loop)
+GREED_LOOP_INTERVAL_S = float(os.getenv("GREED_LOOP_INTERVAL_S", "0"))
 GREED_DISPARO_COOLDOWN_S = float(os.getenv("GREED_DISPARO_COOLDOWN_S", "1.0"))
 GREED_REINTENTO_COOLDOWN_S = float(os.getenv("GREED_REINTENTO_COOLDOWN_S", "2.0"))
 GREED_MAX_INTENTOS_POR_CICLO = int(os.getenv("GREED_MAX_INTENTOS_POR_CICLO", "1"))
@@ -265,12 +287,14 @@ FASE_ACTUAL = "HIERRO"
 VERSION = "2.0.0"
 SISTEMA_NOMBRE = f"LILIT DE {FASE_ACTUAL} V{VERSION}"
 
-# Igris — zonas margen (doctrina 21 §A, Monarca 2026-07-05)
-RANGO_EXPANSION_MIN = 80.0       # <80%: Igris engorda/bootstrap
-RANGO_PISO_IDEAL = 85.0          # piso operativo deseado (meta, no alarma)
-RANGO_OBJETIVO_MARGEN = 90.0     # zona ideal de despliegue
-RANGO_LIMPIEZA_MAX = 93.0        # >93%: limpiar espejos antes de ley marcial
-MURO_LEY_MARCIAL = 95.0          # poda Igris; Greed solo VIP/Mega VIP
+# Igris / Greed — jurisdicción del manto (doctrina Monarca 2026-07-11)
+RANGO_EXPANSION_MIN = 80.0       # legacy: umbral bajo absoluto
+RANGO_PISO_IDEAL = 85.0          # piso zona ideal — bajo esto → Greed restaura
+RANGO_OBJETIVO_MARGEN = 90.0     # techo zona ideal — Igris YIELD al entrar 85–90
+RANGO_LIMPIEZA_MAX = 93.0        # zona alta (Greed puede limpiar)
+MURO_LEY_MARCIAL = 95.0          # ≥95%: Greed poda fuerte de emergencia
+IGRIS_YIELD_EN_ZONA_IDEAL = os.getenv("IGRIS_YIELD_EN_ZONA_IDEAL", "true").lower() == "true"
+GREED_MANTO_EJECUTOR = os.getenv("GREED_MANTO_EJECUTOR", "true").lower() == "true"
 GREED_VIP_PERMITIR_EN_LEY_MARCIAL = os.getenv("GREED_VIP_PERMITIR_EN_LEY_MARCIAL", "true").lower() == "true"
 GREED_MANTO_TOQUE_COOLDOWN_S = float(os.getenv("GREED_MANTO_TOQUE_COOLDOWN_S", "45"))
 

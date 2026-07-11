@@ -61,6 +61,15 @@ class BeruShip:
     ciclo_infinito: bool = False
     masa_congelada: float = 0.0
 
+    # Reciclaje doctrina Monarca 2026-07-11
+    engorde_bloqueado: bool = False
+    volumen_reciclaje: float = 0.0
+    trigger_salida: float = 0.0
+    trigger_recompra: float = 0.0
+    bracket_armado: bool = False
+    red_extrema: float = 0.0
+    precio_fusion_ref: float = 0.0
+    fase_reciclaje: str = ""  # "" | ESPERANDO_SALIDA | ARMADO_ADAN | ESPERANDO_RECOMPRA
 
 # === [SUBTEMA: CONTEXTO DE MERCADO (MarketContext)] ===
 

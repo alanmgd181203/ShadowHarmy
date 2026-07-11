@@ -1,14 +1,12 @@
 import os
 import time
-from collections import Counter
 import core.config as config
 
 class PanelDeControl:
-    def __init__(self, tusk, beru_gen, igris, tank=None):
+    def __init__(self, tusk, igris, tank=None):
         self.tusk = tusk
-        self.beru = beru_gen
         self.igris = igris
-        self.tank = tank or beru_gen.tank
+        self.tank = tank
         self.inicio_sesion = time.time()
 
     def refrescar(self):
@@ -18,7 +16,7 @@ class PanelDeControl:
         self._mostrar_diagnostico_hidra()
         self._mostrar_manto_riesgo()
         self._mostrar_distribucion_espejos()
-        self._mostrar_estado_legion_deep()
+        self._mostrar_reservas_tusk()
         print("\n" + "═" * 45)
 
     def _mostrar_pentiverso(self):
@@ -56,7 +54,7 @@ class PanelDeControl:
         elif oxigeno_libre > 80.0:
             status_margen = "SEGURO"
 
-        print(f"\n[ MANTO PIEZOELÉCTRICO ]")
+        print(f"\n[ MANTO PIEZOELÉCTRICO · IGRIS ]")
         print(f"  CAPITAL REAL: {self.tusk.masa_bruta:.2f} USD")
         print(f"  MASA BRUTA: {masa_bruta:.4f} | DELTA: {(peso_l - peso_s):.4f}")
         print(f"  OXÍGENO: {oxigeno_libre:.2f}% | ESTADO: {status_margen}")
@@ -71,16 +69,15 @@ class PanelDeControl:
         if not activos:
             print("  (Esperando materialización...)")
 
-    def _mostrar_estado_legion_deep(self):
-        print(f"\n[ LEGIÓN DE BERU ]")
-        n_barcos = len(self.beru.legion)
-        masa_caza = sum(b.masa for b in self.beru.legion)
-        capitan = self.beru.tank.capitan_activo.nombre
-        conteo_estados = Counter([b.estado for b in self.beru.legion if b.estado != "COSECHADO"])
-        estados_str = ", ".join([f"{k}: {v}" for k, v in conteo_estados.items()])
-        print(f"  BARCOS: {n_barcos} | MASA EN CAZA: {masa_caza:.4f}")
-        print(f"  CLIMA TÁCTICO: {capitan}")
-        if n_barcos > 0:
-            print(f"  ESTADOS: {estados_str}")
+    def _mostrar_reservas_tusk(self):
+        print(f"\n[ RESERVAS TUSK ]")
+        n_reservas = len(self.tusk.reservas_activas)
+        masa_reservada = self.tusk.masa_reservada_ltc
+        print(f"  RESERVAS ACTIVAS: {n_reservas} | MASA EN TRÁNSITO: {masa_reservada:.4f}")
+        if n_reservas > 0:
+            for uid, sombra in self.tusk.reservas_activas.items():
+                masa = getattr(sombra, "masa", 0)
+                estado = getattr(sombra, "estado", "?")
+                print(f"  · {uid}: {masa:.4f} ({estado})")
         if self.tusk.total_ciclos_consumados > 0:
             print(f"  ⚡ TOTAL CICLOS CONSUMADOS: {self.tusk.total_ciclos_consumados}")

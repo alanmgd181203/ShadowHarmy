@@ -231,7 +231,11 @@ class BeruCazador:
 
         if not config.MODO_SIMULACION and self.bridge:
             side = "Buy" if is_long else "Sell"
-            resultado = await self.bridge.place_order(symbol, side, beru.masa, category=categoria)
+            market_unit = "quoteCoin" if categoria == "spot" and is_long else None
+            qty_orden = beru.masa
+            resultado = await self.bridge.place_order(
+                symbol, side, qty_orden, category=categoria, market_unit=market_unit,
+            )
             if not resultado.exito:
                 await self.tusk.liberar_reserva(beru.uid)
                 beru.estado = "ACECHANDO"
@@ -243,7 +247,12 @@ class BeruCazador:
                 beru.estado = "ACECHANDO"
                 return
             p_ef = fill.datos.get("avgPrice", p_ef)
-            await self.tusk.confirmar_reserva(beru.uid, mejor_f, beru.direccion, fill_confirmado=True)
+            qty_base = float(fill.datos.get("cumExecQty") or 0)
+            if qty_base > 0:
+                beru.qty_base_ejecutada = qty_base
+            await self.tusk.confirmar_reserva(
+                beru.uid, mejor_f, beru.direccion, fill_confirmado=True, precio_fill=p_ef,
+            )
         else:
             await self.tusk.confirmar_reserva(beru.uid, mejor_f, beru.direccion)
 
@@ -290,6 +299,42 @@ class BeruCazador:
             vacio = beru.adn_capitan.vacio_adan
 
             if beru.estado == "ESPERANDO_ABISMO":
+                # Reciclaje: espera recompra +2% con vacío Adán (sin orden en exchange)
+                if beru.fase_reciclaje == "ESPERANDO_RECOMPRA" and beru.trigger_recompra > 0:
+                    trig = beru.trigger_recompra
+                    if not beru.bracket_armado:
+                        if not beru_negociador.precio_cerca_de_trigger(precio_actual, trig):
+                            continue
+                        beru.bracket_armado = True
+                        await self.bel.anotar(
+                            "BERU", "ADAN_RECOMPRA",
+                            f"{beru.uid} cerca de recompra {trig:.4f} — armado en memoria.",
+                        )
+                    if not beru_negociador.toca_trigger_precio(
+                        precio_actual, trig, beru.direccion, modo="RECOMPRA",
+                    ):
+                        continue
+                    # Recompra mismo volumen — sin engorde
+                    beru.masa = beru.volumen_reciclaje or beru.masa_congelada
+                    touch_pct = beru_cazador.pct_desde_precio(centro, precio_actual)
+                    self._aplicar_grid_cazador(beru, touch_pct)
+                    beru.modo_combate = "CAZA"
+                    beru.estado = "NEGOCIANDO"
+                    beru.fase_reciclaje = "RECICLANDO"
+                    beru.bracket_armado = False
+                    # Tras recompra, ancla salida −2% otra vez
+                    if precio_actual > 0:
+                        beru.precio_entrada_real = precio_actual
+                        beru.trigger_salida = beru_negociador.trigger_salida_precio(
+                            precio_actual, beru.direccion,
+                        )
+                    await self.bel.anotar(
+                        "BERU", "RECOMPRA_RECICLO",
+                        f"{beru.uid} @ {precio_actual:.4f} vol ${beru.masa:.2f} "
+                        f"(sin engorde) · salida {beru.trigger_salida:.4f}.",
+                    )
+                    continue
+
                 if not beru_negociador.cruzo_gatillo_caza(
                     precio_actual, centro, vacio, beru.direccion,
                 ):
@@ -310,6 +355,16 @@ class BeruCazador:
             if beru.estado == "ESPERANDO_CONDICIONAL":
                 cond = beru_negociador.oz_condicional_pct(beru.ancla_cosecha_pct, vacio)
                 beru.neg_oz_pct = cond
+                # Vacío Adán: no armar bracket hasta estar a ≤0.5% del trigger −2%
+                if not beru.bracket_armado:
+                    if not beru_negociador.cerca_condicional(precio_actual, centro, cond):
+                        continue
+                    beru.bracket_armado = True
+                    beru.fase_reciclaje = "ARMADO_ADAN"
+                    await self.bel.anotar(
+                        "BERU", "ADAN_ARMADO",
+                        f"{beru.uid} precio cerca de cond {cond*100:.2f}% — bracket en memoria.",
+                    )
                 if not beru_negociador.toca_condicional(precio_actual, centro, cond):
                     continue
                 oz_n, red_n = beru_negociador.activar_primera_vez(cond, paso_oz)
@@ -318,6 +373,7 @@ class BeruCazador:
                 beru.estado = "NEGOCIANDO"
                 beru.modo_combate = "NEGOCIADOR"
                 beru.neg_toques_ciclo = 0
+                beru.fase_reciclaje = "NEGOCIANDO"
                 await self.bel.anotar(
                     "BERU", "NEG_ACTIVADO",
                     f"{beru.uid} cond {cond*100:.2f}% → oz {oz_n*100:.2f}% red {red_n*100:.2f}%.",
@@ -495,6 +551,16 @@ class BeruCazador:
             if beru_cazador.toca_red(precio_actual, beru.direccion, beru.red_adan):
                 if not beru_cazador.es_frontera_red(beru, self.legion, self._modo_barco):
                     continue
+                # Bloqueo de sizing en reciclaje — solo excepciones A/B
+                if getattr(beru, "engorde_bloqueado", False):
+                    if self._puede_desbloquear_engorde(beru, precio_actual):
+                        beru.engorde_bloqueado = False
+                        await self.bel.anotar(
+                            "BERU", "ENGORDE_DESBLOQUEADO",
+                            f"{beru.uid} red extrema o fusión — permiso de engorde restaurado.",
+                        )
+                    else:
+                        continue
                 masa_extra = beru_cazador.mordida_usd()
                 if await self.tusk.solicitar_reserva(f"E_{beru.uid}", masa_extra, "BERU", beru.direccion):
                     beru.masa += masa_extra
@@ -505,17 +571,80 @@ class BeruCazador:
                     beru.oz_adan, beru.red_adan = beru_cazador.sincronizar_precios_grid(
                         c, beru.oz_pct, beru.red_pct,
                     )
+                    if beru.red_adan:
+                        beru.red_extrema = beru.red_adan
                     await self.bel.anotar(
                         "BERU", "ENGORDE_FRONTERA",
                         f"{beru.uid} capa{beru.capa} red+oz +0.1% (+${masa_extra:.0f}).",
                     )
 
+    def _puede_desbloquear_engorde(self, beru: BeruShip, precio_actual: float) -> bool:
+        """Excepción A: red más extrema. B: toque precio Beru fusionado (reset 0)."""
+        red_ext = float(getattr(beru, "red_extrema", 0) or beru.red_adan or 0)
+        if red_ext > 0 and beru_cazador.toca_red(precio_actual, beru.direccion, red_ext):
+            return True
+        ref = float(getattr(beru, "precio_fusion_ref", 0) or 0)
+        if ref > 0 and abs(precio_actual - ref) / ref <= 0.0001:
+            beru.centro_manto = precio_actual
+            beru.centro_local = precio_actual
+            return True
+        # Super Beru fusionado en legión como referencia de reset
+        for b in self.legion:
+            if not getattr(b, "es_super_beru", False):
+                continue
+            if b.estado in ("FUSIONADO", "COSECHADO"):
+                continue
+            px = float(b.oz_adan or b.centro_local or 0)
+            if px > 0 and abs(precio_actual - px) / px <= 0.0001:
+                beru.centro_manto = precio_actual
+                beru.centro_local = precio_actual
+                return True
+        return False
+
+    async def _iniciar_reciclaje_post_venta(self, beru: BeruShip, precio_venta: float):
+        """Tras venta total: nuevo 0 = precio venta; recompra +2%; mismo volumen; sin engorde."""
+        vol = float(beru.masa_congelada or beru.volumen_reciclaje or beru.masa or 0)
+        if vol <= 0:
+            return
+        beru.centro_local = precio_venta
+        beru.centro_manto = precio_venta
+        beru.volumen_reciclaje = vol
+        beru.masa_congelada = vol
+        beru.masa = vol
+        beru.engorde_bloqueado = True
+        beru.ciclo_infinito = True
+        beru.bracket_armado = False
+        beru.trigger_recompra = beru_negociador.trigger_recompra_precio(
+            precio_venta, beru.direccion,
+        )
+        # Ancla de recompra en % desde el nuevo 0
+        ancla = beru_cazador.pct_desde_precio(precio_venta, beru.trigger_recompra)
+        beru.ancla_cosecha_pct = ancla
+        # Condicional de "caza reciclaje" = tocar +2%; luego salida otra vez −2%
+        beru.neg_oz_pct = ancla
+        beru.neg_red_pct = 0.0
+        beru.estado = "ESPERANDO_ABISMO"
+        beru.modo_combate = "CAZA"
+        beru.fase_reciclaje = "ESPERANDO_RECOMPRA"
+        await self.bel.anotar(
+            "BERU", "RECICLAJE",
+            f"{beru.uid} nuevo 0 @ {precio_venta:.4f} · recompra "
+            f"{beru.trigger_recompra:.4f} (+2%) · vol ${vol:.2f} sin engorde.",
+        )
+
     async def _cosecha_capa_cazador(self, beru: BeruShip, precio_actual: float):
         self._registrar_red_residual(beru)
+        if beru.red_adan:
+            beru.red_extrema = max(float(beru.red_extrema or 0), float(beru.red_adan))
         if beru.capa <= 1:
             ancla = beru.oz_pct
             centro = beru.centro_manto or self._centro_cazador(beru)
             masa_gel = beru.masa
+            # Trigger salida −2% desde ancla de caza (en memoria, no en exchange)
+            if beru.precio_entrada_real > 0:
+                beru.trigger_salida = beru_negociador.trigger_salida_precio(
+                    beru.precio_entrada_real, beru.direccion,
+                )
             await self.ejecutar_cosecha_y_relevo(
                 beru, precio_actual,
                 relevo_modo="NEGOCIADOR",
@@ -532,6 +661,10 @@ class BeruCazador:
                 "BERU", "COSECHA_CAPA",
                 f"Capa {beru.capa} cosechada — red_residual {beru.red_adan:.2f} en memoria.",
             )
+            # Reciclaje: si tenía volumen congelado / bloqueo, reinicia ciclo
+            if getattr(beru, "engorde_bloqueado", False) or beru.volumen_reciclaje > 0:
+                px = float(beru.precio_salida_real or precio_actual)
+                await self._iniciar_reciclaje_post_venta(beru, px)
 
     async def _acordeon_negociador_legacy(self, beru: BeruShip, precio_actual: float):
         toca_red = (
@@ -640,13 +773,19 @@ class BeruCazador:
             modo_combate="NEGOCIADOR",
             neg_post_cazador=True,
             ciclo_infinito=True,
+            engorde_bloqueado=True,
+            volumen_reciclaje=masa_congelada,
+            bracket_armado=False,
             ancla_cosecha_pct=ancla_pct,
             neg_oz_pct=cond,
+            trigger_salida=getattr(beru_cazador_ref, "trigger_salida", 0.0) or 0.0,
+            red_extrema=float(getattr(beru_cazador_ref, "red_extrema", 0) or beru_cazador_ref.red_adan or 0),
+            fase_reciclaje="ESPERANDO_SALIDA",
         ))
         await self.bel.anotar(
             "BERU", "CICLO_INFINITO",
-            f"Ancla {ancla_pct*100:.2f}% -> cond {cond*100:.2f}% "
-            f"(${masa_congelada:.0f} congelados, sin engorde).",
+            f"Ancla {ancla_pct*100:.2f}% -> cond −2% @ {cond*100:.2f}% "
+            f"(${masa_congelada:.0f} congelados, Adán en memoria, sin engorde).",
         )
 
     async def _ejecutar_cosecha(self, barco, uid_cosecha, forzar: bool = False):
@@ -678,7 +817,15 @@ class BeruCazador:
 
         if not config.MODO_SIMULACION and self.bridge:
             side = "Sell" if barco.direccion == "LONG" else "Buy"
-            resultado = await self.bridge.place_order(symbol, side, barco.masa, category=categoria)
+            market_unit = "quoteCoin" if categoria == "spot" and barco.direccion != "LONG" else None
+            qty_orden = barco.masa
+            if categoria == "spot" and barco.direccion == "LONG":
+                qty_orden = float(getattr(barco, "qty_base_ejecutada", 0) or 0)
+                if qty_orden <= 0 and barco.precio_entrada_real > 0:
+                    qty_orden = barco.masa / barco.precio_entrada_real
+            resultado = await self.bridge.place_order(
+                symbol, side, qty_orden, category=categoria, market_unit=market_unit,
+            )
             if not resultado.exito:
                 await self.tusk.liberar_reserva(uid_cosecha)
                 barco.estado = "NEGOCIANDO"
@@ -695,6 +842,8 @@ class BeruCazador:
         barco.precio_salida_real = p_ef
         barco.estado = "COSECHADO"
         await self.bel.anotar("BERU", "COSECHA", f"Botín asegurado @ {beneficio*100:.2f}%")
+        if getattr(barco, "ciclo_infinito", False) or getattr(barco, "engorde_bloqueado", False):
+            await self._iniciar_reciclaje_post_venta(barco, float(p_ef or 0))
 
     async def _fusion_negociadores_ciclo(self):
         """Colisión estricta oz_adan + Mega Beru (sagrado)."""
@@ -712,11 +861,15 @@ class BeruCazador:
                     )
             for v in victimas:
                 v.estado = "FUSIONADO"
+            lider.engorde_bloqueado = True
+            lider.volumen_reciclaje = float(lider.masa_congelada or lider.masa or 0)
+            lider.precio_fusion_ref = float(lider.oz_adan or 0)
+            lider.es_super_beru = True
             tag = "NEG" if self._modo_barco(lider) == "NEGOCIADOR" else "CAZA"
             await self.bel.anotar(
                 "BERU", "FUSION_COLISION",
                 f"{lider.uid} <- {len(victimas) + 1} {tag} oz~{lider.oz_adan:.2f} "
-                f"${lider.masa_congelada:.0f}.",
+                f"${lider.masa_congelada:.0f} (reciclaje volumen sumado).",
             )
 
         for lider, victimas, prom in beru_fusion.grupos_mega_beru(self.legion):

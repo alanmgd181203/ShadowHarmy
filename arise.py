@@ -12,12 +12,10 @@ if ruta_maestra not in sys.path:
 try:
     import core.config as config
     from generales.tusk import TuskBoveda
-    from generales.greed import GreedFrancotirador
     from core.bellion import BellionAuditor
     from generales.tank import TankCluster
-    from generales.beru import BeruCazador
     from generales.igris import IgrisEscudo
-    from generales.kaiser import KaiserVocero
+    from generales.greed import GreedFrancotirador
     from core.dashboard import PanelDeControl
     from core.bridge import BybitBridge
 except ImportError as e:
@@ -31,17 +29,17 @@ async def refrescar_dashboard(panel):
         await asyncio.sleep(1)
 
 
-async def publicar_estado_vivo(bellion, tusk, beru, igris, tank, kaiser):
+async def publicar_estado_vivo(bellion, tusk, igris, tank, greed=None):
     await asyncio.sleep(2)
     while True:
-        await bellion.publicar_estado_vivo(tusk, beru.legion, igris, tank, kaiser)
+        await bellion.publicar_estado_vivo(tusk, None, igris, tank, kaiser=None)
         await asyncio.sleep(1)
 
 
-async def vigilancia_apagado(shutdown_event, bellion, tusk, beru):
+async def vigilancia_apagado(shutdown_event, bellion, tusk):
     """3.3.1 — muerte digna: sella estado al recibir señal de apagado."""
     await shutdown_event.wait()
-    await bellion.ley_de_sucesion(tusk.export_for_bellion(), beru.legion)
+    await bellion.ley_de_sucesion(tusk.export_for_bellion(), [])
     await bellion.anotar("BELLION", "SUCESION", "Estado sellado — Lilit regresa a las sombras.")
 
 
@@ -58,6 +56,7 @@ async def arise():
     print("\n" + "═" * 45)
     print(f"    {config.SISTEMA_NOMBRE} VIBRANDO    ")
     print(f"      FASE: {config.FASE_ACTUAL}      ")
+    print("      IGRIS orquesta · GREED ejecuta      ")
     print("═" * 45)
 
     shutdown_event = asyncio.Event()
@@ -76,43 +75,37 @@ async def arise():
             from core.binance_ref import BinanceRefBridge
             binance_ref = BinanceRefBridge(tank, bellion)
 
-        # 3.3.2 — recovery desde cristal de memoria
         estado_prev = bellion.cargar_estado()
         if estado_prev:
             tusk.restaurar_desde_bellion(estado_prev.get("boveda", {}))
             print(f"[BELLION] Recovery: bóveda restaurada.")
 
-        beru = BeruCazador(tusk, bellion, tank, bridge=bridge, kaiser=kaiser)
-        igris = IgrisEscudo(tusk, beru, bridge=bridge)
-        kaiser = KaiserVocero(tank, bellion)
-        greed = GreedFrancotirador(tusk, bellion, tank, bridge=bridge, kaiser=kaiser)
-
-        if estado_prev and estado_prev.get("legion"):
-            beru.restaurar_legion(estado_prev.get("legion", []))
-            print(f"[BELLION] Recovery: {len(beru.legion)} barcos en legión.")
+        igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge)
+        # Greed ejecutor del manto (Kaiser opcional; steward manto siempre)
+        greed = GreedFrancotirador(tusk, bellion, tank, bridge=bridge, kaiser=None, igris=igris)
+        igris.greed = greed
 
         from core.validacion import advertir_gates
         advertir_gates()
 
-        panel = PanelDeControl(tusk, beru, igris, tank)
+        panel = PanelDeControl(tusk, igris, tank)
 
-        print(f"\n[⚔️] Núcleo dual LTC+BTC | ref operativa: {config.TICKER_BASE} | sim={config.MODO_SIMULACION}")
+        print(f"\n[⚔️] Igris→Greed manto | ref: {config.TICKER_BASE} | sim={config.MODO_SIMULACION}")
+        print("[🌑] Beru en hibernación de hilos — lógica de reciclaje/fusión en código lista.")
 
         await asyncio.gather(
-            tusk.latido_persistencia(beru.legion),
+            tusk.latido_persistencia([]),
             tusk.hilo_reconciliacion(bridge),
             tank.vigilar_aguas(),
             bridge.conectar(),
             bridge.hilo_sentidos_extra(),
-            *( [binance_ref.conectar()] if binance_ref else [] ),
+            *([binance_ref.conectar()] if binance_ref else []),
             bridge.hilo_sincronizacion_nav(),
-            beru.hilo_beru_berserker(),
             igris.vigilar_manto_operativo(),
             greed.vigilancia_oportunidades(),
-            kaiser.vigilar_indicadores(),
             refrescar_dashboard(panel),
-            publicar_estado_vivo(bellion, tusk, beru, igris, tank, kaiser),
-            vigilancia_apagado(shutdown_event, bellion, tusk, beru),
+            publicar_estado_vivo(bellion, tusk, igris, tank, greed),
+            vigilancia_apagado(shutdown_event, bellion, tusk),
         )
 
     except Exception:

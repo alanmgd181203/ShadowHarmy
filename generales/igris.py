@@ -4,24 +4,30 @@ import uuid
 
 from core import mercado
 from core import igris_manto as im
+from core import beru_capital as bc
+from core import manto_jurisdiccion as mj
 from core.manto_touch import limpiar_toques_expirados, rebalanceo_en_pausa_por_greed
 import core.config as config
 
 
 class IgrisEscudo:
-    def __init__(self, tusk, beru, bridge=None):
+    def __init__(self, tusk, tank, bellion, bridge=None, greed=None):
         """
-        Igris: El Escudo — dueño del manto (derivados).
-        Decide maniobra y frente; ejecuta vía Bridge directamente.
+        Igris: El Escudo — orquestador del manto.
+        Ejecuta solo hasta zona ideal 85–90%; luego YIELD a Greed.
         """
         self.tusk = tusk
-        self.beru = beru
-        self.tank = beru.tank
+        self.tank = tank
         self.bridge = bridge
-        self.bel = beru.bel
+        self.bel = bellion
+        self.greed = greed
 
         self.ultimo_movimiento = time.time()
         self.cooldown_maniobra_s = 5.0
+
+        self._capital_pre_vuelo = 0.0
+        self._rango_progresion: str | None = None
+        self._ejecucion_directa_activa = True  # False = yield a Greed
 
     def calcular_banda_delta(self):
         return mercado.calcular_banda_delta(self.tusk.margen_ocupado)
@@ -35,48 +41,89 @@ class IgrisEscudo:
             await asyncio.sleep(1)
 
     async def auditar_manto_global(self):
+        if not await self._auditoria_pre_despliegue():
+            return
+
         limpiar_toques_expirados(self.tusk)
-        margen_actual = self.tusk.margen_ocupado
+        margen_actual = float(self.tusk.margen_ocupado)
         peso_l_total = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s_total = sum(f["short"] for f in self.tusk.pesos.values())
         masa_bruta = peso_l_total + peso_s_total
         en_cooldown = (time.time() - self.ultimo_movimiento) <= self.cooldown_maniobra_s
 
-        if margen_actual >= config.MURO_LEY_MARCIAL:
-            await self.bel.anotar("IGRIS", "LEY_MARCIAL", f"Margen Crítico: {margen_actual}%.")
-            dir_poda = "LONG" if peso_l_total >= peso_s_total else "SHORT"
-            await self._ejecutar_maniobra("PODAR_MANTO", dir_poda, masa_bruta * 0.15)
+        # --- Jurisdicción: si ya cedió a Greed, Igris NO ejecuta en exchange ---
+        if (
+            mj.igris_yield_activo()
+            and mj.greed_es_ejecutor()
+            and (self.tusk.manto_cedido_a_greed or not self._ejecucion_directa_activa)
+        ):
+            if mj.bajo_piso(margen_actual):
+                mj.emitir_orden_manto(
+                    self.tusk,
+                    mj.ORDEN_RESTAURAR_MANTO,
+                    margen=margen_actual,
+                    meta_min=mj.piso_ideal(),
+                    meta_max=mj.muro_marcial(),
+                )
+                await self.bel.anotar(
+                    "IGRIS", "ORDEN_GREED",
+                    f"Restaurar manto a 85–95% (actual {margen_actual:.1f}%) — sin tocar exchange.",
+                )
+            elif mj.sobre_muro(margen_actual):
+                mj.emitir_orden_manto(
+                    self.tusk, mj.ORDEN_PODA_EMERGENCIA, margen=margen_actual,
+                )
+                await self.bel.anotar(
+                    "IGRIS", "ORDEN_GREED",
+                    f"Poda emergencia ≥95% (actual {margen_actual:.1f}%) — delegado a Greed.",
+                )
             return
 
-        if margen_actual > config.RANGO_LIMPIEZA_MAX and peso_l_total > 0 and peso_s_total > 0:
-            masa_espejo = min(peso_l_total, peso_s_total, self.tusk.masa_autorizada * 2)
-            await self.bel.anotar("IGRIS", "LIMPIEZA", f"Margen {margen_actual}%. Reduciendo masa bruta.")
-            await self._ejecutar_maniobra("LIMPIAR_ESPEJOS", "AMBAS", masa_espejo)
+        # Bootstrap siempre es orquestación de Igris (aún sin manto)
+        if masa_bruta == 0 and margen_actual < mj.piso_ideal():
+            await self._bootstrap_manto()
             return
 
         if en_cooldown:
             return
 
-        # 3.5.2 — Bootstrap: primer par L/S cuando no hay manto
-        if masa_bruta == 0 and margen_actual < config.RANGO_PISO_IDEAL:
-            await self._bootstrap_manto()
-            return
-
-        if masa_bruta > 0 and not rebalanceo_en_pausa_por_greed(self.tusk):
-            ratio_l = peso_l_total / masa_bruta
-            banda_min, banda_max = self.calcular_banda_delta()
-            if ratio_l > banda_max:
-                await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% > banda {banda_max*100:.1f}%")
-                await self._ejecutar_maniobra("REBALANCEO_IGRIS", "SHORT", self.tusk.masa_autorizada)
-                return
-            if ratio_l < banda_min:
-                await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% < banda {banda_min*100:.1f}%")
-                await self._ejecutar_maniobra("REBALANCEO_IGRIS", "LONG", self.tusk.masa_autorizada)
-                return
-
-        if margen_actual < config.RANGO_EXPANSION_MIN:
+        # Llevar manto a zona ideal 85–90%
+        if margen_actual < mj.piso_ideal():
+            if masa_bruta > 0 and not rebalanceo_en_pausa_por_greed(self.tusk):
+                ratio_l = peso_l_total / masa_bruta
+                banda_min, banda_max = self.calcular_banda_delta()
+                if ratio_l > banda_max:
+                    await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% > banda")
+                    await self._ejecutar_maniobra("REBALANCEO_IGRIS", "SHORT", self.tusk.masa_autorizada)
+                    return
+                if ratio_l < banda_min:
+                    await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% < banda")
+                    await self._ejecutar_maniobra("REBALANCEO_IGRIS", "LONG", self.tusk.masa_autorizada)
+                    return
             dir_engorde = "LONG" if peso_l_total <= peso_s_total else "SHORT"
             await self._ejecutar_maniobra("ENGORDAR_MANTO", dir_engorde, self.tusk.masa_autorizada)
+            return
+
+        # Entró en zona ideal → YIELD a Greed
+        if mj.en_zona_ideal(margen_actual) and mj.igris_yield_activo() and mj.greed_es_ejecutor():
+            self._ejecucion_directa_activa = False
+            self.tusk.manto_cedido_a_greed = True
+            await self.bel.anotar(
+                "IGRIS", "YIELD_MANTO",
+                f"Margen {margen_actual:.1f}% en zona 85–90% — ejecución cedida a Greed.",
+            )
+            return
+
+        # Sin Greed ejecutor: comportamiento legacy acotado (no podar ≥95 aquí si Greed on)
+        if not mj.greed_es_ejecutor():
+            if margen_actual >= config.MURO_LEY_MARCIAL:
+                await self.bel.anotar("IGRIS", "LEY_MARCIAL", f"Margen Crítico: {margen_actual}%.")
+                dir_poda = "LONG" if peso_l_total >= peso_s_total else "SHORT"
+                await self._ejecutar_maniobra("PODAR_MANTO", dir_poda, masa_bruta * 0.15)
+                return
+            if margen_actual > config.RANGO_LIMPIEZA_MAX and peso_l_total > 0 and peso_s_total > 0:
+                masa_espejo = min(peso_l_total, peso_s_total, self.tusk.masa_autorizada * 2)
+                await self._ejecutar_maniobra("LIMPIAR_ESPEJOS", "AMBAS", masa_espejo)
 
     async def _radar_manto(self, ctx_map, masa, is_long):
         return mercado.escanear_mejor_precio(config.FRENTES_MANTO_ALL, ctx_map, masa, is_long)
@@ -104,8 +151,70 @@ class IgrisEscudo:
             )
         return True
 
+    async def _auditoria_pre_despliegue(self) -> bool:
+        """Candado de bóveda — umbrales dinámicos desde motor X/A_base."""
+        capital = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+        self._capital_pre_vuelo = capital
+        res = bc.resolver_activo_y_grado(capital)
+        grado = res.get("grado", "BLOQUEADO")
+        mapa = {
+            "BLOQUEADO": "BLOQUEADO",
+            "SOLDADO": "ASPIRANTE",
+            "CAPITAN": "CAPITAN",
+            "GENERAL": "GENERAL",
+            "MARISCAL": "MARISCAL",
+        }
+        self._rango_progresion = mapa.get(grado, "BLOQUEADO")
+        if grado == "BLOQUEADO":
+            return False
+        return True
+
+    async def _asegurar_apalancamiento_aspirante_eth(self) -> bool:
+        """Ejecución: apalancamiento MÁXIMO por contrato (no promedio)."""
+        if config.MODO_SIMULACION or not self.bridge:
+            return True
+
+        pares = (
+            ("ETHUSD", "inverse", bc.apalancamiento_inverse_max("ETH")),
+            ("ETHUSDT", "linear", bc.apalancamiento_linear_max("ETH")),
+        )
+        for sym, cat, lev in pares:
+            res = await self.bridge.set_leverage(sym, lev, category=cat)
+            if not res.exito:
+                await self.bel.anotar(
+                    "IGRIS", "LEVERAGE_FALLIDO",
+                    f"No se pudo fijar {lev}x en {sym} ({cat}): {res.mensaje}",
+                )
+                return False
+        return True
+
     async def _bootstrap_manto(self):
         """Primer par L/S — inverse LONG + lineal SHORT (doctrina §E)."""
+        if not await self._auditoria_pre_despliegue():
+            return
+
+        rango = self._rango_progresion
+
+        if rango == "CAPITAN":
+            # TODO: [Monarca] — Lógica de sizing y despliegue de unidades ($26–$50.99)
+            return
+        if rango == "GENERAL":
+            # TODO: [Monarca] — Lógica de sizing y despliegue de unidades ($51–$100.99)
+            return
+        if rango == "MARISCAL":
+            # TODO: [Monarca] — Lógica de sizing y despliegue de unidades (≥ $101)
+            return
+
+        if rango != "ASPIRANTE":
+            return
+
+        # Fase 1 — Aspirante: ETH forzado, ignora TICKER_BASE
+        frente_l, frente_s = "ETHUSD_INVERSE", "ETHUSDT_LINEAL"
+
+        if not await self._asegurar_apalancamiento_aspirante_eth():
+            return
+
+        # TODO: [Monarca] — Lógica de sizing Aspirante ($12.5–$25.99) a refinar
         masa_pata = self.tusk.masa_autorizada * config.BOOTSTRAP_MANTO_FRACCION
         if masa_pata <= 0:
             return
@@ -114,11 +223,10 @@ class IgrisEscudo:
         if not ctx_map or estado in ("GLITCH_DETECTADO", "ROJO"):
             return
 
-        ok, mot = im.bootstrap_viable(ctx_map)
+        ok, mot = im.bootstrap_viable(ctx_map, "ETH")
         if not ok:
             return
 
-        frente_l, frente_s = im.frentes_bootstrap()
         precio_l = im.precio_ctx(ctx_map, frente_l)
         precio_s = im.precio_ctx(ctx_map, frente_s)
 

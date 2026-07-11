@@ -246,7 +246,7 @@ class BybitBridge:
         return f"{prefijo}-{uid}"
 
     async def place_order(self, symbol, side, qty, order_type="Market",
-                          price=None, link_id=None, category="linear"):
+                          price=None, link_id=None, category="linear", market_unit=None):
         if not self.session:
             return OrdenResultado(False, mensaje="Sin sesión API configurada")
 
@@ -261,6 +261,9 @@ class BybitBridge:
             "qty": str(qty),
             "orderLinkId": link_id,
         }
+
+        if market_unit:
+            params["marketUnit"] = market_unit
 
         if order_type == "Limit" and price is not None:
             params["price"] = str(price)
@@ -284,6 +287,34 @@ class BybitBridge:
         except Exception as e:
             await self.bel.anotar("BRIDGE", "ORDEN_ERROR", f"{str(e)} | LINK:{link_id}")
             return OrdenResultado(False, link_id=link_id, mensaje=str(e))
+
+    async def set_leverage(self, symbol, leverage, category="linear"):
+        """Fija apalancamiento en Bybit V5 (/v5/position/set-leverage)."""
+        if not self.session:
+            return OrdenResultado(False, mensaje="Sin sesión API configurada")
+
+        lev = str(int(leverage))
+        try:
+            response = self.session.set_leverage(
+                category=category,
+                symbol=symbol,
+                buyLeverage=lev,
+                sellLeverage=lev,
+            )
+            if response.get("retCode") == 0:
+                return OrdenResultado(True, mensaje="OK", datos=response.get("result", {}))
+
+            msg = response.get("retMsg", "Error desconocido")
+            if "leverage not modified" in msg.lower():
+                return OrdenResultado(True, mensaje=msg, datos=response.get("result", {}))
+            await self.bel.anotar("BRIDGE", "LEVERAGE_RECHAZADO", f"{symbol} {lev}x: {msg}")
+            return OrdenResultado(False, mensaje=msg)
+        except Exception as e:
+            err = str(e)
+            if "leverage not modified" in err.lower():
+                return OrdenResultado(True, mensaje=err)
+            await self.bel.anotar("BRIDGE", "LEVERAGE_ERROR", f"{symbol} {lev}x: {err}")
+            return OrdenResultado(False, mensaje=err)
 
     async def cancel_order(self, symbol, order_id=None, link_id=None, category="linear"):
         if not self.session:
@@ -387,7 +418,16 @@ class BybitBridge:
                     nav_total = float(data.get("totalEquity", 0.0))
                     disponible = float(data.get("totalAvailableBalance", 0.0))
                     margen_ocupado = ((nav_total - disponible) / nav_total * 100) if nav_total > 0 else 0.0
-                    await self.tusk.actualizar_nav_real(nav_total, margen_ocupado)
+                    maint_raw = data.get("totalMaintenanceMargin", "")
+                    mm_rate_raw = data.get("accountMMRate", "")
+                    total_maint = float(maint_raw) if maint_raw not in ("", None) else None
+                    account_mm_rate = float(mm_rate_raw) if mm_rate_raw not in ("", None) else None
+                    await self.tusk.actualizar_nav_real(
+                        nav_total,
+                        margen_ocupado,
+                        total_maintenance_margin=total_maint,
+                        account_mm_rate=account_mm_rate,
+                    )
                     self._nav_errores_consecutivos = 0
                 else:
                     await self.bel.anotar("BRIDGE", "NAV_ERROR_API", response.get("retMsg", "?"))

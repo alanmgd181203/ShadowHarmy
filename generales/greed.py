@@ -4,36 +4,140 @@ import time
 from core import greed_mision as mision
 from core import greed_vip as vip
 from core import mercado
+from core import manto_jurisdiccion as mj
 import core.config as config
 from core.manto_touch import registrar_toque_greed
 from core import greed_basis as basis
 
 
 class GreedFrancotirador:
-    def __init__(self, tusk, bellion, tank_cluster, bridge=None, kaiser=None):
+    def __init__(self, tusk, bellion, tank_cluster, bridge=None, kaiser=None, igris=None):
         """
-        Greed: cazador de regalos — Kaiser (Ancla+perfiles) + VIP micro-órdenes.
+        Greed: ejecutor táctico — arbitraje + control del manto tras YIELD de Igris.
         """
         self.tusk = tusk
         self.bel = bellion
         self.tank = tank_cluster
         self.bridge = bridge
         self.kaiser = kaiser
+        self.igris = igris
         self._ultimo_disparo = 0.0
         self._ultimo_intento_oid: dict[str, float] = {}
         self._vip_estado: dict[str, dict] = {}
         self._basis_estado: dict[str, dict] = {}
+        self._ultimo_manto_ts = 0.0
 
     async def vigilancia_oportunidades(self):
         kaiser_on = getattr(config, "GREED_KAISER_ENABLED", True)
-        msg = "Kaiser+Ancla+VIP" if kaiser_on and self.kaiser else "legacy USDT×USDC"
-        print(f"[GREED] Radar {msg} ({config.FASE_ACTUAL}).")
+        msg = "Kaiser+Ancla+VIP+Manto" if kaiser_on and self.kaiser else "Manto+legacy"
+        print(f"[GREED] Radar {msg} ({config.FASE_ACTUAL}) — ejecución inmediata.")
         while True:
-            if kaiser_on and self.kaiser:
-                await self._radar_kaiser()
-            elif getattr(config, "GREED_LEGACY_SQUAD_ENABLED", False):
-                await self._radar_escuadron_suicida()
-            await asyncio.sleep(float(getattr(config, "GREED_LOOP_INTERVAL_S", 0.15)))
+            try:
+                await self._steward_manto()
+                if kaiser_on and self.kaiser:
+                    await self._radar_kaiser()
+                elif getattr(config, "GREED_LEGACY_SQUAD_ENABLED", False):
+                    await self._radar_escuadron_suicida()
+            except Exception as e:
+                await self.bel.anotar("GREED", "ERROR", f"Radar: {e}")
+            # Doctrina: sin sleeps pasivos — solo cede el event loop
+            intervalo = float(getattr(config, "GREED_LOOP_INTERVAL_S", 0))
+            if intervalo > 0:
+                await asyncio.sleep(intervalo)
+            else:
+                await asyncio.sleep(0)
+
+    async def _steward_manto(self):
+        """Control operativo del manto tras cesión de Igris + órdenes internas."""
+        if not mj.greed_es_ejecutor():
+            return
+
+        for orden in mj.consumir_ordenes_manto(self.tusk):
+            tipo = orden.get("tipo")
+            try:
+                if tipo == mj.ORDEN_RESTAURAR_MANTO:
+                    await self._restaurar_manto(orden)
+                elif tipo == mj.ORDEN_PODA_EMERGENCIA:
+                    await self._poda_emergencia(orden)
+            except Exception as e:
+                await self.bel.anotar("GREED", "ERROR_MANTO", f"{tipo}: {e}")
+
+        if not self.tusk.manto_cedido_a_greed:
+            return
+
+        margen = float(self.tusk.margen_ocupado)
+        ahora = time.time()
+        if ahora - self._ultimo_manto_ts < 0.5:
+            return
+
+        if mj.sobre_muro(margen):
+            await self._poda_emergencia({"margen": margen})
+            self._ultimo_manto_ts = ahora
+            return
+
+        if mj.bajo_piso(margen):
+            await self._restaurar_manto({"margen": margen})
+            self._ultimo_manto_ts = ahora
+            return
+
+        # Zona 85–95: rebalanceo si hay desequilibrio
+        if margen >= mj.piso_ideal() and margen < mj.muro_marcial():
+            await self._rebalancear_si_hace_falta()
+            self._ultimo_manto_ts = ahora
+
+    async def _restaurar_manto(self, orden: dict):
+        """Sube margen hacia 85–95% (engorde / rebalanceo)."""
+        if not self.igris:
+            await self.bel.anotar("GREED", "MANTO_SIN_IGRIS", "No hay referencia Igris para ejecutar.")
+            return
+        margen = float(orden.get("margen") or self.tusk.margen_ocupado)
+        await self.bel.anotar(
+            "GREED", "RESTAURAR_MANTO",
+            f"Orden Igris — margen {margen:.1f}% → zona 85–95%.",
+        )
+        peso_l = sum(f["long"] for f in self.tusk.pesos.values())
+        peso_s = sum(f["short"] for f in self.tusk.pesos.values())
+        masa = peso_l + peso_s
+        if masa <= 0:
+            await self.igris._bootstrap_manto()
+            return
+        dir_engorde = "LONG" if peso_l <= peso_s else "SHORT"
+        await self.igris._ejecutar_maniobra("ENGORDAR_MANTO", dir_engorde, self.tusk.masa_autorizada)
+        await self._rebalancear_si_hace_falta()
+
+    async def _poda_emergencia(self, orden: dict):
+        """≥95%: poda fuerte (~15% masa bruta)."""
+        if not self.igris:
+            return
+        peso_l = sum(f["long"] for f in self.tusk.pesos.values())
+        peso_s = sum(f["short"] for f in self.tusk.pesos.values())
+        masa = peso_l + peso_s
+        if masa <= 0:
+            return
+        margen = float(orden.get("margen") or self.tusk.margen_ocupado)
+        dir_poda = "LONG" if peso_l >= peso_s else "SHORT"
+        await self.bel.anotar(
+            "GREED", "PODA_EMERGENCIA",
+            f"Margen {margen:.1f}% ≥95% — poda {dir_poda} ~15%.",
+        )
+        await self.igris._ejecutar_maniobra("PODAR_MANTO", dir_poda, masa * 0.15)
+
+    async def _rebalancear_si_hace_falta(self):
+        if not self.igris:
+            return
+        peso_l = sum(f["long"] for f in self.tusk.pesos.values())
+        peso_s = sum(f["short"] for f in self.tusk.pesos.values())
+        masa = peso_l + peso_s
+        if masa <= 0:
+            return
+        ratio_l = peso_l / masa
+        banda_min, banda_max = self.igris.calcular_banda_delta()
+        if ratio_l > banda_max:
+            await self.bel.anotar("GREED", "REBALANCEO", f"Delta L {ratio_l*100:.1f}% alto")
+            await self.igris._ejecutar_maniobra("REBALANCEO_IGRIS", "SHORT", self.tusk.masa_autorizada)
+        elif ratio_l < banda_min:
+            await self.bel.anotar("GREED", "REBALANCEO", f"Delta L {ratio_l*100:.1f}% bajo")
+            await self.igris._ejecutar_maniobra("REBALANCEO_IGRIS", "LONG", self.tusk.masa_autorizada)
 
     def _tank_semaforo(self) -> str:
         lider = self.tank._obtener_lider_verde()

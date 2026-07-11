@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shadow Army — Bellion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void-core: #08080c;
+      --void-edge: #000000;
+      --ink: #8a8a93;
+      --ink-bright: #c4c4ce;
+      --ink-critical: #7dd3fc;
+      --glow-ok: rgba(100, 200, 255, 0.4);
+      --glow-warn: rgba(251, 191, 36, 0.45);
+      --glow-danger: rgba(244, 63, 94, 0.45);
+      --glass-bg: rgba(10, 10, 15, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.05);
+      --hover-ring: rgba(120, 80, 255, 0.5);
+      --mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--void-edge);
+      color: var(--ink);
+      font-family: var(--mono);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* —— 1. El Vacío —— */
+    #void {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: radial-gradient(ellipse 70% 65% at 50% 48%, var(--void-core) 0%, var(--void-edge) 72%, #000 100%);
+    }
+
+    #tsparticles {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: radial-gradient(ellipse 90% 85% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%);
+    }
+
+    /* —— Layout —— */
+    .deck {
+      position: relative;
+      z-index: 3;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .orbit-field {
+      position: absolute;
+      width: min(94vmin, 860px);
+      height: min(94vmin, 860px);
+    }
+
+    /* —— 2. Monolito Bellion —— */
+    .monolith {
+      position: relative;
+      width: min(540px, 90vw);
+      max-height: min(70vh, 580px);
+      display: flex;
+      flex-direction: column;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid var(--glass-border);
+      border-radius: 6px;
+      box-shadow:
+        0 0 40px rgba(0, 0, 0, 0.8),
+        inset 0 0 20px rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+      transition:
+        border-color 0.45s ease,
+        box-shadow 0.45s ease;
+    }
+
+    .monolith.flash {
+      border-color: rgba(120, 80, 255, 0.35);
+      box-shadow:
+        0 0 48px rgba(0, 0, 0, 0.85),
+        0 0 32px rgba(120, 80, 255, 0.12),
+        inset 0 0 24px rgba(255, 255, 255, 0.03);
+    }
+
+    .monolith-header {
+      padding: 1.25rem 1.4rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .monolith-header .eyebrow {
+      font-size: 0.62rem;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: #5c5c66;
+      margin-bottom: 0.55rem;
+      font-weight: 500;
+    }
+
+    .monolith-header .title {
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--ink-bright);
+      letter-spacing: 0.06em;
+      transition: color 0.4s ease, text-shadow 0.4s ease;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      margin-top: 0.85rem;
+      font-size: 0.68rem;
+    }
+
+    .meta-tag {
+      padding: 0.22rem 0.6rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 2px;
+      background: rgba(0, 0, 0, 0.25);
+      color: #6a6a74;
+    }
+
+    .meta-tag em {
+      font-style: normal;
+      color: var(--ink-bright);
+      font-weight: 500;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .metric-cell {
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+      border-right: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .metric-cell:last-child { border-right: none; }
+
+    .metric-cell .label {
+      font-size: 0.58rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #55555f;
+      margin-bottom: 0.3rem;
+    }
+
+    .metric-cell .value {
+      font-size: 0.88rem;
+      color: var(--ink-bright);
+      font-weight: 500;
+    }
+
+    .metric-cell .value.critical {
+      color: var(--ink-critical);
+      text-shadow: 0 0 8px var(--glow-ok);
+    }
+
+  /* Scrollbar ultra delgada */
+    .chronicle {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 1rem 1.15rem 1.2rem;
+      font-size: 0.72rem;
+      line-height: 1.7;
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+    }
+
+    .chronicle:hover,
+    .chronicle:focus-within {
+      scrollbar-color: #2a2a32 transparent;
+    }
+
+    .chronicle::-webkit-scrollbar { width: 3px; }
+    .chronicle::-webkit-scrollbar-track { background: transparent; }
+    .chronicle::-webkit-scrollbar-thumb {
+      background: transparent;
+      border-radius: 3px;
+      transition: background 0.3s ease;
+    }
+    .chronicle:hover::-webkit-scrollbar-thumb,
+    .chronicle:focus-within::-webkit-scrollbar-thumb {
+      background: #2a2a32;
+    }
+
+    .log-entry {
+      padding: 0.12rem 0 0.12rem 0.55rem;
+      border-left: 2px solid transparent;
+      margin-bottom: 0.15rem;
+      opacity: 0;
+      animation: fade-slide 0.5s ease forwards;
+    }
+
+    @keyframes fade-slide {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .log-entry .ts { color: #45454f; }
+    .log-entry .who { font-weight: 600; }
+    .log-entry .evt { color: #6e6e78; }
+    .log-entry .body { color: var(--ink); }
+
+    .log-entry.ok .body {
+      color: #a8d4f0;
+      text-shadow: 0 0 8px var(--glow-ok);
+    }
+    .log-entry.warn .body {
+      color: #e8c97a;
+      text-shadow: 0 0 8px var(--glow-warn);
+    }
+    .log-entry.alert .body {
+      color: #f0a0b0;
+      text-shadow: 0 0 8px var(--glow-danger);
+    }
+
+    .monolith-footer {
+      padding: 0.5rem 1.15rem;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #404048;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .live-pip {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+      animation: pip 2s ease infinite;
+      margin-right: 0.45rem;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    @keyframes pip {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    /* —— 3. Nodos Generales —— */
+    .node {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+    }
+
+    .node-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition:
+        transform 0.4s cubic-bezier(0.34, 1.45, 0.64, 1),
+        border-color 0.35s ease,
+        box-shadow 0.35s ease,
+        background 0.35s ease;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .node-btn img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      pointer-events: none;
+      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2)) invert(1);
+      opacity: 0.88;
+      transition: filter 0.35s ease, opacity 0.35s ease;
+    }
+
+    .node-btn:hover,
+    .node-btn.active {
+      transform: scale(1.1);
+      border-color: var(--hover-ring);
+      background: rgba(120, 80, 255, 0.06);
+      box-shadow:
+        0 0 24px rgba(120, 80, 255, 0.15),
+        0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .node-btn:hover img,
+    .node-btn.active img {
+      filter: drop-shadow(0 0 10px rgba(160, 120, 255, 0.55)) invert(1);
+      opacity: 1;
+    }
+
+    .node-label {
+      position: absolute;
+      bottom: -1.4rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.56rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #505058;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* —— 4. Flotación asíncrona —— */
+    .node-beru  { top: 1%;  left: 50%; margin-left: -40px; animation: drift-a 3.0s ease-in-out infinite; }
+    .node-igris { top: 20%; right: 2%;  animation: drift-b 3.2s ease-in-out infinite; }
+    .node-tusk  { bottom: 16%; right: 6%; animation: drift-c 2.8s ease-in-out infinite; }
+    .node-tank  { bottom: 16%; left: 6%;  animation: drift-d 3.4s ease-in-out infinite; }
+    .node-greed { top: 20%; left: 2%;   animation: drift-e 3.1s ease-in-out infinite; }
+
+    @keyframes drift-a {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-9px); }
+    }
+    @keyframes drift-b {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      50%      { transform: translateY(-7px) translateX(4px); }
+    }
+    @keyframes drift-c {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-11px); }
+    }
+    @keyframes drift-d {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      50%      { transform: translateY(-8px) translateX(-5px); }
+    }
+    @keyframes drift-e {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+
+    /* Hover scale compuesto con float del padre */
+    .node:hover .node-btn,
+    .node .node-btn.active {
+      /* scale handled on btn */
+    }
+
+    @media (max-width: 600px) {
+      .node { width: 64px; height: 64px; }
+      .node-btn { width: 64px; height: 64px; }
+      .node-btn img { width: 40px; height: 40px; }
+      .node-beru { margin-left: -32px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="void" aria-hidden="true"></div>
+  <div id="tsparticles" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <main class="deck">
+    <div class="orbit-field" id="orbitField"></div>
+
+    <article class="monolith" id="monolith">
+      <header class="monolith-header">
+        <div class="eyebrow">Bellion · Crónica en vivo</div>
+        <h1 class="title" id="focusTitle">Todos los Generales</h1>
+        <div class="meta-row">
+          <span class="meta-tag">Rango · <em id="metaRank">Monarca</em></span>
+          <span class="meta-tag">Fase · <em>HIERRO</em></span>
+          <span class="meta-tag">Ref · <em>BTC + ETH</em></span>
+        </div>
+      </header>
+
+      <div class="metrics">
+        <div class="metric-cell">
+          <div class="label">Masa</div>
+          <div class="value" id="valMasa">—</div>
+        </div>
+        <div class="metric-cell">
+          <div class="label">Oxígeno</div>
+          <div class="value critical" id="valO2">—</div>
+        </div>
+        <div class="metric-cell">
+          <div class="label">Ops / min</div>
+          <div class="value" id="valOps">—</div>
+        </div>
+      </div>
+
+      <div class="chronicle" id="chronicle" tabindex="0"></div>
+
+      <footer class="monolith-footer">
+        <span><span class="live-pip"></span>historial_hierro.jsonl</span>
+        <span id="entryCount">0 líneas</span>
+      </footer>
+    </article>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.5.0/tsparticles.bundle.min.js"></script>
+  <script>
+    /* —— tsParticles: humo de sombras —— */
+    (async () => {
+      await tsParticles.load({
+        id: "tsparticles",
+        options: {
+          fullScreen: { enable: false },
+          background: { color: { value: "transparent" } },
+          fpsLimit: 60,
+          detectRetina: true,
+          particles: {
+            number: { value: 55, density: { enable: true, width: 1200, height: 900 } },
+            color: { value: ["#14141c", "#1e1828", "#0c0c10", "#221a30"] },
+            shape: { type: "circle" },
+            opacity: {
+              value: { min: 0.04, max: 0.22 },
+              animation: { enable: true, speed: 0.4, sync: false },
+            },
+            size: {
+              value: { min: 1.5, max: 6 },
+              animation: { enable: true, speed: 1.5, sync: false },
+            },
+            move: {
+              enable: true,
+              direction: "top",
+              speed: { min: 0.15, max: 0.55 },
+              random: true,
+              straight: false,
+              outModes: { default: "out", top: "out", bottom: "destroy" },
+            },
+            life: {
+              duration: { value: { min: 8, max: 22 } },
+              count: 1,
+            },
+          },
+          emitters: [
+            {
+              position: { x: 0, y: 105 },
+              size: { width: 100, height: 0 },
+              rate: { delay: 0.15, quantity: 2 },
+              particles: {
+                move: { direction: "top", speed: { min: 0.2, max: 0.65 } },
+              },
+            },
+            {
+              position: { x: 50, y: 108 },
+              size: { width: 80, height: 0 },
+              rate: { delay: 0.22, quantity: 1 },
+            },
+            {
+              position: { x: 100, y: 105 },
+              size: { width: 100, height: 0 },
+              rate: { delay: 0.18, quantity: 2 },
+            },
+          ],
+        },
+      });
+    })();
+
+    /* —— Datos simulados —— */
+    const GENERALS = {
+      all:  { name: "Todos los Generales", rank: "Monarca", masa: "—", o2: "99.87%", ops: 14 },
+      beru: { name: "Beru · El Cazador", rank: "Proto1 · Soldado", masa: "6.00", o2: "—", ops: 5,
+        events: ["CAZA", "COSECHA", "RAIL_ELEGIDO", "RESONANCIA", "PACIENCIA"] },
+      igris:{ name: "Igris · El Escudo", rank: "Mariscal del Manto", masa: "0.200", o2: "99.87%", ops: 4,
+        events: ["ENGORDE", "MANTO", "PODA", "ENGORDE_BLOQUEADO", "REBALANCEO"] },
+      tusk: { name: "Tusk · La Bóveda", rank: "Tesorero · Hierro", masa: "9993.79", o2: "99.87%", ops: 7,
+        events: ["NAV_SYNC", "ANCLAJE", "ÉXITO", "SUCESION", "RESERVA"] },
+      tank: { name: "Tank · La Hidra", rank: "Centinela · 11 frentes", masa: "—", o2: "—", ops: 9,
+        events: ["TRINIDAD", "SENTIDOS_EXTRA", "SEMAFORO", "BINANCE_REF", "PENTIVERSO"] },
+      greed:{ name: "Greed · El Altar", rank: "Francotirador · VIP", masa: "—", o2: "—", ops: 3,
+        events: ["REGALO", "BASIS", "MULTICRUCE", "DISPARO", "VIP"] },
+    };
+
+    const NODES = [
+      { id: "beru",  cls: "node-beru",  img: "placeholder.png", alt: "Beru" },
+      { id: "igris", cls: "node-igris", img: "placeholder.png", alt: "Igris" },
+      { id: "tusk",  cls: "node-tusk",  img: "placeholder.png", alt: "Tusk" },
+      { id: "tank",  cls: "node-tank",  img: "placeholder.png", alt: "Tank" },
+      { id: "greed", cls: "node-greed", img: "placeholder.png", alt: "Greed" },
+    ];
+
+    const FALLBACK_IMG = "placeholder.svg";
+
+    let active = "all";
+    const logs = [];
+    const MAX = 90;
+
+    const $ = (id) => document.getElementById(id);
+
+    function ts() {
+      const d = new Date();
+      const p = (n) => String(n).padStart(2, "0");
+      return `[${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}]`;
+    }
+
+    const MSGS = {
+      CAZA: () => `Anclado ETHUSDT_SPOT @ ${(1744 + Math.random() * 14).toFixed(2)}`,
+      COSECHA: () => `Botín @ ${(0.4 + Math.random() * 1.8).toFixed(2)}%`,
+      NAV_SYNC: () => `Capital ${(9990 + Math.random() * 8).toFixed(2)} | Oxígeno ${(98 + Math.random() * 2).toFixed(2)}%`,
+      TRINIDAD: () => `684 perp + 599 spot · ETHUSDT_SPOT vivo`,
+      ENGORDE_BLOQUEADO: () => `Banda delta no permite crecer`,
+      SEMAFORO: () => `VERDE · ${(38 + Math.random() * 28).toFixed(1)}ms`,
+      REGALO: () => `Cruce USDT×USDC ${(0.09 + Math.random() * 0.18).toFixed(2)}%`,
+      ÉXITO: () => `Ciclo sellado en bóveda`,
+      RESONANCIA: () => `Barco sincronizado @ manto`,
+    };
+
+    function tone(ev) {
+      if (/COSECHA|ÉXITO|ANCLAJE|CAZA|REGALO/.test(ev)) return "ok";
+      if (/BLOQUEADO|PACIENCIA|RECONEXIÓN/.test(ev)) return "warn";
+      if (/ERROR|FALLIDA/.test(ev)) return "alert";
+      return "";
+    }
+
+    function mkLog(forceId) {
+      const id = forceId && forceId !== "all" ? forceId : ["beru","igris","tusk","tank","greed"][Math.floor(Math.random()*5)];
+      const g = GENERALS[id];
+      const ev = g.events[Math.floor(Math.random() * g.events.length)];
+      const fn = MSGS[ev];
+      return {
+        who: id.toUpperCase(),
+        ev,
+        body: fn ? fn() : `${ev} — señal en curso`,
+        tone: tone(ev),
+        ts: ts(),
+      };
+    }
+
+    function renderEntry(e) {
+      return `<div class="log-entry ${e.tone}" data-who="${e.who.toLowerCase()}">
+        <span class="ts">${e.ts}</span>
+        <span class="who"> [${e.who}]</span>
+        <span class="evt"> ${e.ev}:</span>
+        <span class="body"> ${e.body}</span>
+      </div>`;
+    }
+
+    function filtered() {
+      if (active === "all") return logs;
+      return logs.filter((l) => l.who === active.toUpperCase());
+    }
+
+    function paintChronicle() {
+      const el = $("chronicle");
+      const f = filtered();
+      el.innerHTML = f.map(renderEntry).join("");
+      el.scrollTop = el.scrollHeight;
+      $("entryCount").textContent = `${f.length} líneas`;
+    }
+
+    function paintMetrics() {
+      const g = GENERALS[active];
+      $("focusTitle").textContent = g.name;
+      $("metaRank").textContent = g.rank;
+      $("valMasa").textContent = g.masa;
+      $("valO2").textContent = g.o2;
+      $("valOps").textContent = g.ops + (active !== "all" ? Math.floor(Math.random() * 2) : 0);
+    }
+
+    function flashMonolith() {
+      const m = $("monolith");
+      m.classList.add("flash");
+      setTimeout(() => m.classList.remove("flash"), 650);
+    }
+
+    function selectGeneral(id) {
+      active = active === id ? "all" : id;
+      document.querySelectorAll(".node-btn").forEach((b) => {
+        b.classList.toggle("active", b.dataset.id === active);
+      });
+      paintMetrics();
+      paintChronicle();
+      if (id !== "all") flashMonolith();
+    }
+
+    function buildNodes() {
+      const field = $("orbitField");
+      NODES.forEach((n) => {
+        const wrap = document.createElement("div");
+        wrap.className = `node ${n.cls}`;
+        wrap.innerHTML = `
+          <button type="button" class="node-btn" data-id="${n.id}" aria-label="${n.alt}">
+            <img src="${n.img}" alt="${n.alt}" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'" />
+          </button>
+          <span class="node-label">${n.id}</span>`;
+        field.appendChild(wrap);
+      });
+      field.querySelectorAll(".node-btn").forEach((btn) => {
+        btn.addEventListener("click", () => selectGeneral(btn.dataset.id));
+        btn.addEventListener("mouseenter", () => flashMonolith());
+      });
+    }
+
+    function pushLog(entry) {
+      logs.push(entry);
+      if (logs.length > MAX) logs.shift();
+      const show = active === "all" || entry.who === active.toUpperCase();
+      if (show) {
+        const el = $("chronicle");
+        el.insertAdjacentHTML("beforeend", renderEntry(entry));
+        while (el.children.length > MAX) el.removeChild(el.firstChild);
+        el.scrollTop = el.scrollHeight;
+        $("entryCount").textContent = `${filtered().length} líneas`;
+      }
+    }
+
+    function seed() {
+      for (let i = 0; i < 20; i++) logs.push(mkLog());
+      paintChronicle();
+    }
+
+    buildNodes();
+    paintMetrics();
+    seed();
+
+    setInterval(() => {
+      pushLog(mkLog(active === "all" ? null : active));
+      if (active === "tusk" && Math.random() > 0.6) {
+        GENERALS.tusk.masa = (9990 + Math.random() * 10).toFixed(2);
+        paintMetrics();
+      }
+    }, 1600 + Math.random() * 1400);
+  </script>
+</body>
+</html>

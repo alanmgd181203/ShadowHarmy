@@ -584,7 +584,8 @@ def aplicar_a_config(config_module) -> None:
         config_module.INVERSE_PERP_PARES,
         config_module.LINEAR_FUTURES_PARES,
         config_module.INVERSE_FUTURES_PARES,
-        config_module.MARES_PENTIVERSO_ALL,
+        list(config_module.MARES_PENTIVERSO_ALL)
+        + list(getattr(config_module, "FRENTES_BERU_VIGILANCIA", [])),
     )
     config_module.MIN_ORDER_USD_DEFAULT = MIN_ORDER_USD_DEFAULT
     config_module.MIN_ORDER_USD_BY_FRENTE = construir_min_order_por_frente([

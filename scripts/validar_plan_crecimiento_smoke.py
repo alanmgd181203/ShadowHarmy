@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke plan crecimiento — niveles Monarca v1."""
+"""Smoke plan crecimiento — motor dinámico X/A_base + niveles Monarca."""
 from __future__ import annotations
 
 import sys
@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from core import plan_crecimiento as pc
+from core import beru_capital as bc
 
 
 def test_niveles():
@@ -29,12 +30,18 @@ def test_niveles():
     print("  niveles por equity OK")
 
 
-def test_tiers_beru():
-    assert pc.tier_beru_instantaneo(10) == "BERUBBY"
-    assert pc.tier_beru_instantaneo(30) == "PROTO2"
-    assert pc.tier_beru_instantaneo(75) == "PROTO1"
-    assert pc.tier_beru_instantaneo(150) == "PLENO"
-    print("  tiers Beru OK")
+def test_tiers_beru_motor():
+    """Tiers desde rangos X (ceil ETH: Soldado 14–27 … Mariscal 112)."""
+    r = bc.rangos_activo("ETH")
+    x = r["X"]
+    assert pc.tier_beru_instantaneo(x) == "BERUBBY"
+    assert pc.tier_beru_instantaneo(2 * x) == "PROTO2"
+    assert pc.tier_beru_instantaneo(4 * x) == "PROTO1"
+    assert pc.tier_beru_instantaneo(8 * x) == "PLENO"
+    nv = pc.nivel_por_equity(2 * x)
+    assert nv.get("costo_base_X") == x
+    assert nv.get("grado_beru") == "CAPITAN"
+    print("  tiers Beru motor X OK", f"X={x}")
 
 
 def test_presupuesto():
@@ -68,9 +75,9 @@ def test_resumen():
 
 
 def main():
-    print("[SMOKE] Plan crecimiento Monarca v1")
+    print("[SMOKE] Plan crecimiento — motor 5 reglas")
     test_niveles()
-    test_tiers_beru()
+    test_tiers_beru_motor()
     test_presupuesto()
     test_botin_greed()
     test_convivencia()

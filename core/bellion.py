@@ -20,12 +20,39 @@ class BellionAuditor:
         # Rutas dinámicas basadas en el cerebro central
         self.ruta_estado = f"data/estado_{config.FASE_ACTUAL.lower()}.json"
         self.ruta_historial = f"data/historial_{config.FASE_ACTUAL.lower()}.jsonl"
+        self.ruta_historial_cola = "data/historial_cola.jsonl"
+        self._cola_max_lineas = 150
         self._lock = asyncio.Lock() 
 
         if not os.path.exists("data"):
             os.makedirs("data")
+        self._sembrar_cola_desde_historial()
 
-# === [SUBTEMA: CRÓNICAS (REGISTRO HISTÓRICO)] ===
+    def _sembrar_cola_desde_historial(self):
+        """Cola corta para el panel (evita servir 4MB de jsonl por poll)."""
+        try:
+            if not os.path.exists(self.ruta_historial):
+                return
+            with open(self.ruta_historial, "r", encoding="utf-8", errors="replace") as f:
+                lineas = f.readlines()
+            cola = lineas[-self._cola_max_lineas:]
+            with open(self.ruta_historial_cola, "w", encoding="utf-8") as f:
+                f.writelines(cola)
+        except Exception as e:
+            print(f"[BELLION] No se pudo sembrar cola panel: {e}")
+
+    def _actualizar_cola(self, registro: str):
+        try:
+            prev: list[str] = []
+            if os.path.exists(self.ruta_historial_cola):
+                with open(self.ruta_historial_cola, "r", encoding="utf-8", errors="replace") as f:
+                    prev = f.readlines()
+            prev.append(registro if registro.endswith("\n") else registro + "\n")
+            prev = prev[-self._cola_max_lineas:]
+            with open(self.ruta_historial_cola, "w", encoding="utf-8") as f:
+                f.writelines(prev)
+        except Exception:
+            pass
 
     async def anotar(self, general: str, accion: str, detalle: str):
         """Registra el evento en el cristal histórico y lo proyecta al Monarca."""
@@ -35,11 +62,9 @@ class BellionAuditor:
         async with self._lock:
             with open(self.ruta_historial, "a", encoding="utf-8") as f:
                 f.write(registro)
+            self._actualizar_cola(registro)
         
-        # Reflejo instantáneo en consola
         print(registro.strip())
-
-# === [SUBTEMA: PERSISTENCIA (EL CRISTAL DE MEMORIA)] ===
 
     async def guardar_estado(self, datos: dict):
         """Sella la fotografía del Multiverso con seguridad piezoeléctrica."""
@@ -59,8 +84,6 @@ class BellionAuditor:
             except Exception as e:
                 print(f"[BELLION] Error al leer cristal: {e}")
         return None
-
-    # === [SUBTEMA: LEY DE SUCESIÓN (FOTOGRAFÍA MULTIVERSAL)] ===
 
     async def ley_de_sucesion(self, tusk_data, legion):
         """Captura el estado total de la flota y la bóveda para el sellado."""
@@ -100,8 +123,10 @@ class BellionAuditor:
         from core import igris_manto as im
         igris_resumen["promedios_pierna"] = im.resumen_promedios(tusk.pesos)
         from core import plan_crecimiento as pc
+        from core import beru_capital as bc
         eq = float(tusk.masa_bruta_real or tusk.masa_bruta or 0)
         igris_resumen["plan_crecimiento"] = pc.resumen_plan(eq)
+        progresion = bc.telemetria_progresion(eq)
 
         legion_resumen = []
         for b in (beru_legion or []):
@@ -135,8 +160,12 @@ class BellionAuditor:
             "sentidos_extra": tank.snapshot_sentidos_extra() if tank else {},
             "kaiser": kaiser.snapshot() if kaiser else {},
             "margen_ocupado": tusk.margen_ocupado,
+            "total_maintenance_margin_usd": getattr(tusk, "total_maintenance_margin_usd", None),
+            "account_mm_rate": getattr(tusk, "account_mm_rate", None),
+            "igris_posiciones": tusk.snapshot_telemetria_posiciones(),
             "masa_autorizada": tusk.masa_autorizada,
             "masa_bruta": masa_bruta,
+            "masa_bruta_real": float(getattr(tusk, "masa_bruta_real", 0) or 0),
             "peso_long": peso_l,
             "peso_short": peso_s,
             "delta_ratio": (peso_l / masa_bruta) if masa_bruta > 0 else 0.5,
@@ -145,6 +174,12 @@ class BellionAuditor:
             "igris": igris_resumen,
             "greed_basis_abiertos": list(getattr(tusk, "greed_basis_abiertos", None) or []),
             "beru_capital": resumen_capital(),
+            # Motor dinámico — Árbol de Evolución / panel
+            "grado_beru": progresion["grado_beru"],
+            "costo_base_X": progresion["costo_base_X"],
+            "rango_ejercito": progresion["rango_ejercito"],
+            "rango_ejercito_id": progresion["rango_ejercito_id"],
+            "progresion": progresion,
             "pesos_por_frente": {f: dict(p) for f, p in tusk.pesos.items()},
             "pentiverso": tank.snapshot_pentiverso() if tank else {},
             "legion": legion_resumen,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke Beru capital — tiers Proto/Pleno y manto por activo."""
+"""Smoke Beru capital — motor 5 Reglas + ceil X (reserva ≥5%)."""
 from __future__ import annotations
 
 import sys
@@ -13,74 +13,70 @@ from core import beru_tier
 import core.config as config
 
 
-def test_eth_berubby():
-    m = bc.margen_manto_por_tier("ETH", "BERUBBY")
-    assert m == 12.5
-    print("  ETH BERUBBY manto $12.5 OK")
+def test_eth_x_ceil_y_rangos():
+    r = bc.rangos_activo("ETH")
+    # margen 12.5 / 0.95 ≈ 13.16 → ceil → X=14 · Mariscal=112
+    assert r["X"] == 14
+    assert r["SOLDADO"] == (14, 27)
+    assert r["CAPITAN"] == (28, 55)
+    assert r["GENERAL"] == (56, 111)
+    assert r["MARISCAL"] == 112
+    assert (1.0 - r["margen_volumen_base_usd"] / r["X"]) >= 0.05 - 1e-9
+    print("  ETH X=14 (ceil) rangos OK · reserva≥5%")
 
 
-def test_eth_proto1_default():
-    """Arranque Monarca: PROTO1 + ETH semilla → manto ~$50."""
-    assert config.BERU_TIER_DEFAULT == "PROTO1"
-    m = bc.margen_manto_beru_100("ETH")
-    assert m == 50.0
-    eq = bc.equity_minima_recomendada("ETH")
-    assert eq == 50.0
-    print("  ETH PROTO1 manto $50 + equity $50 OK")
+def test_friccion_ley():
+    assert abs(bc.friccion_grado_pct("SOLDADO") - 0.008) < 1e-9
+    assert abs(bc.friccion_grado_pct("CAPITAN") - 0.004) < 1e-9
+    assert abs(bc.friccion_grado_pct("GENERAL") - 0.002) < 1e-9
+    assert abs(bc.friccion_grado_pct("MARISCAL") - 0.001) < 1e-9
+    print("  fricción 0.8/0.4/0.2/0.1 OK")
 
 
-def test_eth_pleno():
-    m = bc.margen_manto_por_tier("ETH", "PLENO")
-    assert m == 100.0
-    print("  ETH PLENO manto $100 OK")
+def test_grado_por_equity():
+    assert bc.grado_en_rango(10, "ETH") == "BLOQUEADO"
+    assert bc.grado_en_rango(20, "ETH") == "SOLDADO"
+    assert bc.grado_en_rango(30, "ETH") == "CAPITAN"
+    assert bc.grado_en_rango(60, "ETH") == "GENERAL"
+    assert bc.grado_en_rango(112, "ETH") == "MARISCAL"
+    print("  grados por equity OK")
 
 
-def test_wif_proto1():
-    m = bc.margen_manto_beru_100("WIF")
-    assert m == 250.0  # pleno $500 / escala 2
-    print("  WIF PROTO1 manto $250 OK")
+def test_cola_graduacion():
+    cola = bc.cola_activos_con_a_base(["ETH", "SOL"])
+    assert cola[0]["A_base"] == 0
+    assert cola[1]["A_base"] == cola[0]["A_base_siguiente"] == 112
+    print("  cola A_base ETH→SOL OK", f"SOL X={cola[1]['X']}")
+
+
+def test_telemetria_cero():
+    t = bc.telemetria_progresion(0)
+    assert t["grado_beru"] == "BLOQUEADO"
+    assert "Inanición" in t["rango_ejercito"]
+    print("  telemetría $0 Inanición OK")
 
 
 def test_capitanes_config():
-    assert abs(config.BERU_VACIO_ANSIEDAD - 0.012) < 1e-6
-    assert abs(config.BERU_VACIO_NORMAL - 0.016) < 1e-6
-    print("  vacios 1.2/1.6 OK")
+    assert abs(config.BERU_FRICCION_SOLDADO_PCT - 0.008) < 1e-9
+    print("  config fricción OK")
 
 
 def test_tiers_pasos():
     t = beru_tier.tier_por_id("PROTO1")
     oz, red = t.pasos("NEGOCIADOR")
-    assert abs(oz - 0.002) < 1e-9 and abs(red - 0.001) < 1e-9
-    oz_c, red_c = t.pasos("CAZA")
-    assert abs(oz_c - 0.001) < 1e-9 and abs(red_c - 0.001) < 1e-9
-    assert abs(t.distancia_clon_pct - 0.002) < 1e-9
-    pleno = beru_tier.tier_por_id("PLENO")
-    assert abs(pleno.distancia_clon_pct - 0.001) < 1e-9
-    bb = beru_tier.tier_por_id("BERUBBY")
-    assert abs(bb.distancia_clon_pct - 0.008) < 1e-9
-    assert bb.oz_tras_toque_red == 0.02
-    oz_bb = beru_tier.oz_berubby_tras_toque_red(100.0, "SHORT")
-    assert abs(oz_bb - 98.0) < 1e-6
-    print("  PROTO1 + BERUBBY pasos OK")
-
-
-def test_tabla_flota():
-    filas = bc.tabla_flota_beru()
-    assert len(filas) >= 30  # activos × tiers
-    eth_proto = next(f for f in filas if f["activo"] == "ETH" and f["tier"] == "PROTO1")
-    assert eth_proto["es_semilla"]
-    assert eth_proto["margen_manto_tier_usd"] == 50.0
-    print("  flota", len(filas), "filas OK")
+    assert abs(oz - 0.002) < 1e-9
+    print("  PROTO1 pasos OK")
 
 
 def main():
-    test_eth_berubby()
-    test_eth_proto1_default()
-    test_eth_pleno()
-    test_wif_proto1()
+    print("[SMOKE] Beru capital — fricción + ceil")
+    test_eth_x_ceil_y_rangos()
+    test_friccion_ley()
+    test_grado_por_equity()
+    test_cola_graduacion()
+    test_telemetria_cero()
     test_capitanes_config()
     test_tiers_pasos()
-    test_tabla_flota()
     print("OK beru capital smoke")
     return 0
 

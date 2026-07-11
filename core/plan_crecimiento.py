@@ -27,6 +27,7 @@ _NIVELES_MONARCA: tuple[tuple[float, NivelMonarca, list[str] | None, str]] = (
 )
 
 _TIER_BERU_UMBRALES: tuple[tuple[float, BeruTierId]] = (
+    # LEGACY — reemplazado por beru_capital.resolver_activo_y_grado (motor X/A_base)
     (25.0, "BERUBBY"),
     (50.0, "PROTO2"),
     (100.0, "PROTO1"),
@@ -100,13 +101,15 @@ def barcos_desbloqueados_por_nivel(nivel: str) -> list[str]:
 
 
 def tier_beru_instantaneo(equity_usd: float) -> BeruTierId:
-    eq = max(0.0, float(equity_usd))
-    tid: BeruTierId = "PLENO"
-    for umbral, tier_id in _TIER_BERU_UMBRALES:
-        if eq < umbral:
-            tid = tier_id
-            break
-    return tid
+    """Tier Beru desde motor dinámico X/A_base (semilla + cola)."""
+    res = bc.resolver_activo_y_grado(equity_usd)
+    grado = res.get("grado", "BLOQUEADO")
+    if grado == "BLOQUEADO":
+        return "BERUBBY"
+    tid = res.get("tier_id") or bc.tier_id_desde_grado(grado)
+    if tid in ("BERUBBY", "PROTO2", "PROTO1", "PLENO"):
+        return tid  # type: ignore[return-value]
+    return "PROTO1"
 
 
 def tier_beru_nombre(tier_id: str) -> str:
@@ -120,7 +123,13 @@ def nivel_titulo(nivel: str) -> str:
 def equity_min_por_caza(asset: str | None = None, tier_id: str | None = None) -> float:
     a = (asset or activo_semilla()).upper()
     tid = tier_id or tier_beru_instantaneo(0)
-    return bc.equity_minima_recomendada(a, tier_id=tid)
+    cola = bc.cola_activos_con_a_base()
+    ab = 0
+    for fila in cola:
+        if fila["activo"] == a:
+            ab = fila["A_base"]
+            break
+    return bc.equity_minima_recomendada(a, tier_id=tid, a_base=ab)
 
 
 def equity_min_por_pez(asset: str | None = None, tier_id: str | None = None) -> float:
@@ -207,13 +216,15 @@ def nivel_por_equity(equity_usd: float) -> dict[str, Any]:
 
     tier_inst = tier_beru_instantaneo(eq)
     tier_aplicado = tier_beru_para_cuenta(eq) if getattr(config, "MONARCA_NIVEL_AUTO", False) else tier_inst
+    motor = bc.resolver_activo_y_grado(eq)
     res = reserva_pct()
     eq_deploy = eq * (1.0 - res)
     min_caza = equity_min_por_caza(tier_id=tier_aplicado)
     cazas_por_capital = int(eq_deploy // min_caza) if min_caza > 0 else 0
     cazas_max = min(len(activos), max(1, cazas_por_capital)) if eq > 0 and activos else 0
-    if eq < 25:
-        cazas_max = 1 if eq > 0 else 0
+    piso_soldado = float((motor.get("rangos") or {}).get("SOLDADO", (0, 0))[0] or 0)
+    if eq < piso_soldado:
+        cazas_max = 0
 
     return {
         "equity_usd": round(eq, 2),
@@ -225,6 +236,11 @@ def nivel_por_equity(equity_usd: float) -> dict[str, Any]:
         "tier_aplicado": tier_aplicado,
         "tier_nombre": tier_beru_nombre(tier_aplicado),
         "tier_default": tier_aplicado,
+        "grado_beru": motor.get("grado"),
+        "activo_motor": motor.get("activo"),
+        "costo_base_X": motor.get("X"),
+        "A_base": motor.get("A_base"),
+        "rangos_motor": motor.get("rangos"),
         "equity_min_por_caza_usd": round(min_caza, 2),
         "equity_min_por_pez_usd": round(min_caza, 2),
         "reserva_pct": res,

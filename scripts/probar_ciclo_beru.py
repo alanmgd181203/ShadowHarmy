@@ -20,6 +20,7 @@ from core.bellion import BellionAuditor  # noqa: E402
 from generales.tusk import TuskBoveda  # noqa: E402
 from generales.beru import BeruCazador  # noqa: E402
 from generales.capitanes import CapitanCazador  # noqa: E402
+from core.beru_rail import frentes_casa_estables  # noqa: E402
 
 
 class TankMock:
@@ -39,8 +40,8 @@ class TankMock:
         ahora = time.time() * 1000
         p = self.precio if self._modo == "caza" else self.precio_cosecha
         ctx_map = {}
-        for f in config.FRENTES_CASA:
-            sym, mtype = f.split("_")
+        for f in frentes_casa_estables():
+            sym, mtype = f.split("_", 1)
             ctx_map[f] = MarketContext(
                 symbol=sym, market_type=mtype,
                 last_price=p, spread=0.01,

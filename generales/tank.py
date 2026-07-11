@@ -10,8 +10,14 @@ import core.config as config
 
 
 def _frentes_iniciales():
-    frentes = getattr(config, "FRENTES_TANK", None) or config.MARES_PENTIVERSO_ALL
+    frentes = getattr(config, "FRENTES_TANK", None) or getattr(
+        config, "FRENTES_RESONANCIA_TANK", config.MARES_PENTIVERSO_ALL,
+    )
     return list(frentes)
+
+
+def _frentes_resonancia():
+    return getattr(config, "FRENTES_RESONANCIA_TANK", config.MARES_PENTIVERSO_ALL)
 
 
 class TankNode:
@@ -166,6 +172,7 @@ class TankCluster:
         n_tri = len(getattr(config, "ACTIVOS_TRINIDAD", []))
         print(
             f"[TANK] Trinidad {n_tri} activos | pentiverso {config.ACTIVOS_PENTIVERSO} | "
+            f"beru {getattr(config, 'FRENTES_BERU_VIGILANCIA', [])} | "
             f"ref: {self.ticker_base} ({config.FASE_ACTUAL})."
         )
         while True:
@@ -251,12 +258,16 @@ class TankCluster:
     async def vision_especulativa(self):
         lider = self._obtener_lider_verde()
         if not lider:
+            candidatos = sorted(self.nodos, key=lambda n: n.ultima_actualizacion, reverse=True)
+            lider = candidatos[0] if candidatos else None
+        if not lider:
             return None, "ROJO"
         ahora_ms = time.time() * 1000
         frentes = lider.precios_con_reflejo()
+        vigia = set(_frentes_resonancia())
         ctx_map = {}
         for f, p in frentes.items():
-            if f not in config.MARES_PENTIVERSO_ALL:
+            if f not in vigia:
                 continue
             muro = lider.muros.get(f, {"ask": 0.0, "bid": 0.0})
             ctx_map[f] = MarketContext(

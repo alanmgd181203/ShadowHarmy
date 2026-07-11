@@ -1,7 +1,7 @@
 """Greed — evaluar cola Kaiser, ruta idónea, vetos, plan de ejecución.
 
-Nota doctrina (21 §A): Greed no administra el manto (eso es Igris). Un arbitraje puede
-cruzar frentes del manto y alterar L/S brevemente; Igris rebalancea/poda por margen.
+Doctrina Monarca 2026-07-11: tras YIELD de Igris (margen 85–90%), Greed es el
+ejecutor del manto (rebalanceo, poda, restauración). Ver manto_jurisdiccion.py.
 """
 from __future__ import annotations
 

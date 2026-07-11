@@ -28,6 +28,9 @@ class TuskBoveda:
         self.masa_bruta_real = 100.0    # Capital total bajo gestión
         self.margen_ocupado = 0.0       # % de uso en Bybit
         self.masa_autorizada = 100.0    # Energía disponible para nuevas sombras
+        self.total_maintenance_margin_usd = None  # Lectura cruda wallet UNIFIED (Bybit)
+        self.account_mm_rate = None               # accountMMRate crudo (Bybit)
+        self.telemetria_posiciones_manto: dict | None = None  # Panel — posiciones Long/Short
         
         self.masa_reservada_ltc = 0.0   # Masa en tránsito (no confirmada aún)
         self.referencia_escalon = 0.0   # Nivel de potencia actual
@@ -38,6 +41,9 @@ class TuskBoveda:
         self.greed_basis_abiertos: list = []
         self.nivel_monarca = "ASPIRANTE"
         self.tier_beru_aplicado = str(getattr(config, "BERU_TIER_DEFAULT", "PROTO1"))
+        # Jurisdicción manto Igris→Greed
+        self.cola_ordenes_manto: list = []
+        self.manto_cedido_a_greed: bool = False
         self._verificar_infraestructura()
 
     # === [SUBTEMA: INFRAESTRUCTURA Y PERSISTENCIA] ===
@@ -82,7 +88,14 @@ class TuskBoveda:
             self.precio_perp, self.precio_spot, self.precio_inverse = p_perp, p_spot, p_inv
             self.ultimo_precio = p_perp 
 
-    async def actualizar_nav_real(self, balance_total: float, margen_real: float):
+    async def actualizar_nav_real(
+        self,
+        balance_total: float,
+        margen_real: float,
+        *,
+        total_maintenance_margin: float | None = None,
+        account_mm_rate: float | None = None,
+    ):
         """
         Inyecta el balance real desde Bybit. 
         Actualiza la masa bruta y recalcula el oxígeno disponible.
@@ -92,6 +105,10 @@ class TuskBoveda:
             self.masa_bruta = balance_total
             self.masa_bruta_real = balance_total
             self.margen_ocupado = margen_real
+            if total_maintenance_margin is not None:
+                self.total_maintenance_margin_usd = total_maintenance_margin
+            if account_mm_rate is not None:
+                self.account_mm_rate = account_mm_rate
             
             # 2. Recalculamos la potencia de disparo basada en el capital real
             base = config.ESCALON_POTENCIA_BASE
@@ -249,13 +266,48 @@ class TuskBoveda:
         except Exception as e:
             await self.bel.anotar("TUSK", "RECONCILIACIÓN_EXCEPCIÓN", str(e))
 
+    async def actualizar_telemetria_posiciones(self, bridge):
+        """Lee posiciones abiertas en Bybit — solo telemetría para el panel."""
+        from core.telemetria_igris import telemetria_desde_exchange, telemetria_desde_pesos
+
+        equity = float(self.masa_bruta_real or self.masa_bruta or 0)
+
+        if config.MODO_SIMULACION or not bridge or not bridge.session:
+            self.telemetria_posiciones_manto = telemetria_desde_pesos(dict(self.pesos), equity)
+            return
+
+        try:
+            posiciones: list[dict] = []
+            for category, settle in (("linear", "USDT"), ("inverse", None)):
+                kwargs = {"category": category}
+                if settle:
+                    kwargs["settleCoin"] = settle
+                resp = bridge.session.get_positions(**kwargs)
+                if resp.get("retCode") == 0:
+                    posiciones.extend(resp.get("result", {}).get("list", []) or [])
+
+            if posiciones:
+                self.telemetria_posiciones_manto = telemetria_desde_exchange(posiciones, equity)
+            else:
+                self.telemetria_posiciones_manto = telemetria_desde_pesos(dict(self.pesos), equity)
+        except Exception:
+            self.telemetria_posiciones_manto = telemetria_desde_pesos(dict(self.pesos), equity)
+
+    def snapshot_telemetria_posiciones(self) -> dict:
+        from core.telemetria_igris import telemetria_desde_pesos
+
+        if self.telemetria_posiciones_manto:
+            return self.telemetria_posiciones_manto
+        equity = float(self.masa_bruta_real or self.masa_bruta or 0)
+        return telemetria_desde_pesos(dict(self.pesos), equity)
+
     async def hilo_reconciliacion(self, bridge):
         """Cada 60s reconcilia pesos internos con posiciones reales del exchange."""
-        if config.MODO_SIMULACION:
-            return
         await asyncio.sleep(10)
         while True:
-            await self.reconciliar_con_exchange(bridge)
+            await self.actualizar_telemetria_posiciones(bridge)
+            if not config.MODO_SIMULACION:
+                await self.reconciliar_con_exchange(bridge)
             await asyncio.sleep(60)
 
     def _symbol_a_frente(self, symbol):

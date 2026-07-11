@@ -1,19 +1,32 @@
-"""Beru Negociador — post-cazador: abismo 1.6%, oz condicional, acordeón 5+resorte."""
+"""Beru Negociador — abismo -2%, vacío Adán 0.5%, reciclaje sin engorde."""
 from __future__ import annotations
 
 from core import beru_cazador
 from core import beru_tier
+import core.config as config
 
-FaseNeg = str  # ESPERANDO_CONDICIONAL | ACORDEON
+FaseNeg = str  # ESPERANDO_CONDICIONAL | ARMADO_ADAN | ACORDEON | RECICLANDO
 
 
-def abismo_pct(vacio_adan: float) -> float:
-    """Distancia oz condicional desde ancla de cosecha (= vacío Normal 1.6%)."""
-    return float(vacio_adan)
+def abismo_salida_pct() -> float:
+    """Distancia fija de salida tras caza (−2% doctrina Monarca)."""
+    return float(getattr(config, "BERU_ABISMO_SALIDA_PCT", 0.02))
+
+
+def adan_armado_pct() -> float:
+    """Vacío Adán: armar bracket en memoria cuando el precio está a ≤0.5% del trigger."""
+    return float(getattr(config, "BERU_ADAN_ARMADO_PCT", 0.005))
+
+
+def abismo_pct(vacio_adan: float | None = None) -> float:
+    """Preferir abismo de salida fijo 2%; vacio_adan queda como fallback legacy."""
+    fijo = abismo_salida_pct()
+    if fijo > 0:
+        return fijo
+    return float(vacio_adan or getattr(config, "BERU_VACIO_NORMAL", 0.016))
 
 
 def lado_desde_ancla(ancla_pct: float) -> int:
-    """+1 = ancla arriba del manto (cazador SHORT); −1 = ancla abajo (cazador LONG)."""
     if ancla_pct > 0:
         return -1
     if ancla_pct < 0:
@@ -21,14 +34,54 @@ def lado_desde_ancla(ancla_pct: float) -> int:
     return -1
 
 
-def oz_condicional_pct(ancla_pct: float, vacio: float) -> float:
-    """Oz condicional al otro lado del manto: ±abismo desde ancla de cosecha."""
+def oz_condicional_pct(ancla_pct: float, vacio: float | None = None) -> float:
+    """Trigger de salida: ancla − 2% (hacia el 0 / retroceso)."""
     abismo = abismo_pct(vacio)
     if ancla_pct > 0:
         return ancla_pct - abismo
     if ancla_pct < 0:
         return ancla_pct + abismo
     return -abismo
+
+
+def trigger_salida_precio(precio_entrada: float, direccion: str) -> float:
+    """Precio absoluto de salida: −2% respecto a entrada (LONG baja; SHORT sube para cubrir)."""
+    ab = abismo_salida_pct()
+    if direccion == "LONG":
+        return precio_entrada * (1.0 - ab)
+    return precio_entrada * (1.0 + ab)
+
+
+def trigger_recompra_precio(precio_venta: float, direccion: str) -> float:
+    """Tras soltar: recompra +2% arriba del precio de venta (mismo volumen)."""
+    ab = abismo_salida_pct()
+    if direccion == "LONG":
+        return precio_venta * (1.0 + ab)
+    return precio_venta * (1.0 - ab)
+
+
+def distancia_pct_a_trigger(precio: float, trigger: float) -> float:
+    if trigger <= 0:
+        return 999.0
+    return abs(precio - trigger) / trigger
+
+
+def precio_cerca_de_trigger(precio: float, trigger: float, umbral: float | None = None) -> bool:
+    """Vacío Adán: True si el precio está a ≤ umbral del trigger (default 0.5%)."""
+    u = adan_armado_pct() if umbral is None else float(umbral)
+    return distancia_pct_a_trigger(precio, trigger) <= u + 1e-12
+
+
+def toca_trigger_precio(precio: float, trigger: float, direccion: str, modo: str = "SALIDA") -> bool:
+    """modo SALIDA: LONG vende si precio≤trigger; SHORT cubre si precio≥trigger.
+    modo RECOMPRA: inverso."""
+    if modo == "RECOMPRA":
+        if direccion == "LONG":
+            return precio >= trigger - 1e-9
+        return precio <= trigger + 1e-9
+    if direccion == "LONG":
+        return precio <= trigger + 1e-9
+    return precio >= trigger - 1e-9
 
 
 def pasos_negociador(tier_id: str | None) -> tuple[float, float]:
@@ -44,7 +97,7 @@ def activar_primera_vez(
     oz_cond_pct: float,
     paso_oz: float,
 ) -> tuple[float, float]:
-    """Primera activación: oz y red avanzan paso_oz; red queda más cerca del 0 (orden inverso)."""
+    """Primera activación: oz y red avanzan paso_oz; red queda más cerca del 0."""
     if oz_cond_pct < 0:
         oz_n = oz_cond_pct - paso_oz
         red_n = oz_cond_pct + paso_oz
@@ -54,20 +107,33 @@ def activar_primera_vez(
     return oz_n, red_n
 
 
+def bracket_desde_trigger_precio(
+    trigger: float,
+    centro: float,
+    direccion: str,
+    paso_oz: float,
+) -> tuple[float, float, float, float]:
+    """Devuelve (oz_pct, red_pct, oz_precio, red_precio) alrededor del trigger."""
+    if centro <= 0:
+        centro = trigger
+    oz_pct = beru_cazador.pct_desde_precio(centro, trigger)
+    oz_n, red_n = activar_primera_vez(oz_pct, paso_oz)
+    oz_p, red_p = sincronizar_grid(centro, oz_n, red_n)
+    return oz_n, red_n, oz_p, red_p
+
+
 def avanzar_toque_oz(
     oz_pct: float,
     red_pct: float,
     paso_oz: float,
     paso_red: float,
 ) -> tuple[float, float]:
-    """Toques 2–5: oz paso_oz, red paso_red en la misma dirección (sin engorde)."""
     if oz_pct < 0:
         return oz_pct - paso_oz, red_pct - paso_red
     return oz_pct + paso_oz, red_pct + paso_red
 
 
 def resorte_sexto_toque(oz_pct: float, paso_oz: float) -> tuple[float, float]:
-    """6.º toque: oz +paso extra; red salta a 0.1% bajo la oz condicional del disparo."""
     if oz_pct < 0:
         condicional = oz_pct - paso_oz
         oz_n = condicional - paso_oz
@@ -94,8 +160,17 @@ def toca_condicional(precio: float, centro: float, oz_cond_pct: float) -> bool:
     return precio >= p_oz - 1e-9
 
 
+def cerca_condicional(
+    precio: float,
+    centro: float,
+    oz_cond_pct: float,
+    umbral: float | None = None,
+) -> bool:
+    p_oz = beru_cazador.precio_desde_pct(centro, oz_cond_pct)
+    return precio_cerca_de_trigger(precio, p_oz, umbral)
+
+
 def toca_red_negociador(precio: float, centro: float, red_pct: float) -> bool:
-    """Toque de red negociador (subida desde abajo) = oz en modo caza."""
     p_red = beru_cazador.precio_desde_pct(centro, red_pct)
     if red_pct < 0:
         return precio >= p_red - 1e-9
@@ -103,7 +178,6 @@ def toca_red_negociador(precio: float, centro: float, red_pct: float) -> bool:
 
 
 def gatillo_caza_pct(vacio_adan: float, direccion_caza: str) -> float:
-    """Nivel ±vacío/2 para armar grid cazador fantasma tras cruzar abismo."""
     g = beru_cazador.gatillo_pct(vacio_adan)
     return g if direccion_caza == "SHORT" else -g
 
