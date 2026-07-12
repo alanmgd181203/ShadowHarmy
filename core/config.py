@@ -281,25 +281,33 @@ GREED_MEGA_VIP_RIESGO_MAX_PCT = float(os.getenv("GREED_MEGA_VIP_RIESGO_MAX_PCT",
 GREED_VIP_SONDAS_MIN = int(os.getenv("GREED_VIP_SONDAS_MIN", "3"))
 GREED_VIP_MICROS_POR_CICLO = int(os.getenv("GREED_VIP_MICROS_POR_CICLO", "1"))
 
-BOOTSTRAP_MANTO_FRACCION = 0.25
+BOOTSTRAP_MANTO_FRACCION = float(os.getenv("BOOTSTRAP_MANTO_FRACCION", "0"))  # 0 = sin tope 25%; sizing vía beru_capital
 # Engorde: pasos duales L/S (no tragar toda masa_autorizada de un lado)
 ENGORDE_PASO_FRACCION = float(os.getenv("ENGORDE_PASO_FRACCION", "0.05"))
 ENGORDE_PASO_MIN = float(os.getenv("ENGORDE_PASO_MIN", "0.1"))
 ENGORDE_BLOQUEADO_LOG_S = float(os.getenv("ENGORDE_BLOQUEADO_LOG_S", "60"))
 ENGORDE_FAIL_COOLDOWN_S = float(os.getenv("ENGORDE_FAIL_COOLDOWN_S", "30"))
 
+# Igris — despliegue paciente §E (Ask/Bid, fees break-even, urgencia, micro-mordidas)
+IGRIS_URGENCIA_TAU_HORAS = float(os.getenv("IGRIS_URGENCIA_TAU_HORAS", "8"))  # horas hasta holgura plena
+IGRIS_URGENCIA_HOLGURA_MAX_PCT = float(os.getenv("IGRIS_URGENCIA_HOLGURA_MAX_PCT", "0.05"))  # spread negativo máx.
+IGRIS_MICRO_MAX_USD = float(os.getenv("IGRIS_MICRO_MAX_USD", "25"))  # techo por micro-mordida
+IGRIS_ESPERA_LOG_S = float(os.getenv("IGRIS_ESPERA_LOG_S", "60"))
+IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))  # reintentar puerta pronto
+
 FASE_ACTUAL = "HIERRO"
 VERSION = "2.0.0"
 SISTEMA_NOMBRE = f"LILIT DE {FASE_ACTUAL} V{VERSION}"
 
-# Igris / Greed — jurisdicción del manto (doctrina Monarca 2026-07-11)
-RANGO_EXPANSION_MIN = 80.0       # legacy: umbral bajo absoluto
-RANGO_PISO_IDEAL = 85.0          # piso zona ideal — bajo esto → Greed restaura
-RANGO_OBJETIVO_MARGEN = 90.0     # techo zona ideal — Igris YIELD al entrar 85–90
-RANGO_LIMPIEZA_MAX = 93.0        # zona alta (Greed puede limpiar)
-MURO_LEY_MARCIAL = 95.0          # ≥95%: Greed poda fuerte de emergencia
-IGRIS_YIELD_EN_ZONA_IDEAL = os.getenv("IGRIS_YIELD_EN_ZONA_IDEAL", "true").lower() == "true"
-GREED_MANTO_EJECUTOR = os.getenv("GREED_MANTO_EJECUTOR", "true").lower() == "true"
+# Igris — gobernador absoluto del manto (doctrina Monarca 2026-07-12)
+# Empuja margen hasta el muro 95%; reserva oxígeno 5% (MONARCA_RESERVA_PCT).
+RANGO_EXPANSION_MIN = 80.0
+RANGO_PISO_IDEAL = 95.0          # bajo esto → Igris sigue engordando
+RANGO_OBJETIVO_MARGEN = 95.0     # horizonte operativo = muro (ya no 85–90)
+RANGO_LIMPIEZA_MAX = 95.0
+MURO_LEY_MARCIAL = 95.0          # ≥95%: Igris poda; oxigeno ≥5%
+IGRIS_YIELD_EN_ZONA_IDEAL = os.getenv("IGRIS_YIELD_EN_ZONA_IDEAL", "false").lower() == "true"
+GREED_MANTO_EJECUTOR = os.getenv("GREED_MANTO_EJECUTOR", "false").lower() == "true"
 GREED_VIP_PERMITIR_EN_LEY_MARCIAL = os.getenv("GREED_VIP_PERMITIR_EN_LEY_MARCIAL", "true").lower() == "true"
 GREED_MANTO_TOQUE_COOLDOWN_S = float(os.getenv("GREED_MANTO_TOQUE_COOLDOWN_S", "45"))
 

@@ -56,7 +56,7 @@ async def arise():
     print("\n" + "═" * 45)
     print(f"    {config.SISTEMA_NOMBRE} VIBRANDO    ")
     print(f"      FASE: {config.FASE_ACTUAL}      ")
-    print("      IGRIS orquesta · GREED ejecuta      ")
+    print("      IGRIS gobierna manto · GREED caza      ")
     print("═" * 45)
 
     shutdown_event = asyncio.Event()
@@ -81,7 +81,7 @@ async def arise():
             print(f"[BELLION] Recovery: bóveda restaurada.")
 
         igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge)
-        # Greed ejecutor del manto (Kaiser opcional; steward manto siempre)
+        # Greed: caza/arbitraje; manto es solo Igris
         greed = GreedFrancotirador(tusk, bellion, tank, bridge=bridge, kaiser=None, igris=igris)
         igris.greed = greed
 
@@ -90,8 +90,9 @@ async def arise():
 
         panel = PanelDeControl(tusk, igris, tank)
 
-        print(f"\n[⚔️] Igris→Greed manto | ref: {config.TICKER_BASE} | sim={config.MODO_SIMULACION}")
+        print(f"\n[⚔️] Igris gobierna manto → muro 95% | ref: {config.TICKER_BASE} | sim={config.MODO_SIMULACION}")
         print("[🌑] Beru en hibernación de hilos — lógica de reciclaje/fusión en código lista.")
+        print("[🎯] Greed: arbitraje/VIP sin jurisdicción sobre el escudo L/S.")
 
         await asyncio.gather(
             tusk.latido_persistencia([]),

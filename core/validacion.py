@@ -170,13 +170,15 @@ def check_modo_simulacion_gate() -> CheckResult:
 
 
 def check_bootstrap_manto_codigo() -> CheckResult:
-    ok = hasattr(config, "BOOTSTRAP_MANTO_FRACCION") and config.BOOTSTRAP_MANTO_FRACCION > 0
+    # Fracción 0 = sizing vía beru_capital (sin tope 25%); código debe tener BOOTSTRAP_MANTO
+    ok_cfg = hasattr(config, "BOOTSTRAP_MANTO_FRACCION")
     igris = _ruta("generales/igris.py")
-    tiene = os.path.exists(igris) and "BOOTSTRAP_MANTO" in open(igris, encoding="utf-8").read()
+    src = open(igris, encoding="utf-8").read() if os.path.exists(igris) else ""
+    tiene = "BOOTSTRAP_MANTO" in src and "rangos_activo" in src
     return CheckResult(
         "3.5", "3", "Bootstrap manto Igris (código)",
-        "pass" if ok and tiene else "fail",
-        f"BOOTSTRAP_MANTO_FRACCION={getattr(config, 'BOOTSTRAP_MANTO_FRACCION', '?')}",
+        "pass" if ok_cfg and tiene else "fail",
+        f"BOOTSTRAP_MANTO_FRACCION={getattr(config, 'BOOTSTRAP_MANTO_FRACCION', '?')} · beru_capital",
     )
 
 
@@ -318,20 +320,27 @@ def check_beru_proto() -> CheckResult:
 
 def check_igris_manto_se() -> CheckResult:
     manto = _ruta("core/igris_manto.py")
+    desp = _ruta("core/igris_despliegue.py")
     igris = _ruta("generales/igris.py")
     if not os.path.exists(manto):
         return CheckResult("3.5.8", "3", "Igris §E manto", "fail", "Falta igris_manto.py")
+    if not os.path.exists(desp):
+        return CheckResult("3.5.8", "3", "Igris §E manto", "fail", "Falta igris_despliegue.py")
     i = open(igris, encoding="utf-8").read()
     m = open(manto, encoding="utf-8").read()
-    ok = "igris_manto" in i and "frentes_bootstrap" in m
-    tiene_ancla = "from core import ancla" in i or "import ancla" in i
+    d = open(desp, encoding="utf-8").read()
+    ok = (
+        "igris_manto" in i
+        and "frentes_bootstrap" in m
+        and "evaluar_puerta_se" in d
+        and "igris_despliegue" in i
+        and "_inyectar_dual_paciente" in i
+    )
     if not ok:
-        return CheckResult("3.5.8", "3", "Igris §E manto", "fail", "Falta cableo igris_manto")
-    if tiene_ancla:
-        return CheckResult("3.5.8", "3", "Igris §E manto", "pass", "bootstrap + promedios + Ancla")
+        return CheckResult("3.5.8", "3", "Igris §E manto", "fail", "Falta cableo igris paciente §E")
     return CheckResult(
-        "3.5.8", "3", "Igris §E manto", "stub",
-        "bootstrap inverse L + promedios OK; Ancla maniobras pendiente",
+        "3.5.8", "3", "Igris §E manto", "pass",
+        "dual §E Ask/Bid + fees break-even + urgencia + micro-mordidas",
     )
 
 

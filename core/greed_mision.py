@@ -1,7 +1,7 @@
 """Greed — evaluar cola Kaiser, ruta idónea, vetos, plan de ejecución.
 
-Doctrina Monarca 2026-07-11: tras YIELD de Igris (margen 85–90%), Greed es el
-ejecutor del manto (rebalanceo, poda, restauración). Ver manto_jurisdiccion.py.
+Doctrina Monarca 2026-07-12: el manto L/S es jurisdicción exclusiva de Igris
+(hasta muro 95%). Greed caza arbitraje/VIP/basis sin administrar el escudo.
 """
 from __future__ import annotations
 

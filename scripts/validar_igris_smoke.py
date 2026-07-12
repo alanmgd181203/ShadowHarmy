@@ -16,11 +16,10 @@ import core.config as config
 def test_fases_margen():
     assert ie.fase_margen(75) == "EXPANSION"
     assert ie.fase_margen(82) == "TERRENO_CAZA"
-    assert ie.fase_margen(87) == "IDEAL"
-    assert ie.fase_margen(91) == "ALTA_PRESION"
-    assert ie.fase_margen(94) == "PRE_PODA"
+    assert ie.fase_margen(93) == "ALTA_PRESION"
+    assert ie.fase_margen(94) == "ALTA_PRESION"
     assert ie.fase_margen(96) == "LEY_MARCIAL"
-    print("  fases margen OK")
+    print("  fases margen OK (horizonte 95%)")
 
 
 def test_banda_delta():
@@ -70,12 +69,54 @@ def test_bootstrap_se():
     print("  bootstrap §E + promedio OK")
 
 
+def test_despliegue_paciente():
+    from core import igris_despliegue as ides
+    import time
+
+    # Long Ask 100, Short Bid 100.2 → spread a favor ~0.2%
+    sp = ides.spread_ejecutable_pct(100.0, 100.2)
+    assert sp > 0.19
+    assert ides.spread_ejecutable_pct(100.2, 100.0) < 0
+
+    fees = ides.fees_break_even_pct("ETHUSD_INVERSE", "ETHUSDT_LINEAL")
+    assert fees > 0
+
+    t0 = time.time()
+    u0 = ides.umbral_urgencia_pct(fees, t0, ahora=t0)
+    assert abs(u0["umbral_pct"] - fees) < 1e-9
+    assert u0["factor"] == 0.0
+
+    # Tras tau horas: umbral negativo hasta -holgura
+    import core.config as config
+    tau = float(config.IGRIS_URGENCIA_TAU_HORAS)
+    u1 = ides.umbral_urgencia_pct(fees, t0, ahora=t0 + tau * 3600)
+    assert u1["factor"] == 1.0
+    assert u1["umbral_pct"] <= 0
+    assert abs(u1["umbral_pct"] + float(config.IGRIS_URGENCIA_HOLGURA_MAX_PCT)) < 1e-6
+
+    class FakeTank:
+        libros = {
+            "ETHUSD_INVERSE": {"bids": [[99.9, 10]], "asks": [[100.0, 50]]},
+            "ETHUSDT_LINEAL": {"bids": [[100.25, 40]], "asks": [[100.3, 10]]},
+        }
+
+    puerta = ides.evaluar_puerta_se(
+        FakeTank(), "ETHUSD_INVERSE", "ETHUSDT_LINEAL",
+        t0_paciencia=t0, restante_usd=105.0, ahora=t0,
+    )
+    assert puerta["ok"], puerta
+    assert puerta["micro_usd"] <= float(config.IGRIS_MICRO_MAX_USD)
+    assert puerta["masa"] > 0
+    print("  despliegue paciente OK:", puerta["spread_pct"], "≥", puerta["umbral_pct"], "micro$", puerta["micro_usd"])
+
+
 def main():
     test_fases_margen()
     test_banda_delta()
     test_resumen_manto()
     test_frentes_manto()
     test_bootstrap_se()
+    test_despliegue_paciente()
     print("OK igris smoke")
     return 0
 

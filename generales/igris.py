@@ -4,6 +4,7 @@ import uuid
 
 from core import mercado
 from core import igris_manto as im
+from core import igris_despliegue as ides
 from core import beru_capital as bc
 from core import manto_jurisdiccion as mj
 from core.manto_touch import limpiar_toques_expirados, rebalanceo_en_pausa_por_greed
@@ -13,8 +14,9 @@ import core.config as config
 class IgrisEscudo:
     def __init__(self, tusk, tank, bellion, bridge=None, greed=None):
         """
-        Igris: El Escudo — orquestador del manto.
-        Ejecuta solo hasta zona ideal 85–90%; luego YIELD a Greed.
+        Igris: El Escudo — gobernador absoluto del manto L/S.
+        Empuja margen hasta el muro 95% (oxígeno ≥5%); sin cesión a Greed.
+        Despliegue paciente §E: dual inverse/lineal, Ask/Bid, fees, urgencia, micros.
         """
         self.tusk = tusk
         self.tank = tank
@@ -26,30 +28,93 @@ class IgrisEscudo:
         self.cooldown_maniobra_s = 5.0
         self._ultimo_log_engorde_bloqueado = 0.0
         self._engorde_fail_until = 0.0
+        self._ultimo_log_espera_spread = 0.0
+
+        # Paciencia / urgencia: se reinicia tras cada micro-mordida dual exitosa
+        self._paciencia_t0 = time.time()
+        # Fragmentación: USD objetivo del bloque Beru vs ya inyectado en micros
+        self._bloque_objetivo_usd = 0.0
+        self._bloque_inyectado_usd = 0.0
 
         self._capital_pre_vuelo = 0.0
         self._rango_progresion: str | None = None
-        self._ejecucion_directa_activa = True  # False = yield a Greed
+        self._activo_beru: str | None = None
+        self._rangos_beru: dict | None = None
+        self._ejecucion_directa_activa = True  # siempre True — sin yield
 
     def calcular_banda_delta(self):
         return mercado.calcular_banda_delta(self.tusk.margen_ocupado)
 
+    def _umbral_capital_grado(self, rangos: dict, grado: str) -> float:
+        """Capital aislado que exige el grado (costos_friccion / rangos_activo)."""
+        costos = rangos.get("costos_friccion") or {}
+        g = str(grado).upper()
+        if g in costos:
+            return float(costos[g])
+        if g == "MARISCAL":
+            return float(rangos.get("MARISCAL") or rangos.get("X") or 0)
+        if g == "GENERAL":
+            return float((rangos.get("GENERAL") or (0, 0))[0] - int(rangos.get("A_base") or 0))
+        if g == "CAPITAN":
+            return float((rangos.get("CAPITAN") or (0, 0))[0] - int(rangos.get("A_base") or 0))
+        return float(rangos.get("X") or costos.get("SOLDADO") or 0)
+
+    def _masa_pata_desde_beru(self, activo: str, precio: float) -> float:
+        """
+        Masa por pierna apuntando al umbral Beru del grado objetivo.
+        margen_usd = umbral * (1 - reserva_5%); notional_pata = margen*lev/2; masa = notional/precio.
+        Sin tope BOOTSTRAP_MANTO_FRACCION (0.25 erradicado).
+        """
+        capital = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+        motor = bc.resolver_activo_y_grado(capital)
+        a_base = int(motor.get("A_base") or 0)
+        activo_m = str(motor.get("activo") or activo or config.TICKER_BASE).upper()
+        grado = str(motor.get("grado") or "SOLDADO")
+        rangos = bc.rangos_activo(activo_m, a_base=a_base)
+        self._rangos_beru = rangos
+        self._activo_beru = activo_m
+
+        umbral = self._umbral_capital_grado(rangos, grado if grado != "BLOQUEADO" else "SOLDADO")
+        # Horizonte: usar hasta 95% del umbral como margen (oxígeno 5% del capital del grado)
+        reserva = bc.colchon_tusk_pct()
+        margen_usd = max(0.0, umbral * (1.0 - reserva))
+        lev = max(bc.apalancamiento_manto_promedio(activo_m), 1.0)
+        notional_pata = (margen_usd * lev) / 2.0
+        masa_auth = float(self.tusk.masa_autorizada)
+        if precio <= 0:
+            return max(0.0, masa_auth)
+        masa = notional_pata / float(precio)
+        # Solo limita la bóveda Tusk (oxígeno), nunca la fracción 0.25
+        return max(0.0, min(masa, masa_auth)) if masa_auth > 0 else max(0.0, masa)
+
     def masa_paso_engorde(self) -> float:
-        """Paso de engorde: preferir doblar el manto actual; techo = fracción de masa auth."""
+        """Paso de engorde orientado a umbral Beru + techo de masa auth."""
         peso_l = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s = sum(f["short"] for f in self.tusk.pesos.values())
         masa_bruta = peso_l + peso_s
         masa_auth = float(self.tusk.masa_autorizada)
         fraccion = float(getattr(config, "ENGORDE_PASO_FRACCION", 0.05))
         paso_min = float(getattr(config, "ENGORDE_PASO_MIN", 0.1))
-        techo = max(masa_auth * fraccion, paso_min)
+
+        capital = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+        motor = bc.resolver_activo_y_grado(capital)
+        activo = str(motor.get("activo") or self._activo_beru or config.TICKER_BASE).upper()
+        rangos = bc.rangos_activo(activo, a_base=int(motor.get("A_base") or 0))
+        self._rangos_beru = rangos
+        umbral = self._umbral_capital_grado(rangos, str(motor.get("grado") or "SOLDADO"))
+        # Hueco de capital hacia el umbral del grado (aprox. en unidades de masa auth)
+        hueco_frac = 0.0
+        if umbral > 0 and capital < umbral:
+            hueco_frac = (umbral - capital) / umbral
+        techo_auth = max(masa_auth * fraccion, paso_min)
+        techo_beru = max(paso_min, masa_auth * max(hueco_frac, fraccion))
+        techo = min(masa_auth, max(techo_auth, techo_beru)) if masa_auth > 0 else techo_beru
         if masa_bruta > 0:
-            # Doblar el escudo actual (L+S), sin saltar al techo de un golpe
             return min(techo, max(masa_bruta, paso_min))
-        return min(masa_auth, techo)
+        return techo
 
     async def vigilar_manto_operativo(self):
-        print(f"[IGRIS] Vigilancia activa bajo protocolo {config.FASE_ACTUAL}.")
+        print(f"[IGRIS] Vigilancia activa — gobernador manto hasta muro {mj.muro_marcial():.0f}%.")
         while True:
             _, estado = await self.tank.vision_especulativa()
             if estado != "ROJO":
@@ -60,6 +125,11 @@ class IgrisEscudo:
         if not await self._auditoria_pre_despliegue():
             return
 
+        # Sin cesión a Greed: flag legado siempre apagado
+        self._ejecucion_directa_activa = True
+        if hasattr(self.tusk, "manto_cedido_a_greed"):
+            self.tusk.manto_cedido_a_greed = False
+
         limpiar_toques_expirados(self.tusk)
         margen_actual = float(self.tusk.margen_ocupado)
         peso_l_total = sum(f["long"] for f in self.tusk.pesos.values())
@@ -69,44 +139,23 @@ class IgrisEscudo:
         if time.time() < self._engorde_fail_until:
             en_cooldown = True
 
-        # --- Jurisdicción: si ya cedió a Greed, Igris NO ejecuta en exchange ---
-        if (
-            mj.igris_yield_activo()
-            and mj.greed_es_ejecutor()
-            and (self.tusk.manto_cedido_a_greed or not self._ejecucion_directa_activa)
-        ):
-            if mj.bajo_piso(margen_actual):
-                mj.emitir_orden_manto(
-                    self.tusk,
-                    mj.ORDEN_RESTAURAR_MANTO,
-                    margen=margen_actual,
-                    meta_min=mj.piso_ideal(),
-                    meta_max=mj.muro_marcial(),
-                )
-                await self.bel.anotar(
-                    "IGRIS", "ORDEN_GREED",
-                    f"Restaurar manto a 85–95% (actual {margen_actual:.1f}%) — sin tocar exchange.",
-                )
-            elif mj.sobre_muro(margen_actual):
-                mj.emitir_orden_manto(
-                    self.tusk, mj.ORDEN_PODA_EMERGENCIA, margen=margen_actual,
-                )
-                await self.bel.anotar(
-                    "IGRIS", "ORDEN_GREED",
-                    f"Poda emergencia ≥95% (actual {margen_actual:.1f}%) — delegado a Greed.",
-                )
-            return
-
-        # Bootstrap siempre es orquestación de Igris (aún sin manto)
-        if masa_bruta == 0 and margen_actual < mj.piso_ideal():
+        # Bootstrap — Igris (aún sin manto)
+        if masa_bruta == 0 and margen_actual < mj.muro_marcial():
             await self._bootstrap_manto()
             return
 
         if en_cooldown:
             return
 
-        # Llevar manto a zona ideal 85–90%
-        if margen_actual < mj.piso_ideal():
+        # ≥95%: poda — respetar oxígeno 5%
+        if mj.sobre_muro(margen_actual):
+            await self.bel.anotar("IGRIS", "LEY_MARCIAL", f"Margen {margen_actual:.1f}% ≥ muro 95%.")
+            dir_poda = "LONG" if peso_l_total >= peso_s_total else "SHORT"
+            await self._ejecutar_maniobra("PODAR_MANTO", dir_poda, max(masa_bruta * 0.15, 0.0))
+            return
+
+        # Bajo el muro: rebalanceo + engorde hacia 95%
+        if margen_actual < mj.muro_marcial():
             if masa_bruta > 0 and not rebalanceo_en_pausa_por_greed(self.tusk):
                 ratio_l = peso_l_total / masa_bruta
                 banda_min, banda_max = self.calcular_banda_delta()
@@ -121,27 +170,6 @@ class IgrisEscudo:
             dir_engorde = "LONG" if peso_l_total <= peso_s_total else "SHORT"
             await self._ejecutar_maniobra("ENGORDAR_MANTO", dir_engorde, self.masa_paso_engorde())
             return
-
-        # Entró en zona ideal → YIELD a Greed
-        if mj.en_zona_ideal(margen_actual) and mj.igris_yield_activo() and mj.greed_es_ejecutor():
-            self._ejecucion_directa_activa = False
-            self.tusk.manto_cedido_a_greed = True
-            await self.bel.anotar(
-                "IGRIS", "YIELD_MANTO",
-                f"Margen {margen_actual:.1f}% en zona 85–90% — ejecución cedida a Greed.",
-            )
-            return
-
-        # Sin Greed ejecutor: comportamiento legacy acotado (no podar ≥95 aquí si Greed on)
-        if not mj.greed_es_ejecutor():
-            if margen_actual >= config.MURO_LEY_MARCIAL:
-                await self.bel.anotar("IGRIS", "LEY_MARCIAL", f"Margen Crítico: {margen_actual}%.")
-                dir_poda = "LONG" if peso_l_total >= peso_s_total else "SHORT"
-                await self._ejecutar_maniobra("PODAR_MANTO", dir_poda, masa_bruta * 0.15)
-                return
-            if margen_actual > config.RANGO_LIMPIEZA_MAX and peso_l_total > 0 and peso_s_total > 0:
-                masa_espejo = min(peso_l_total, peso_s_total, self.tusk.masa_autorizada * 2)
-                await self._ejecutar_maniobra("LIMPIAR_ESPEJOS", "AMBAS", masa_espejo)
 
     async def _radar_manto(self, ctx_map, masa, is_long):
         return mercado.escanear_mejor_precio(config.FRENTES_MANTO_ALL, ctx_map, masa, is_long)
@@ -170,7 +198,7 @@ class IgrisEscudo:
         return True
 
     async def _auditoria_pre_despliegue(self) -> bool:
-        """Candado de bóveda — umbrales dinámicos desde motor X/A_base."""
+        """Candado de bóveda — umbrales dinámicos desde motor X/A_base (rangos_activo)."""
         capital = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
         self._capital_pre_vuelo = capital
         res = bc.resolver_activo_y_grado(capital)
@@ -183,6 +211,13 @@ class IgrisEscudo:
             "MARISCAL": "MARISCAL",
         }
         self._rango_progresion = mapa.get(grado, "BLOQUEADO")
+        self._activo_beru = str(res.get("activo") or config.TICKER_BASE).upper() if res.get("activo") else str(config.TICKER_BASE).upper()
+        if res.get("rangos"):
+            self._rangos_beru = res["rangos"]
+        elif self._activo_beru and grado != "BLOQUEADO":
+            self._rangos_beru = bc.rangos_activo(
+                self._activo_beru, a_base=int(res.get("A_base") or 0),
+            )
         if grado == "BLOQUEADO":
             return False
         return True
@@ -206,64 +241,146 @@ class IgrisEscudo:
                 return False
         return True
 
-    async def _bootstrap_manto(self):
-        """Primer par L/S — inverse LONG + lineal SHORT (doctrina §E)."""
-        if not await self._auditoria_pre_despliegue():
-            return
+    def _activo_despliegue(self) -> str:
+        rango = self._rango_progresion or ""
+        if rango == "ASPIRANTE":
+            return "ETH"
+        return (self._activo_beru or config.TICKER_BASE or "ETH").upper()
 
-        rango = self._rango_progresion
+    def _asegurar_bloque_usd(self, activo: str, precio_ref: float) -> float:
+        """Define (o reusa) el techo USD del bloque Beru a fragmentar en micros."""
+        if self._bloque_objetivo_usd > 0 and self._bloque_inyectado_usd < self._bloque_objetivo_usd:
+            return max(0.0, self._bloque_objetivo_usd - self._bloque_inyectado_usd)
 
-        if rango == "CAPITAN":
-            # TODO: [Monarca] — Lógica de sizing y despliegue de unidades ($26–$50.99)
-            return
-        if rango == "GENERAL":
-            # TODO: [Monarca] — Lógica de sizing y despliegue de unidades ($51–$100.99)
-            return
-        if rango == "MARISCAL":
-            # TODO: [Monarca] — Lógica de sizing y despliegue de unidades (≥ $101)
-            return
+        masa_pata = self._masa_pata_desde_beru(activo, precio_ref)
+        fraccion_legacy = float(getattr(config, "BOOTSTRAP_MANTO_FRACCION", 0) or 0)
+        if fraccion_legacy > 0:
+            masa_pata = min(masa_pata, float(self.tusk.masa_autorizada) * fraccion_legacy)
+        objetivo = max(0.0, masa_pata * max(precio_ref, 0.0))
+        # Si el paso de engorde trae masa menor, no hinchar el bloque
+        self._bloque_objetivo_usd = objetivo
+        self._bloque_inyectado_usd = 0.0
+        return objetivo
 
-        if rango != "ASPIRANTE":
+    async def _anotar_espera_spread(self, tag: str, puerta: dict) -> None:
+        log_cd = float(getattr(config, "IGRIS_ESPERA_LOG_S", 60.0))
+        ahora = time.time()
+        if ahora - self._ultimo_log_espera_spread < log_cd:
             return
+        self._ultimo_log_espera_spread = ahora
+        await self.bel.anotar(
+            "IGRIS", tag,
+            f"{puerta.get('motivo')} · spread={puerta.get('spread_pct', '—')} "
+            f"umbral={puerta.get('umbral_pct', '—')} "
+            f"edad_h={puerta.get('edad_h', '—')} factor={puerta.get('factor', '—')} "
+            f"askL={puerta.get('ask_long', 0):.4f} bidS={puerta.get('bid_short', 0):.4f}",
+        )
 
-        # Fase 1 — Aspirante: ETH forzado, ignora TICKER_BASE
-        frente_l, frente_s = "ETHUSD_INVERSE", "ETHUSDT_LINEAL"
+    async def _inyectar_dual_paciente(self, *, origen: str, restante_usd_cap: float | None = None) -> bool:
+        """
+        Ritual único bootstrap/engorde: dual §E, Ask/Bid, fees±urgencia, micro-mordida.
+        Nunca abre una sola pata.
+        """
+        activo = self._activo_despliegue()
+        frente_l, frente_s = im.frentes_bootstrap(activo)
 
-        if not await self._asegurar_apalancamiento_aspirante_eth():
-            return
-
-        # TODO: [Monarca] — Lógica de sizing Aspirante ($12.5–$25.99) a refinar
-        masa_pata = self.tusk.masa_autorizada * config.BOOTSTRAP_MANTO_FRACCION
-        if masa_pata <= 0:
-            return
+        if activo == "ETH" and origen == "BOOTSTRAP":
+            if not await self._asegurar_apalancamiento_aspirante_eth():
+                return False
 
         ctx_map, estado = await self.tank.vision_especulativa()
         if not ctx_map or estado in ("GLITCH_DETECTADO", "ROJO"):
-            return
+            return False
 
-        ok, mot = im.bootstrap_viable(ctx_map, "ETH")
-        if not ok:
-            return
+        # Precio ref solo para sizing del bloque (la puerta usa Ask/Bid del libro)
+        ask_guess = ides.best_ask(ides.libro_tank(self.tank, frente_l)[1])
+        bid_guess = ides.best_bid(ides.libro_tank(self.tank, frente_s)[0])
+        precio_ref = 0.0
+        if ask_guess > 0 and bid_guess > 0:
+            precio_ref = (ask_guess + bid_guess) / 2.0
+        else:
+            pl = im.precio_ctx(ctx_map, frente_l)
+            ps = im.precio_ctx(ctx_map, frente_s)
+            precio_ref = (pl + ps) / 2.0 if pl > 0 and ps > 0 else max(pl, ps)
+        if precio_ref <= 0:
+            return False
 
-        precio_l = im.precio_ctx(ctx_map, frente_l)
-        precio_s = im.precio_ctx(ctx_map, frente_s)
+        restante = self._asegurar_bloque_usd(activo, precio_ref)
+        if restante_usd_cap is not None and restante_usd_cap > 0:
+            restante = min(restante, restante_usd_cap)
+        if restante <= 0:
+            # Bloque completo: abrir uno nuevo hacia el muro
+            self._bloque_objetivo_usd = 0.0
+            self._bloque_inyectado_usd = 0.0
+            restante = self._asegurar_bloque_usd(activo, precio_ref)
+        if restante <= 0:
+            return False
 
-        uid_l = f"IGRIS_BOOT_L_{str(uuid.uuid4())[:4]}"
-        uid_s = f"IGRIS_BOOT_S_{str(uuid.uuid4())[:4]}"
-
-        if not await self.tusk.solicitar_reserva(uid_l, masa_pata, "IGRIS", "LONG"):
-            return
-        if not await self._materializar_en_frente(uid_l, frente_l, "LONG", masa_pata, precio_l):
-            return
-
-        if not await self.tusk.solicitar_reserva(uid_s, masa_pata, "IGRIS", "SHORT"):
-            return
-        if await self._materializar_en_frente(uid_s, frente_s, "SHORT", masa_pata, precio_s):
-            self.ultimo_movimiento = time.time()
-            await self.bel.anotar(
-                "IGRIS", "BOOTSTRAP_MANTO",
-                f"Escudo §E L {frente_l} / S {frente_s} · {masa_pata:.4f} c/u",
+        puerta = ides.evaluar_puerta_se(
+            self.tank, frente_l, frente_s,
+            t0_paciencia=self._paciencia_t0,
+            restante_usd=restante,
+        )
+        if not puerta.get("ok"):
+            await self._anotar_espera_spread(
+                "BOOTSTRAP_ESPERA_SPREAD" if origen == "BOOTSTRAP" else "ENGORDE_ESPERA_SPREAD",
+                puerta,
             )
+            wait = float(getattr(config, "IGRIS_ESPERA_COOLDOWN_S", 5.0))
+            self._engorde_fail_until = time.time() + wait
+            return False
+
+        masa = float(puerta["masa"])
+        micro_usd = float(puerta["micro_usd"])
+        ask_l = float(puerta["ask_long"])
+        bid_s = float(puerta["bid_short"])
+
+        # Delta: ambas piernas crecen igual
+        margen = self.tusk.margen_ocupado
+        peso_l = sum(f["long"] for f in self.tusk.pesos.values())
+        peso_s = sum(f["short"] for f in self.tusk.pesos.values())
+        if not mercado.verificar_delta_post_maniobra(margen, peso_l + masa, peso_s + masa):
+            await self._anotar_espera_spread(
+                "ENGORDE_ESPERA_SPREAD",
+                {**puerta, "motivo": "banda_delta_dual"},
+            )
+            return False
+
+        uid_l = f"IGRIS_{origen[:4]}_L_{str(uuid.uuid4())[:4]}"
+        uid_s = f"IGRIS_{origen[:4]}_S_{str(uuid.uuid4())[:4]}"
+
+        if not await self.tusk.solicitar_reserva(uid_l, masa, "IGRIS", "LONG"):
+            return False
+        if not await self._materializar_en_frente(uid_l, frente_l, "LONG", masa, ask_l):
+            return False
+
+        if not await self.tusk.solicitar_reserva(uid_s, masa, "IGRIS", "SHORT"):
+            return False
+        if not await self._materializar_en_frente(uid_s, frente_s, "SHORT", masa, bid_s):
+            return False
+
+        self._bloque_inyectado_usd += micro_usd
+        self._paciencia_t0 = time.time()
+        self.ultimo_movimiento = time.time()
+
+        tag = "BOOTSTRAP_MANTO" if origen == "BOOTSTRAP" else "ENGORDE_DUAL"
+        await self.bel.anotar(
+            "IGRIS", tag,
+            f"§E L {frente_l}@{ask_l:.4f} / S {frente_s}@{bid_s:.4f} · "
+            f"micro ${micro_usd:.2f} masa={masa:.6f} · "
+            f"spread={puerta.get('spread_pct')}≥umbral={puerta.get('umbral_pct')} · "
+            f"bloque {self._bloque_inyectado_usd:.1f}/{self._bloque_objetivo_usd:.1f} USD",
+        )
+        return True
+
+    async def _bootstrap_manto(self):
+        """Primer par L/S — solo dual §E paciente (Ask/Bid + fees + micro)."""
+        if not await self._auditoria_pre_despliegue():
+            return
+        rango = self._rango_progresion
+        if rango == "BLOQUEADO" or not rango:
+            return
+        await self._inyectar_dual_paciente(origen="BOOTSTRAP")
 
     async def _ejecutar_maniobra(self, tipo, direccion, masa_req):
         if masa_req <= 0:
@@ -384,119 +501,52 @@ class IgrisEscudo:
         await self.tusk.liberar_reserva(uid)
         return masa_aplicada > 0
 
+    async def _engorde(self, uid, direccion, masa, ctx_map):
+        """
+        Engorde estricto dual §E — nunca una sola pata.
+        Libera la reserva unilateral del maniobra e inyecta L inverse + S lineal.
+        """
+        await self.tusk.liberar_reserva(uid)
+
+        # Cap del paso: masa pedida × precio ref del par (si hay libro)
+        activo = self._activo_despliegue()
+        frente_l, frente_s = im.frentes_bootstrap(activo)
+        ask_l = ides.best_ask(ides.libro_tank(self.tank, frente_l)[1])
+        bid_s = ides.best_bid(ides.libro_tank(self.tank, frente_s)[0])
+        if ask_l > 0 and bid_s > 0:
+            px = (ask_l + bid_s) / 2.0
+        else:
+            px = self._precio_ctx_o_reflejo(ctx_map, frente_s) or self._precio_ctx_o_reflejo(ctx_map, frente_l)
+        cap_usd = float(masa) * float(px) if masa > 0 and px > 0 else None
+
+        ok = await self._inyectar_dual_paciente(origen="ENGORDE", restante_usd_cap=cap_usd)
+        if ok:
+            return True
+
+        fail_cd = float(getattr(config, "IGRIS_ESPERA_COOLDOWN_S", 5.0))
+        self.ultimo_movimiento = time.time()
+        self._engorde_fail_until = time.time() + fail_cd
+        return False
+
     def _precio_ctx_o_reflejo(self, ctx_map, frente: str) -> float:
         """Precio del frente; si lineal está ciego, refleja inverse/spot del mismo activo."""
         ctx = ctx_map.get(frente) if ctx_map else None
         px = float(getattr(ctx, "last_price", 0) or 0) if ctx else 0.0
         if px > 0:
             return px
+        if isinstance(ctx, dict):
+            px = float(ctx.get("precio") or ctx.get("last") or 0)
+            if px > 0:
+                return px
         asset = frente.split("_")[0].replace("USDT", "").replace("USDC", "").replace("USD", "")
-        # Heurística: prefijos de activo en frentes tipo LTCUSDT / LTCUSD
         for f, c in (ctx_map or {}).items():
-            if not c or float(getattr(c, "last_price", 0) or 0) <= 0:
+            if isinstance(c, dict):
+                px_c = float(c.get("precio") or c.get("last") or 0)
+            else:
+                px_c = float(getattr(c, "last_price", 0) or 0) if c else 0.0
+            if px_c <= 0:
                 continue
-            sym = str(getattr(c, "symbol", "") or f)
+            sym = str(getattr(c, "symbol", "") if not isinstance(c, dict) else c.get("symbol") or f)
             if asset and asset in sym:
-                return float(c.last_price)
+                return px_c
         return 0.0
-
-    def _frente_ancla_manto(self) -> str | None:
-        """Frente donde ya hay peso — engorde dual debe crecer ahí, no saltar de activo."""
-        mejor, masa = None, 0.0
-        for f, p in self.tusk.pesos.items():
-            m = float(p.get("long", 0) or 0) + float(p.get("short", 0) or 0)
-            if m > masa:
-                mejor, masa = f, m
-        return mejor if masa > 0 else None
-
-    async def _engorde(self, uid, direccion, masa, ctx_map):
-        margen = self.tusk.margen_ocupado
-        peso_l = sum(f["long"] for f in self.tusk.pesos.values())
-        peso_s = sum(f["short"] for f in self.tusk.pesos.values())
-        masa_bruta = peso_l + peso_s
-        motivo = "desconocido"
-
-        # Bajo el piso ideal y manto equilibrado → dual L/S en el mismo frente
-        banda_min, banda_max = mercado.calcular_banda_delta(margen)
-        ratio = (peso_l / masa_bruta) if masa_bruta > 0 else 0.5
-        priorizar_dual = masa_bruta > 0 and banda_min <= ratio <= banda_max and margen < mj.piso_ideal()
-
-        if not priorizar_dual:
-            nuevo_l = peso_l + (masa if direccion == "LONG" else 0)
-            nuevo_s = peso_s + (masa if direccion == "SHORT" else 0)
-            if mercado.verificar_delta_post_maniobra(margen, nuevo_l, nuevo_s):
-                mejor_f, precio = await self._radar_manto(ctx_map, masa, direccion == "LONG")
-                if precio <= 0:
-                    motivo = "sin precio radar"
-                else:
-                    pf = self.tusk.pesos.get(mejor_f, {"long": 0.0, "short": 0.0})
-                    fl = pf["long"] + (masa if direccion == "LONG" else 0)
-                    fs = pf["short"] + (masa if direccion == "SHORT" else 0)
-                    if mercado.verificar_delta_frente(margen, mejor_f, fl, fs):
-                        if await self._materializar_en_frente(uid, mejor_f, direccion, masa, precio):
-                            await self.bel.anotar("IGRIS", "ENGORDE", f"+{masa:.4f} {direccion} en {mejor_f}")
-                            return True
-                        motivo = "materializar unilateral falló"
-                    else:
-                        motivo = "banda frente unilateral"
-            else:
-                motivo = "banda global unilateral"
-
-        mitad = masa * 0.5
-        ancla = self._frente_ancla_manto()
-        mejor_f_l, precio_l = await self._radar_manto(ctx_map, mitad, True)
-        mejor_f_s, precio_s = await self._radar_manto(ctx_map, mitad, False)
-        # Forzar mismo frente: ancla del manto o el mejor long (evita L en LTC y S en BTC)
-        frente_dual = ancla or mejor_f_l or mejor_f_s
-        if frente_dual:
-            px = self._precio_ctx_o_reflejo(ctx_map, frente_dual)
-            if px <= 0:
-                px = precio_l if precio_l > 0 else precio_s
-            precio_l = precio_s = px
-            mejor_f_l = mejor_f_s = frente_dual
-
-        if precio_l <= 0 or precio_s <= 0:
-            motivo = "sin precio para dual (lineal ciego; esperando mar)"
-        elif not mercado.verificar_delta_post_maniobra(margen, peso_l + mitad, peso_s + mitad):
-            motivo = "banda global dual"
-        else:
-            pf = self.tusk.pesos.get(mejor_f_l, {"long": 0.0, "short": 0.0})
-            ok_frentes = mercado.verificar_delta_frente(
-                margen, mejor_f_l, pf["long"] + mitad, pf["short"] + mitad,
-            )
-            if not ok_frentes:
-                motivo = f"banda frente dual ({mejor_f_l})"
-            else:
-                # Reserva original era masa completa: partir en dos mitades reales
-                await self.tusk.liberar_reserva(uid)
-                if not await self.tusk.solicitar_reserva(uid, mitad, "IGRIS", "LONG"):
-                    motivo = "reserva L dual"
-                elif await self._materializar_en_frente(uid, mejor_f_l, "LONG", mitad, precio_l):
-                    uid_s = f"{uid}_S"
-                    if await self.tusk.solicitar_reserva(uid_s, mitad, "IGRIS", "SHORT"):
-                        if await self._materializar_en_frente(uid_s, mejor_f_s, "SHORT", mitad, precio_s):
-                            await self.bel.anotar(
-                                "IGRIS", "ENGORDE_DUAL",
-                                f"+{mitad:.4f} L/S en {mejor_f_l}",
-                            )
-                            return True
-                        motivo = "materializar S dual"
-                    else:
-                        motivo = "reserva S dual"
-                        await self.tusk.liberar_reserva(uid_s)
-                else:
-                    motivo = "materializar L dual"
-
-        # Fallo: cooldown largo + log con causa real (no martillar el panel)
-        fail_cd = float(getattr(config, "ENGORDE_FAIL_COOLDOWN_S", 30.0))
-        self.ultimo_movimiento = time.time()
-        self._engorde_fail_until = time.time() + fail_cd
-        log_cd = float(getattr(config, "ENGORDE_BLOQUEADO_LOG_S", 60.0))
-        ahora = time.time()
-        if ahora - self._ultimo_log_engorde_bloqueado >= log_cd:
-            self._ultimo_log_engorde_bloqueado = ahora
-            await self.bel.anotar(
-                "IGRIS", "ENGORDE_BLOQUEADO",
-                f"{motivo} (margen {margen:.2f}% · paso {masa:.4f})",
-            )
-        return False

@@ -8,22 +8,16 @@ from core.kaiser_indicators import interpretar_funding
 
 
 def fase_margen(margen_pct: float) -> str:
-    """Zona operativa según doctrina Monarca (21 §A)."""
+    """Zona operativa — horizonte Igris = muro 95% (oxígeno 5%)."""
     m = float(margen_pct)
     ley = float(getattr(config, "MURO_LEY_MARCIAL", 95.0))
-    limpieza = float(getattr(config, "RANGO_LIMPIEZA_MAX", 93.0))
-    objetivo = float(getattr(config, "RANGO_OBJETIVO_MARGEN", 90.0))
-    piso = float(getattr(config, "RANGO_PISO_IDEAL", 85.0))
+    objetivo = float(getattr(config, "RANGO_OBJETIVO_MARGEN", 95.0))
     expansion = float(getattr(config, "RANGO_EXPANSION_MIN", 80.0))
 
     if m >= ley:
         return "LEY_MARCIAL"
-    if m > limpieza:
-        return "PRE_PODA"
-    if m >= objetivo:
+    if m >= objetivo - 2.0:
         return "ALTA_PRESION"
-    if m >= piso:
-        return "IDEAL"
     if m >= expansion:
         return "TERRENO_CAZA"
     return "EXPANSION"
@@ -56,9 +50,9 @@ def resumen_manto(
         "accion_heuristica": accion_sugerida,
         "umbrales": {
             "expansion_max": float(getattr(config, "RANGO_EXPANSION_MIN", 80.0)),
-            "piso_ideal": float(getattr(config, "RANGO_PISO_IDEAL", 85.0)),
-            "objetivo_margen": float(getattr(config, "RANGO_OBJETIVO_MARGEN", 90.0)),
-            "limpieza_desde": float(getattr(config, "RANGO_LIMPIEZA_MAX", 93.0)),
+            "piso_ideal": float(getattr(config, "RANGO_PISO_IDEAL", 95.0)),
+            "objetivo_margen": float(getattr(config, "RANGO_OBJETIVO_MARGEN", 95.0)),
+            "limpieza_desde": float(getattr(config, "RANGO_LIMPIEZA_MAX", 95.0)),
             "ley_marcial_desde": float(getattr(config, "MURO_LEY_MARCIAL", 95.0)),
         },
         "frentes_manto": list(getattr(config, "FRENTES_MANTO_ALL", []) or []),
@@ -76,15 +70,13 @@ def _accion_heuristica(
         return "PODAR_MANTO"
     if fase == "PRE_PODA" and peso_l > 0 and peso_s > 0:
         return "LIMPIAR_ESPEJOS"
-    if masa_bruta <= 0 and fase in ("EXPANSION", "TERRENO_CAZA"):
+    if masa_bruta <= 0 and fase in ("EXPANSION", "TERRENO_CAZA", "ALTA_PRESION"):
         return "BOOTSTRAP_MANTO"
     if not en_banda and masa_bruta > 0:
         return "REBALANCEO_IGRIS"
-    if fase == "EXPANSION":
+    if fase in ("EXPANSION", "TERRENO_CAZA", "ALTA_PRESION"):
         return "ENGORDAR_MANTO"
-    if fase in ("ALTA_PRESION", "IDEAL", "TERRENO_CAZA"):
-        return "VIGILAR_GREED"
-    return "VIGILAR"
+    return "VIGILAR_IGRIS"
 
 
 def funding_vigilancia(snapshot_funding: dict | None) -> list[dict[str, Any]]:
