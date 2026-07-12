@@ -115,6 +115,20 @@ Ampliar según haga falta en sesión; no hace falta memorizar todo de golpe.
 - Abrumar con listas de archivos sin decir *qué General* o *qué fase* tocan.
 - Implementar contra `08` o `03` sin avisar y sin «Override codex».
 - Usar solo inglés técnico cuando existe equivalente en el glosario.
+- **Respuestas “devops crudas”** (solo SHAs, ramas, `git push`, tablas de archivos) **sin traducir** al lenguaje del Ejército — eso fue una deriva reciente y **está prohibida**.
+
+---
+
+## Recordatorio duro (2026-07-12)
+
+El Monarca avisó: **últimamente el agente abandonó esta guía** (sync git, remoto, checklist) y habló como ticket de ingeniería.
+
+**Corrección obligatoria en cada mensaje al Monarca:**
+
+1. Abrir o cerrar con **términos del Ejército** (legión, altar, manto, Beru, Igris, Tusk, campo de entrenamiento…).
+2. Si el trabajo fue git/remoto: decir *qué soldado del mapa cambió* y *qué ítem del checklist* toca — no solo el hash.
+3. Cerrar con **qué sigue** del `16` (un ítem concreto).
+4. Si solo se sincronizó el cuartel: una frase de doctrina + estado del camino, no un dump de commits.
 
 ---
 
@@ -125,4 +139,4 @@ Ampliar según haga falta en sesión; no hace falta memorizar todo de golpe.
 
 ---
 
-*Última actualización: 2026-07-05 — formato respuesta (preferencia Monarca).*
+*Última actualización: 2026-07-12 — recordatorio duro por deriva de tono; índice alineado.*

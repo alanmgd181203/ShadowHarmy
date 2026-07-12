@@ -1,7 +1,8 @@
 # 21 — Doctrina Igris (escudo del manto)
 
-**Estado:** §A + §C (parcial) + §E (v1 bootstrap/promedio) — Ancla Igris pendiente  
-**Código:** `generales/igris.py`, `core/igris_estado.py`, `core/manto_touch.py`, `core/mercado.py`
+**Estado:** §A + §C (parcial) + §E **v2** (bootstrap + Ancla + despliegue Ask/Bid) — sesgo long pendiente  
+**Código:** `generales/igris.py`, `core/igris_estado.py`, `core/igris_despliegue.py`, `core/manto_jurisdiccion.py`, `core/manto_touch.py`, `core/telemetria_igris.py`  
+**Actualizado:** 2026-07-12
 
 ---
 
@@ -44,27 +45,33 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 
 ---
 
-## §E — Armado del manto — PARCIAL (v1)
+## §E — Armado del manto — PARCIAL (v2 — 2026-07-12)
 
 ### Piernas
 - **LONG** = inversos (USD) + futuros dated (rotación al vencer o si hay mejora).
 - **SHORT** = lineales stable (USDT/USDC).
 - Un activo (ej. SOL) puede tener **varias piernas** que se turnan con oportunidades Kaiser.
 
-### Implementado v1
+### Implementado v1 + v2
 | Ítem | Estado |
 |------|--------|
 | Bootstrap inverse L + lineal S | ✅ `igris_manto.frentes_bootstrap` + `_bootstrap_manto` |
 | `precio_medio` por pierna en `pesos` | ✅ `igris_manto.actualizar_promedio` vía Tusk fill |
 | Panel promedios | ✅ `igris.promedios_pierna` en `estado_vivo.json` |
+| Jurisdicción manto Igris→Greed | ✅ `core/manto_jurisdiccion.py` |
+| Puerta §E Ask/Bid + fees ± urgencia | ✅ `core/igris_despliegue.evaluar_puerta_se` |
+| Reloj invertido Kaiser (paciencia) | ✅ `tau_paciencia_horas` / `factor_urgencia` |
+| Mordida = techo_misión × fracción(confianza) | ✅ sin pinza 85% ni tope 1% equity |
+| Ancla en techo de liquidez | ✅ `techo_mision_usd` usa profundidad Ancla |
+| Telemetría / panel Pergamino | ✅ `telemetria_igris` + `dashboard_sombras.html` |
 
 ### Pendiente
 | Ítem | Estado |
 |------|--------|
-| Ancla en maniobras Igris | Pendiente |
-| Banda delta asimétrica (sesgo long) | Pendiente |
+| Banda delta asimétrica (sesgo long) | Pendiente — checklist **3.5.8c** |
 | Semáforos morado/gris (bloque B) | Pendiente |
 | Sangrado útil / margen económico | Pendiente |
+| Validación **live** testnet del despliegue | Pendiente — **3.10.7** |
 
 ### En ~90% (zona ideal)
 Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, neto ≥ fees) pero **más tolerancia** y horizonte largo.
@@ -92,10 +99,11 @@ Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, net
 | Handlers manto en Greed | ✅ eliminados — solo Igris→Bridge |
 | Docs “Greed poda espejos” | ✅ corregidos |
 | `IntencionAccion` manto | Legacy Beru — no cola activa |
-| Ancla en maniobras Igris | Pendiente |
+| Ancla + despliegue §E | ✅ `igris_despliegue.py` (2026-07-12) |
 | `pesos` + precio medio por pierna | ✅ v1 `igris_manto.py` |
 | Bootstrap inverse L + lineal S | ✅ v1 |
-| Banda delta asimétrica (sesgo long) | Pendiente |
+| Banda delta asimétrica (sesgo long) | Pendiente — 3.5.8c |
+| Live testnet despliegue | Pendiente — 3.10.7 |
 
 ---
 
@@ -113,4 +121,4 @@ Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, net
 
 - `python scripts/validar_igris_smoke.py`
 - `python scripts/validar_greed_manto_smoke.py`
-- Live manto testnet (3.5.1)
+- Live manto testnet (3.5.1 / 3.10.7)

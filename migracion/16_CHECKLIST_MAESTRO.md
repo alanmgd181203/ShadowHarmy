@@ -97,11 +97,11 @@
 
 ---
 
-## FASE 3 — 🟡 M2: Pentiverso dual LTC+BTC — **~92%** (2026-07-05)
+## FASE 3 — 🟡 M2: Pentiverso dual LTC+BTC — **~91%** (2026-07-12)
 
-*Criterio fase:* 10 `MarketContext` con precio real; Greed USDT×USDC en LTC y BTC; ciclo ejército validado (3.6). **Pendiente no bloqueante:** 3.5.8 (Ancla Igris), 3.7.P*, Karmish.
+*Criterio fase:* 10 `MarketContext` con precio real; Greed USDT×USDC en LTC y BTC; ciclo ejército validado (3.6). **Beru doctrina 3.9** y **Igris §E v2 (3.10)** en smokes. **Pendiente:** live testnet (3.9.9/3.10.7), sesgo long (3.5.8c), 3.7.P*, Karmish.
 
-*Validación 2026-07-05:* `validar_m2.py` → **10/10 mares**. `probar_ciclo_beru.py` → CAZA→COSECHA ✅. `validar_checklist.py --fase 3` → gates OK. Runbook: `18_ARRANQUE_TESTNET.md`.
+*Validación 2026-07-05:* `validar_m2.py` → **10/10 mares**. *Validación Beru 2026-07-09:* smokes + `validar_ciclo_beru_eth.py`. *Igris 2026-07-12:* `validar_igris_smoke.py` + `igris_despliegue`. Runbook: `18_ARRANQUE_TESTNET.md`.
 
 ### 3.1 Tank — visión completa
 - [x] **3.1.0–3.1.4** — ✅ 10/10 mares dual LTC+BTC (USDC lineal = reflejo spot)
@@ -129,7 +129,9 @@
 - [x] **3.5.5** Doctrina Igris §A — [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) *(2026-07-05)*
 - [x] **3.5.6** §C parcial — VIP en ley marcial + `manto_touch` Greed→Igris
 - [x] **3.5.7** Beru capital + ProtoBeru — `22_DOCTRINA_BERU.md`, `beru_tier.py`, `beru_capital.py`, cableado `beru.py`, capitanes 1.2/1.6%
-- [~] **3.5.8** Igris §E — bootstrap inverse L + lineal S ✅ · promedios pierna ✅ · Ancla maniobras + sesgo long pendiente
+- [x] **3.5.8a** Igris §E v1 — bootstrap inverse L + lineal S + promedios pierna *(2026-07-05)*
+- [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
+- [ ] **3.5.8c** Igris §E — sesgo long / banda delta asimétrica *(pendiente doctrina)*
 
 - [~] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) + `plan_crecimiento.py` *(v1 checkpoint 2026-07-06; botín runtime y mérito pendiente)*
 
@@ -199,7 +201,38 @@
 - [x] **3.8.14** Pipeline Kaiser→Greed — `kaiser_pipeline.py`, cola, abort, spread estable
 - [x] **3.8.P1** Greed consume Kaiser + sizing 1% (`validar_greed_sizing_smoke.py`)
 - [x] **3.8.P2** VIP / Mega VIP micro-órdenes (`validar_greed_vip_smoke.py`)
-- [ ] **3.8.P2** Karmish (mundo externo) — pausa doctrinal
+- [ ] **3.8.P3** Karmish (mundo externo) — pausa doctrinal
+
+### 3.9 Beru — doctrina cirugía final *(2026-07-09 → 07-12 — COMPLETA en smokes)*
+
+*Criterio:* clonación residual, fusión por colisión oz, engorde solo frontera, Mega reset, capital por fricción, flota Inverse∩Linear.  
+*Doctrina:* [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md).
+
+- [x] **3.9.1** Clonación por `red_residual` (no spawn +0,3 % durante caza) — `beru_residual.py`
+- [x] **3.9.2** Engorde exclusivo de frontera (red más extrema) + trailing caza fijo 0,1 %
+- [x] **3.9.3** Fusión por colisión `oz_adan` (ε 0,01 %) — Mega Beru intacto
+- [x] **3.9.4** Reset Mega Beru al tocar red — `beru_mega_reset.py`
+- [x] **3.9.5** Capital por fricción directa (sin error compuesto 8×) — `beru_capital.py`
+- [x] **3.9.6** Diccionario Flota del Manto Inverse∩Linear — `config/diccionario_beru_flota_manto.json`
+- [x] **3.9.7** Engorde dual L/S estable + cooldown log `ENGORDE_BLOQUEADO`
+- [x] **3.9.8** Smokes: cazador, fusión, multiberu, mega_reset, capital, ciclo ETH
+- [ ] **3.9.9** Ciclo Beru **live** testnet (`MODO_SIMULACION=False`) — cuando Monarca ordene
+
+### 3.10 Igris — jurisdicción, despliegue y panel *(2026-07-11 → 07-12)*
+
+- [x] **3.10.1** Jurisdicción manto Igris→Greed — `core/manto_jurisdiccion.py`
+- [x] **3.10.2** Despliegue §E Ask/Bid + umbral fees±urgencia — `core/igris_despliegue.py`
+- [x] **3.10.3** Mordida = techo_misión × fracción(confianza); sin pinza 85% ni tope 1% equity
+- [x] **3.10.4** Telemetría Igris → Árbol de Evolución — `core/telemetria_igris.py`
+- [x] **3.10.5** Panel Pergamino — `dashboard_sombras.html` + `index.html` + scripts panel macOS
+- [x] **3.10.6** Smoke Igris actualizado (`validar_igris_smoke.py`)
+- [ ] **3.10.7** Validar despliegue §E en **live** testnet con manto real
+
+### 3.11 Cuartel compartido (México) *(ops — 2026-07-09 → 07-12)*
+
+- [x] **3.11.1** Remoto GitHub público `alanmgd181203/ShadowHarmy` + `.env` testnet
+- [x] **3.11.2** Colaboradora `Jessica-Reyes06` (write) + sync desde `shadow-army`
+- [x] **3.11.3** Checkpoint tag `checkpoint-mexico-2026-07-09` + `master` al día con feature
 
 ---
 
@@ -323,7 +356,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [ ] **10.3.1** UI web o panel más allá de consola (`arquitectura_render` manual)
+- [~] **10.3.1** UI web / panel Pergamino (`dashboard_sombras.html`) — v0 México ✅; pulir y unificar con Streamlit pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑
@@ -334,8 +367,8 @@
 
 | Horizonte | Fases | Meta en una frase |
 |-----------|-------|-------------------|
-| **Ahora** | 4 | **Ops** Telegram + safe mode |
-| **Semanas** | 2–3 | ✅ Testnet + pentiverso dual |
+| **Ahora** | 3 cierre + 4 | Live testnet Beru/Igris §E · **o** Telegram + safe mode |
+| **Semanas** | 2–3 | ✅ Testnet + pentiverso + Beru doctrina + Igris despliegue |
 | **Meses** | 4–6 | **Ops** + **mainnet** + estrategia madura |
 | **Trimestres** | 7–9 | Más activos, Surge, entrenamiento |
 | **Utopía** | 10 | Autonomía, fusión, escala masiva |
@@ -348,23 +381,24 @@
 Fase 0:   5 /  5   ✅ 100%
 Fase 1:  19 / 19   ✅ 100%
 Fase 2:  20 / 20   ✅ 100%
-Fase 3:  54 / 59   ~92%  (3.5.8 parcial; 3.7.P1–P3; Karmish)
-Fase 4:   0 / 11   ~9%   ← SIGUIENTE (2 stubs Telegram/Safe)
+Fase 3:  71 / 78   ~91%  (3.5.8c sesgo; 3.7.P1–P3; 3.8.P3; 3.9.9; 3.10.7; plan 23 ~)
+Fase 4:   0 / 11   ~9%   ← ops Monarca (2 stubs Telegram/Safe)
 Fase 5:   0 / 13     0%
 Fase 6:   0 /  6     0%
 Fase 7:   2 /  5    40%
 Fase 8:   0 /  6     0%
 Fase 9:   0 /  5     0%
-Fase 10:  0 / 11     0%
+Fase 10:  0 / 11   ~5%   (panel Pergamino v0 parcial)
 ─────────────────────────────
-TOTAL:  100 / 160  ítems [x]  →  62,5% checklist completo
-        + 3 parciales [~]     →  ~64% (parciales al 50%)
-Núcleo operativo (Fases 0–3): 98 / 103  →  ~95%
+TOTAL:  117 / 179  ítems [x]  →  ~65% checklist completo
+        + 3 parciales [~]     →  ~66% (parciales al 50%)
+Núcleo operativo (Fases 0–3): 115 / 122  →  ~94%
 ```
 
-**Última actualización checklist:** 2026-07-05 (Greed basis/multicruce, Beru rail, Igris §E v1)  
-**Próximo ítem recomendado:** **3.5.8** cerrar Ancla Igris + sesgo long · o **4.1.2** Telegram evento→nivel  
-**Smokes nuevos:** `validar_plan_crecimiento_smoke.py` · `validar_greed_basis_smoke.py` · …  
+**Última actualización checklist:** 2026-07-12 (Beru cirugía 3.9 · Igris §E v2 · panel · cuartel México)  
+**Próximo ítem recomendado:** **3.9.9 / 3.10.7** live testnet · **3.5.8c** sesgo long · o **4.1.2** Telegram  
+**Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital  
+**Smokes Igris:** `validar_igris_smoke.py`  
 **Runbook testnet:** `18_ARRANQUE_TESTNET.md`  
 **Validar estado:** `python scripts/validar_checklist.py`  
 **Validar sentidos Tank:** `python scripts/validar_panorama_tank.py --segundos 35`
@@ -375,10 +409,11 @@ Núcleo operativo (Fases 0–3): 98 / 103  →  ~95%
 
 ```
 Proyecto: ShadowHarmy — Lilit de Hierro v2.0
-Codex: ./migracion/ (CODEX_VIVO.md + este 16_CHECKLIST_MAESTRO.md)
-Regla: código manda en hechos; codex manda en meta; actualizar migracion cada sesión.
-Fases 0–2 cerradas ✅ · Fase 3 ~92% (Greed Kaiser+basis, Beru Proto, Igris §E v1).
-Siguiente: Fase 4 M3 ops (Telegram, safe mode) o cerrar 3.5.8 (Ancla Igris).
-Validar: python scripts/validar_checklist.py + smokes greed/igris/beru en scripts/
+Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
+Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
+Fases 0–2 ✅ · Fase 3 ~91% (Beru doctrina 3.9 ✅ smokes · Igris §E v2 ✅ · live pendiente).
+Siguiente: 3.9.9/3.10.7 live testnet · 3.5.8c sesgo long · o Fase 4 Telegram.
+Validar: scripts/validar_*_smoke.py + validar_ciclo_beru_eth.py + validar_igris_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
+Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).
 ```

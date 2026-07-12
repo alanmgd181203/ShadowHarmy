@@ -116,14 +116,15 @@
 
 ---
 
-## M2.11 — Igris §E v1 — **PARCIAL** (2026-07-05)
+## M2.11 — Igris §E — **v2 PARCIAL** (2026-07-12)
 
 | # | Tarea | Estado |
 |---|-------|--------|
 | 1 | Bootstrap inverse L + lineal S | ✅ |
 | 2 | `precio_medio` por pierna en `pesos` | ✅ |
-| 3 | Ancla en maniobras Igris | ❌ 3.5.8 |
-| 4 | Sesgo long / banda asimétrica | ❌ 3.5.8 |
+| 3 | Ancla + Ask/Bid + mordida (`igris_despliegue`) | ✅ 3.5.8b / 3.10 |
+| 4 | Sesgo long / banda asimétrica | ❌ 3.5.8c |
+| 5 | Live testnet despliegue | ❌ 3.10.7 |
 
 **Validación:** `validar_igris_smoke.py`
 
@@ -143,13 +144,40 @@
 
 ---
 
-## M3 — Operaciones (P1) ← **SIGUIENTE**
+## M2.13 — Beru doctrina cirugía — **COMPLETADO smokes** (2026-07-09→12)
+
+| # | Tarea | Checklist |
+|---|-------|-----------|
+| 1 | Clonación residual + engorde frontera | 3.9.1–3.9.2 ✅ |
+| 2 | Fusión colisión oz + Mega reset | 3.9.3–3.9.4 ✅ |
+| 3 | Capital fricción + flota Inverse∩Linear | 3.9.5–3.9.6 ✅ |
+| 4 | Engorde dual estable | 3.9.7 ✅ |
+| 5 | Live testnet ciclo Beru | 3.9.9 ❌ |
+
+**Validación:** `validar_ciclo_beru_eth.py` · smokes `validar_beru_*`
+
+---
+
+## M2.14 — Igris jurisdicción + panel Pergamino — **COMPLETADO código** (2026-07-11→12)
+
+| # | Tarea | Checklist |
+|---|-------|-----------|
+| 1 | `manto_jurisdiccion` + telemetría | 3.10.1 / 3.10.4 ✅ |
+| 2 | `igris_despliegue` §E v2 | 3.10.2–3.10.3 ✅ |
+| 3 | Panel `dashboard_sombras.html` | 3.10.5 ✅ · 10.3.1 [~] |
+| 4 | Live testnet | 3.10.7 ❌ |
+
+---
+
+## M3 — Operaciones (P1) ← **alternativa al live**
 
 | # | Tarea |
 |---|-------|
 | 1 | `enviar_telegram` + tabla evento→nivel (`06_NOTIFICACIONES.md`) |
 | 2 | Safe mode / kill switch (manual Iron → Tusk) |
 | 3 | Informe salud diario |
+
+**También inmediato:** 3.9.9 / 3.10.7 live testnet (cierra Fase 3 de verdad).
 
 ---
 

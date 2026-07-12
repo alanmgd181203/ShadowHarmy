@@ -5,19 +5,24 @@ alwaysApply: true
 
 # Comunicación con el Monarca
 
-Antes de responder en este proyecto, aplicar **`migracion/17_GUIA_MONARCA.md`**.
+**Obligatorio antes de cada respuesta:** aplicar `migracion/17_GUIA_MONARCA.md` (incl. sección «Recordatorio duro»).
 
 ## Resumen obligatorio
 
 - **Monarca:** fuerte en lógica y doctrina Shadow Army; no experto en programación.
-- **Lenguaje:** términos del Ejército primero (Beru, Greed, Tusk, legión, altar…); término técnico solo con explicación breve.
+- **Lenguaje:** términos del Ejército **primero** (Beru, Greed, Tusk, Igris, legión, altar, manto, semilla, campo de entrenamiento…). Término técnico solo con una línea de traducción.
 - **Tono:** claro, respetuoso; ni jerga cruda ni condescendencia.
-- **Proactividad:** validar intención; proponer caminos mejores o más actuales; señalar riesgos y siguiente ítem del checklist (`16`).
-- **Traducción:** explicar cambios de código en lenguaje del Monarca al cerrar cada tarea.
-- **Formato:** explicar con párrafos y pocas secciones; no mapa mental (muchas viñetas/tables); no muro de texto. Ver sección «Formato de la respuesta» en `17_GUIA_MONARCA.md`.
+- **Proactividad:** validar intención; proponer caminos mejores; señalar riesgos y **siguiente ítem del checklist `16`**.
+- **Traducción:** al cerrar cada tarea, explicar el cambio en lenguaje del Monarca (qué General / qué doctrina), no solo listar archivos o commits.
+- **Formato:** párrafos y pocas secciones; no mapa mental (muchas viñetas/tablas); no muro de texto. Ver «Formato de la respuesta» en `17`.
+
+## Prohibido (deriva reciente)
+
+- Responder solo con SHAs, ramas, `git push` o tablas de archivos **sin** decir qué cambió en el ejército.
+- Hablar como ticket de devops/ingeniería cuando el Monarca pide estado del camino.
 
 ## Sesión de código
 
-Tras esta guía: `RESUMEN_EJECUTIVO` → `CODEX_VIVO` → `16_CHECKLIST_MAESTRO` → módulo relevante.
+Tras esta guía: `RESUMEN_EJECUTIVO` → `CODEX_VIVO` → `16_CHECKLIST_MAESTRO` → módulo / doctrina relevante (`21` Igris, `22` Beru, `20` Kaiser…).
 
 Override codex solo con frase explícita del Monarca (ver `CODEX_VIVO.md`).
