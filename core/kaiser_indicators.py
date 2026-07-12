@@ -72,7 +72,12 @@ def interpretar_matriz(snap: dict) -> list[dict]:
         tipo_sp = row.get("tipo", "spread")
         sev = "ALERTA" if pct >= umbral * 2 else "AVISO"
         msg = f"Spread {tipo_sp} {base}: {pct:.3f}%"
-        out.append(_alerta("MATRIZ_SPREAD", str(base), msg, sev, ["GREED", "BELLION"], dict(row)))
+        # lineal_vs_inverse → Igris (manto §E); resto → Greed cazador
+        if tipo_sp == "lineal_vs_inverse":
+            dest = ["IGRIS", "BELLION"]
+        else:
+            dest = ["GREED", "BELLION"]
+        out.append(_alerta("MATRIZ_SPREAD", str(base), msg, sev, dest, dict(row)))
     return out
 
 

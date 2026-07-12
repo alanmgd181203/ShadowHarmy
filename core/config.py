@@ -288,12 +288,15 @@ ENGORDE_PASO_MIN = float(os.getenv("ENGORDE_PASO_MIN", "0.1"))
 ENGORDE_BLOQUEADO_LOG_S = float(os.getenv("ENGORDE_BLOQUEADO_LOG_S", "60"))
 ENGORDE_FAIL_COOLDOWN_S = float(os.getenv("ENGORDE_FAIL_COOLDOWN_S", "30"))
 
-# Igris — despliegue paciente §E (Ask/Bid, fees break-even, urgencia, micro-mordidas)
-IGRIS_URGENCIA_TAU_HORAS = float(os.getenv("IGRIS_URGENCIA_TAU_HORAS", "8"))  # horas hasta holgura plena
-IGRIS_URGENCIA_HOLGURA_MAX_PCT = float(os.getenv("IGRIS_URGENCIA_HOLGURA_MAX_PCT", "0.05"))  # spread negativo máx.
-IGRIS_MICRO_MAX_USD = float(os.getenv("IGRIS_MICRO_MAX_USD", "25"))  # techo por micro-mordida
+# Igris — despliegue paciente §E (Ask/Bid, fees, urgencia invertida, mordida inteligente)
+IGRIS_URGENCIA_TAU_HORAS = float(os.getenv("IGRIS_URGENCIA_TAU_HORAS", "8"))  # fallback sin Kaiser
+IGRIS_URGENCIA_TAU_MIN_HORAS = float(os.getenv("IGRIS_URGENCIA_TAU_MIN_HORAS", "1"))  # baja frecuencia
+IGRIS_URGENCIA_TAU_MAX_HORAS = float(os.getenv("IGRIS_URGENCIA_TAU_MAX_HORAS", "24"))  # alta frecuencia
+IGRIS_URGENCIA_HOLGURA_MAX_PCT = float(os.getenv("IGRIS_URGENCIA_HOLGURA_MAX_PCT", "0.05"))
 IGRIS_ESPERA_LOG_S = float(os.getenv("IGRIS_ESPERA_LOG_S", "60"))
-IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))  # reintentar puerta pronto
+IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))
+# Horizonte 95% = colchón de cálculo; rebase táctico permitido (poda posterior)
+IGRIS_COLCHON_OXIGENO_PCT = float(os.getenv("IGRIS_COLCHON_OXIGENO_PCT", "5"))
 
 FASE_ACTUAL = "HIERRO"
 VERSION = "2.0.0"

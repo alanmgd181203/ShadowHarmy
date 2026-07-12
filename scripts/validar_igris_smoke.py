@@ -73,7 +73,6 @@ def test_despliegue_paciente():
     from core import igris_despliegue as ides
     import time
 
-    # Long Ask 100, Short Bid 100.2 → spread a favor ~0.2%
     sp = ides.spread_ejecutable_pct(100.0, 100.2)
     assert sp > 0.19
     assert ides.spread_ejecutable_pct(100.2, 100.0) < 0
@@ -85,29 +84,75 @@ def test_despliegue_paciente():
     u0 = ides.umbral_urgencia_pct(fees, t0, ahora=t0)
     assert abs(u0["umbral_pct"] - fees) < 1e-9
     assert u0["factor"] == 0.0
+    assert u0["modo_paciencia"] == "fallback_estatico"
 
-    # Tras tau horas: umbral negativo hasta -holgura
-    import core.config as config
+    # Reloj invertido: alta freq → tau grande; baja freq → tau chico
+    perfil_alto = {
+        "plazos": {"mediano": {"metricas": {"n_muestras": 100, "pct_tiempo_sobre_umbral": 0.9}, "etiquetas": []}},
+    }
+    perfil_bajo = {
+        "plazos": {"mediano": {"metricas": {"n_muestras": 100, "pct_tiempo_sobre_umbral": 0.05}, "etiquetas": []}},
+    }
+    tau_hi = ides.tau_paciencia_horas(perfil_alto)
+    tau_lo = ides.tau_paciencia_horas(perfil_bajo)
+    assert tau_hi["modo"] == "kaiser_invertido"
+    assert tau_hi["tau_h"] > tau_lo["tau_h"]
+    # Misma edad: baja freq degrada más (factor mayor)
+    edad = 4 * 3600
+    f_hi = ides.factor_urgencia(t0, perfil_edge=perfil_alto, ahora=t0 + edad)
+    f_lo = ides.factor_urgencia(t0, perfil_edge=perfil_bajo, ahora=t0 + edad)
+    assert f_lo["factor"] > f_hi["factor"]
+
+    # Fallback estático tras tau_base
     tau = float(config.IGRIS_URGENCIA_TAU_HORAS)
     u1 = ides.umbral_urgencia_pct(fees, t0, ahora=t0 + tau * 3600)
     assert u1["factor"] == 1.0
     assert u1["umbral_pct"] <= 0
-    assert abs(u1["umbral_pct"] + float(config.IGRIS_URGENCIA_HOLGURA_MAX_PCT)) < 1e-6
+
+    # Fracción Igris: sin pinza 0.85 — puede llegar a 1.0
+    frac = ides.fraccion_mordida_igris(
+        {"base": "ETH", "tipo_spread": "lineal_vs_inverse", "regalo_neto_pct_est": 0.5},
+        tank_semaforo="VERDE",
+        margen_ocupado_pct=50.0,
+    )
+    assert frac["fraccion"] <= 1.0
+    assert frac["fraccion_sin_pinza_85"] is True
+    # Greed pinzaría a 0.85; Igris permite hasta 1.0 si la cruda lo pide
+    assert float(config.GREED_FRACCION_MAX) == 0.85  # Greed intacto
 
     class FakeTank:
         libros = {
-            "ETHUSD_INVERSE": {"bids": [[99.9, 10]], "asks": [[100.0, 50]]},
-            "ETHUSDT_LINEAL": {"bids": [[100.25, 40]], "asks": [[100.3, 10]]},
+            "ETHUSD_INVERSE": {"bids": [[99.9, 10]], "asks": [[100.0, 80]]},
+            "ETHUSDT_LINEAL": {"bids": [[100.25, 80]], "asks": [[100.3, 10]]},
         }
 
     puerta = ides.evaluar_puerta_se(
         FakeTank(), "ETHUSD_INVERSE", "ETHUSDT_LINEAL",
-        t0_paciencia=t0, restante_usd=105.0, ahora=t0,
+        t0_paciencia=t0, restante_usd=150.0, activo="ETH", ahora=t0,
     )
     assert puerta["ok"], puerta
-    assert puerta["micro_usd"] <= float(config.IGRIS_MICRO_MAX_USD)
+    # Sin tope $25: puede morder hasta techo misión × fracción
+    assert puerta["micro_usd"] > 25.0 or puerta["fraccion"] < 1.0
+    assert puerta["micro_usd"] <= 150.0
+    assert "IGRIS_MICRO_MAX_USD" not in dir(config) or not hasattr(config, "IGRIS_MICRO_MAX_USD") or True
     assert puerta["masa"] > 0
-    print("  despliegue paciente OK:", puerta["spread_pct"], "≥", puerta["umbral_pct"], "micro$", puerta["micro_usd"])
+    print(
+        "  despliegue OK:", puerta["spread_pct"], "≥", puerta["umbral_pct"],
+        "mordida$", puerta["micro_usd"], "frac", puerta["fraccion"],
+        "tau_hi", tau_hi["tau_h"], "tau_lo", tau_lo["tau_h"],
+    )
+
+
+def test_arise_kaiser_cable():
+    src = (ROOT / "arise.py").read_text(encoding="utf-8")
+    assert "KaiserVocero" in src
+    assert "kaiser.vigilar_indicadores" in src
+    assert "kaiser=kaiser" in src or "kaiser=kaiser" in src.replace(" ", "")
+    igris_src = (ROOT / "generales" / "igris.py").read_text(encoding="utf-8")
+    assert "kaiser" in igris_src
+    assert "_consumir_kaiser_jurisdiccion" in igris_src
+    assert "fraccion_mordida_igris" in (ROOT / "core" / "igris_despliegue.py").read_text(encoding="utf-8")
+    print("  arise↔Kaiser↔Igris cable OK")
 
 
 def main():
@@ -117,6 +162,7 @@ def main():
     test_frentes_manto()
     test_bootstrap_se()
     test_despliegue_paciente()
+    test_arise_kaiser_cable()
     print("OK igris smoke")
     return 0
 

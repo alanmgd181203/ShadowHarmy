@@ -12,17 +12,17 @@ import core.config as config
 
 
 class IgrisEscudo:
-    def __init__(self, tusk, tank, bellion, bridge=None, greed=None):
+    def __init__(self, tusk, tank, bellion, bridge=None, greed=None, kaiser=None):
         """
         Igris: El Escudo — gobernador absoluto del manto L/S.
-        Empuja margen hasta el muro 95% (oxígeno ≥5%); sin cesión a Greed.
-        Despliegue paciente §E: dual inverse/lineal, Ask/Bid, fees, urgencia, micros.
+        Despliegue paciente §E dual; Kaiser alimenta perfiles/urgencia; horizonte 95% (colchón).
         """
         self.tusk = tusk
         self.tank = tank
         self.bridge = bridge
         self.bel = bellion
         self.greed = greed
+        self.kaiser = kaiser
 
         self.ultimo_movimiento = time.time()
         self.cooldown_maniobra_s = 5.0
@@ -32,15 +32,17 @@ class IgrisEscudo:
 
         # Paciencia / urgencia: se reinicia tras cada micro-mordida dual exitosa
         self._paciencia_t0 = time.time()
-        # Fragmentación: USD objetivo del bloque Beru vs ya inyectado en micros
+        # Misión Beru simétrica: objetivo por pata (USD notional) + Doctrina B (seguir al 95%)
         self._bloque_objetivo_usd = 0.0
         self._bloque_inyectado_usd = 0.0
+        self._mision_beru_completa = False
 
         self._capital_pre_vuelo = 0.0
         self._rango_progresion: str | None = None
         self._activo_beru: str | None = None
         self._rangos_beru: dict | None = None
         self._ejecucion_directa_activa = True  # siempre True — sin yield
+        self._alertas_kaiser_cache: list = []
 
     def calcular_banda_delta(self):
         return mercado.calcular_banda_delta(self.tusk.margen_ocupado)
@@ -114,23 +116,62 @@ class IgrisEscudo:
         return techo
 
     async def vigilar_manto_operativo(self):
-        print(f"[IGRIS] Vigilancia activa — gobernador manto hasta muro {mj.muro_marcial():.0f}%.")
+        print(
+            f"[IGRIS] Vigilancia activa — horizonte {mj.techo_ideal():.0f}% "
+            f"(colchón oxígeno, rebase táctico permitido)."
+        )
         while True:
             _, estado = await self.tank.vision_especulativa()
             if estado != "ROJO":
                 await self.auditar_manto_global()
             await asyncio.sleep(1)
 
+    def _consumir_kaiser_jurisdiccion(self) -> list:
+        """Alertas Kaiser solo del activo bajo mando del manto (§E lineal_vs_inverse)."""
+        if not self.kaiser:
+            return []
+        activo = self._activo_despliegue()
+        try:
+            raw = self.kaiser.consumir("IGRIS")
+        except Exception:
+            raw = []
+        filtradas = ides.filtrar_alertas_jurisdiccion(raw, activo)
+        self._alertas_kaiser_cache = filtradas
+        return filtradas
+
+    def _perfiles_kaiser(self) -> dict | None:
+        if not self.kaiser:
+            return None
+        return getattr(self.kaiser, "perfiles", None) or None
+
+    def _pipeline_ms_kaiser(self) -> float | None:
+        if not self.kaiser:
+            return None
+        dig = getattr(self.kaiser, "ultimo_digest", None) or {}
+        pipe = dig.get("pipeline") or {}
+        ms = pipe.get("total_ms")
+        return float(ms) if ms is not None else None
+
+    def _tank_semaforo(self) -> str:
+        lider = None
+        if hasattr(self.tank, "_obtener_lider_verde"):
+            try:
+                lider = self.tank._obtener_lider_verde()
+            except Exception:
+                lider = None
+        return getattr(lider, "estado_foco", None) or "VERDE"
+
     async def auditar_manto_global(self):
         if not await self._auditoria_pre_despliegue():
             return
 
-        # Sin cesión a Greed: flag legado siempre apagado
         self._ejecucion_directa_activa = True
         if hasattr(self.tusk, "manto_cedido_a_greed"):
             self.tusk.manto_cedido_a_greed = False
 
         limpiar_toques_expirados(self.tusk)
+        self._consumir_kaiser_jurisdiccion()
+
         margen_actual = float(self.tusk.margen_ocupado)
         peso_l_total = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s_total = sum(f["short"] for f in self.tusk.pesos.values())
@@ -139,37 +180,59 @@ class IgrisEscudo:
         if time.time() < self._engorde_fail_until:
             en_cooldown = True
 
-        # Bootstrap — Igris (aún sin manto)
-        if masa_bruta == 0 and margen_actual < mj.muro_marcial():
+        # Bootstrap — sin bloquear por horizonte 95%
+        if masa_bruta == 0:
             await self._bootstrap_manto()
             return
 
         if en_cooldown:
             return
 
-        # ≥95%: poda — respetar oxígeno 5%
-        if mj.sobre_muro(margen_actual):
-            await self.bel.anotar("IGRIS", "LEY_MARCIAL", f"Margen {margen_actual:.1f}% ≥ muro 95%.")
+        # Rebalanceo + engorde siempre (Doctrina B). El 95% NO aborta la puerta.
+        if masa_bruta > 0 and not rebalanceo_en_pausa_por_greed(self.tusk):
+            ratio_l = peso_l_total / masa_bruta
+            banda_min, banda_max = self.calcular_banda_delta()
+            if ratio_l > banda_max:
+                await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% > banda")
+                await self._ejecutar_maniobra("REBALANCEO_IGRIS", "SHORT", self.tusk.masa_autorizada)
+                return
+            if ratio_l < banda_min:
+                await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% < banda")
+                await self._ejecutar_maniobra("REBALANCEO_IGRIS", "LONG", self.tusk.masa_autorizada)
+                return
+
+        dir_engorde = "LONG" if peso_l_total <= peso_s_total else "SHORT"
+        ok_engorde = await self._ejecutar_maniobra_engorde(dir_engorde)
+
+        # Ley Marcial: poda el exceso en ciclos posteriores si ya estamos sobre el horizonte
+        # y no acabamos de disparar una mordida (la puerta no se cierra al disparar).
+        margen_post = float(self.tusk.margen_ocupado)
+        if mj.sobre_muro(margen_post) and not ok_engorde:
+            await self.bel.anotar(
+                "IGRIS", "LEY_MARCIAL",
+                f"Colchón: margen {margen_post:.1f}% ≥ horizonte {mj.muro_marcial():.0f}% — poda táctica.",
+            )
             dir_poda = "LONG" if peso_l_total >= peso_s_total else "SHORT"
             await self._ejecutar_maniobra("PODAR_MANTO", dir_poda, max(masa_bruta * 0.15, 0.0))
-            return
 
-        # Bajo el muro: rebalanceo + engorde hacia 95%
-        if margen_actual < mj.muro_marcial():
-            if masa_bruta > 0 and not rebalanceo_en_pausa_por_greed(self.tusk):
-                ratio_l = peso_l_total / masa_bruta
-                banda_min, banda_max = self.calcular_banda_delta()
-                if ratio_l > banda_max:
-                    await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% > banda")
-                    await self._ejecutar_maniobra("REBALANCEO_IGRIS", "SHORT", self.tusk.masa_autorizada)
-                    return
-                if ratio_l < banda_min:
-                    await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% < banda")
-                    await self._ejecutar_maniobra("REBALANCEO_IGRIS", "LONG", self.tusk.masa_autorizada)
-                    return
-            dir_engorde = "LONG" if peso_l_total <= peso_s_total else "SHORT"
-            await self._ejecutar_maniobra("ENGORDAR_MANTO", dir_engorde, self.masa_paso_engorde())
-            return
+    async def _ejecutar_maniobra_engorde(self, direccion: str) -> bool:
+        """Engorde dual; retorna True si materializó (para diferir poda)."""
+        masa = self.masa_paso_engorde()
+        if masa <= 0:
+            return False
+        uid = f"IGRIS_ENGORDAR_MANTO_{str(uuid.uuid4())[:4]}"
+        if not await self.tusk.solicitar_reserva(uid, masa, "IGRIS", direccion):
+            return False
+        ctx_map, estado = await self.tank.vision_especulativa()
+        if not ctx_map or estado in ("GLITCH_DETECTADO", "ROJO"):
+            await self.tusk.liberar_reserva(uid)
+            return False
+        ok = await self._engorde(uid, direccion, masa, ctx_map)
+        if ok:
+            self.ultimo_movimiento = time.time()
+        else:
+            await self.tusk.liberar_reserva(uid)
+        return ok
 
     async def _radar_manto(self, ctx_map, masa, is_long):
         return mercado.escanear_mejor_precio(config.FRENTES_MANTO_ALL, ctx_map, masa, is_long)
@@ -248,7 +311,10 @@ class IgrisEscudo:
         return (self._activo_beru or config.TICKER_BASE or "ETH").upper()
 
     def _asegurar_bloque_usd(self, activo: str, precio_ref: float) -> float:
-        """Define (o reusa) el techo USD del bloque Beru a fragmentar en micros."""
+        """
+        Misión simétrica Beru: objetivo = notional por pata ($L = $S).
+        Al completar, Doctrina B: nuevo bloque hacia horizonte 95% (crecimiento continuo).
+        """
         if self._bloque_objetivo_usd > 0 and self._bloque_inyectado_usd < self._bloque_objetivo_usd:
             return max(0.0, self._bloque_objetivo_usd - self._bloque_inyectado_usd)
 
@@ -257,7 +323,22 @@ class IgrisEscudo:
         if fraccion_legacy > 0:
             masa_pata = min(masa_pata, float(self.tusk.masa_autorizada) * fraccion_legacy)
         objetivo = max(0.0, masa_pata * max(precio_ref, 0.0))
-        # Si el paso de engorde trae masa menor, no hinchar el bloque
+
+        # Doctrina B: si misión Beru ya se marcó, empujar hueco hacia horizonte 95%
+        if self._mision_beru_completa:
+            margen = float(self.tusk.margen_ocupado)
+            horizonte = float(mj.techo_ideal())
+            hueco_pct = max(0.0, horizonte - margen) / 100.0
+            equity = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+            lev = max(bc.apalancamiento_manto_promedio(activo), 1.0)
+            # Notional por pata para acercar margen al horizonte (aprox.)
+            objetivo_h = max(objetivo, (equity * hueco_pct * lev) / 2.0) if hueco_pct > 0 else objetivo
+            # Si ya estamos ≥ horizonte, aún permitir mordida táctica (rebase): paso engorde
+            if hueco_pct <= 0:
+                paso = self.masa_paso_engorde()
+                objetivo_h = max(objetivo * 0.1, paso * max(precio_ref, 0.0))
+            objetivo = max(objetivo_h, 0.0)
+
         self._bloque_objetivo_usd = objetivo
         self._bloque_inyectado_usd = 0.0
         return objetivo
@@ -271,15 +352,16 @@ class IgrisEscudo:
         await self.bel.anotar(
             "IGRIS", tag,
             f"{puerta.get('motivo')} · spread={puerta.get('spread_pct', '—')} "
-            f"umbral={puerta.get('umbral_pct', '—')} "
-            f"edad_h={puerta.get('edad_h', '—')} factor={puerta.get('factor', '—')} "
+            f"umbral={puerta.get('umbral_pct', '—')} tau_h={puerta.get('tau_h', '—')} "
+            f"freq={puerta.get('pct_frecuencia', '—')} modo={puerta.get('modo_paciencia', '—')} "
+            f"frac={puerta.get('fraccion', '—')} calor={puerta.get('calor', '—')} "
             f"askL={puerta.get('ask_long', 0):.4f} bidS={puerta.get('bid_short', 0):.4f}",
         )
 
     async def _inyectar_dual_paciente(self, *, origen: str, restante_usd_cap: float | None = None) -> bool:
         """
-        Ritual único bootstrap/engorde: dual §E, Ask/Bid, fees±urgencia, micro-mordida.
-        Nunca abre una sola pata.
+        Ritual único bootstrap/engorde: dual §E, Ask/Bid, fees±urgencia invertida,
+        mordida = techo_misión × fracción(confianza) hasta 100%.
         """
         activo = self._activo_despliegue()
         frente_l, frente_s = im.frentes_bootstrap(activo)
@@ -292,7 +374,6 @@ class IgrisEscudo:
         if not ctx_map or estado in ("GLITCH_DETECTADO", "ROJO"):
             return False
 
-        # Precio ref solo para sizing del bloque (la puerta usa Ask/Bid del libro)
         ask_guess = ides.best_ask(ides.libro_tank(self.tank, frente_l)[1])
         bid_guess = ides.best_bid(ides.libro_tank(self.tank, frente_s)[0])
         precio_ref = 0.0
@@ -309,7 +390,11 @@ class IgrisEscudo:
         if restante_usd_cap is not None and restante_usd_cap > 0:
             restante = min(restante, restante_usd_cap)
         if restante <= 0:
-            # Bloque completo: abrir uno nuevo hacia el muro
+            if (
+                self._bloque_objetivo_usd > 0
+                and self._bloque_inyectado_usd >= self._bloque_objetivo_usd - 1e-6
+            ):
+                self._mision_beru_completa = True
             self._bloque_objetivo_usd = 0.0
             self._bloque_inyectado_usd = 0.0
             restante = self._asegurar_bloque_usd(activo, precio_ref)
@@ -320,6 +405,11 @@ class IgrisEscudo:
             self.tank, frente_l, frente_s,
             t0_paciencia=self._paciencia_t0,
             restante_usd=restante,
+            activo=activo,
+            perfiles=self._perfiles_kaiser(),
+            tank_semaforo=self._tank_semaforo(),
+            pipeline_ms=self._pipeline_ms_kaiser(),
+            margen_ocupado_pct=float(self.tusk.margen_ocupado),
         )
         if not puerta.get("ok"):
             await self._anotar_espera_spread(
@@ -335,7 +425,7 @@ class IgrisEscudo:
         ask_l = float(puerta["ask_long"])
         bid_s = float(puerta["bid_short"])
 
-        # Delta: ambas piernas crecen igual
+        # Sin abortar por horizonte 95%: la puerta de asimetría dispara aunque rebase.
         margen = self.tusk.margen_ocupado
         peso_l = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s = sum(f["short"] for f in self.tusk.pesos.values())
@@ -360,6 +450,16 @@ class IgrisEscudo:
             return False
 
         self._bloque_inyectado_usd += micro_usd
+        if self._bloque_inyectado_usd >= self._bloque_objetivo_usd - 1e-6:
+            if not self._mision_beru_completa:
+                self._mision_beru_completa = True
+                await self.bel.anotar(
+                    "IGRIS", "MISION_BERU",
+                    f"Rango simétrico cumplido (${self._bloque_objetivo_usd:.1f}/pata) — Doctrina B → horizonte 95%.",
+                )
+            self._bloque_objetivo_usd = 0.0
+            self._bloque_inyectado_usd = 0.0
+
         self._paciencia_t0 = time.time()
         self.ultimo_movimiento = time.time()
 
@@ -367,8 +467,9 @@ class IgrisEscudo:
         await self.bel.anotar(
             "IGRIS", tag,
             f"§E L {frente_l}@{ask_l:.4f} / S {frente_s}@{bid_s:.4f} · "
-            f"micro ${micro_usd:.2f} masa={masa:.6f} · "
-            f"spread={puerta.get('spread_pct')}≥umbral={puerta.get('umbral_pct')} · "
+            f"mordida ${micro_usd:.2f} frac={puerta.get('fraccion')} calor={puerta.get('calor')} · "
+            f"spread={puerta.get('spread_pct')}≥umbral={puerta.get('umbral_pct')} "
+            f"tau={puerta.get('tau_h')}h · "
             f"bloque {self._bloque_inyectado_usd:.1f}/{self._bloque_objetivo_usd:.1f} USD",
         )
         return True

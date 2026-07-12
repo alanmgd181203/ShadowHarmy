@@ -1,7 +1,8 @@
 """Jurisdicción del manto — Igris gobierna L/S de principio a fin (doctrina 2026-07-12).
 
-Greed ya no ejecuta ni vigila el escudo. Horizonte operativo = muro 95%
-(reserva oxígeno 5% vía MONARCA_RESERVA_PCT / colchón Tusk).
+Greed ya no ejecuta ni vigila el escudo. Horizonte operativo = 95%
+(colchón de oxígeno / cálculo). Rebase táctico >95% permitido en el disparo;
+Ley Marcial poda el exceso en ciclos posteriores si no hubo mordida.
 """
 from __future__ import annotations
 
@@ -15,7 +16,7 @@ ORDEN_PODA_EMERGENCIA = "PODA_EMERGENCIA"
 
 
 def piso_ideal() -> float:
-    """Bajo este margen Igris sigue desplegando (ahora alineado al muro 95%)."""
+    """Horizonte de crecimiento continuo (Doctrina B); no es candado de aborto."""
     return float(getattr(config, "RANGO_PISO_IDEAL", 95.0))
 
 
@@ -24,6 +25,7 @@ def techo_ideal() -> float:
 
 
 def muro_marcial() -> float:
+    """Umbral de poda táctica posterior — no cierra la puerta de asimetría."""
     return float(getattr(config, "MURO_LEY_MARCIAL", 95.0))
 
 
