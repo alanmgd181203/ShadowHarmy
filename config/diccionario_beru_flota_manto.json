@@ -1,0 +1,783 @@
+{
+  "meta": {
+    "fuente": "Bybit public instruments-info",
+    "regla": "intersection InversePerpetual ∩ LinearPerpetual USDT",
+    "a_base": 0,
+    "motor": "core.beru_capital.rangos_activo",
+    "n_flota": 22,
+    "activos": [
+      "AAVE",
+      "ADA",
+      "APT",
+      "AVAX",
+      "BCH",
+      "BTC",
+      "DOGE",
+      "DOT",
+      "ETC",
+      "ETH",
+      "FIL",
+      "HYPE",
+      "LINK",
+      "LTC",
+      "MNT",
+      "NEAR",
+      "OP",
+      "SOL",
+      "SUI",
+      "UNI",
+      "XLM",
+      "XRP"
+    ]
+  },
+  "activos": {
+    "AAVE": {
+      "symbol_linear": "AAVEUSDT",
+      "symbol_inverse": "AAVEUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 97.78,
+      "precio_inverse": 97.45,
+      "max_leverage_linear": 75.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 47.5,
+      "A_base": 0,
+      "X": 28,
+      "margen_volumen_base_usd": 26.3158,
+      "SOLDADO": [
+        28,
+        54
+      ],
+      "CAPITAN": [
+        55,
+        110
+      ],
+      "GENERAL": [
+        111,
+        221
+      ],
+      "MARISCAL": 222,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "ADA": {
+      "symbol_linear": "ADAUSDT",
+      "symbol_inverse": "ADAUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 0.1637,
+      "precio_inverse": 0.1634,
+      "max_leverage_linear": 75.0,
+      "max_leverage_inverse": 50.0,
+      "lev_promedio": 62.5,
+      "A_base": 0,
+      "X": 22,
+      "margen_volumen_base_usd": 20.0,
+      "SOLDADO": [
+        22,
+        41
+      ],
+      "CAPITAN": [
+        42,
+        83
+      ],
+      "GENERAL": [
+        84,
+        167
+      ],
+      "MARISCAL": 168,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "APT": {
+      "symbol_linear": "APTUSDT",
+      "symbol_inverse": "APTUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 0.6211,
+      "precio_inverse": 0.6221,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "AVAX": {
+      "symbol_linear": "AVAXUSDT",
+      "symbol_inverse": "AVAXUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 6.458,
+      "precio_inverse": 6.431,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "BCH": {
+      "symbol_linear": "BCHUSDT",
+      "symbol_inverse": "BCHUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 243.8,
+      "precio_inverse": 243.1,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "BTC": {
+      "symbol_linear": "BTCUSDT",
+      "symbol_inverse": "BTCUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 63804.8,
+      "precio_inverse": 63764.2,
+      "max_leverage_linear": 100.0,
+      "max_leverage_inverse": 100.0,
+      "lev_promedio": 100.0,
+      "A_base": 0,
+      "X": 14,
+      "margen_volumen_base_usd": 12.5,
+      "SOLDADO": [
+        14,
+        25
+      ],
+      "CAPITAN": [
+        26,
+        52
+      ],
+      "GENERAL": [
+        53,
+        104
+      ],
+      "MARISCAL": 105,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "DOGE": {
+      "symbol_linear": "DOGEUSDT",
+      "symbol_inverse": "DOGEUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 0.0726,
+      "precio_inverse": 0.07224,
+      "max_leverage_linear": 75.0,
+      "max_leverage_inverse": 25.0,
+      "lev_promedio": 50.0,
+      "A_base": 0,
+      "X": 27,
+      "margen_volumen_base_usd": 25.0,
+      "SOLDADO": [
+        27,
+        52
+      ],
+      "CAPITAN": [
+        53,
+        104
+      ],
+      "GENERAL": [
+        105,
+        210
+      ],
+      "MARISCAL": 211,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "DOT": {
+      "symbol_linear": "DOTUSDT",
+      "symbol_inverse": "DOTUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 0.8504,
+      "precio_inverse": 0.8489,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 50.0,
+      "lev_promedio": 50.0,
+      "A_base": 0,
+      "X": 27,
+      "margen_volumen_base_usd": 25.0,
+      "SOLDADO": [
+        27,
+        52
+      ],
+      "CAPITAN": [
+        53,
+        104
+      ],
+      "GENERAL": [
+        105,
+        210
+      ],
+      "MARISCAL": 211,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "ETC": {
+      "symbol_linear": "ETCUSDT",
+      "symbol_inverse": "ETCUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 6.863,
+      "precio_inverse": 6.825,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "ETH": {
+      "symbol_linear": "ETHUSDT",
+      "symbol_inverse": "ETHUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 1787.21,
+      "precio_inverse": 1785.84,
+      "max_leverage_linear": 100.0,
+      "max_leverage_inverse": 100.0,
+      "lev_promedio": 100.0,
+      "A_base": 0,
+      "X": 14,
+      "margen_volumen_base_usd": 12.5,
+      "SOLDADO": [
+        14,
+        25
+      ],
+      "CAPITAN": [
+        26,
+        52
+      ],
+      "GENERAL": [
+        53,
+        104
+      ],
+      "MARISCAL": 105,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "FIL": {
+      "symbol_linear": "FILUSDT",
+      "symbol_inverse": "FILUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 0.7706,
+      "precio_inverse": 0.7697,
+      "max_leverage_linear": 25.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 22.5,
+      "A_base": 0,
+      "X": 59,
+      "margen_volumen_base_usd": 55.5556,
+      "SOLDADO": [
+        59,
+        116
+      ],
+      "CAPITAN": [
+        117,
+        233
+      ],
+      "GENERAL": [
+        234,
+        467
+      ],
+      "MARISCAL": 468,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "HYPE": {
+      "symbol_linear": "HYPEUSDT",
+      "symbol_inverse": "HYPEUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 66.833,
+      "precio_inverse": 67.148,
+      "max_leverage_linear": 75.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 47.5,
+      "A_base": 0,
+      "X": 28,
+      "margen_volumen_base_usd": 26.3158,
+      "SOLDADO": [
+        28,
+        54
+      ],
+      "CAPITAN": [
+        55,
+        110
+      ],
+      "GENERAL": [
+        111,
+        221
+      ],
+      "MARISCAL": 222,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "LINK": {
+      "symbol_linear": "LINKUSDT",
+      "symbol_inverse": "LINKUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 7.893,
+      "precio_inverse": 7.891,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "LTC": {
+      "symbol_linear": "LTCUSDT",
+      "symbol_inverse": "LTCUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 44.45,
+      "precio_inverse": 44.3,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 50.0,
+      "lev_promedio": 50.0,
+      "A_base": 0,
+      "X": 27,
+      "margen_volumen_base_usd": 25.0,
+      "SOLDADO": [
+        27,
+        52
+      ],
+      "CAPITAN": [
+        53,
+        104
+      ],
+      "GENERAL": [
+        105,
+        210
+      ],
+      "MARISCAL": 211,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "MNT": {
+      "symbol_linear": "MNTUSDT",
+      "symbol_inverse": "MNTUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 0.4187,
+      "precio_inverse": 0.4173,
+      "max_leverage_linear": 25.0,
+      "max_leverage_inverse": 50.0,
+      "lev_promedio": 37.5,
+      "A_base": 0,
+      "X": 36,
+      "margen_volumen_base_usd": 33.3333,
+      "SOLDADO": [
+        36,
+        69
+      ],
+      "CAPITAN": [
+        70,
+        139
+      ],
+      "GENERAL": [
+        140,
+        280
+      ],
+      "MARISCAL": 281,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "NEAR": {
+      "symbol_linear": "NEARUSDT",
+      "symbol_inverse": "NEARUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 1.8667,
+      "precio_inverse": 1.8622,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "OP": {
+      "symbol_linear": "OPUSDT",
+      "symbol_inverse": "OPUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 0.10067,
+      "precio_inverse": 0.10012,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "SOL": {
+      "symbol_linear": "SOLUSDT",
+      "symbol_inverse": "SOLUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 76.07,
+      "precio_inverse": 75.99,
+      "max_leverage_linear": 100.0,
+      "max_leverage_inverse": 50.0,
+      "lev_promedio": 75.0,
+      "A_base": 0,
+      "X": 18,
+      "margen_volumen_base_usd": 16.6667,
+      "SOLDADO": [
+        18,
+        34
+      ],
+      "CAPITAN": [
+        35,
+        69
+      ],
+      "GENERAL": [
+        70,
+        139
+      ],
+      "MARISCAL": 140,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "SUI": {
+      "symbol_linear": "SUIUSDT",
+      "symbol_inverse": "SUIUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 0.7238,
+      "precio_inverse": 0.7229,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "UNI": {
+      "symbol_linear": "UNIUSDT",
+      "symbol_inverse": "UNIUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 3.673,
+      "precio_inverse": 3.657,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "XLM": {
+      "symbol_linear": "XLMUSDT",
+      "symbol_inverse": "XLMUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 0.18395,
+      "precio_inverse": 0.18375,
+      "max_leverage_linear": 50.0,
+      "max_leverage_inverse": 20.0,
+      "lev_promedio": 35.0,
+      "A_base": 0,
+      "X": 38,
+      "margen_volumen_base_usd": 35.7143,
+      "SOLDADO": [
+        38,
+        74
+      ],
+      "CAPITAN": [
+        75,
+        149
+      ],
+      "GENERAL": [
+        150,
+        300
+      ],
+      "MARISCAL": 301,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    },
+    "XRP": {
+      "symbol_linear": "XRPUSDT",
+      "symbol_inverse": "XRPUSD",
+      "G_min": 5.0,
+      "G_min_linear": 5.0,
+      "G_min_inverse": 5.0,
+      "precio_linear": 1.0925,
+      "precio_inverse": 1.0916,
+      "max_leverage_linear": 100.0,
+      "max_leverage_inverse": 50.0,
+      "lev_promedio": 75.0,
+      "A_base": 0,
+      "X": 18,
+      "margen_volumen_base_usd": 16.6667,
+      "SOLDADO": [
+        18,
+        34
+      ],
+      "CAPITAN": [
+        35,
+        69
+      ],
+      "GENERAL": [
+        70,
+        139
+      ],
+      "MARISCAL": 140,
+      "friccion": {
+        "SOLDADO": 0.8,
+        "CAPITAN": 0.4,
+        "GENERAL": 0.2,
+        "MARISCAL": 0.1
+      }
+    }
+  }
+}

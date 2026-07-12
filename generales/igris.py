@@ -25,6 +25,7 @@ class IgrisEscudo:
         self.ultimo_movimiento = time.time()
         self.cooldown_maniobra_s = 5.0
         self._ultimo_log_engorde_bloqueado = 0.0
+        self._engorde_fail_until = 0.0
 
         self._capital_pre_vuelo = 0.0
         self._rango_progresion: str | None = None
@@ -34,14 +35,18 @@ class IgrisEscudo:
         return mercado.calcular_banda_delta(self.tusk.margen_ocupado)
 
     def masa_paso_engorde(self) -> float:
-        """Paso de engorde acotado: no tragar toda masa_autorizada de un golpe."""
+        """Paso de engorde: preferir doblar el manto actual; techo = fracción de masa auth."""
         peso_l = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s = sum(f["short"] for f in self.tusk.pesos.values())
         masa_bruta = peso_l + peso_s
         masa_auth = float(self.tusk.masa_autorizada)
         fraccion = float(getattr(config, "ENGORDE_PASO_FRACCION", 0.05))
         paso_min = float(getattr(config, "ENGORDE_PASO_MIN", 0.1))
-        return min(masa_auth, max(masa_bruta, paso_min, masa_auth * fraccion))
+        techo = max(masa_auth * fraccion, paso_min)
+        if masa_bruta > 0:
+            # Doblar el escudo actual (L+S), sin saltar al techo de un golpe
+            return min(techo, max(masa_bruta, paso_min))
+        return min(masa_auth, techo)
 
     async def vigilar_manto_operativo(self):
         print(f"[IGRIS] Vigilancia activa bajo protocolo {config.FASE_ACTUAL}.")
@@ -61,6 +66,8 @@ class IgrisEscudo:
         peso_s_total = sum(f["short"] for f in self.tusk.pesos.values())
         masa_bruta = peso_l_total + peso_s_total
         en_cooldown = (time.time() - self.ultimo_movimiento) <= self.cooldown_maniobra_s
+        if time.time() < self._engorde_fail_until:
+            en_cooldown = True
 
         # --- Jurisdicción: si ya cedió a Greed, Igris NO ejecuta en exchange ---
         if (
@@ -377,13 +384,39 @@ class IgrisEscudo:
         await self.tusk.liberar_reserva(uid)
         return masa_aplicada > 0
 
+    def _precio_ctx_o_reflejo(self, ctx_map, frente: str) -> float:
+        """Precio del frente; si lineal está ciego, refleja inverse/spot del mismo activo."""
+        ctx = ctx_map.get(frente) if ctx_map else None
+        px = float(getattr(ctx, "last_price", 0) or 0) if ctx else 0.0
+        if px > 0:
+            return px
+        asset = frente.split("_")[0].replace("USDT", "").replace("USDC", "").replace("USD", "")
+        # Heurística: prefijos de activo en frentes tipo LTCUSDT / LTCUSD
+        for f, c in (ctx_map or {}).items():
+            if not c or float(getattr(c, "last_price", 0) or 0) <= 0:
+                continue
+            sym = str(getattr(c, "symbol", "") or f)
+            if asset and asset in sym:
+                return float(c.last_price)
+        return 0.0
+
+    def _frente_ancla_manto(self) -> str | None:
+        """Frente donde ya hay peso — engorde dual debe crecer ahí, no saltar de activo."""
+        mejor, masa = None, 0.0
+        for f, p in self.tusk.pesos.items():
+            m = float(p.get("long", 0) or 0) + float(p.get("short", 0) or 0)
+            if m > masa:
+                mejor, masa = f, m
+        return mejor if masa > 0 else None
+
     async def _engorde(self, uid, direccion, masa, ctx_map):
         margen = self.tusk.margen_ocupado
         peso_l = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s = sum(f["short"] for f in self.tusk.pesos.values())
         masa_bruta = peso_l + peso_s
+        motivo = "desconocido"
 
-        # Bajo el piso ideal y manto equilibrado → priorizar dual L/S (crecer sin romper delta)
+        # Bajo el piso ideal y manto equilibrado → dual L/S en el mismo frente
         banda_min, banda_max = mercado.calcular_banda_delta(margen)
         ratio = (peso_l / masa_bruta) if masa_bruta > 0 else 0.5
         priorizar_dual = masa_bruta > 0 and banda_min <= ratio <= banda_max and margen < mj.piso_ideal()
@@ -393,48 +426,77 @@ class IgrisEscudo:
             nuevo_s = peso_s + (masa if direccion == "SHORT" else 0)
             if mercado.verificar_delta_post_maniobra(margen, nuevo_l, nuevo_s):
                 mejor_f, precio = await self._radar_manto(ctx_map, masa, direccion == "LONG")
-                pf = self.tusk.pesos.get(mejor_f, {"long": 0.0, "short": 0.0})
-                fl = pf["long"] + (masa if direccion == "LONG" else 0)
-                fs = pf["short"] + (masa if direccion == "SHORT" else 0)
-                if mercado.verificar_delta_frente(margen, mejor_f, fl, fs):
-                    if await self._materializar_en_frente(uid, mejor_f, direccion, masa, precio):
-                        await self.bel.anotar("IGRIS", "ENGORDE", f"+{masa:.4f} {direccion} en {mejor_f}")
-                        return True
+                if precio <= 0:
+                    motivo = "sin precio radar"
+                else:
+                    pf = self.tusk.pesos.get(mejor_f, {"long": 0.0, "short": 0.0})
+                    fl = pf["long"] + (masa if direccion == "LONG" else 0)
+                    fs = pf["short"] + (masa if direccion == "SHORT" else 0)
+                    if mercado.verificar_delta_frente(margen, mejor_f, fl, fs):
+                        if await self._materializar_en_frente(uid, mejor_f, direccion, masa, precio):
+                            await self.bel.anotar("IGRIS", "ENGORDE", f"+{masa:.4f} {direccion} en {mejor_f}")
+                            return True
+                        motivo = "materializar unilateral falló"
+                    else:
+                        motivo = "banda frente unilateral"
+            else:
+                motivo = "banda global unilateral"
 
         mitad = masa * 0.5
+        ancla = self._frente_ancla_manto()
         mejor_f_l, precio_l = await self._radar_manto(ctx_map, mitad, True)
         mejor_f_s, precio_s = await self._radar_manto(ctx_map, mitad, False)
-        if precio_l > 0 and precio_s > 0 and mercado.verificar_delta_post_maniobra(margen, peso_l + mitad, peso_s + mitad):
-            pf_l = self.tusk.pesos.get(mejor_f_l, {"long": 0.0, "short": 0.0})
-            pf_s = self.tusk.pesos.get(mejor_f_s, {"long": 0.0, "short": 0.0})
-            # Mismo frente: validar L+S juntos (antes se miraba cada pata sola y bloqueaba)
-            if mejor_f_l == mejor_f_s:
-                ok_frentes = mercado.verificar_delta_frente(
-                    margen, mejor_f_l,
-                    pf_l["long"] + mitad,
-                    pf_l["short"] + mitad,
-                )
+        # Forzar mismo frente: ancla del manto o el mejor long (evita L en LTC y S en BTC)
+        frente_dual = ancla or mejor_f_l or mejor_f_s
+        if frente_dual:
+            px = self._precio_ctx_o_reflejo(ctx_map, frente_dual)
+            if px <= 0:
+                px = precio_l if precio_l > 0 else precio_s
+            precio_l = precio_s = px
+            mejor_f_l = mejor_f_s = frente_dual
+
+        if precio_l <= 0 or precio_s <= 0:
+            motivo = "sin precio para dual (lineal ciego; esperando mar)"
+        elif not mercado.verificar_delta_post_maniobra(margen, peso_l + mitad, peso_s + mitad):
+            motivo = "banda global dual"
+        else:
+            pf = self.tusk.pesos.get(mejor_f_l, {"long": 0.0, "short": 0.0})
+            ok_frentes = mercado.verificar_delta_frente(
+                margen, mejor_f_l, pf["long"] + mitad, pf["short"] + mitad,
+            )
+            if not ok_frentes:
+                motivo = f"banda frente dual ({mejor_f_l})"
             else:
-                ok_l = mercado.verificar_delta_frente(margen, mejor_f_l, pf_l["long"] + mitad, pf_l["short"])
-                ok_s = mercado.verificar_delta_frente(margen, mejor_f_s, pf_s["long"], pf_s["short"] + mitad)
-                ok_frentes = ok_l and ok_s
-            if ok_frentes:
-                if await self._materializar_en_frente(uid, mejor_f_l, "LONG", mitad, precio_l):
+                # Reserva original era masa completa: partir en dos mitades reales
+                await self.tusk.liberar_reserva(uid)
+                if not await self.tusk.solicitar_reserva(uid, mitad, "IGRIS", "LONG"):
+                    motivo = "reserva L dual"
+                elif await self._materializar_en_frente(uid, mejor_f_l, "LONG", mitad, precio_l):
                     uid_s = f"{uid}_S"
                     if await self.tusk.solicitar_reserva(uid_s, mitad, "IGRIS", "SHORT"):
                         if await self._materializar_en_frente(uid_s, mejor_f_s, "SHORT", mitad, precio_s):
-                            await self.bel.anotar("IGRIS", "ENGORDE_DUAL", f"+{mitad:.4f} L/S en {mejor_f_l}/{mejor_f_s}")
+                            await self.bel.anotar(
+                                "IGRIS", "ENGORDE_DUAL",
+                                f"+{mitad:.4f} L/S en {mejor_f_l}",
+                            )
                             return True
-                    await self.tusk.liberar_reserva(uid_s)
+                        motivo = "materializar S dual"
+                    else:
+                        motivo = "reserva S dual"
+                        await self.tusk.liberar_reserva(uid_s)
+                else:
+                    motivo = "materializar L dual"
 
-        # Fallo: cooldown para no martillar el panel cada segundo
+        # Fallo: cooldown largo + log con causa real (no martillar el panel)
+        fail_cd = float(getattr(config, "ENGORDE_FAIL_COOLDOWN_S", 30.0))
         self.ultimo_movimiento = time.time()
+        self._engorde_fail_until = time.time() + fail_cd
         log_cd = float(getattr(config, "ENGORDE_BLOQUEADO_LOG_S", 60.0))
         ahora = time.time()
         if ahora - self._ultimo_log_engorde_bloqueado >= log_cd:
             self._ultimo_log_engorde_bloqueado = ahora
             await self.bel.anotar(
                 "IGRIS", "ENGORDE_BLOQUEADO",
-                f"Banda/paso no permite crecer (margen {margen:.2f}% · paso {masa:.4f})",
+                f"{motivo} (margen {margen:.2f}% · paso {masa:.4f})",
             )
         return False

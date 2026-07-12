@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prueba de ácido — Ley de Fricción + cola A_base (fórmula manda sobre docs históricos)."""
+"""Prueba de ácido — capital por fricción directa (sin ×8 sobre X)."""
 from __future__ import annotations
 
 import sys
@@ -16,9 +16,8 @@ ACTIVOS = ["ETH", "SOL", "LTC", "BTC"]
 
 def main() -> int:
     print("=" * 64)
-    print("  LEY DE FRICCIÓN — Hitos del Motor (ceil X, reserva ≥5%)")
+    print("  LEY DE FRICCIÓN — Hitos directos (sin 2X/4X/8X)")
     print("  Soldado 0.8% → Capitán 0.4% → General 0.2% → Mariscal 0.1%")
-    print("  Graduación Mariscal = A_base + 8X")
     print("=" * 64)
 
     cola = bc.cola_activos_con_a_base(ACTIVOS)
@@ -26,16 +25,13 @@ def main() -> int:
         a = fila["activo"]
         x = fila["X"]
         margen = fila["margen_volumen_base_usd"]
-        capital_x = x
-        reserva_pct = (1.0 - margen / capital_x) * 100 if capital_x else 0
+        reserva_pct = (1.0 - margen / x) * 100 if x else 0
+        cf = fila.get("costos_friccion") or {}
         print(f"\n[{a}]  G_min=${fila['G_min']:.2f}  lev_avg={fila['lev_promedio']}")
         print(f"  margen volumen base (95%): ${margen:.4f}")
-        print(f"  Costo Base X (ceil): ${x}  · reserva efectiva ~{reserva_pct:.2f}%")
+        print(f"  Costo Base X (ceil Soldado): ${x}  · reserva ~{reserva_pct:.2f}%")
+        print(f"  Topes fricción: Cap {cf.get('CAPITAN')} · Gen {cf.get('GENERAL')} · Mar {cf.get('MARISCAL')}")
         print(f"  A_base: ${fila['A_base']}")
-        print(f"  Fricción: Soldado {fila['friccion']['SOLDADO']}% · "
-              f"Capitán {fila['friccion']['CAPITAN']}% · "
-              f"General {fila['friccion']['GENERAL']}% · "
-              f"Mariscal {fila['friccion']['MARISCAL']}%")
         lo_s, hi_s = fila["SOLDADO"]
         lo_c, hi_c = fila["CAPITAN"]
         lo_g, hi_g = fila["GENERAL"]
@@ -55,23 +51,16 @@ def main() -> int:
             f"${fila['MARISCAL']:>9}  $0–${piso - 1}"
         )
 
-    print("\n" + "-" * 64)
-    print("TELEMETRÍA PANEL (ejemplos)")
-    for eq in (0, 10, 20, 50, 120, 300):
-        t = bc.telemetria_progresion(eq)
-        print(
-            f"  equity=${eq:<6} → {t['rango_ejercito']:<28} "
-            f"grado={t['grado_beru']:<10} X={t['costo_base_X']}"
-        )
-
-    # Invariantes
-    assert all(f["MARISCAL"] == f["A_base"] + 8 * f["X"] for f in cola)
+    # Invariantes: NO 8X; BTC/ETH aislados Mariscal=105 con config default lev 100
+    r_btc = bc.rangos_activo("BTC", 0)
+    assert r_btc["MARISCAL"] == 105, r_btc["MARISCAL"]
+    assert r_btc["MARISCAL"] != 8 * r_btc["X"]
     assert all(
         (1.0 - f["margen_volumen_base_usd"] / f["X"]) >= 0.05 - 1e-9 for f in cola
     ), "reserva < 5%"
     tel0 = bc.telemetria_progresion(0)
     assert "Inanición" in tel0["rango_ejercito"]
-    print("\n[OK] invariantes: Mariscal=A_base+8X · reserva≥5% · $0=Inanición")
+    print("\n[OK] invariantes: Mariscal=fricción 0.1% · ≠8X · reserva≥5% · $0=Inanición")
     return 0
 
 

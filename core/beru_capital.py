@@ -4,7 +4,9 @@ Cálculo usa apalancamiento PROMEDIO (proyección de rangos).
 Ejecución en exchange: Igris usa el MÁXIMO por contrato (inverse/lineal).
 
 Ley de Fricción (esfuerzo de mercado para extraer G_min):
-  Soldado 0.8% · Capitán 0.4% · General 0.2% · Mariscal 0.1% (= A_base + 8X).
+  Soldado 0.8% · Capitán 0.4% · General 0.2% · Mariscal 0.1%.
+
+Cada tope de grado se calcula DIRECTO con su fricción (sin ×2/×4/×8 sobre X).
 """
 from __future__ import annotations
 
@@ -94,36 +96,74 @@ def colchon_tusk_pct() -> float:
     return float(getattr(config, "MONARCA_RESERVA_PCT", 0.05))
 
 
-def notional_por_pierna_base(asset: str) -> float:
-    """Notional por pierna para que fricción Soldado (0.8%) = G_min."""
+def notional_por_pierna_para_friccion(asset: str, friccion: float) -> float:
+    """Notional por pierna para que esa fricción extraiga G_min."""
     g = g_min_usd(asset)
-    f = friccion_soldado_pct()
+    f = float(friccion)
     if f <= 0:
         return 0.0
     return g / f
 
 
-def margen_volumen_base(asset: str) -> float:
-    """Margen L+S del Volumen Base (95% del capital X antes de redondeo)."""
+def notional_por_pierna_base(asset: str) -> float:
+    """Notional por pierna para fricción Soldado (0.8%) = G_min."""
+    return notional_por_pierna_para_friccion(asset, friccion_soldado_pct())
+
+
+def margen_bidireccional_para_friccion(asset: str, friccion: float) -> float:
+    """Margen L+S = 2 × (G_min / fricción) / apalancamiento."""
     lev = max(apalancamiento_manto_promedio(asset), 1.0)
-    return 2.0 * notional_por_pierna_base(asset) / lev
+    return 2.0 * notional_por_pierna_para_friccion(asset, friccion) / lev
+
+
+def margen_volumen_base(asset: str) -> float:
+    """Margen L+S del Volumen Base Soldado (antes de reserva 5%)."""
+    return margen_bidireccional_para_friccion(asset, friccion_soldado_pct())
+
+
+def capital_requerido_exacto(asset: str, friccion: float) -> float:
+    """capital = margen_LS / 0.95  (reserva Tusk ≥5%)."""
+    margen = margen_bidireccional_para_friccion(asset, friccion)
+    denom = max(1.0 - colchon_tusk_pct(), 1e-9)
+    return margen / denom
+
+
+def _redondeo_grado(capital: float, *, modo: str) -> int:
+    """Soldado: ceil (seguridad). Topes Capitán/General/Mariscal: round."""
+    c = float(capital)
+    if modo == "ceil":
+        return max(1, int(math.ceil(c - 1e-12)))
+    return max(1, int(round(c)))
+
+
+def costo_grado(asset: str, grado: str) -> int:
+    """Capital entero del grado — fricción propia, sin escalares sobre X."""
+    g = str(grado).upper()
+    fric = friccion_grado_pct(g)
+    exacto = capital_requerido_exacto(asset, fric)
+    modo = "ceil" if g == "SOLDADO" else "round"
+    return _redondeo_grado(exacto, modo=modo)
 
 
 def costo_base_x(asset: str) -> int:
-    """Regla 4 — X = ceil(margen/0.95) para garantizar ≥5% reserva en Tusk."""
-    margen = margen_volumen_base(asset)
-    reserva = colchon_tusk_pct()
-    denom = max(1.0 - reserva, 1e-9)
-    capital_100 = margen / denom
-    # ceil: nunca dejar reserva por debajo del 5%
-    return max(1, int(math.ceil(capital_100 - 1e-12)))
+    """Regla 4 — X = capital Soldado (fricción 0.8%, ceil)."""
+    return costo_grado(asset, "SOLDADO")
 
 
 def rangos_activo(asset: str, a_base: float | int = 0) -> dict[str, Any]:
-    """Regla 5 + Ley de Fricción — Mariscal = A_base+8X (0.1% extrae G_min)."""
-    x = costo_base_x(asset)
+    """Rangos por fricción independiente (prohibido ×2/×4/×8 sobre X)."""
     ab = int(a_base)
-    mariscal = ab + 8 * x
+    x = costo_grado(asset, "SOLDADO")
+    tope_c = costo_grado(asset, "CAPITAN")
+    tope_g = costo_grado(asset, "GENERAL")
+    tope_m = costo_grado(asset, "MARISCAL")
+
+    # Garantizar monotonía tras redondeos independientes
+    tope_c = max(tope_c, x)
+    tope_g = max(tope_g, tope_c)
+    tope_m = max(tope_m, tope_g)
+
+    mariscal = ab + tope_m
     return {
         "activo": asset.upper(),
         "X": x,
@@ -132,9 +172,15 @@ def rangos_activo(asset: str, a_base: float | int = 0) -> dict[str, Any]:
         "lev_promedio": round(apalancamiento_manto_promedio(asset), 2),
         "margen_volumen_base_usd": round(margen_volumen_base(asset), 4),
         "reserva_garantizada_pct": round(colchon_tusk_pct() * 100, 2),
-        "SOLDADO": (ab + x, ab + 2 * x - 1),
-        "CAPITAN": (ab + 2 * x, ab + 4 * x - 1),
-        "GENERAL": (ab + 4 * x, ab + 8 * x - 1),
+        "costos_friccion": {
+            "SOLDADO": x,
+            "CAPITAN": tope_c,
+            "GENERAL": tope_g,
+            "MARISCAL": tope_m,
+        },
+        "SOLDADO": (ab + x, ab + tope_c - 1),
+        "CAPITAN": (ab + tope_c, ab + tope_g - 1),
+        "GENERAL": (ab + tope_g, ab + tope_m - 1),
         "MARISCAL": mariscal,
         "A_base_siguiente": mariscal,
         "friccion": {
@@ -287,9 +333,8 @@ def notional_por_pierna_objetivo() -> float:
 
 
 def margen_manto_pleno(asset: str) -> float:
-    """Mariscal = A_base-local + 8X en capital; margen operativo ≈ X * 0.95 * 8 / 8 = X*0.95…"""
-    # Margen pleno = volumen base * 8 (duplicaciones Soldado→Mariscal)
-    return round(margen_volumen_base(asset) * 8.0, 2)
+    """Margen L+S al esfuerzo Mariscal (fricción 0.1%)."""
+    return round(margen_bidireccional_para_friccion(asset, friccion_grado_pct("MARISCAL")), 2)
 
 
 def margen_manto_por_tier(asset: str, tier_id: str | None = None) -> float:

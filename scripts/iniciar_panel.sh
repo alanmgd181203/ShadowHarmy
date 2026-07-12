@@ -20,11 +20,32 @@ fi
 # shellcheck disable=SC1091
 source "$ROOT/.venv/bin/activate"
 
-liberar_puerto() {
+matar_arise() {
+  pkill -f "python.*arise.py" 2>/dev/null || true
+  pkill -f "ShadowHarmy/arise.py" 2>/dev/null || true
+  if [[ -f "$ROOT/data/panel_arise.pid" ]]; then
+    local old
+    old="$(cat "$ROOT/data/panel_arise.pid" 2>/dev/null || true)"
+    if [[ -n "${old}" ]]; then
+      kill "${old}" 2>/dev/null || true
+      sleep 0.2
+      kill -9 "${old}" 2>/dev/null || true
+    fi
+  fi
+  if command -v pgrep >/dev/null 2>&1; then
+    while read -r p; do
+      [[ -n "$p" ]] || continue
+      kill "$p" 2>/dev/null || true
+      sleep 0.1
+      kill -9 "$p" 2>/dev/null || true
+    done < <(pgrep -f "$ROOT/arise.py" 2>/dev/null || true)
+  fi
+}
+
+liberar_http() {
   local port="$1"
   pkill -f "http.server ${port}" 2>/dev/null || true
   pkill -f "http.server.*${port}" 2>/dev/null || true
-  pkill -f "python.*arise.py" 2>/dev/null || true
   if command -v lsof >/dev/null 2>&1; then
     local pids
     pids="$(lsof -tiTCP:"${port}" -sTCP:LISTEN 2>/dev/null || true)"
@@ -39,12 +60,13 @@ liberar_puerto() {
       fi
     fi
   fi
-  sleep 0.5
+  sleep 0.3
 }
 
 echo ""
 echo "🌑 Shadow Army — preparando panel..."
-liberar_puerto "$PORT"
+matar_arise
+liberar_http "$PORT"
 
 echo "→ Activando arise.py..."
 PYTHONUNBUFFERED=1 nohup python "$ROOT/arise.py" >> "$LOG_DIR/arise_panel.log" 2>&1 &
@@ -63,8 +85,9 @@ for i in $(seq 1 30); do
 done
 echo "  ✓ arise.py PID ${ARISE_PID}"
 
+# Solo liberar http — NUNCA matar arise aquí
 if command -v lsof >/dev/null 2>&1 && lsof -tiTCP:"${PORT}" -sTCP:LISTEN >/dev/null 2>&1; then
-  liberar_puerto "$PORT"
+  liberar_http "$PORT"
 fi
 
 nohup python -m http.server "$PORT" --directory "$ROOT" >> "$LOG_DIR/panel_http.log" 2>&1 &
@@ -81,6 +104,11 @@ if ! kill -0 "$HTTP_PID" 2>/dev/null; then
     echo "❌ http.server no arrancó — ver data/logs/panel_http.log"
     exit 1
   fi
+fi
+
+if ! kill -0 "$ARISE_PID" 2>/dev/null; then
+  echo "❌ arise.py murió tras abrir http — ver data/logs/arise_panel.log"
+  exit 1
 fi
 
 CACHE_BUST="$(date +%s)"

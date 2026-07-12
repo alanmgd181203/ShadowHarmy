@@ -178,6 +178,9 @@ class TuskBoveda:
                     from core import igris_manto as im
                     im.actualizar_promedio(self.pesos, frente, direccion, sombra.masa, precio_fill)
                 self.pesos[frente][dir_key] += sombra.masa
+                # Ya anclada: sale del tránsito (la masa auth permanece consumida)
+                self.reservas_activas.pop(uid, None)
+                self.masa_reservada_ltc = max(0.0, self.masa_reservada_ltc - sombra.masa)
                 await self.bel.anotar("TUSK", "ANCLAJE", f"Masa {sombra.masa:.4f} fijada en {frente}.")
                 return True
         return False
