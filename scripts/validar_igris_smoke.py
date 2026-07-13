@@ -164,13 +164,25 @@ def test_libro_tank_desde_lider():
 
 def test_oportunidad_manto_kaiser():
     from core import kaiser_indicators as ki
-    snap = {"filas": [{"base": "ETH", "tipo": "lineal_vs_inverse", "spread_pct": 0.05}]}
+
+    class Nodo:
+        libros = {
+            "ETHUSD_INVERSE": {"bids": [[99.9, 10]], "asks": [[100.0, 80]]},
+            "ETHUSDT_LINEAL": {"bids": [[100.25, 80]], "asks": [[100.3, 10]]},
+        }
+
+    class Cluster:
+        def _obtener_lider_verde(self):
+            return Nodo()
+
     config.ARENA_IGRIS_ACTIVA = True
     config.ARENA_IGRIS_UMBRAL_PCT = 0.01
-    alertas = ki.interpretar_oportunidades_manto(snap)
+    alertas = ki.interpretar_oportunidades_manto(Cluster(), ["ETH"])
     assert alertas and alertas[0]["tipo"] == "OPORTUNIDAD_MANTO"
+    assert (alertas[0].get("datos") or {}).get("modo_umbral") == "arena_micro"
+    assert float((alertas[0].get("datos") or {}).get("spread_pct") or 0) > 0.01
     config.ARENA_IGRIS_ACTIVA = False
-    print("  OPORTUNIDAD_MANTO Kaiser OK")
+    print("  OPORTUNIDAD_MANTO Ask/Bid OK")
 
 
 def test_arise_kaiser_cable():

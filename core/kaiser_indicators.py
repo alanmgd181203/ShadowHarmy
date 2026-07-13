@@ -81,29 +81,84 @@ def interpretar_matriz(snap: dict) -> list[dict]:
     return out
 
 
-def interpretar_oportunidades_manto(snap: dict) -> list[dict]:
+def _activos_flota_manto() -> list[str]:
+    """Activos Inverse∩Linear del diccionario; fallback pentiverso + ETH."""
+    import json
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[1] / "config" / "diccionario_beru_flota_manto.json"
+    if path.exists():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            lista = (data.get("meta") or {}).get("activos") or []
+            if lista:
+                return [str(a).upper() for a in lista]
+        except Exception:
+            pass
+    bases = list(getattr(config, "ACTIVOS_PENTIVERSO", []) or [])
+    seed = str(getattr(config, "BERU_ACTIVO_SEMILLA", "ETH") or "ETH").upper()
+    if seed not in bases:
+        bases = [seed] + bases
+    return [str(b).upper() for b in bases]
+
+
+def interpretar_oportunidades_manto(tank, activos: list[str] | None = None) -> list[dict]:
     """
-    Semáforo morado — grieta L/S (lineal vs inverse) para despertar a Igris.
-    Umbral más bajo que MATRIZ general cuando IGRIS_EVENT_DRIVEN o arena.
+    Semáforo morado — misma visión que la Puerta §E: Ask inverse vs Bid lineal.
+
+    Arena: umbral micro (ARENA_IGRIS_UMBRAL_PCT).
+    Prod: umbral ≥ fees break-even del cruce (comisiones), piso opcional env.
     """
+    from core import igris_despliegue as ides
+    from core import igris_manto as im
+
     out: list[dict] = []
-    if getattr(config, "ARENA_IGRIS_ACTIVA", False):
-        umbral = float(getattr(config, "ARENA_IGRIS_UMBRAL_PCT", 0.01))
-    else:
-        umbral = float(getattr(config, "KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT", 0.01))
-    for row in snap.get("filas") or []:
-        if str(row.get("tipo") or "") != "lineal_vs_inverse":
+    arena = bool(getattr(config, "ARENA_IGRIS_ACTIVA", False))
+    bases = [str(a).upper() for a in (activos or _activos_flota_manto())]
+
+    for base in bases:
+        fl, fs = im.frentes_bootstrap(base)
+        bids_l, asks_l = ides.libro_tank(tank, fl)
+        bids_s, asks_s = ides.libro_tank(tank, fs)
+        ask_l = ides.best_ask(asks_l)
+        bid_s = ides.best_bid(bids_s)
+        if ask_l <= 0 or bid_s <= 0:
             continue
-        pct = float(row.get("spread_pct") or 0)
-        if pct < umbral:
+        spread = ides.spread_ejecutable_pct(ask_l, bid_s)
+        if spread == float("-inf") or spread < 0:
             continue
-        base = str(row.get("base") or row.get("activo") or "?")
-        sev = "ALERTA" if pct >= umbral * 2 else "AVISO"
-        msg = f"Oportunidad manto {base}: spread L/S {pct:.4f}% (morado)"
+        fees_be = ides.fees_break_even_pct(fl, fs)
+        if arena:
+            umbral = float(getattr(config, "ARENA_IGRIS_UMBRAL_PCT", 0.01))
+            modo = "arena_micro"
+        else:
+            piso = float(getattr(config, "KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT", 0.0) or 0.0)
+            umbral = max(fees_be, piso)
+            modo = "prod_fees"
+        if spread < umbral:
+            continue
+        sev = "ALERTA" if spread >= umbral * 2 else "AVISO"
+        msg = (
+            f"Oportunidad manto {base}: Ask/Bid {spread:.4f}% "
+            f"(umbral {umbral:.4f}% {modo})"
+        )
         out.append(_alerta(
-            "OPORTUNIDAD_MANTO", base, msg, sev,
+            "OPORTUNIDAD_MANTO",
+            base,
+            msg,
+            sev,
             ["IGRIS", "BELLION"],
-            dict(row),
+            {
+                "tipo": "lineal_vs_inverse",
+                "spread_pct": round(spread, 6),
+                "umbral_pct": round(umbral, 6),
+                "fees_be_pct": round(fees_be, 6),
+                "modo_umbral": modo,
+                "ask_long": ask_l,
+                "bid_short": bid_s,
+                "frente_long": fl,
+                "frente_short": fs,
+            },
         ))
     return out
 
@@ -273,6 +328,10 @@ def _prioridad(alerta: dict) -> float:
     if alerta.get("tipo") == "OPORTUNIDAD_LIQUIDEZ":
         mag = float(datos.get("entrada_maxima_usd") or 0) * float(datos.get("regalo_neto_pct_est") or 0)
         return sev_w * 10000 + mag
+    # Morado debe sobrevivir el tope KAISER_MAX_ALERTAS (misma vía que Igris event-driven)
+    if alerta.get("tipo") == "OPORTUNIDAD_MANTO":
+        mag = float(datos.get("spread_pct") or 0)
+        return sev_w * 8000 + mag * 100
     mag = abs(float(
         datos.get("desvio_pct")
         or datos.get("spread_pct")
@@ -323,7 +382,7 @@ def interpretar_tank(
     alertas: list[dict] = []
     alertas.extend(interpretar_desvios_indice(desvios))
     alertas.extend(interpretar_matriz(matriz))
-    alertas.extend(interpretar_oportunidades_manto(matriz))
+    alertas.extend(interpretar_oportunidades_manto(tank))
     alertas.extend(interpretar_panorama(panorama))
     alertas.extend(interpretar_funding(funding))
     alertas.extend(interpretar_sentidos_rest(sentidos))
@@ -331,7 +390,9 @@ def interpretar_tank(
 
     if perfiles:
         for a in alertas:
-            if a.get("tipo") in ("DESVIO_INDICE", "PANORAMA_GLOBAL", "MATRIZ_SPREAD"):
+            if a.get("tipo") in (
+                "DESVIO_INDICE", "PANORAMA_GLOBAL", "MATRIZ_SPREAD", "OPORTUNIDAD_MANTO",
+            ):
                 _enriquecer_con_perfil(a, perfiles)
 
     oportunidades_ancla, alertas_ancla, abortadas = interpretar_ancla_liquidez(

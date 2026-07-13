@@ -556,10 +556,10 @@ class IgrisEscudo:
         tag = "BOOTSTRAP_MANTO" if origen == "BOOTSTRAP" else "ENGORDE_DUAL"
         await self.bel.anotar(
             "IGRIS", tag,
-            f"§E L {frente_l}@{ask_l:.4f} / S {frente_s}@{bid_s:.4f} · "
-            f"mordida ${micro_usd:.2f} frac={puerta.get('fraccion')} calor={puerta.get('calor')} · "
-            f"spread={puerta.get('spread_pct')}≥umbral={puerta.get('umbral_pct')} "
-            f"tau={puerta.get('tau_h')}h · "
+            f"§E L {frente_l}@{ask_l:.4f} / S {frente_s}@{bid_s:.4f} | "
+            f"mordida ${micro_usd:.2f} frac={puerta.get('fraccion')} calor={puerta.get('calor')} | "
+            f"spread={puerta.get('spread_pct')}>=umbral={puerta.get('umbral_pct')} "
+            f"tau={puerta.get('tau_h')}h | "
             f"bloque {self._bloque_inyectado_usd:.1f}/{self._bloque_objetivo_usd:.1f} USD",
         )
         return True

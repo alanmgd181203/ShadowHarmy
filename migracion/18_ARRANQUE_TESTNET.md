@@ -128,7 +128,7 @@ chmod +x "Arena Igris.command" scripts/arena_igris_mac.sh
 ./scripts/arena_igris_mac.sh 120 ETH
 ```
 
-La arena fuerza matriz L/S aunque Tank no esté VERDE, limpia Tusk por activo y reporta `via_kaiser` vs `via_puerta`.
+Kaiser emite `OPORTUNIDAD_MANTO` con la misma visión Ask/Bid que la Puerta §E (no last price). El barrido de flota deja el Bridge vivo y debe terminar en segundos. El reporte incluye `via_kaiser`, `via_puerta`, `oportunidad_manto` y `barrido_s`.
 
 Variables útiles (`.env` o entorno):
 

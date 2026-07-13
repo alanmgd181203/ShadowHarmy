@@ -89,7 +89,7 @@ Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, net
 | Color | Significado | Código |
 |-------|-------------|--------|
 | V/A/R spot | Salud spot aliado del perp | Pendiente 3.7.P3 |
-| **Morado** | Oportunidad L/S (lineal vs inverse) → **Kaiser `OPORTUNIDAD_MANTO`** despierta a Igris | ✅ `kaiser_indicators` + `IGRIS_EVENT_DRIVEN` |
+| **Morado** | Oportunidad L/S Ask/Bid (misma visión que Puerta §E) → **`OPORTUNIDAD_MANTO`** | ✅ arena micro / prod ≥ fees |
 | **Gris/slippage** | Paridad rota temporal — falsa alarma, esperar | Pendiente |
 
 Con `IGRIS_EVENT_DRIVEN=true` en `.env`, Igris **no escanea** cada segundo: solo actúa ante `OPORTUNIDAD_MANTO` o `MATRIZ_SPREAD` (lineal_vs_inverse) del activo en mando.

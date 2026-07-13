@@ -1,5 +1,4 @@
-# Arena Igris ~2 min — PowerShell (Windows)
-# Uso:
+# Arena Igris — PowerShell (Windows)
 #   .\scripts\arena_igris_win.ps1
 #   .\scripts\arena_igris_win.ps1 -Segundos 120 -Activos "ETH,BTC"
 param(
@@ -21,9 +20,10 @@ $env:ARENA_IGRIS_SEGUNDOS_OJOS = "$Segundos"
 $env:ARENA_IGRIS_ACTIVOS = $Activos
 $env:MODO_SIMULACION = "true"
 
+$minutos = [math]::Round($Segundos / 60.0, 1)
 Write-Host ""
 Write-Host "=== Shadow Army — Arena Igris (Windows) ===" -ForegroundColor Cyan
-Write-Host "Ojos: ${Segundos}s (~$([math]::Round($Segundos/60,1)) min) · Activos: $Activos"
+Write-Host ("Ojos: {0}s (~{1} min) · Activos: {2}" -f $Segundos, $minutos, $Activos)
 Write-Host ""
 
 if (Test-Path "$Root\.venv\Scripts\Activate.ps1") {
@@ -36,6 +36,8 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 python scripts/arena_igris_aislado.py --segundos $Segundos
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+$reporte = Join-Path $Root "data\arena_igris_report.json"
+$historial = Join-Path $Root "data\historial_hierro.jsonl"
 Write-Host ""
-Write-Host "Reporte: $Root\data\arena_igris_report.json" -ForegroundColor Green
-Write-Host "Historial: $Root\data\historial_hierro.jsonl"
+Write-Host "Reporte: $reporte" -ForegroundColor Green
+Write-Host "Historial: $historial"
