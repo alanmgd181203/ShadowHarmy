@@ -126,6 +126,9 @@ def test_despliegue_paciente():
             "ETHUSDT_LINEAL": {"bids": [[100.25, 80]], "asks": [[100.3, 10]]},
         }
 
+        def _obtener_lider_verde(self):
+            return None
+
     puerta = ides.evaluar_puerta_se(
         FakeTank(), "ETHUSD_INVERSE", "ETHUSDT_LINEAL",
         t0_paciencia=t0, restante_usd=150.0, activo="ETH", ahora=t0,
@@ -137,10 +140,37 @@ def test_despliegue_paciente():
     assert "IGRIS_MICRO_MAX_USD" not in dir(config) or not hasattr(config, "IGRIS_MICRO_MAX_USD") or True
     assert puerta["masa"] > 0
     print(
-        "  despliegue OK:", puerta["spread_pct"], "≥", puerta["umbral_pct"],
+        "  despliegue OK:", puerta["spread_pct"], ">=", puerta["umbral_pct"],
         "mordida$", puerta["micro_usd"], "frac", puerta["fraccion"],
         "tau_hi", tau_hi["tau_h"], "tau_lo", tau_lo["tau_h"],
     )
+
+
+def test_libro_tank_desde_lider():
+    from core import igris_despliegue as ides
+    class Nodo:
+        libros = {
+            "ETHUSD_INVERSE": {"bids": [[100, 1]], "asks": [[100.1, 2]]},
+        }
+
+    class Cluster:
+        def _obtener_lider_verde(self):
+            return Nodo()
+
+    bids, asks = ides.libro_tank(Cluster(), "ETHUSD_INVERSE")
+    assert bids and asks
+    print("  libro_tank lider OK")
+
+
+def test_oportunidad_manto_kaiser():
+    from core import kaiser_indicators as ki
+    snap = {"filas": [{"base": "ETH", "tipo": "lineal_vs_inverse", "spread_pct": 0.05}]}
+    config.ARENA_IGRIS_ACTIVA = True
+    config.ARENA_IGRIS_UMBRAL_PCT = 0.01
+    alertas = ki.interpretar_oportunidades_manto(snap)
+    assert alertas and alertas[0]["tipo"] == "OPORTUNIDAD_MANTO"
+    config.ARENA_IGRIS_ACTIVA = False
+    print("  OPORTUNIDAD_MANTO Kaiser OK")
 
 
 def test_arise_kaiser_cable():
@@ -152,7 +182,7 @@ def test_arise_kaiser_cable():
     assert "kaiser" in igris_src
     assert "_consumir_kaiser_jurisdiccion" in igris_src
     assert "fraccion_mordida_igris" in (ROOT / "core" / "igris_despliegue.py").read_text(encoding="utf-8")
-    print("  arise↔Kaiser↔Igris cable OK")
+    print("  arise-Kaiser-Igris cable OK")
 
 
 def main():
@@ -162,6 +192,8 @@ def main():
     test_frentes_manto()
     test_bootstrap_se()
     test_despliegue_paciente()
+    test_libro_tank_desde_lider()
+    test_oportunidad_manto_kaiser()
     test_arise_kaiser_cable()
     print("OK igris smoke")
     return 0

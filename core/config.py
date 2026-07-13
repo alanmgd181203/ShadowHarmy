@@ -310,6 +310,22 @@ RANGO_OBJETIVO_MARGEN = 95.0     # horizonte operativo = muro (ya no 85–90)
 RANGO_LIMPIEZA_MAX = 95.0
 MURO_LEY_MARCIAL = 95.0          # ≥95%: Igris poda; oxigeno ≥5%
 IGRIS_YIELD_EN_ZONA_IDEAL = os.getenv("IGRIS_YIELD_EN_ZONA_IDEAL", "false").lower() == "true"
+# Igris event-driven: Kaiser despierta al escudo (no escaneo agresivo cada tick)
+IGRIS_EVENT_DRIVEN = os.getenv("IGRIS_EVENT_DRIVEN", "false").lower() == "true"
+IGRIS_BOOTSTRAP_ON_START = os.getenv("IGRIS_BOOTSTRAP_ON_START", "true").lower() == "true"
+IGRIS_EVENT_HEARTBEAT_S = float(os.getenv("IGRIS_EVENT_HEARTBEAT_S", "300"))
+
+# Arena Igris aislado — scripts/arena_igris_aislado.py
+ARENA_IGRIS_ACTIVA = os.getenv("ARENA_IGRIS_ACTIVA", "false").lower() == "true"
+ARENA_IGRIS_EQUITY_USD = float(os.getenv("ARENA_IGRIS_EQUITY_USD", "500"))
+ARENA_IGRIS_UMBRAL_PCT = float(os.getenv("ARENA_IGRIS_UMBRAL_PCT", "0.01"))
+ARENA_IGRIS_MORDIDA_USD = float(os.getenv("ARENA_IGRIS_MORDIDA_USD", "5"))
+ARENA_IGRIS_FILLS_VIRTUALES = os.getenv("ARENA_IGRIS_FILLS_VIRTUALES", "true").lower() == "true"
+ARENA_IGRIS_SIN_RANGOS = os.getenv("ARENA_IGRIS_SIN_RANGOS", "true").lower() == "true"
+ARENA_IGRIS_SIN_PACIENCIA = os.getenv("ARENA_IGRIS_SIN_PACIENCIA", "true").lower() == "true"
+ARENA_IGRIS_ACTIVOS = os.getenv("ARENA_IGRIS_ACTIVOS", "flota")
+ARENA_IGRIS_SEGUNDOS_OJOS = float(os.getenv("ARENA_IGRIS_SEGUNDOS_OJOS", "25"))
+KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT = float(os.getenv("KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT", "0.01"))
 GREED_MANTO_EJECUTOR = os.getenv("GREED_MANTO_EJECUTOR", "false").lower() == "true"
 GREED_VIP_PERMITIR_EN_LEY_MARCIAL = os.getenv("GREED_VIP_PERMITIR_EN_LEY_MARCIAL", "true").lower() == "true"
 GREED_MANTO_TOQUE_COOLDOWN_S = float(os.getenv("GREED_MANTO_TOQUE_COOLDOWN_S", "45"))

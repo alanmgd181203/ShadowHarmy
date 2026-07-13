@@ -81,6 +81,33 @@ def interpretar_matriz(snap: dict) -> list[dict]:
     return out
 
 
+def interpretar_oportunidades_manto(snap: dict) -> list[dict]:
+    """
+    Semáforo morado — grieta L/S (lineal vs inverse) para despertar a Igris.
+    Umbral más bajo que MATRIZ general cuando IGRIS_EVENT_DRIVEN o arena.
+    """
+    out: list[dict] = []
+    if getattr(config, "ARENA_IGRIS_ACTIVA", False):
+        umbral = float(getattr(config, "ARENA_IGRIS_UMBRAL_PCT", 0.01))
+    else:
+        umbral = float(getattr(config, "KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT", 0.01))
+    for row in snap.get("filas") or []:
+        if str(row.get("tipo") or "") != "lineal_vs_inverse":
+            continue
+        pct = float(row.get("spread_pct") or 0)
+        if pct < umbral:
+            continue
+        base = str(row.get("base") or row.get("activo") or "?")
+        sev = "ALERTA" if pct >= umbral * 2 else "AVISO"
+        msg = f"Oportunidad manto {base}: spread L/S {pct:.4f}% (morado)"
+        out.append(_alerta(
+            "OPORTUNIDAD_MANTO", base, msg, sev,
+            ["IGRIS", "BELLION"],
+            dict(row),
+        ))
+    return out
+
+
 def interpretar_panorama(snap: dict) -> list[dict]:
     out: list[dict] = []
     for row in snap.get("filas") or []:
@@ -296,6 +323,7 @@ def interpretar_tank(
     alertas: list[dict] = []
     alertas.extend(interpretar_desvios_indice(desvios))
     alertas.extend(interpretar_matriz(matriz))
+    alertas.extend(interpretar_oportunidades_manto(matriz))
     alertas.extend(interpretar_panorama(panorama))
     alertas.extend(interpretar_funding(funding))
     alertas.extend(interpretar_sentidos_rest(sentidos))

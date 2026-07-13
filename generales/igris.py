@@ -43,6 +43,8 @@ class IgrisEscudo:
         self._rangos_beru: dict | None = None
         self._ejecucion_directa_activa = True  # siempre True — sin yield
         self._alertas_kaiser_cache: list = []
+        self._bootstrap_inicial_hecho = False
+        self._ultimo_heartbeat_evento = 0.0
 
     def calcular_banda_delta(self):
         return mercado.calcular_banda_delta(self.tusk.margen_ocupado)
@@ -116,8 +118,10 @@ class IgrisEscudo:
         return techo
 
     async def vigilar_manto_operativo(self):
+        evento = getattr(config, "IGRIS_EVENT_DRIVEN", False)
+        modo = "event-driven Kaiser→Igris" if evento else "escaneo continuo"
         print(
-            f"[IGRIS] Vigilancia activa — horizonte {mj.techo_ideal():.0f}% "
+            f"[IGRIS] Vigilancia activa ({modo}) — horizonte {mj.techo_ideal():.0f}% "
             f"(colchón oxígeno, rebase táctico permitido)."
         )
         while True:
@@ -125,6 +129,29 @@ class IgrisEscudo:
             if estado != "ROJO":
                 await self.auditar_manto_global()
             await asyncio.sleep(1)
+
+    def _tipos_evento_manto(self) -> frozenset[str]:
+        return frozenset({"OPORTUNIDAD_MANTO", "MATRIZ_SPREAD"})
+
+    def _alertas_evento_para_activo(self, alertas: list, activo: str) -> list:
+        """Alertas Kaiser relevantes para despliegue §E del activo."""
+        activo_u = (activo or "").upper()
+        tipos = self._tipos_evento_manto()
+        out = []
+        for a in alertas or []:
+            if str(a.get("base", "")).upper() != activo_u:
+                continue
+            if str(a.get("tipo") or "") not in tipos:
+                meta = a.get("datos") or a.get("meta") or {}
+                if str(meta.get("tipo") or "") != "lineal_vs_inverse":
+                    continue
+            out.append(a)
+        return out
+
+    def _tiene_evento_manto(self, alertas: list | None = None) -> bool:
+        alertas = alertas if alertas is not None else self._alertas_kaiser_cache
+        activo = self._activo_despliegue()
+        return bool(self._alertas_evento_para_activo(alertas, activo))
 
     def _consumir_kaiser_jurisdiccion(self) -> list:
         """Alertas Kaiser solo del activo bajo mando del manto (§E lineal_vs_inverse)."""
@@ -170,7 +197,8 @@ class IgrisEscudo:
             self.tusk.manto_cedido_a_greed = False
 
         limpiar_toques_expirados(self.tusk)
-        self._consumir_kaiser_jurisdiccion()
+        alertas = self._consumir_kaiser_jurisdiccion()
+        event_driven = getattr(config, "IGRIS_EVENT_DRIVEN", False)
 
         margen_actual = float(self.tusk.margen_ocupado)
         peso_l_total = sum(f["long"] for f in self.tusk.pesos.values())
@@ -180,9 +208,35 @@ class IgrisEscudo:
         if time.time() < self._engorde_fail_until:
             en_cooldown = True
 
-        # Bootstrap — sin bloquear por horizonte 95%
+        activo = self._activo_despliegue()
+        eventos_activo = self._alertas_evento_para_activo(alertas, activo)
+
+        # Bootstrap — vacío: en event-driven solo con señal Kaiser o primer arranque
         if masa_bruta == 0:
-            await self._bootstrap_manto()
+            if event_driven:
+                bootstrap_ok = (
+                    bool(eventos_activo)
+                    or (
+                        getattr(config, "IGRIS_BOOTSTRAP_ON_START", True)
+                        and not self._bootstrap_inicial_hecho
+                    )
+                )
+                if bootstrap_ok:
+                    self._bootstrap_inicial_hecho = True
+                    await self._bootstrap_manto()
+                elif time.time() - self._ultimo_heartbeat_evento > float(
+                    getattr(config, "IGRIS_EVENT_HEARTBEAT_S", 300)
+                ):
+                    self._ultimo_heartbeat_evento = time.time()
+                    await self.bel.anotar(
+                        "IGRIS", "EVENT_IDLE",
+                        f"Sin oportunidad Kaiser para {activo} — escudo en espera.",
+                    )
+            else:
+                await self._bootstrap_manto()
+            return
+
+        if event_driven and not eventos_activo:
             return
 
         if en_cooldown:
@@ -238,7 +292,17 @@ class IgrisEscudo:
         return mercado.escanear_mejor_precio(config.FRENTES_MANTO_ALL, ctx_map, masa, is_long)
 
     async def _materializar_en_frente(self, uid, frente, direccion, masa, precio_fill: float = 0.0):
-        """Orden real (live) o confirmación simulada en Tusk."""
+        """Orden real (live), fill virtual arena, o confirmación simulada en Tusk."""
+        virtual = (
+            getattr(config, "ARENA_IGRIS_ACTIVA", False)
+            and getattr(config, "ARENA_IGRIS_FILLS_VIRTUALES", True)
+        )
+        if virtual:
+            await self.tusk.confirmar_reserva(
+                uid, frente, direccion, fill_confirmado=True,
+                precio_fill=precio_fill if precio_fill > 0 else None,
+            )
+            return True
         if not config.MODO_SIMULACION and self.bridge:
             side = "Buy" if direccion == "LONG" else "Sell"
             sym = mercado.frente_a_symbol(frente)
@@ -262,6 +326,14 @@ class IgrisEscudo:
 
     async def _auditoria_pre_despliegue(self) -> bool:
         """Candado de bóveda — umbrales dinámicos desde motor X/A_base (rangos_activo)."""
+        if getattr(config, "ARENA_IGRIS_SIN_RANGOS", False):
+            self._rango_progresion = self._rango_progresion or "GENERAL"
+            if not self._activo_beru:
+                self._activo_beru = str(config.TICKER_BASE or "ETH").upper()
+            self._capital_pre_vuelo = float(
+                self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0
+            )
+            return True
         capital = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
         self._capital_pre_vuelo = capital
         res = bc.resolver_activo_y_grado(capital)
@@ -284,6 +356,19 @@ class IgrisEscudo:
         if grado == "BLOQUEADO":
             return False
         return True
+
+    async def arena_inyectar_activo(self, activo: str, *, origen: str = "ARENA") -> dict:
+        """
+        Despliegue dual §E para un activo (arena aislada / prueba por evento).
+        Ignora cola Beru cuando ARENA_IGRIS_SIN_RANGOS.
+        """
+        activo_u = (activo or "").upper()
+        self._activo_beru = activo_u
+        self._rango_progresion = "GENERAL"
+        self._bloque_objetivo_usd = 0.0
+        self._bloque_inyectado_usd = 0.0
+        ok = await self._inyectar_dual_paciente(origen=origen)
+        return {"activo": activo_u, "ok": ok}
 
     async def _asegurar_apalancamiento_aspirante_eth(self) -> bool:
         """Ejecución: apalancamiento MÁXIMO por contrato (no promedio)."""

@@ -15,7 +15,16 @@ from core import greed_sizing as sizing
 
 
 def libro_tank(tank, frente: str) -> tuple[list, list]:
-    libros = getattr(tank, "libros", None) or {}
+    """Libros del nodo líder Tank; fallback a tank.libros (smokes / mocks)."""
+    libros: dict = {}
+    if hasattr(tank, "_obtener_lider_verde"):
+        lider = tank._obtener_lider_verde()
+        if lider is not None:
+            libros = dict(getattr(lider, "libros", {}) or {})
+        elif hasattr(tank, "nodos"):
+            libros = ancla.libros_desde_lider(tank)
+    if not libros:
+        libros = getattr(tank, "libros", None) or {}
     libro = libros.get(frente) or {}
     return list(libro.get("bids") or []), list(libro.get("asks") or [])
 
@@ -235,7 +244,7 @@ def filtrar_alertas_jurisdiccion(
     """Solo alertas del activo del manto; preferir lineal_vs_inverse / MATRIZ."""
     activo_u = (activo or "").upper()
     tipos = tipos_ok or frozenset({
-        "MATRIZ_SPREAD", "FUNDING", "ALERTA", "DESVIO_INDICE",
+        "MATRIZ_SPREAD", "OPORTUNIDAD_MANTO", "FUNDING", "ALERTA", "DESVIO_INDICE",
     })
     out: list[dict] = []
     for a in alertas or []:
@@ -297,8 +306,24 @@ def evaluar_puerta_se(
 
     spread = spread_ejecutable_pct(ask_l, bid_s)
     fees_be = fees_break_even_pct(frente_long, frente_short)
-    urg = umbral_urgencia_pct(fees_be, t0_paciencia, perfil_edge=perfil, ahora=ahora)
-    umbral = urg["umbral_pct"]
+
+    sin_paciencia = (
+        getattr(config, "ARENA_IGRIS_ACTIVA", False)
+        or getattr(config, "ARENA_IGRIS_SIN_PACIENCIA", False)
+    )
+    if sin_paciencia:
+        umbral_micro = float(getattr(config, "ARENA_IGRIS_UMBRAL_PCT", 0.01))
+        urg = {
+            "umbral_pct": umbral_micro,
+            "factor": 0.0,
+            "modo_paciencia": "arena_sin_paciencia",
+            "fees_be_pct": fees_be,
+            "spread_pct": round(spread, 6),
+        }
+        umbral = umbral_micro
+    else:
+        urg = umbral_urgencia_pct(fees_be, t0_paciencia, perfil_edge=perfil, ahora=ahora)
+        umbral = urg["umbral_pct"]
 
     if spread < umbral:
         return {
@@ -345,7 +370,11 @@ def evaluar_puerta_se(
         margen_ocupado_pct=margen_ocupado_pct,
     )
     fraccion = float(frac_info["fraccion"])
-    mordida = round(float(techo_info["techo_usd"]) * fraccion, 4)
+    if getattr(config, "ARENA_IGRIS_ACTIVA", False):
+        mordida = float(getattr(config, "ARENA_IGRIS_MORDIDA_USD", 5.0))
+        mordida = min(mordida, float(techo_info["techo_usd"]), float(restante_usd))
+    else:
+        mordida = round(float(techo_info["techo_usd"]) * fraccion, 4)
     min_par = float(techo_info["min_par_usd"])
     if mordida + 1e-9 < min_par:
         return {

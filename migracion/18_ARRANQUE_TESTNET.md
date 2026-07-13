@@ -97,7 +97,39 @@ Con `MODO_SIMULACION=True`: CAZA/COSECHA/Greed escriben en Bellion con precios m
 | `data/validacion_checklist.json` | Estado todos los checks |
 | `data/historial_hierro.jsonl` | Crónica Bellion |
 | `data/m1_btc_roundtrip.json` | Trade M1 documentado |
+| `data/arena_igris_report.json` | Arena Igris aislada (Kaiser→escudo, fills virtuales) |
 
 ---
 
-*Actualizado: 2026-07-05 — pentiverso dual LTC+BTC*
+## 8. Arena Igris aislada (antes de live 3.10.7b)
+
+Prueba **solo el escudo** — sin Beru, Greed ni rangos Beru. Ojos **mainnet**; fills **virtuales** al Ask/Bid del libro.
+
+```powershell
+python scripts/arena_igris_aislado.py
+python scripts/arena_igris_aislado.py --segundos 35
+```
+
+**En la Mac (México — recomendado, menos bloqueos geo):** doble clic en `Arena Igris.command`  
+o en terminal:
+
+```bash
+chmod +x "Arena Igris.command" scripts/arena_igris_mac.sh
+./scripts/arena_igris_mac.sh 40 ETH,BTC
+```
+
+Variables útiles (`.env` o entorno):
+
+| Variable | Default | Rol |
+|----------|---------|-----|
+| `ARENA_IGRIS_EQUITY_USD` | 500 | NAV mock Tusk |
+| `ARENA_IGRIS_UMBRAL_PCT` | 0.01 | Umbral micro spread (no fees) |
+| `ARENA_IGRIS_MORDIDA_USD` | 5 | Mordida fija por disparo |
+| `ARENA_IGRIS_ACTIVOS` | flota | `ETH,BTC` o lista del diccionario flota |
+| `ARENA_IGRIS_SEGUNDOS_OJOS` | 25 | WS mainnet antes de disparar |
+
+En `arise.py` (producción gradual): `IGRIS_EVENT_DRIVEN=true` — Igris solo despierta con `OPORTUNIDAD_MANTO` / matriz L/S de Kaiser.
+
+---
+
+*Actualizado: 2026-07-12 — arena Igris + event-driven*

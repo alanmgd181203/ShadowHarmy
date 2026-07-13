@@ -226,7 +226,9 @@
 - [x] **3.10.4** Telemetría Igris → Árbol de Evolución — `core/telemetria_igris.py`
 - [x] **3.10.5** Panel Pergamino — `dashboard_sombras.html` + `index.html` + scripts panel macOS
 - [x] **3.10.6** Smoke Igris actualizado (`validar_igris_smoke.py`)
-- [ ] **3.10.7** Validar despliegue §E en **live** testnet con manto real
+- [x] **3.10.7a** Arena aislada — `scripts/arena_igris_aislado.py` (Kaiser→Igris, fills virtuales mainnet, sin rangos)
+- [ ] **3.10.7b** Validar despliegue §E en **live** testnet con manto real
+- [x] **3.10.8** Modo `IGRIS_EVENT_DRIVEN` + alerta Kaiser `OPORTUNIDAD_MANTO` (morado)
 
 ### 3.11 Cuartel compartido (México) *(ops — 2026-07-09 → 07-12)*
 

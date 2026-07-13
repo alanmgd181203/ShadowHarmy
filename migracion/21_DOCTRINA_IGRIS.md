@@ -85,12 +85,16 @@ Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, net
 - Neutralidad meta ~50/50; si hay carga, **preferir LONG** (inversos).
 - SHORT pesado → mejorar entrada/salida del short, no panic-rebalance.
 
-### Semáforos (bloque B — diseño)
-| Color | Significado |
-|-------|-------------|
-| V/A/R spot | Salud spot aliado del perp |
-| **Morado** | Oportunidad mejora entrada/salida en frente con manto → Igris revisa |
-| **Gris/slippage** | Paridad rota temporal — falsa alarma, esperar |
+### Semáforos (bloque B)
+| Color | Significado | Código |
+|-------|-------------|--------|
+| V/A/R spot | Salud spot aliado del perp | Pendiente 3.7.P3 |
+| **Morado** | Oportunidad L/S (lineal vs inverse) → **Kaiser `OPORTUNIDAD_MANTO`** despierta a Igris | ✅ `kaiser_indicators` + `IGRIS_EVENT_DRIVEN` |
+| **Gris/slippage** | Paridad rota temporal — falsa alarma, esperar | Pendiente |
+
+Con `IGRIS_EVENT_DRIVEN=true` en `.env`, Igris **no escanea** cada segundo: solo actúa ante `OPORTUNIDAD_MANTO` o `MATRIZ_SPREAD` (lineal_vs_inverse) del activo en mando.
+
+**Arena (prueba rápida):** `python scripts/arena_igris_aislado.py` — ojos mainnet, fills virtuales al Ask/Bid, sin Beru/Greed/rangos. Reporte: `data/arena_igris_report.json`.
 
 ### Deuda Greed ↔ Igris (limpieza hecha / por hacer)
 
@@ -103,7 +107,9 @@ Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, net
 | `pesos` + precio medio por pierna | ✅ v1 `igris_manto.py` |
 | Bootstrap inverse L + lineal S | ✅ v1 |
 | Banda delta asimétrica (sesgo long) | Pendiente — 3.5.8c |
-| Live testnet despliegue | Pendiente — 3.10.7 |
+| Live testnet despliegue | Pendiente — **3.10.7b** |
+| Arena aislada (fills virtuales) | ✅ **3.10.7a** `arena_igris_aislado.py` |
+| Event-driven Kaiser→Igris | ✅ **3.10.8** `IGRIS_EVENT_DRIVEN` |
 
 ---
 
@@ -120,5 +126,6 @@ Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, net
 ## Validación
 
 - `python scripts/validar_igris_smoke.py`
+- `python scripts/arena_igris_aislado.py` — arena morado + fills virtuales (recomendado antes de live)
 - `python scripts/validar_greed_manto_smoke.py`
-- Live manto testnet (3.5.1 / 3.10.7)
+- Live manto testnet (**3.10.7b**)
