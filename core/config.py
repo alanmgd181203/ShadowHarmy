@@ -331,6 +331,15 @@ ARENA_IGRIS_REQUIRE_KAISER = os.getenv("ARENA_IGRIS_REQUIRE_KAISER", "false").lo
 KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT = float(
     os.getenv("KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT", "0")
 )  # prod: piso extra; 0 = solo fees break-even Ask/Bid
+
+# Live Igris testnet — scripts/igris_live_testnet.py (checklist 3.10.7b)
+LIVE_IGRIS_TESTNET = os.getenv("LIVE_IGRIS_TESTNET", "false").lower() == "true"
+LIVE_IGRIS_SEGUNDOS_OJOS = float(os.getenv("LIVE_IGRIS_SEGUNDOS_OJOS", "90"))
+LIVE_IGRIS_ACTIVOS = os.getenv("LIVE_IGRIS_ACTIVOS", "ETH,BTC,LTC,SOL,OP")
+LIVE_IGRIS_MORDIDA_MAX_USD = float(os.getenv("LIVE_IGRIS_MORDIDA_MAX_USD", "12"))
+LIVE_IGRIS_REQUIRE_KAISER = os.getenv("LIVE_IGRIS_REQUIRE_KAISER", "false").lower() == "true"
+LIVE_IGRIS_SIN_PACIENCIA = os.getenv("LIVE_IGRIS_SIN_PACIENCIA", "false").lower() == "true"
+
 GREED_MANTO_EJECUTOR = os.getenv("GREED_MANTO_EJECUTOR", "false").lower() == "true"
 GREED_VIP_PERMITIR_EN_LEY_MARCIAL = os.getenv("GREED_VIP_PERMITIR_EN_LEY_MARCIAL", "true").lower() == "true"
 GREED_MANTO_TOQUE_COOLDOWN_S = float(os.getenv("GREED_MANTO_TOQUE_COOLDOWN_S", "45"))

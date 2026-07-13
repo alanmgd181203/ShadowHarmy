@@ -326,7 +326,15 @@ class IgrisEscudo:
 
     async def _auditoria_pre_despliegue(self) -> bool:
         """Candado de bóveda — umbrales dinámicos desde motor X/A_base (rangos_activo)."""
-        if getattr(config, "ARENA_IGRIS_SIN_RANGOS", False):
+        # Solo la arena (o live_testnet explícito) salta el grado Beru
+        sin_rangos = (
+            (
+                getattr(config, "ARENA_IGRIS_ACTIVA", False)
+                and getattr(config, "ARENA_IGRIS_SIN_RANGOS", False)
+            )
+            or getattr(config, "LIVE_IGRIS_TESTNET", False)
+        )
+        if sin_rangos:
             self._rango_progresion = self._rango_progresion or "GENERAL"
             if not self._activo_beru:
                 self._activo_beru = str(config.TICKER_BASE or "ETH").upper()
@@ -369,6 +377,30 @@ class IgrisEscudo:
         self._bloque_inyectado_usd = 0.0
         ok = await self._inyectar_dual_paciente(origen=origen)
         return {"activo": activo_u, "ok": ok}
+
+    async def live_inyectar_activo(
+        self,
+        activo: str,
+        *,
+        max_usd: float | None = None,
+        origen: str = "LIVE_TESTNET",
+    ) -> dict:
+        """
+        Dual §E en testnet real (Bridge place_order). Tope de notional por pata.
+        Requiere MODO_SIMULACION=False y ARENA_IGRIS_ACTIVA=False.
+        """
+        activo_u = (activo or "").upper()
+        self._activo_beru = activo_u
+        self._rango_progresion = "GENERAL"
+        self._bloque_objetivo_usd = 0.0
+        self._bloque_inyectado_usd = 0.0
+        cap = float(
+            max_usd
+            if max_usd is not None
+            else getattr(config, "LIVE_IGRIS_MORDIDA_MAX_USD", 12.0)
+        )
+        ok = await self._inyectar_dual_paciente(origen=origen, restante_usd_cap=cap)
+        return {"activo": activo_u, "ok": ok, "max_usd": cap}
 
     async def _asegurar_apalancamiento_aspirante_eth(self) -> bool:
         """Ejecución: apalancamiento MÁXIMO por contrato (no promedio)."""
@@ -515,10 +547,14 @@ class IgrisEscudo:
         peso_l = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s = sum(f["short"] for f in self.tusk.pesos.values())
         if not mercado.verificar_delta_post_maniobra(margen, peso_l + masa, peso_s + masa):
-            if getattr(config, "ARENA_IGRIS_ACTIVA", False) and getattr(
-                config, "ARENA_IGRIS_SIN_BANDA_DELTA", True
+            if (
+                (
+                    getattr(config, "ARENA_IGRIS_ACTIVA", False)
+                    and getattr(config, "ARENA_IGRIS_SIN_BANDA_DELTA", True)
+                )
+                or getattr(config, "LIVE_IGRIS_TESTNET", False)
             ):
-                pass  # arena flota: no contaminar dual por delta global
+                pass  # arena/live verificación: no contaminar dual por delta global
             else:
                 await self._anotar_espera_spread(
                     "ENGORDE_ESPERA_SPREAD",

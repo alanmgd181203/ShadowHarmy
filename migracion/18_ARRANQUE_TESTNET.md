@@ -98,6 +98,7 @@ Con `MODO_SIMULACION=True`: CAZA/COSECHA/Greed escriben en Bellion con precios m
 | `data/historial_hierro.jsonl` | Crónica Bellion |
 | `data/m1_btc_roundtrip.json` | Trade M1 documentado |
 | `data/arena_igris_report.json` | Arena Igris aislada (Kaiser→escudo, fills virtuales) |
+| `data/igris_live_testnet_report.json` | Live Igris testnet 3.10.7b (órdenes DEMO reales) |
 
 ---
 
@@ -144,4 +145,29 @@ En `arise.py` (producción gradual): `IGRIS_EVENT_DRIVEN=true` — Igris solo de
 
 ---
 
-*Actualizado: 2026-07-12 — arena Igris + event-driven*
+## 9. Live Igris testnet (checklist 3.10.7b)
+
+Órdenes **reales** en Bybit DEMO. Sin Beru/Greed. Umbral = **fees** (no micro arena). Mordida tope default $12/pata.
+
+**Orden lista para Cursor México:** `migracion/CURSOR_MEXICO_EJECUTAR_3_10_7b.md`
+
+```bash
+# Mac
+chmod +x "Igris Live Testnet.command" scripts/igris_live_testnet_mac.sh
+./scripts/igris_live_testnet_mac.sh 90 ETH,BTC,LTC,SOL,OP
+# o doble clic: Igris Live Testnet.command
+```
+
+```powershell
+# Windows
+.\scripts\igris_live_testnet_win.ps1
+.\scripts\igris_live_testnet_win.ps1 -Segundos 90 -Activos "ETH,BTC,LTC"
+```
+
+Reporte: `data/igris_live_testnet_report.json` → campo `veredicto`:
+- `PASS_LIVE` → marcar **3.10.7b** [x]
+- `SIN_DISPARO_MERCADO` → reintentar (spread < fees)
+
+---
+
+*Actualizado: 2026-07-12 — arena Igris + live 3.10.7b preparado*

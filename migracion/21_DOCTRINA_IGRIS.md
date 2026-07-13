@@ -107,7 +107,7 @@ Con `IGRIS_EVENT_DRIVEN=true` en `.env`, Igris **no escanea** cada segundo: solo
 | `pesos` + precio medio por pierna | ✅ v1 `igris_manto.py` |
 | Bootstrap inverse L + lineal S | ✅ v1 |
 | Banda delta asimétrica (sesgo long) | Pendiente — 3.5.8c |
-| Live testnet despliegue | Pendiente — **3.10.7b** |
+| Live testnet despliegue | Ritual listo — **3.10.7b** `igris_live_testnet.py` (marcar al PASS_LIVE) |
 | Arena aislada (fills virtuales) | ✅ **3.10.7a** `arena_igris_aislado.py` |
 | Event-driven Kaiser→Igris | ✅ **3.10.8** `IGRIS_EVENT_DRIVEN` |
 

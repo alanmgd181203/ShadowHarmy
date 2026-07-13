@@ -227,7 +227,7 @@
 - [x] **3.10.5** Panel Pergamino — `dashboard_sombras.html` + `index.html` + scripts panel macOS
 - [x] **3.10.6** Smoke Igris actualizado (`validar_igris_smoke.py`)
 - [x] **3.10.7a** Arena aislada — `scripts/arena_igris_aislado.py` (Kaiser→Igris, fills virtuales, matriz forzada, Tusk limpio/activo, ~2 min)
-- [ ] **3.10.7b** Validar despliegue §E en **live** testnet con manto real
+- [ ] **3.10.7b** Validar despliegue §E en **live** testnet con manto real — *ritual listo:* `scripts/igris_live_testnet.py` + `Igris Live Testnet.command` + orden Cursor `migracion/CURSOR_MEXICO_EJECUTAR_3_10_7b.md` (marcar [x] solo con `veredicto=PASS_LIVE`)
 - [x] **3.10.8** Modo `IGRIS_EVENT_DRIVEN` + alerta Kaiser `OPORTUNIDAD_MANTO` (morado Ask/Bid = Puerta §E) · arena micro / prod ≥ fees · lanzadores Win/Mac
 
 ### 3.11 Cuartel compartido (México) *(ops — 2026-07-09 → 07-12)*

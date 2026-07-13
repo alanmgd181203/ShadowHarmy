@@ -309,7 +309,7 @@ def evaluar_puerta_se(
 
     sin_paciencia = (
         getattr(config, "ARENA_IGRIS_ACTIVA", False)
-        or getattr(config, "ARENA_IGRIS_SIN_PACIENCIA", False)
+        and getattr(config, "ARENA_IGRIS_SIN_PACIENCIA", False)
     )
     if sin_paciencia:
         umbral_micro = float(getattr(config, "ARENA_IGRIS_UMBRAL_PCT", 0.01))
