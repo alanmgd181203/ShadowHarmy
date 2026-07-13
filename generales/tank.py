@@ -178,6 +178,12 @@ class TankCluster:
         while True:
             self._auditar_semaforos()
             lider = self._obtener_lider_verde()
+            if not lider:
+                # Arena / arranque: aún sin VERDE, calcular matriz desde el nodo más fresco
+                candidatos = sorted(self.nodos, key=lambda n: n.ultima_actualizacion, reverse=True)
+                lider_calc = candidatos[0] if candidatos else None
+                if lider_calc and (time.time() - lider_calc.ultima_actualizacion) < 30:
+                    self._actualizar_matriz_spreads(lider_calc)
             if lider:
                 self._actualizar_matriz_spreads(lider)
             if lider and self._precio_referencia(lider) > 0:
@@ -446,6 +452,18 @@ class TankCluster:
     def snapshot_inverse_futures(self):
         """Futuros inverse con vencimiento."""
         return self._snapshot_rail(getattr(config, "INVERSE_FUTURES_PARES", []))
+
+    def forzar_matriz_spreads(self) -> dict:
+        """Recalcula matriz sin exigir semáforo VERDE (arena / diagnóstico)."""
+        lider = self._obtener_lider_verde()
+        if not lider:
+            candidatos = sorted(self.nodos, key=lambda n: n.ultima_actualizacion, reverse=True)
+            lider = candidatos[0] if candidatos else None
+        if lider:
+            # Bypass throttle para forzar snapshot fresco
+            self._ultimo_calc_spreads = 0.0
+            self._actualizar_matriz_spreads(lider)
+        return self.snapshot_matriz_spreads()
 
     def snapshot_matriz_spreads(self):
         """Top spreads calculados desde precios Tank (arbitraje presente)."""

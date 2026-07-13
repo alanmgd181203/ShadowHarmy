@@ -2,19 +2,12 @@
 """
 Arena aislada Igris — Kaiser despierta al escudo; fills virtuales al Ask/Bid mainnet.
 
-Sin arise.py, Beru ni Greed. Ojos mainnet (Bridge WS); Tusk mock con equity fijo.
-Salida: data/arena_igris_report.json + eventos en data/historial_hierro.jsonl
+Sin arise.py, Beru ni Greed. Ojos mainnet (Bridge WS); Tusk limpio por activo.
+Default ojos: 120 s (2 min).
 
-Env (defaults orientados a ráfagas, no horas de espera):
-  ARENA_IGRIS_ACTIVA=true
-  ARENA_IGRIS_EQUITY_USD=500
-  ARENA_IGRIS_UMBRAL_PCT=0.01
-  ARENA_IGRIS_MORDIDA_USD=5
-  ARENA_IGRIS_FILLS_VIRTUALES=true
-  ARENA_IGRIS_SIN_RANGOS=true
-  ARENA_IGRIS_SIN_PACIENCIA=true
-  ARENA_IGRIS_ACTIVOS=flota   # o ETH,BTC,SOL
-  ARENA_IGRIS_SEGUNDOS_OJOS=25
+  python scripts/arena_igris_aislado.py
+  python scripts/arena_igris_aislado.py --segundos 120
+  ARENA_IGRIS_ACTIVOS=ETH python scripts/arena_igris_aislado.py
 """
 from __future__ import annotations
 
@@ -29,11 +22,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-# Forzar modo arena antes de importar config-dependent modules
 os.environ.setdefault("ARENA_IGRIS_ACTIVA", "true")
 os.environ.setdefault("ARENA_IGRIS_FILLS_VIRTUALES", "true")
 os.environ.setdefault("ARENA_IGRIS_SIN_RANGOS", "true")
 os.environ.setdefault("ARENA_IGRIS_SIN_PACIENCIA", "true")
+os.environ.setdefault("ARENA_IGRIS_SIN_BANDA_DELTA", "true")
+os.environ.setdefault("ARENA_IGRIS_TUSK_LIMPIO_POR_ACTIVO", "true")
+os.environ.setdefault("ARENA_IGRIS_SEGUNDOS_OJOS", "120")
 os.environ.setdefault("MODO_SIMULACION", "true")
 
 import core.config as config
@@ -48,14 +43,20 @@ from generales.tank import TankCluster
 
 
 class TuskArenaMock:
-    """Bóveda mínima — sin Bridge testnet; equity fijo para la arena."""
+    """Bóveda mínima — equity fijo; reset por activo en arena flota."""
 
     def __init__(self, bellion, equity_usd: float):
         self.bel = bellion
+        self._equity = float(equity_usd)
+        self.reset_manto(equity_usd)
+
+    def reset_manto(self, equity_usd: float | None = None):
+        eq = float(equity_usd if equity_usd is not None else self._equity)
+        self._equity = eq
         self.pesos: dict = {}
-        self.masa_bruta = float(equity_usd)
-        self.masa_bruta_real = float(equity_usd)
-        self.masa_autorizada = max(float(equity_usd) * 0.5, 50.0)
+        self.masa_bruta = eq
+        self.masa_bruta_real = eq
+        self.masa_autorizada = max(eq * 0.5, 50.0)
         self.margen_ocupado = 0.0
         self.total_ciclos_consumados = 0
         self.toques_greed_manto = {}
@@ -107,6 +108,7 @@ class TuskArenaMock:
     def snapshot_telemetria_posiciones(self):
         return {}
 
+
 def _cargar_activos_flota() -> list[str]:
     raw = (getattr(config, "ARENA_IGRIS_ACTIVOS", "flota") or "flota").strip()
     if raw.lower() in ("flota", "all", "*"):
@@ -139,13 +141,27 @@ def _alertas_manto_igris(kaiser: KaiserVocero, activo: str) -> list[dict]:
     return out
 
 
-async def _warmup_ojos(tank: TankCluster, bellion: BellionAuditor, segundos: float) -> None:
+def _filas_lineal_inverse(matriz: dict) -> list[dict]:
+    return [
+        r for r in (matriz.get("filas") or [])
+        if str(r.get("tipo") or "") == "lineal_vs_inverse"
+    ]
+
+
+async def _warmup_ojos(tank: TankCluster, bellion: BellionAuditor, segundos: float) -> BybitBridge:
+    """Mantiene Bridge+Tank vivos; fuerza matriz cada 10 s aunque el semáforo no sea VERDE."""
     bridge = BybitBridge(tank, TuskArenaMock(bellion, 1), bellion, None, None)
     tasks = [
         asyncio.create_task(bridge.conectar()),
         asyncio.create_task(tank.vigilar_aguas()),
     ]
-    await asyncio.sleep(segundos)
+    t0 = time.time()
+    while time.time() - t0 < segundos:
+        await asyncio.sleep(min(10.0, max(0.5, segundos - (time.time() - t0))))
+        snap = tank.forzar_matriz_spreads()
+        n_li = len(_filas_lineal_inverse(snap))
+        elapsed = time.time() - t0
+        print(f"[arena] ojos {elapsed:.0f}/{segundos:.0f}s · matriz L/S={n_li} filas")
     for t in tasks:
         t.cancel()
     for t in tasks:
@@ -153,6 +169,8 @@ async def _warmup_ojos(tank: TankCluster, bellion: BellionAuditor, segundos: flo
             await t
         except asyncio.CancelledError:
             pass
+    tank.forzar_matriz_spreads()
+    return bridge
 
 
 async def run_arena(segundos: float | None = None) -> dict:
@@ -164,11 +182,14 @@ async def run_arena(segundos: float | None = None) -> dict:
         print("[arena] trinidad cache local")
 
     config.ARENA_IGRIS_ACTIVA = True
+    config.ARENA_IGRIS_SIN_BANDA_DELTA = True
     config.MODO_SIMULACION = True
 
     equity = float(getattr(config, "ARENA_IGRIS_EQUITY_USD", 500))
-    seg = float(segundos if segundos is not None else getattr(config, "ARENA_IGRIS_SEGUNDOS_OJOS", 25))
+    seg = float(segundos if segundos is not None else getattr(config, "ARENA_IGRIS_SEGUNDOS_OJOS", 120))
     activos_cfg = _cargar_activos_flota()
+    tusk_limpio = getattr(config, "ARENA_IGRIS_TUSK_LIMPIO_POR_ACTIVO", True)
+    require_kaiser = getattr(config, "ARENA_IGRIS_REQUIRE_KAISER", False)
 
     bellion = BellionAuditor()
     tusk = TuskArenaMock(bellion, equity)
@@ -176,27 +197,45 @@ async def run_arena(segundos: float | None = None) -> dict:
     kaiser = KaiserVocero(tank, bellion)
     igris = IgrisEscudo(tusk, tank, bellion, bridge=None, kaiser=kaiser)
 
-    print(f"[arena] Ojos mainnet {seg:.0f}s — equity mock ${equity:.0f} — activos: {len(activos_cfg)}")
+    print(
+        f"[arena] Ojos mainnet {seg:.0f}s (~{seg/60:.1f} min) — equity ${equity:.0f} — "
+        f"activos {len(activos_cfg)} — tusk_limpio={tusk_limpio}"
+    )
     await _warmup_ojos(tank, bellion, seg)
 
+    matriz = tank.forzar_matriz_spreads()
     digest = kaiser.refrescar()
-    matriz = tank.snapshot_matriz_spreads()
-    filas_li = [
-        r for r in (matriz.get("filas") or [])
-        if str(r.get("tipo") or "") == "lineal_vs_inverse"
-    ]
+    filas_li = _filas_lineal_inverse(matriz)
+    alertas_totales = kaiser.consumir("IGRIS")
+    n_oportunidad = sum(1 for a in alertas_totales if a.get("tipo") == "OPORTUNIDAD_MANTO")
 
     await bellion.anotar(
         "ARENA", "INICIO",
-        f"Matriz L/S: {len(filas_li)} filas · umbral {config.ARENA_IGRIS_UMBRAL_PCT}% · "
-        f"mordida ${config.ARENA_IGRIS_MORDIDA_USD}",
+        f"Matriz L/S: {len(filas_li)} · OPORTUNIDAD_MANTO: {n_oportunidad} · "
+        f"umbral {config.ARENA_IGRIS_UMBRAL_PCT}% · mordida ${config.ARENA_IGRIS_MORDIDA_USD}",
+    )
+    print(
+        f"[arena] Matriz L/S={len(filas_li)} · alertas Igris={len(alertas_totales)} "
+        f"(OPORTUNIDAD_MANTO={n_oportunidad})"
     )
 
     resultados: list[dict] = []
     disparos = 0
     esperas = 0
+    disparos_kaiser = 0
+    disparos_puerta = 0
+    pesos_acumulados: dict = {}
 
     for activo in activos_cfg:
+        if tusk_limpio:
+            tusk.reset_manto(equity)
+            igris._bloque_objetivo_usd = 0.0
+            igris._bloque_inyectado_usd = 0.0
+            igris._engorde_fail_until = 0.0
+
+        # Refresco ligero por activo (matriz puede moverse)
+        tank.forzar_matriz_spreads()
+        kaiser.refrescar()
         alertas = _alertas_manto_igris(kaiser, activo)
         fl, fs = im.frentes_bootstrap(activo)
         bids_l, asks_l = ides.libro_tank(tank, fl)
@@ -214,30 +253,49 @@ async def run_arena(segundos: float | None = None) -> dict:
             margen_ocupado_pct=0.0,
         )
 
+        origen = "ninguno"
+        if alertas:
+            origen = "kaiser"
+        elif puerta_previa.get("ok") and not require_kaiser:
+            origen = "puerta"
+
         fila = {
             "activo": activo,
             "alertas_kaiser": len(alertas),
+            "tipos_alerta": [a.get("tipo") for a in alertas],
             "tiene_libro": tiene_libro,
             "puerta_previa_ok": puerta_previa.get("ok"),
             "puerta_motivo": puerta_previa.get("motivo"),
             "spread_pct": puerta_previa.get("spread_pct"),
             "umbral_pct": puerta_previa.get("umbral_pct"),
+            "origen_candidato": origen,
         }
 
-        if alertas or puerta_previa.get("ok"):
+        if origen in ("kaiser", "puerta"):
             res = await igris.arena_inyectar_activo(activo, origen="ARENA")
             fila["disparo_ok"] = res.get("ok")
             if res.get("ok"):
                 disparos += 1
-                await bellion.anotar("ARENA", "DISPARO_OK", f"{activo} dual §E virtual")
+                if origen == "kaiser":
+                    disparos_kaiser += 1
+                else:
+                    disparos_puerta += 1
+                await bellion.anotar(
+                    "ARENA", "DISPARO_OK",
+                    f"{activo} dual §E virtual ({origen})",
+                )
             else:
                 esperas += 1
-                fila["disparo_motivo"] = puerta_previa.get("motivo", "inyectar_fallido")
+                fila["disparo_motivo"] = "inyectar_fallido"
         else:
             esperas += 1
             fila["disparo_ok"] = False
-            fila["disparo_motivo"] = "sin_alerta_ni_puerta"
+            fila["disparo_motivo"] = (
+                "sin_alerta_kaiser" if require_kaiser else "sin_alerta_ni_puerta"
+            )
 
+        for f, p in tusk.pesos.items():
+            pesos_acumulados[f] = dict(p)
         resultados.append(fila)
 
     reporte = {
@@ -249,13 +307,19 @@ async def run_arena(segundos: float | None = None) -> dict:
             "mordida_usd": config.ARENA_IGRIS_MORDIDA_USD,
             "fills_virtuales": config.ARENA_IGRIS_FILLS_VIRTUALES,
             "sin_rangos": config.ARENA_IGRIS_SIN_RANGOS,
+            "sin_banda_delta": config.ARENA_IGRIS_SIN_BANDA_DELTA,
+            "tusk_limpio_por_activo": tusk_limpio,
+            "require_kaiser": require_kaiser,
             "activos_pedidos": activos_cfg,
         },
-        "matriz_lineal_inverse_top": filas_li[:15],
-        "kaiser_alertas_igris": len(kaiser.consumir("IGRIS")),
+        "matriz_lineal_inverse_top": filas_li[:20],
+        "kaiser_alertas_igris": len(alertas_totales),
+        "kaiser_oportunidad_manto": n_oportunidad,
         "disparos_ok": disparos,
+        "disparos_via_kaiser": disparos_kaiser,
+        "disparos_via_puerta": disparos_puerta,
         "esperas_o_fallos": esperas,
-        "pesos_finales": {f: dict(p) for f, p in tusk.pesos.items()},
+        "pesos_finales": pesos_acumulados,
         "resultados": resultados,
     }
 
@@ -265,11 +329,15 @@ async def run_arena(segundos: float | None = None) -> dict:
 
     await bellion.anotar(
         "ARENA", "FIN",
-        f"Disparos OK: {disparos}/{len(resultados)} · reporte {out_path.name}",
+        f"OK {disparos}/{len(resultados)} (kaiser={disparos_kaiser} puerta={disparos_puerta}) · {out_path.name}",
     )
 
     print(json.dumps({
         "disparos_ok": disparos,
+        "via_kaiser": disparos_kaiser,
+        "via_puerta": disparos_puerta,
+        "matriz_ls": len(filas_li),
+        "oportunidad_manto": n_oportunidad,
         "total": len(resultados),
         "reporte": str(out_path),
     }, indent=2))
@@ -277,8 +345,8 @@ async def run_arena(segundos: float | None = None) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Arena aislada Igris (Kaiser→escudo, fills virtuales)")
-    parser.add_argument("--segundos", type=float, default=None, help="Segundos de WS mainnet")
+    parser = argparse.ArgumentParser(description="Arena aislada Igris (~2 min ojos por defecto)")
+    parser.add_argument("--segundos", type=float, default=None, help="Segundos WS mainnet (default 120)")
     args = parser.parse_args()
     asyncio.run(run_arena(args.segundos))
     return 0

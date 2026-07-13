@@ -110,13 +110,25 @@ python scripts/arena_igris_aislado.py
 python scripts/arena_igris_aislado.py --segundos 35
 ```
 
-**En la Mac (México — recomendado, menos bloqueos geo):** doble clic en `Arena Igris.command`  
-o en terminal:
+**En Windows (tu terminal):**
+
+```powershell
+.\scripts\arena_igris_win.ps1
+.\scripts\arena_igris_win.ps1 -Segundos 120 -Activos "ETH,BTC"
+# o:
+python scripts/arena_igris_aislado.py --segundos 120
+```
+
+**En la Mac (México):** doble clic `Arena Igris.command` (~2 min)  
+o:
 
 ```bash
 chmod +x "Arena Igris.command" scripts/arena_igris_mac.sh
-./scripts/arena_igris_mac.sh 40 ETH,BTC
+./scripts/arena_igris_mac.sh 120 flota
+./scripts/arena_igris_mac.sh 120 ETH
 ```
+
+La arena fuerza matriz L/S aunque Tank no esté VERDE, limpia Tusk por activo y reporta `via_kaiser` vs `via_puerta`.
 
 Variables útiles (`.env` o entorno):
 

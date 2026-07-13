@@ -515,11 +515,16 @@ class IgrisEscudo:
         peso_l = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s = sum(f["short"] for f in self.tusk.pesos.values())
         if not mercado.verificar_delta_post_maniobra(margen, peso_l + masa, peso_s + masa):
-            await self._anotar_espera_spread(
-                "ENGORDE_ESPERA_SPREAD",
-                {**puerta, "motivo": "banda_delta_dual"},
-            )
-            return False
+            if getattr(config, "ARENA_IGRIS_ACTIVA", False) and getattr(
+                config, "ARENA_IGRIS_SIN_BANDA_DELTA", True
+            ):
+                pass  # arena flota: no contaminar dual por delta global
+            else:
+                await self._anotar_espera_spread(
+                    "ENGORDE_ESPERA_SPREAD",
+                    {**puerta, "motivo": "banda_delta_dual"},
+                )
+                return False
 
         uid_l = f"IGRIS_{origen[:4]}_L_{str(uuid.uuid4())[:4]}"
         uid_s = f"IGRIS_{origen[:4]}_S_{str(uuid.uuid4())[:4]}"
