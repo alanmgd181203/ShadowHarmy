@@ -109,98 +109,84 @@
       transform: translateY(0);
     }
 
-    /* —— Cascada: desborde absoluto (PNG con aura incluida) —— */
+    /* —— Cascada: flex-col compacta (FÍSICAS de colisión) —— */
     .cascade-stage {
       position: relative;
       width: 100%;
-      height: 100%;
       min-height: 100dvh;
-      overflow: hidden;
+      overflow-x: hidden;   /* obligatorio: nada de scroll horizontal */
+      overflow-y: visible;  /* no recortar vertical: la cascada debe “chocar” */
       background: #050608;
       flex: 1;
+      z-index: 1;
+    }
+
+    /* Fondo “fonso” (en el repo existe como Ima/fondo.png) sobre el negro */
+    .cascade-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("Ima/fondo.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0.42;
+      pointer-events: none;
+      z-index: 1;
     }
 
     .cascade-sombras {
-      position: absolute;
-      inset: 0;
+      position: relative;
       z-index: 2;
-      overflow: hidden;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow-x: hidden;
       pointer-events: none;
     }
 
-    .portal {
-      position: absolute;
+    .max-w-none { max-width: none !important; }
+
+    .portal-wrap {
+      width: 100%;
+      display: flex;
+      pointer-events: none;
+    }
+    .portal-wrap.left  { justify-content: flex-start; }
+    .portal-wrap.right { justify-content: flex-end; }
+
+    /* Compresión vertical: desde el 2º elemento se solapan */
+    .mt-neg-12 { margin-top: -3rem; }   /* -mt-12 (ejemplo Monarca) */
+    .mt-neg-16 { margin-top: -4rem; }   /* -mt-16 */
+    .mt-neg-24 { margin-top: -6rem; }   /* -mt-24 */
+
+    /* Off-set zig-zag por borde (translate-x-8) */
+    .tx-left   { transform: translateX(-2rem); }
+    .tx-right  { transform: translateX( 2rem); }
+    .tx-center { transform: translateX( 0); }
+
+    .portal-btn {
+      pointer-events: auto;
       border: none;
       padding: 0;
       margin: 0;
       background: transparent;
       cursor: pointer;
-      pointer-events: auto;
-      transform-origin: center center;
-      animation: portal-breathe 4.5s ease-in-out infinite;
       -webkit-tap-highlight-color: transparent;
+      z-index: 3;
     }
-    .portal img {
+
+    .portal-img {
       display: block;
-      width: 100%;
       height: auto;
-      max-width: none;
+      width: 18rem; /* equivalente a w-72 */
+      max-width: none !important; /* evita recorte plano */
       pointer-events: none;
       user-select: none;
       -webkit-user-drag: none;
-    }
-    .portal.active {
-      z-index: 6;
-      filter: brightness(1.1);
-    }
-
-    /* Desborde calibrado a Ima/referencia.png */
-    .portal-tusk {
-      width: 78%;
-      top: -4%;
-      left: -26%;
-      z-index: 3;
-      animation-delay: 0s;
-    }
-    .portal-beru {
-      width: 72%;
-      top: 11%;
-      right: -24%;
-      left: auto;
-      z-index: 4;
-      animation-delay: -0.7s;
-    }
-    .portal-kamish {
-      width: 74%;
-      top: 29%;
-      left: -28%;
-      z-index: 3;
-      animation-delay: -1.4s;
-    }
-    .portal-bellion {
-      width: 68%;
-      top: 44%;
-      right: -6%;
-      left: auto;
-      z-index: 5;
-      animation-delay: -2.1s;
-    }
-    .portal-greed {
-      width: 76%;
-      bottom: -3%;
-      top: auto;
-      left: -26%;
-      z-index: 3;
-      animation-delay: -2.8s;
-    }
-    .portal-igris {
-      width: 74%;
-      bottom: -5%;
-      top: auto;
-      right: -24%;
-      left: auto;
-      z-index: 4;
-      animation-delay: -3.5s;
+      transform: scale(1);
+      animation: portal-breathe 4.5s ease-in-out infinite;
     }
 
     @keyframes portal-breathe {
@@ -208,11 +194,11 @@
       50%      { transform: scale(1.02); }
     }
 
+    .portal-btn.active .portal-img { filter: brightness(1.12); }
+
     .cascade-title { display: none; }
 
-    .rpg-progression-panel {
-      display: none;
-    }
+    .rpg-progression-panel { display: none; }
 
     .rpg-panel-header {
       padding: 0.85rem 1rem;
@@ -596,12 +582,6 @@
     @media (max-width: 640px) {
       .metrics-strip { grid-template-columns: repeat(2, 1fr); }
       html, body { overflow: hidden; height: 100%; }
-      .portal-tusk { width: 84%; left: -30%; top: -5%; }
-      .portal-beru { width: 78%; right: -28%; top: 10%; }
-      .portal-kamish { width: 80%; left: -32%; top: 28%; }
-      .portal-bellion { width: 74%; right: -4%; top: 43%; }
-      .portal-greed { width: 82%; left: -30%; bottom: -4%; }
-      .portal-igris { width: 80%; right: -28%; bottom: -6%; }
     }
   </style>
 </head>
@@ -900,14 +880,33 @@
     function buildCascade() {
       const root = $("cascadeSombras");
       root.innerHTML = "";
-      PORTAL_ORDER.forEach((p) => {
+
+      const side = {
+        tusk: "left",
+        beru: "right",
+        kamish: "left",
+        bellion: "center",
+        greed: "left",
+        igris: "right",
+      };
+
+      // Compresión vertical sistemática (2º elemento en adelante)
+      const mt = ["", "mt-neg-12", "mt-neg-16", "mt-neg-16", "mt-neg-24", "mt-neg-24"];
+
+      PORTAL_ORDER.forEach((p, idx) => {
+        const wrap = document.createElement("div");
+        wrap.className = `portal-wrap ${side[p.id] === "left" ? "left" : side[p.id] === "right" ? "right" : "center"} ${mt[idx] || ""}`.trim();
+        root.appendChild(wrap);
+
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.className = `portal portal-${p.id}`;
+        btn.className = `portal portal-btn ${side[p.id] === "left" ? "tx-left" : side[p.id] === "right" ? "tx-right" : "tx-center"}`;
         btn.dataset.general = p.id;
         btn.setAttribute("aria-label", GENERALS[p.id].name);
-        btn.innerHTML = `<img src="assets/portales/${p.id}.png" alt="${p.label}" draggable="false" />`;
-        root.appendChild(btn);
+        // max-w-none obligatorio: evita recorte plano antinatural
+        btn.innerHTML = `<img class="portal-img max-w-none" src="assets/portales/${p.id}.png" alt="${p.label}" draggable="false" />`;
+
+        wrap.appendChild(btn);
         btn.addEventListener("click", () => {
           setActiveGeneral(activeGeneral === p.id ? "all" : p.id);
         });
