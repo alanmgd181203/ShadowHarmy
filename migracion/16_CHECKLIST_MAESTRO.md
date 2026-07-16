@@ -227,7 +227,7 @@
 - [x] **3.10.5** Panel Pergamino — `dashboard_sombras.html` + `index.html` + scripts panel macOS
 - [x] **3.10.6** Smoke Igris actualizado (`validar_igris_smoke.py`)
 - [x] **3.10.7a** Arena aislada — `scripts/arena_igris_aislado.py` (Kaiser→Igris, fills virtuales, matriz forzada, Tusk limpio/activo, ~2 min)
-- [ ] **3.10.7b** Validar despliegue §E en **live** testnet con manto real — *ritual listo:* `scripts/igris_live_testnet.py` + `Igris Live Testnet.command` + orden Cursor `migracion/CURSOR_MEXICO_EJECUTAR_3_10_7b.md` (marcar [x] solo con `veredicto=PASS_LIVE`)
+- [x] **3.10.7b** Validar despliegue §E en **live** testnet con manto real — `PASS_LIVE` México 2026-07-12 (ETH/BTC dual DEMO; ritual `igris_live_testnet.py`)
 - [x] **3.10.8** Modo `IGRIS_EVENT_DRIVEN` + alerta Kaiser `OPORTUNIDAD_MANTO` (morado Ask/Bid = Puerta §E) · arena micro / prod ≥ fees · lanzadores Win/Mac
 
 ### 3.11 Cuartel compartido (México) *(ops — 2026-07-09 → 07-12)*
@@ -358,7 +358,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino (`dashboard_sombras.html`) — v0 México ✅; pulir y unificar con Streamlit pendiente
+- [~] **10.3.1** UI web / panel Pergamino (`dashboard_sombras.html`) — Cascada 6 portales (Códice Vol II) ✅; unificar Streamlit pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑

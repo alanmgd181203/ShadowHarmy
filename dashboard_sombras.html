@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shadow Army — Pergamino de Bellion · Igris</title>
+  <title>Shadow Army — Cascada de las Sombras · 6 Portales</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -23,7 +23,7 @@
     html, body {
       height: 100%;
       overflow: hidden;
-      background: var(--void);
+      background: #050608;
       color: var(--ink);
       font-family: "Segoe UI", system-ui, sans-serif;
     }
@@ -76,24 +76,200 @@
 
     .deck-center {
       position: relative;
-      width: min(92vmin, 820px);
-      height: min(92vmin, 820px);
+      width: min(420px, 92vw);
+      height: auto;
+      min-height: min(88vh, 900px);
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 0.75rem;
       flex-shrink: 0;
     }
 
     .deck-center .bellion-scroll {
       position: relative;
       z-index: 3;
+      width: 100%;
+      max-height: min(42vh, 380px);
     }
 
-    .deck-center .orbit-ring {
+    /* —— Cascada de las Sombras (Códice Vol II) —— */
+    .cascade-sombras {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.35rem, 1.2vh, 0.85rem);
+      padding: 0.35rem 0.25rem 0.75rem;
+      min-height: min(52vh, 520px);
+      pointer-events: none;
+    }
+
+    .portal-row {
+      display: flex;
+      width: 100%;
+      pointer-events: none;
+    }
+    .portal-row.align-start { justify-content: flex-start; padding-left: clamp(0.2rem, 2vw, 1.2rem); }
+    .portal-row.align-end   { justify-content: flex-end;   padding-right: clamp(0.2rem, 2vw, 1.2rem); }
+
+    .portal {
+      --aura: #a100ff;
+      --size: clamp(88px, 22vw, 118px);
+      position: relative;
+      width: var(--size);
+      height: var(--size);
+      border: none;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      pointer-events: auto;
+      border-radius: 50%;
+      isolation: isolate;
+      animation: portal-drift 7.5s ease-in-out infinite;
+    }
+    .portal-row:nth-child(2) .portal { animation-duration: 8.2s; animation-delay: -1.2s; }
+    .portal-row:nth-child(3) .portal { animation-duration: 9.1s; animation-delay: -2.4s; }
+    .portal-row:nth-child(4) .portal { animation-duration: 7.8s; animation-delay: -0.6s; }
+    .portal-row:nth-child(5) .portal { animation-duration: 8.6s; animation-delay: -3.1s; }
+    .portal-row:nth-child(6) .portal { animation-duration: 9.4s; animation-delay: -1.8s; }
+
+    .portal-aura {
       position: absolute;
-      inset: 0;
+      inset: -14%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(circle, color-mix(in srgb, var(--aura) 35%, transparent) 0%, transparent 68%);
+      filter: blur(6px);
+      animation: aura-breathe 3.6s ease-in-out infinite;
+    }
+
+    .portal-ring {
+      position: absolute;
+      inset: -6%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      border: 1.5px solid color-mix(in srgb, var(--aura) 75%, #fff 10%);
+      box-shadow:
+        0 0 10px 1px color-mix(in srgb, var(--aura) 55%, transparent),
+        0 0 28px 4px color-mix(in srgb, var(--aura) 35%, transparent),
+        inset 0 0 18px color-mix(in srgb, var(--aura) 25%, transparent);
+      animation: ring-pulse 2.8s ease-in-out infinite;
+    }
+    .portal-ring::before {
+      content: "";
+      position: absolute;
+      inset: -18%;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        color-mix(in srgb, var(--aura) 55%, transparent) 18%,
+        transparent 36%,
+        color-mix(in srgb, var(--aura) 40%, transparent) 58%,
+        transparent 78%,
+        color-mix(in srgb, var(--aura) 50%, transparent) 92%,
+        transparent 100%
+      );
+      opacity: 0.55;
+      filter: blur(4px);
+      animation: portal-spin 14s linear infinite;
+      -webkit-mask-image: radial-gradient(circle, transparent 52%, #000 68%, transparent 78%);
+      mask-image: radial-gradient(circle, transparent 52%, #000 68%, transparent 78%);
+    }
+
+    .portal-face {
+      position: absolute;
+      inset: 4%;
+      border-radius: 50%;
+      overflow: hidden;
+      z-index: 2;
+      background: #050608;
+      transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+      -webkit-mask-image: radial-gradient(circle, #000 42%, transparent 78%);
+      mask-image: radial-gradient(circle, #000 42%, transparent 78%);
+      box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.85);
+    }
+    .portal-face img {
       width: 100%;
       height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.08);
+      filter: contrast(1.08) brightness(0.92);
+      animation: face-shadow-breathe 5.5s ease-in-out infinite;
+    }
+
+    .portal-label {
+      position: absolute;
+      left: 50%;
+      bottom: -1.35rem;
+      transform: translateX(-50%);
+      font-size: 0.58rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--aura) 70%, #c8d0dc);
+      text-shadow: 0 0 12px color-mix(in srgb, var(--aura) 45%, transparent);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .portal:hover .portal-face {
+      transform: scale(1.04);
+    }
+    .portal:hover .portal-ring {
+      box-shadow:
+        0 0 14px 2px color-mix(in srgb, var(--aura) 70%, transparent),
+        0 0 40px 8px color-mix(in srgb, var(--aura) 45%, transparent),
+        inset 0 0 22px color-mix(in srgb, var(--aura) 30%, transparent);
+    }
+    .portal.active .portal-face {
+      transform: scale(1.06);
+    }
+    .portal.active .portal-ring {
+      border-color: #fff;
+      box-shadow:
+        0 0 18px 3px color-mix(in srgb, var(--aura) 80%, transparent),
+        0 0 48px 10px color-mix(in srgb, var(--aura) 50%, transparent),
+        inset 0 0 24px color-mix(in srgb, var(--aura) 35%, transparent);
+    }
+
+    @keyframes aura-breathe {
+      0%, 100% { opacity: 0.55; transform: scale(0.96); }
+      50%      { opacity: 1;    transform: scale(1.08); }
+    }
+    @keyframes ring-pulse {
+      0%, 100% { opacity: 0.75; }
+      50%      { opacity: 1; }
+    }
+    @keyframes portal-spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes portal-drift {
+      0%, 100% { transform: translate(0, 0); }
+      33%      { transform: translate(4px, -7px); }
+      66%      { transform: translate(-5px, 5px); }
+    }
+    @keyframes face-shadow-breathe {
+      0%, 100% { filter: contrast(1.08) brightness(0.9); opacity: 0.92; }
+      50%      { filter: contrast(1.12) brightness(1.02); opacity: 1; }
+    }
+
+    .portal.active { animation: portal-drift 7.5s ease-in-out infinite; }
+    .portal:hover, .portal.active { /* keep drift under scale via wrapper if needed */ }
+
+    .cascade-title {
+      text-align: center;
+      font-size: 0.55rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      margin-bottom: 0.15rem;
+      pointer-events: none;
     }
 
     .rpg-progression-panel {
@@ -437,9 +613,13 @@
 
     .log-ts   { color: #4a5568; }
     .log-gen  { font-weight: 600; }
-    .log-gen.igris { color: var(--glow-igris); }
-    .log-gen.tusk  { color: var(--glow-tusk); }
-    .log-gen.tank  { color: var(--glow-tank); }
+    .log-gen.igris { color: #ff0055; }
+    .log-gen.tusk  { color: #00ff66; }
+    .log-gen.tank, .log-gen.kamish, .log-gen.kaiser { color: #4a72ff; }
+    .log-gen.beru { color: #00f0ff; }
+    .log-gen.bellion, .log-gen.arena, .log-gen.live_igris { color: #a100ff; }
+    .log-gen.greed { color: #e0115f; }
+    .log-gen.bridge { color: #ff6b8a; }
     .log-ev   { color: #9aa3b0; }
     .log-msg  { color: #b8c0cc; }
 
@@ -470,114 +650,7 @@
       50%      { opacity: 0.6; box-shadow: 0 0 8px 2px rgba(34, 197, 94, 0.3); }
     }
 
-    .general-orbit {
-      position: absolute;
-      width: 88px;
-      height: 88px;
-      pointer-events: auto;
-    }
-
-    .general-btn {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 1px solid var(--glass-border);
-      background: var(--glass);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition:
-        transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1),
-        border-color 0.3s ease,
-        box-shadow 0.35s ease,
-        background 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .general-btn::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 25%, rgba(255,255,255,0.06), transparent 55%);
-      pointer-events: none;
-    }
-
-    .general-btn svg {
-      width: 44px;
-      height: 44px;
-      color: rgba(220, 225, 235, 0.75);
-      fill: currentColor;
-      transition: color 0.3s ease, filter 0.35s ease;
-      position: relative;
-      z-index: 1;
-    }
-
-    .general-btn:hover {
-      transform: scale(1.12);
-      border-color: rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .general-btn.active {
-      border-color: rgba(255, 255, 255, 0.22);
-      background: rgba(255, 255, 255, 0.06);
-      transform: scale(1.08);
-    }
-
-    .general-btn[data-general="igris"]:hover svg,
-    .general-btn[data-general="igris"].active svg {
-      color: var(--glow-igris);
-      filter: drop-shadow(0 0 12px var(--glow-igris));
-    }
-    .general-btn[data-general="tusk"]:hover svg,
-    .general-btn[data-general="tusk"].active svg {
-      color: var(--glow-tusk);
-      filter: drop-shadow(0 0 12px var(--glow-tusk));
-    }
-    .general-btn[data-general="tank"]:hover svg,
-    .general-btn[data-general="tank"].active svg {
-      color: var(--glow-tank);
-      filter: drop-shadow(0 0 12px var(--glow-tank));
-    }
-
-    .general-label {
-      position: absolute;
-      bottom: -1.35rem;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.58rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--ink-dim);
-      white-space: nowrap;
-      pointer-events: none;
-    }
-
-    /* Triángulo: Igris arriba, Tank y Tusk abajo */
-    .orbit-igris { top: 4%;  left: 50%; transform: translateX(-50%); animation: float-igris 8.5s ease-in-out infinite; }
-    .orbit-tank  { bottom: 12%; left: 12%;  animation: float-tank  9.1s ease-in-out infinite; }
-    .orbit-tusk  { bottom: 12%; right: 12%; animation: float-tusk  6.8s ease-in-out infinite; }
-
-    @keyframes float-igris {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      40%      { transform: translateX(-50%) translateY(-10px); }
-      70%      { transform: translateX(-50%) translateY(12px); }
-    }
-    @keyframes float-tusk {
-      0%, 100% { transform: translateY(0) translateX(0); }
-      25%      { transform: translateY(9px) translateX(7px); }
-      60%      { transform: translateY(-11px) translateX(-4px); }
-    }
-    @keyframes float-tank {
-      0%, 100% { transform: translateY(0) translateX(0); }
-      50%      { transform: translateY(-8px) translateX(9px); }
-      80%      { transform: translateY(14px) translateX(-6px); }
-    }
+    /* órbita SVG retirada — ver Cascada de las Sombras arriba */
 
     @media (max-width: 960px) {
       .command-deck {
@@ -591,17 +664,16 @@
       .rpg-progression-panel {
         width: min(520px, 88vw);
         max-height: none;
-        order: 2;
+        order: 3;
       }
-      .deck-center { order: 1; }
-      .bellion-scroll { max-height: min(58vh, 480px); }
+      .deck-center { order: 1; width: min(420px, 94vw); }
+      .deck-center .bellion-scroll { max-height: min(48vh, 420px); }
     }
 
     @media (max-width: 640px) {
-      .general-orbit { width: 68px; height: 68px; }
-      .general-btn svg { width: 34px; height: 34px; }
-      .orbit-ring { width: 100vmin; height: 100vmin; }
+      .portal { --size: clamp(96px, 28vw, 124px); }
       .metrics-strip { grid-template-columns: repeat(2, 1fr); }
+      html, body { overflow: auto; height: auto; }
     }
   </style>
 </head>
@@ -660,14 +732,15 @@
     </aside>
 
     <div class="deck-center">
-    <div class="orbit-ring" id="orbitRing"></div>
+    <div class="cascade-title">Cascada de las Sombras · 6 Portales</div>
+    <div class="cascade-sombras" id="cascadeSombras" aria-label="Seis Generales"></div>
 
     <article class="bellion-scroll" id="bellionScroll">
       <header class="scroll-header">
-        <h1>Crónica · Bellion · Enfoque Igris</h1>
-        <div class="scroll-focus" id="scrollFocus">Tríada Operativa</div>
+        <h1>Crónica · Bellion · Cascada</h1>
+        <div class="scroll-focus" id="scrollFocus">Seis Generales</div>
         <div class="scroll-meta" id="scrollMeta">
-          <span class="meta-chip">Rango: <strong id="metaRank">Mariscal del Manto</strong></span>
+          <span class="meta-chip">Rango: <strong id="metaRank">Códice Visual</strong></span>
           <span class="meta-chip">Fase: <strong id="metaFase">HIERRO</strong></span>
           <span class="meta-chip">Feed: <strong id="metaFeed">—</strong></span>
         </div>
@@ -707,41 +780,72 @@
   </main>
 
   <script>
-    const SVG = {
-      igris: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M12 48 L12 20 Q12 8 32 8 Q52 8 52 20 L52 48 Z"/><path d="M20 48 L20 28 Q20 16 32 16 Q44 16 44 28 L44 48" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.4"/><circle cx="32" cy="32" r="6"/></svg>`,
-      tusk: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="28" width="36" height="28" rx="3"/><path d="M18 28 L32 12 L46 28"/><rect x="26" y="38" width="12" height="10" rx="1" opacity="0.35"/><path d="M32 12 L32 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
-      tank: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="32" r="8"/><circle cx="32" cy="10" r="4"/><circle cx="52" cy="32" r="4"/><circle cx="32" cy="54" r="4"/><circle cx="12" cy="32" r="4"/><line x1="32" y1="14" x2="32" y2="24" stroke="currentColor" stroke-width="1.5"/></svg>`,
-    };
+    /* Códice Vol II — Cascada de las Sombras (hex exactos) */
+    const PORTAL_ORDER = [
+      { id: "tusk",    align: "start", aura: "#00ff66", label: "Tusk" },
+      { id: "beru",    align: "end",   aura: "#00f0ff", label: "Beru" },
+      { id: "kamish",  align: "start", aura: "#4a72ff", label: "Kamish" },
+      { id: "bellion", align: "end",   aura: "#a100ff", label: "Bellion" },
+      { id: "greed",   align: "start", aura: "#e0115f", label: "Greed" },
+      { id: "igris",   align: "end",   aura: "#ff0055", label: "Igris" },
+    ];
 
     const GENERALS = {
       all: {
         id: "all",
-        name: "Tríada Operativa",
-        rank: "Igris · Tank · Tusk",
-        events: ["ENGORDE", "REBALANCEO", "PODA", "MANTO", "NAV_SYNC", "ANCLAJE", "TRINIDAD", "RESERVA"],
-      },
-      igris: {
-        id: "igris",
-        name: "Igris · El Escudo",
-        rank: "Mariscal del Manto",
-        events: ["ENGORDE", "REBALANCEO", "PODA", "MANTO", "LEY_MARCIAL", "BOOTSTRAP_MANTO", "LIMPIEZA"],
+        name: "Cascada · Seis Generales",
+        rank: "Códice Visual Vol II",
+        gens: ["TUSK", "BERU", "TANK", "KAISER", "BELLION", "GREED", "IGRIS", "ARENA", "LIVE_IGRIS", "BRIDGE"],
+        aura: "#e8eaef",
       },
       tusk: {
         id: "tusk",
         name: "Tusk · La Bóveda",
         rank: "Tesorero · Hierro",
-        events: ["NAV_SYNC", "ANCLAJE", "ÉXITO", "SUCESION", "RESERVA", "ANCLAJE_RECHAZADO"],
+        gens: ["TUSK"],
+        aura: "#00ff66",
       },
-      tank: {
-        id: "tank",
-        name: "Tank · La Hidra",
-        rank: "Centinela · Pentiverso",
-        events: ["TRINIDAD", "SENTIDOS_EXTRA", "BINANCE_REF", "SEMAFORO", "PENTIVERSO"],
+      beru: {
+        id: "beru",
+        name: "Beru · El Cazador",
+        rank: "Semilla · Flota",
+        gens: ["BERU"],
+        aura: "#00f0ff",
+      },
+      kamish: {
+        id: "kamish",
+        name: "Kamish · Ojos / Tank",
+        rank: "Capitán · Sentidos",
+        gens: ["TANK", "KAISER", "TRINIDAD"],
+        aura: "#4a72ff",
+      },
+      bellion: {
+        id: "bellion",
+        name: "Bellion · El Cronista",
+        rank: "Auditor · Pergamino",
+        gens: ["BELLION", "ARENA", "LIVE_IGRIS"],
+        aura: "#a100ff",
+      },
+      greed: {
+        id: "greed",
+        name: "Greed · El Francotirador",
+        rank: "Arbitraje · VIP",
+        gens: ["GREED"],
+        aura: "#e0115f",
+      },
+      igris: {
+        id: "igris",
+        name: "Igris · El Escudo",
+        rank: "Mariscal del Manto",
+        gens: ["IGRIS", "BRIDGE"],
+        aura: "#ff0055",
       },
     };
 
-    const ORBIT_CLASS = { igris: "orbit-igris", tusk: "orbit-tusk", tank: "orbit-tank" };
-    const ALLOWED_GENS = new Set(["IGRIS", "TUSK", "TANK"]);
+    const ALLOWED_GENS = new Set([
+      "IGRIS", "TUSK", "TANK", "BERU", "GREED", "BELLION", "KAISER",
+      "ARENA", "LIVE_IGRIS", "BRIDGE", "TRINIDAD",
+    ]);
     const HISTORIAL_URL = "data/historial_cola.jsonl";
     const ESTADO_URL = "data/estado_vivo.json";
 
@@ -809,7 +913,8 @@
 
     function filterLogs() {
       if (activeGeneral === "all") return logs;
-      return logs.filter((l) => l.gen === activeGeneral.toUpperCase());
+      const gens = new Set(GENERALS[activeGeneral].gens || []);
+      return logs.filter((l) => gens.has(l.gen));
     }
 
     function refreshChronicle() {
@@ -824,22 +929,16 @@
       const g = GENERALS[activeGeneral];
       $("scrollFocus").textContent = g.name;
       $("metaRank").textContent = g.rank;
-
-      const hue = {
-        igris: "var(--glow-igris)",
-        tusk: "var(--glow-tusk)",
-        tank: "var(--glow-tank)",
-        all: "#e8eaef",
-      };
-      $("scrollFocus").style.color = hue[activeGeneral] || hue.all;
+      const aura = g.aura || "#e8eaef";
+      $("scrollFocus").style.color = aura;
       $("scrollFocus").style.textShadow = activeGeneral !== "all"
-        ? `0 0 24px ${hue[activeGeneral]}`
+        ? `0 0 24px ${aura}`
         : "none";
     }
 
     function setActiveGeneral(id) {
       activeGeneral = id;
-      document.querySelectorAll(".general-btn").forEach((btn) => {
+      document.querySelectorAll(".portal").forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.general === id);
       });
       updateFocus();
@@ -854,7 +953,10 @@
         const removed = logs.shift();
         seenLines.delete(removed.key);
       }
-      const show = activeGeneral === "all" || entry.gen === activeGeneral.toUpperCase();
+      const gens = activeGeneral === "all"
+        ? null
+        : new Set(GENERALS[activeGeneral].gens || []);
+      const show = !gens || gens.has(entry.gen);
       if (show) {
         const stream = $("chronicleStream");
         stream.insertAdjacentHTML("beforeend", renderLogLine(entry));
@@ -864,20 +966,25 @@
       }
     }
 
-    function buildOrbit() {
-      const ring = $("orbitRing");
-      ["igris", "tank", "tusk"].forEach((id) => {
-        const wrap = document.createElement("div");
-        wrap.className = `general-orbit ${ORBIT_CLASS[id]}`;
-        wrap.innerHTML = `
-          <button type="button" class="general-btn" data-general="${id}" aria-label="${GENERALS[id].name}">
-            ${SVG[id]}
-          </button>
-          <span class="general-label">${id}</span>
-        `;
-        ring.appendChild(wrap);
+    function buildCascade() {
+      const root = $("cascadeSombras");
+      root.innerHTML = "";
+      PORTAL_ORDER.forEach((p) => {
+        const row = document.createElement("div");
+        row.className = `portal-row align-${p.align}`;
+        row.innerHTML = `
+          <button type="button" class="portal" data-general="${p.id}"
+            style="--aura:${p.aura}" aria-label="${GENERALS[p.id].name}">
+            <span class="portal-aura" aria-hidden="true"></span>
+            <span class="portal-ring" aria-hidden="true"></span>
+            <span class="portal-face">
+              <img src="assets/portales/${p.id}.png" alt="${p.label}" draggable="false" />
+            </span>
+            <span class="portal-label">${p.label}</span>
+          </button>`;
+        root.appendChild(row);
       });
-      ring.querySelectorAll(".general-btn").forEach((btn) => {
+      root.querySelectorAll(".portal").forEach((btn) => {
         btn.addEventListener("click", () => {
           const id = btn.dataset.general;
           setActiveGeneral(activeGeneral === id ? "all" : id);
@@ -1017,9 +1124,12 @@
       if (demoSeeded || liveConnected) return;
       demoSeeded = true;
       const demo = [
-        { gen: "IGRIS", ev: "PANEL", msg: "Conectando crónica Bellion…" },
-        { gen: "TUSK", ev: "PANEL", msg: "Esperando primer latido de estado_vivo…" },
-        { gen: "TANK", ev: "PANEL", msg: "Pentiverso en espera de feed." },
+        { gen: "BELLION", ev: "PANEL", msg: "Cascada de las Sombras lista — 6 portales." },
+        { gen: "IGRIS", ev: "PANEL", msg: "Escudo en órbita visual (rojo sangre)." },
+        { gen: "TUSK", ev: "PANEL", msg: "Bóveda respira (verde tóxico)." },
+        { gen: "BERU", ev: "PANEL", msg: "Cazador en sombra (cian)." },
+        { gen: "TANK", ev: "PANEL", msg: "Kamish / ojos en espera de feed." },
+        { gen: "GREED", ev: "PANEL", msg: "Francotirador hibernando (magenta)." },
       ];
       const ts = () => {
         const d = new Date();
@@ -1032,7 +1142,7 @@
       }
     }
 
-    buildOrbit();
+    buildCascade();
     initParticles();
     seedDemoLogs();
     updateFocus();
