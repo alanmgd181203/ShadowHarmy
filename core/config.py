@@ -340,6 +340,13 @@ LIVE_IGRIS_MORDIDA_MAX_USD = float(os.getenv("LIVE_IGRIS_MORDIDA_MAX_USD", "12")
 LIVE_IGRIS_REQUIRE_KAISER = os.getenv("LIVE_IGRIS_REQUIRE_KAISER", "false").lower() == "true"
 LIVE_IGRIS_SIN_PACIENCIA = os.getenv("LIVE_IGRIS_SIN_PACIENCIA", "false").lower() == "true"
 
+# Live Beru testnet — scripts/beru_live_testnet.py (checklist 3.9.9)
+# Ansiedad 1.2% → gatillo ±0.6% · Mariscal PLENO clon 0.1% · CAZA · ~$10
+LIVE_BERU_TESTNET = os.getenv("LIVE_BERU_TESTNET", "false").lower() == "true"
+LIVE_BERU_SEGUNDOS = float(os.getenv("LIVE_BERU_SEGUNDOS", "1800"))  # 30 min; 0 = Ctrl+C
+LIVE_BERU_ACTIVOS = os.getenv("LIVE_BERU_ACTIVOS", "ETH,BTC,LTC,SOL,OP")
+LIVE_BERU_MORDIDA_USD = float(os.getenv("LIVE_BERU_MORDIDA_USD", "10"))
+
 GREED_MANTO_EJECUTOR = os.getenv("GREED_MANTO_EJECUTOR", "false").lower() == "true"
 GREED_VIP_PERMITIR_EN_LEY_MARCIAL = os.getenv("GREED_VIP_PERMITIR_EN_LEY_MARCIAL", "true").lower() == "true"
 GREED_MANTO_TOQUE_COOLDOWN_S = float(os.getenv("GREED_MANTO_TOQUE_COOLDOWN_S", "45"))

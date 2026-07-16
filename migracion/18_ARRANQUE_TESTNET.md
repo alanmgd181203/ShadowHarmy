@@ -99,6 +99,7 @@ Con `MODO_SIMULACION=True`: CAZA/COSECHA/Greed escriben en Bellion con precios m
 | `data/m1_btc_roundtrip.json` | Trade M1 documentado |
 | `data/arena_igris_report.json` | Arena Igris aislada (Kaiser→escudo, fills virtuales) |
 | `data/igris_live_testnet_report.json` | Live Igris testnet 3.10.7b (órdenes DEMO reales) |
+| `data/beru_live_testnet_report.json` | Live Beru testnet 3.9.9 (Ansiedad/Mariscal, spot DEMO) |
 
 ---
 
@@ -170,4 +171,37 @@ Reporte: `data/igris_live_testnet_report.json` → campo `veredicto`:
 
 ---
 
-*Actualizado: 2026-07-12 — arena Igris + live 3.10.7b preparado*
+## 10. Live Beru testnet (checklist 3.9.9)
+
+Órdenes **reales** spot en Bybit DEMO. Beru **aislado** (sin Igris/Greed).
+
+| Doctrina sesión | Valor |
+|-----------------|--------|
+| Capitán | **Ansiedad** 1,2 % → gatillo **±0,6 %** |
+| Tier | **Mariscal / PLENO** · clon **0,1 %** |
+| Modo | **CAZA** · mordida **~$10** |
+| Activos default | ETH, BTC, LTC, SOL, OP |
+
+**Orden lista para Cursor México:** `migracion/CURSOR_MEXICO_EJECUTAR_3_9_9.md`
+
+```bash
+# Mac
+chmod +x "Beru Live Testnet.command" scripts/beru_live_testnet_mac.sh
+./scripts/beru_live_testnet_mac.sh 1800 ETH,BTC,LTC,SOL,OP
+# vigilia larga / hasta Ctrl+C:
+python scripts/beru_live_testnet.py --segundos 0 --activos ETH,BTC,LTC,SOL,OP
+```
+
+```powershell
+# Windows
+.\scripts\beru_live_testnet_win.ps1
+.\scripts\beru_live_testnet_win.ps1 -Segundos 3600 -Activos "ETH,BTC,LTC,SOL,OP"
+```
+
+Reporte: `data/beru_live_testnet_report.json` → campo `veredicto`:
+- `PASS_LIVE` → marcar **3.9.9** [x]
+- `SIN_DISPARO_MERCADO` → el mercado no movió ±0,6 %; alargar minutos
+
+---
+
+*Actualizado: 2026-07-16 — live Beru 3.9.9 (Ansiedad/Mariscal) + Igris 3.10.7b*

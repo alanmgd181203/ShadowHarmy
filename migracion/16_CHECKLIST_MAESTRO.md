@@ -216,7 +216,7 @@
 - [x] **3.9.6** Diccionario Flota del Manto Inverse∩Linear — `config/diccionario_beru_flota_manto.json`
 - [x] **3.9.7** Engorde dual L/S estable + cooldown log `ENGORDE_BLOQUEADO`
 - [x] **3.9.8** Smokes: cazador, fusión, multiberu, mega_reset, capital, ciclo ETH
-- [ ] **3.9.9** Ciclo Beru **live** testnet (`MODO_SIMULACION=False`) — cuando Monarca ordene
+- [ ] **3.9.9** Ciclo Beru **live** testnet (`MODO_SIMULACION=False`) — ritual `scripts/beru_live_testnet.py` (Ansiedad 1.2%→gatillo 0.6%, Mariscal PLENO, CAZA ~$10, 5 monedas); orden Jess: `CURSOR_MEXICO_EJECUTAR_3_9_9.md`
 
 ### 3.10 Igris — jurisdicción, despliegue y panel *(2026-07-11 → 07-12)*
 
