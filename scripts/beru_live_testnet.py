@@ -6,12 +6,14 @@ Doctrina de esta sesión (orden Monarca):
   - Capitán Ansiedad: vacío 1.2% → gatillo caza ±0.6% (no Normal 1.6%/0.8%)
   - Tier PLENO / Mariscal: nacimiento/clon cada 0.1%
   - Modo combate CAZA (no Negociador legacy como default)
-  - Mordida ~$10 por caza
-  - 5 monedas spot en paralelo (default ETH,BTC,LTC,SOL,OP)
+  - Mordida ~$20 por caza
+  - 22 barcos flota del manto, solo USDT spot (nada USDC/exótico)
+  - Spot margen forzado 10x (isLeverage)
   - Igris/Greed hibernados
+  - Vigilia default 1 h (3600 s)
 
   python scripts/beru_live_testnet.py
-  python scripts/beru_live_testnet.py --segundos 1800 --activos ETH,BTC,LTC,SOL,OP
+  python scripts/beru_live_testnet.py --segundos 3600 --activos flota
   python scripts/beru_live_testnet.py --segundos 0   # hasta Ctrl+C
 
 ABORTA si MODO_TESTNET!=True o faltan API keys.
@@ -43,9 +45,12 @@ os.environ["MODO_SIMULACION"] = "False"
 os.environ["BERU_TIER_DEFAULT"] = "PLENO"
 os.environ["BERU_MODO_COMBATE_DEFAULT"] = "CAZA"
 os.environ["BERU_VACIO_ANSIEDAD"] = os.environ.get("BERU_VACIO_ANSIEDAD", "0.012")
-os.environ["BERU_CAZADOR_MORDIDA_USD"] = os.environ.get("BERU_CAZADOR_MORDIDA_USD", "10")
-os.environ["BERU_CAZA_CAPA1_USD"] = os.environ.get("BERU_CAZA_CAPA1_USD", "10")
-os.environ["BERU_CAZA_CAPA1_MAX_USD"] = os.environ.get("BERU_CAZA_CAPA1_MAX_USD", "50")
+os.environ.setdefault("BERU_CAZADOR_MORDIDA_USD", os.environ.get("LIVE_BERU_MORDIDA_USD", "20"))
+os.environ.setdefault("BERU_CAZA_CAPA1_USD", os.environ.get("LIVE_BERU_MORDIDA_USD", "20"))
+os.environ["BERU_CAZA_CAPA1_MAX_USD"] = os.environ.get("BERU_CAZA_CAPA1_MAX_USD", "100")
+os.environ["BERU_SPOT_MARGEN_ENABLED"] = "true"
+os.environ.setdefault("BERU_SPOT_MARGEN_LEVERAGE", "10")
+os.environ["BERU_RAIL_USDT_ONLY"] = "true"
 os.environ["GREED_KAISER_ENABLED"] = "false"
 os.environ["GREED_VIP_ENABLED"] = "false"
 os.environ["GREED_BASIS_HOLD_ENABLED"] = "false"
@@ -78,8 +83,24 @@ CAPITAN_ANSIEDAD_LIVE = ADN_Capitan(
 )
 
 
+def _flota_22() -> list[str]:
+    path = ROOT / "config" / "diccionario_beru_flota_manto.json"
+    if path.exists():
+        data = json.loads(path.read_text(encoding="utf-8"))
+        lista = (data.get("meta") or {}).get("activos") or []
+        if lista:
+            return [str(a).upper() for a in lista]
+    # Fallback trinidad
+    bases = list(getattr(config, "ACTIVOS_TRINIDAD", None) or [])
+    if bases:
+        return [str(a).upper() for a in bases]
+    return ["ETH", "BTC", "LTC", "SOL", "OP"]
+
+
 def _activos_cfg(raw: str | None) -> list[str]:
-    s = (raw or getattr(config, "LIVE_BERU_ACTIVOS", "ETH,BTC,LTC,SOL,OP") or "ETH,BTC,LTC,SOL,OP").strip()
+    s = (raw or getattr(config, "LIVE_BERU_ACTIVOS", "flota") or "flota").strip()
+    if s.lower() in ("flota", "all", "*", "22"):
+        return _flota_22()
     return [a.strip().upper() for a in s.split(",") if a.strip()]
 
 
@@ -99,8 +120,10 @@ def _aplicar_casa(activo: str) -> None:
     a = activo.upper()
     config.BERU_ACTIVO_SEMILLA = a
     config.TICKER_BASE = a
-    config.FRENTES_CASA = [f"{a}USDT_SPOT", f"{a}USDC_SPOT"]
+    # Orden Alan: solo USDT — nada USDC/exótico
+    config.FRENTES_CASA = [f"{a}USDT_SPOT"]
     config.FRENTES_BERU_VIGILANCIA = [f"{a}USDT_SPOT"]
+    config.BERU_RAIL_USDT_ONLY = True
 
 
 def _contar_historial(path: Path, desde_ts: float) -> dict:
@@ -241,6 +264,7 @@ async def _pulso_activo(
             sem.adn_capitan = CAPITAN_ANSIEDAD_LIVE
             sem.tier_id = "PLENO"
             sem.modo_combate = "CAZA"
+            # Centro del manto = precio de ESTE barco (nunca promedio Tusk cruzado)
             sem.centro_manto = precio
             sem.centro_local = precio
             ship_activo[sem.uid] = activo
@@ -249,15 +273,23 @@ async def _pulso_activo(
                 f"{activo} Mariscal/Ansiedad/CAZA centro={precio:.6g} gatillo±{gatillo_pct(CAPITAN_ANSIEDAD_LIVE.vacio_adan)*100:.2f}%",
             )
 
-        # Refuerza ADN en semillas acechando (por si Tank cambió clima)
+        # Refuerza ADN; repara ceros contaminados (centro de otra moneda)
         for b in beru.legion:
             if b.estado == "ACECHANDO":
                 b.adn_capitan = CAPITAN_ANSIEDAD_LIVE
                 b.tier_id = b.tier_id or "PLENO"
                 b.modo_combate = "CAZA"
-                if b.centro_manto <= 0:
-                    b.centro_manto = precio
                 ship_activo.setdefault(b.uid, activo)
+                if ship_activo.get(b.uid) != activo:
+                    continue
+                c = float(b.centro_manto or 0)
+                if c <= 0 or (precio > 0 and abs(c - precio) / precio > 0.25):
+                    b.centro_manto = precio
+                    b.centro_local = precio
+                    await beru.bel.anotar(
+                        "LIVE_BERU", "CENTRO_REPARADO",
+                        f"{activo} uid={b.uid} centro→{precio:.6g} (era {c:.6g})",
+                    )
 
         await beru.auditar_gatillos_adan(precio)
         await beru.sincronizar_materializacion()
@@ -302,8 +334,16 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
     config.BERU_TIER_DEFAULT = "PLENO"
     config.BERU_MODO_COMBATE_DEFAULT = "CAZA"
     config.BERU_VACIO_ANSIEDAD = float(os.environ.get("BERU_VACIO_ANSIEDAD", "0.012"))
-    config.BERU_CAZADOR_MORDIDA_USD = float(os.environ.get("BERU_CAZADOR_MORDIDA_USD", "10"))
-    config.BERU_CAZA_CAPA1_USD = float(os.environ.get("BERU_CAZA_CAPA1_USD", "10"))
+    mordida = float(os.environ.get("BERU_CAZADOR_MORDIDA_USD")
+                    or os.environ.get("LIVE_BERU_MORDIDA_USD", "20")
+                    or 20)
+    config.BERU_CAZADOR_MORDIDA_USD = mordida
+    config.BERU_CAZA_CAPA1_USD = mordida
+    config.BERU_SPOT_MARGEN_ENABLED = True
+    config.BERU_SPOT_MARGEN_LEVERAGE = int(
+        float(os.environ.get("BERU_SPOT_MARGEN_LEVERAGE", "10"))
+    )
+    config.BERU_RAIL_USDT_ONLY = True
     config.GREED_KAISER_ENABLED = False
     config.GREED_VIP_ENABLED = False
     config.GREED_BASIS_HOLD_ENABLED = False
@@ -316,7 +356,7 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
     if not config.TESTNET:
         raise SystemExit("ABORT: MODO_TESTNET debe ser True (campo de entrenamiento)")
 
-    seg_cfg = float(getattr(config, "LIVE_BERU_SEGUNDOS", 1800))
+    seg_cfg = float(getattr(config, "LIVE_BERU_SEGUNDOS", 3600))
     seg = float(segundos if segundos is not None else seg_cfg)
     infinito = seg <= 0
     activos = _activos_cfg(activos_arg)
@@ -343,6 +383,7 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
     vacio_pct = CAPITAN_ANSIEDAD_LIVE.vacio_adan * 100
     gat_pct = gatillo_pct(CAPITAN_ANSIEDAD_LIVE.vacio_adan) * 100
     masa = mordida_usd()
+    lev = int(getattr(config, "BERU_SPOT_MARGEN_LEVERAGE", 10))
 
     print("")
     print("=" * 56)
@@ -350,7 +391,8 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
     print("  Manos: Bybit DEMO · Ojos: spot mainnet (REST+WS)")
     print(f"  Capitán: ANSIEDAD vacío {vacio_pct:.1f}% → gatillo ±{gat_pct:.1f}%")
     print("  Tier: PLENO / Mariscal · clon / nacimiento 0.1%")
-    print(f"  Modo: CAZA · Mordida ${masa:.0f}")
+    print(f"  Modo: CAZA · Mordida ${masa:.0f} · Spot margen {lev}x")
+    print(f"  Rails: solo USDT · Flota: {len(activos)} barcos")
     print(f"  Activos: {','.join(activos)}")
     print(f"  Vigilia: {'hasta Ctrl+C' if infinito else f'{seg:.0f}s'}")
     print("  Igris/Greed: hibernados")
@@ -381,14 +423,22 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
             print(f"[live-beru] wallet no leido: {e}")
             await tusk.actualizar_nav_real(10_000.0, 5.0)
 
-        # Reserva amplia para 5×$10 + engordes frontera
+        # Reserva amplia para flota × mordida
         tusk.masa_autorizada = max(float(tusk.masa_autorizada or 0), masa * max(8, len(activos) * 3))
         tusk.margen_ocupado = max(float(tusk.margen_ocupado or 0), 50.0)
+
+        # Forzar spot margen 10x (orden Alan)
+        margen_res = await bridge.activar_spot_margen(lev)
+        print(
+            f"[live-beru] Spot margen {lev}x → "
+            f"{'OK' if margen_res.exito else 'aviso: ' + str(margen_res.mensaje)}"
+        )
 
         await bellion.anotar(
             "LIVE_BERU", "INICIO",
             f"Ansiedad {vacio_pct:.1f}% gatillo±{gat_pct:.1f}% Mariscal CAZA "
-            f"${masa:.0f} activos={','.join(activos)} seg={seg if not infinito else 'inf'}",
+            f"${masa:.0f} USDT-only flota={len(activos)} margen={lev}x "
+            f"seg={seg if not infinito else 'inf'}",
         )
 
         t0 = time.time()
@@ -474,6 +524,9 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
                 "modo_combate": "CAZA",
                 "mordida_usd": masa,
                 "activos": activos,
+                "n_flota": len(activos),
+                "rail": "USDT_ONLY",
+                "spot_margen_x": lev,
                 "igris_hibernado": True,
                 "greed_hibernado": True,
             },
@@ -552,9 +605,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Beru live testnet 3.9.9")
     parser.add_argument(
         "--segundos", type=float, default=None,
-        help="Vigilia en segundos (0 = hasta Ctrl+C). Default LIVE_BERU_SEGUNDOS o 1800.",
+        help="Vigilia en segundos (0 = hasta Ctrl+C). Default LIVE_BERU_SEGUNDOS o 3600.",
     )
-    parser.add_argument("--activos", type=str, default=None, help="Ej: ETH,BTC,LTC,SOL,OP")
+    parser.add_argument(
+        "--activos", type=str, default=None,
+        help="flota (=22 barcos) o lista ETH,BTC,... Default: flota USDT.",
+    )
     args = parser.parse_args()
     try:
         asyncio.run(run_live(args.segundos, args.activos))

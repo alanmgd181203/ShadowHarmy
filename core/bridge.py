@@ -246,7 +246,8 @@ class BybitBridge:
         return f"{prefijo}-{uid}"
 
     async def place_order(self, symbol, side, qty, order_type="Market",
-                          price=None, link_id=None, category="linear", market_unit=None):
+                          price=None, link_id=None, category="linear", market_unit=None,
+                          is_leverage=None):
         if not self.session:
             return OrdenResultado(False, mensaje="Sin sesión API configurada")
 
@@ -264,6 +265,10 @@ class BybitBridge:
 
         if market_unit:
             params["marketUnit"] = market_unit
+
+        # Spot margen: 1 = pedir prestado (isLeverage Bybit V5)
+        if is_leverage is not None and category == "spot":
+            params["isLeverage"] = int(is_leverage)
 
         if order_type == "Limit" and price is not None:
             params["price"] = str(price)
@@ -287,6 +292,48 @@ class BybitBridge:
         except Exception as e:
             await self.bel.anotar("BRIDGE", "ORDEN_ERROR", f"{str(e)} | LINK:{link_id}")
             return OrdenResultado(False, link_id=link_id, mensaje=str(e))
+
+    async def activar_spot_margen(self, leverage: int = 10) -> OrdenResultado:
+        """Enciende spot margen UTA y fija apalancamiento (hasta 10x)."""
+        if not self.session:
+            return OrdenResultado(False, mensaje="Sin sesión API configurada")
+        lev = max(2, min(10, int(leverage)))
+        try:
+            toggle = self.session.spot_margin_trade_toggle_margin_trade(spotMarginMode="1")
+            tcode = toggle.get("retCode")
+            tmsg = str(toggle.get("retMsg") or "")
+            if tcode not in (0, None) and "already" not in tmsg.lower():
+                await self.bel.anotar(
+                    "BRIDGE", "SPOT_MARGEN_TOGGLE",
+                    f"aviso ret={tcode} {tmsg}",
+                )
+            set_ok = False
+            last_msg = ""
+            for try_lev in (lev, 5, 2):
+                try:
+                    r = self.session.spot_margin_trade_set_leverage(leverage=str(try_lev))
+                    if r.get("retCode") == 0:
+                        set_ok = True
+                        lev = try_lev
+                        break
+                    last_msg = str(r.get("retMsg") or r)
+                except Exception as e:
+                    last_msg = str(e)
+            if set_ok:
+                await self.bel.anotar(
+                    "BRIDGE", "SPOT_MARGEN_ON",
+                    f"Spot margen activo · leverage {lev}x",
+                )
+                return OrdenResultado(True, mensaje=f"spot_margen {lev}x")
+            await self.bel.anotar(
+                "BRIDGE", "SPOT_MARGEN_LEV_FALLIDO",
+                f"No se fijó leverage: {last_msg}",
+            )
+            # Toggle pudo quedar on; seguimos con isLeverage en órdenes
+            return OrdenResultado(False, mensaje=last_msg or "leverage fallido")
+        except Exception as e:
+            await self.bel.anotar("BRIDGE", "SPOT_MARGEN_ERROR", str(e))
+            return OrdenResultado(False, mensaje=str(e))
 
     async def set_leverage(self, symbol, leverage, category="linear"):
         """Fija apalancamiento en Bybit V5 (/v5/position/set-leverage)."""

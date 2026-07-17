@@ -108,7 +108,7 @@ class BeruCazador:
             self._redes_residuales.append(rr)
 
     def plantar_semilla_adan(self, precio_actual):
-        nuevo_uid = f"BERU_SEM_{int(time.time())}"
+        nuevo_uid = f"BERU_SEM_{str(getattr(config, 'BERU_ACTIVO_SEMILLA', '') or 'X')}_{time.time_ns()}"
         semilla = BeruShip(
             uid=nuevo_uid, centro_local=precio_actual, masa=0.0,
             direccion="LONG", estado="ACECHANDO", generacion=1,
@@ -231,10 +231,25 @@ class BeruCazador:
 
         if not config.MODO_SIMULACION and self.bridge:
             side = "Buy" if is_long else "Sell"
-            market_unit = "quoteCoin" if categoria == "spot" and is_long else None
+            # Spot: Long = USD (quoteCoin); Short margen = monedas base (= masa_usd / precio)
+            market_unit = None
             qty_orden = beru.masa
+            is_lev = None
+            if categoria == "spot":
+                if getattr(config, "BERU_SPOT_MARGEN_ENABLED", False) or getattr(
+                    config, "LIVE_BERU_TESTNET", False
+                ):
+                    is_lev = 1
+                if is_long:
+                    market_unit = "quoteCoin"
+                    qty_orden = beru.masa
+                else:
+                    # Short spot: qty en base; masa doctrinal es USD
+                    px = float(p_ef) if p_ef and p_ef > 0 else 0.0
+                    qty_orden = (beru.masa / px) if px > 0 else beru.masa
             resultado = await self.bridge.place_order(
-                symbol, side, qty_orden, category=categoria, market_unit=market_unit,
+                symbol, side, qty_orden, category=categoria,
+                market_unit=market_unit, is_leverage=is_lev,
             )
             if not resultado.exito:
                 await self.tusk.liberar_reserva(beru.uid)
@@ -508,7 +523,7 @@ class BeruCazador:
         masa = beru_cazador.mordida_usd()
         if masa <= 0:
             return
-        nuevo_uid = f"BERU_CAPA{capa}_{int(time.time())}"
+        nuevo_uid = f"BERU_CAPA{capa}_{str(getattr(config, 'BERU_ACTIVO_SEMILLA', '') or 'X')}_{time.time_ns()}"
         barco = BeruShip(
             uid=nuevo_uid,
             centro_local=precio_actual,
@@ -819,12 +834,23 @@ class BeruCazador:
             side = "Sell" if barco.direccion == "LONG" else "Buy"
             market_unit = "quoteCoin" if categoria == "spot" and barco.direccion != "LONG" else None
             qty_orden = barco.masa
-            if categoria == "spot" and barco.direccion == "LONG":
-                qty_orden = float(getattr(barco, "qty_base_ejecutada", 0) or 0)
-                if qty_orden <= 0 and barco.precio_entrada_real > 0:
-                    qty_orden = barco.masa / barco.precio_entrada_real
+            is_lev = None
+            if categoria == "spot":
+                if getattr(config, "BERU_SPOT_MARGEN_ENABLED", False) or getattr(
+                    config, "LIVE_BERU_TESTNET", False
+                ):
+                    is_lev = 1
+                if barco.direccion == "LONG":
+                    qty_orden = float(getattr(barco, "qty_base_ejecutada", 0) or 0)
+                    if qty_orden <= 0 and barco.precio_entrada_real > 0:
+                        qty_orden = barco.masa / barco.precio_entrada_real
+                else:
+                    # Cerrar short: recomprar en quote USD
+                    market_unit = "quoteCoin"
+                    qty_orden = barco.masa
             resultado = await self.bridge.place_order(
-                symbol, side, qty_orden, category=categoria, market_unit=market_unit,
+                symbol, side, qty_orden, category=categoria,
+                market_unit=market_unit, is_leverage=is_lev,
             )
             if not resultado.exito:
                 await self.tusk.liberar_reserva(uid_cosecha)

@@ -9,16 +9,24 @@ import core.config as config
 STABLE_QUOTES = ("USDT", "USDC", "USDE", "USD1")
 
 
+def _quotes_activos() -> tuple[str, ...]:
+    """Live/USDT-only: solo USDT. Prod: todos los stables conocidos."""
+    if getattr(config, "BERU_RAIL_USDT_ONLY", False) or getattr(config, "LIVE_BERU_TESTNET", False):
+        return ("USDT",)
+    return STABLE_QUOTES
+
+
 def activo_semilla() -> str:
     return str(getattr(config, "BERU_ACTIVO_SEMILLA", "") or config.TICKER_BASE).upper()
 
 
 def frentes_casa_estables(base: str | None = None) -> list[str]:
-    """Todos los spot margin del activo semilla frente a stables conocidas."""
+    """Spot del activo semilla frente a stables (USDT-only si LIVE_BERU)."""
     b = (base or activo_semilla()).upper()
+    quotes = _quotes_activos()
     out: list[str] = []
     seen: set[str] = set()
-    for q in STABLE_QUOTES:
+    for q in quotes:
         f = f"{b}{q}_SPOT"
         if f not in seen:
             out.append(f)
@@ -26,16 +34,19 @@ def frentes_casa_estables(base: str | None = None) -> list[str]:
     for p in getattr(config, "SPOT_ALL_PARES", []) or []:
         bc = str(p.get("baseCoin") or "").upper()
         qc = str(p.get("quoteCoin") or "").upper()
-        if bc == b and qc in STABLE_QUOTES:
+        if bc == b and qc in quotes:
             frente = str(p.get("frente") or f"{bc}{qc}_SPOT")
             if frente not in seen:
                 out.append(frente)
                 seen.add(frente)
-    # Fallback config legacy
+    # Fallback config legacy — filtrar a quotes activos
     for f in getattr(config, "FRENTES_CASA", []) or []:
-        if f.startswith(b) and f not in seen:
-            out.append(f)
-            seen.add(f)
+        if not f.startswith(b) or f in seen:
+            continue
+        if quotes == ("USDT",) and "USDT" not in f.split("_")[0]:
+            continue
+        out.append(f)
+        seen.add(f)
     return out
 
 

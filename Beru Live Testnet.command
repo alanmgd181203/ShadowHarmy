@@ -1,7 +1,7 @@
 #!/bin/bash
 # Doble clic Finder (macOS México) → Beru LIVE TESTNET checklist 3.9.9
-# Órdenes REALES en Bybit DEMO. Ansiedad 1.2% (gatillo ±0.6%), Mariscal, CAZA ~$10.
-# Sin Igris/Greed. 5 monedas spot por defecto.
+# Órdenes REALES en Bybit DEMO. Ansiedad 1.2% (gatillo ±0.6%), Mariscal, CAZA ~$20.
+# 22 barcos flota · solo USDT · spot margen 10x. Sin Igris/Greed.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -10,9 +10,10 @@ cd "$ROOT"
 LOG_DIR="$ROOT/data/logs"
 mkdir -p "$LOG_DIR" "$ROOT/data"
 
-SEGUNDOS="${LIVE_BERU_SEGUNDOS:-1800}"
-ACTIVOS="${LIVE_BERU_ACTIVOS:-ETH,BTC,LTC,SOL,OP}"
-MORDIDA="${LIVE_BERU_MORDIDA_USD:-10}"
+SEGUNDOS="${LIVE_BERU_SEGUNDOS:-3600}"
+ACTIVOS="${LIVE_BERU_ACTIVOS:-flota}"
+MORDIDA="${LIVE_BERU_MORDIDA_USD:-20}"
+LEV="${BERU_SPOT_MARGEN_LEVERAGE:-10}"
 
 echo ""
 echo "═══════════════════════════════════════════════"
@@ -21,8 +22,9 @@ echo "════════════════════════�
 echo "  Manos: Bybit DEMO (órdenes reales spot)"
 echo "  Capitán: ANSIEDAD 1.2% → gatillo ±0.6%"
 echo "  Tier: Mariscal (PLENO) · clon 0.1%"
-echo "  Modo: CAZA · Mordida \$${MORDIDA}"
-echo "  Ojos: ${SEGUNDOS}s · Activos: ${ACTIVOS}"
+echo "  Modo: CAZA · Mordida \$${MORDIDA} · margen ${LEV}x"
+echo "  Rails: solo USDT · Activos: ${ACTIVOS}"
+echo "  Ojos: ${SEGUNDOS}s (~$((SEGUNDOS / 60)) min)"
 echo "═══════════════════════════════════════════════"
 echo ""
 
@@ -39,11 +41,15 @@ source "$ROOT/.venv/bin/activate"
 export LIVE_BERU_TESTNET=true
 export LIVE_BERU_SEGUNDOS="$SEGUNDOS"
 export LIVE_BERU_ACTIVOS="$ACTIVOS"
+export LIVE_BERU_MORDIDA_USD="$MORDIDA"
 export BERU_CAZADOR_MORDIDA_USD="$MORDIDA"
 export BERU_CAZA_CAPA1_USD="$MORDIDA"
 export BERU_TIER_DEFAULT=PLENO
 export BERU_MODO_COMBATE_DEFAULT=CAZA
 export BERU_VACIO_ANSIEDAD=0.012
+export BERU_SPOT_MARGEN_ENABLED=true
+export BERU_SPOT_MARGEN_LEVERAGE="$LEV"
+export BERU_RAIL_USDT_ONLY=true
 export MODO_TESTNET=True
 export MODO_SIMULACION=False
 export GREED_KAISER_ENABLED=false

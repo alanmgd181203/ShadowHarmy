@@ -343,9 +343,12 @@ LIVE_IGRIS_SIN_PACIENCIA = os.getenv("LIVE_IGRIS_SIN_PACIENCIA", "false").lower(
 # Live Beru testnet — scripts/beru_live_testnet.py (checklist 3.9.9)
 # Ansiedad 1.2% → gatillo ±0.6% · Mariscal PLENO clon 0.1% · CAZA · ~$10
 LIVE_BERU_TESTNET = os.getenv("LIVE_BERU_TESTNET", "false").lower() == "true"
-LIVE_BERU_SEGUNDOS = float(os.getenv("LIVE_BERU_SEGUNDOS", "1800"))  # 30 min; 0 = Ctrl+C
-LIVE_BERU_ACTIVOS = os.getenv("LIVE_BERU_ACTIVOS", "ETH,BTC,LTC,SOL,OP")
-LIVE_BERU_MORDIDA_USD = float(os.getenv("LIVE_BERU_MORDIDA_USD", "10"))
+LIVE_BERU_SEGUNDOS = float(os.getenv("LIVE_BERU_SEGUNDOS", "3600"))  # 1 h; 0 = Ctrl+C
+LIVE_BERU_ACTIVOS = os.getenv("LIVE_BERU_ACTIVOS", "flota")  # flota = 22 barcos USDT
+LIVE_BERU_MORDIDA_USD = float(os.getenv("LIVE_BERU_MORDIDA_USD", "20"))
+BERU_SPOT_MARGEN_ENABLED = os.getenv("BERU_SPOT_MARGEN_ENABLED", "false").lower() == "true"
+BERU_SPOT_MARGEN_LEVERAGE = int(float(os.getenv("BERU_SPOT_MARGEN_LEVERAGE", "10")))
+BERU_RAIL_USDT_ONLY = os.getenv("BERU_RAIL_USDT_ONLY", "false").lower() == "true"
 
 GREED_MANTO_EJECUTOR = os.getenv("GREED_MANTO_EJECUTOR", "false").lower() == "true"
 GREED_VIP_PERMITIR_EN_LEY_MARCIAL = os.getenv("GREED_VIP_PERMITIR_EN_LEY_MARCIAL", "true").lower() == "true"
