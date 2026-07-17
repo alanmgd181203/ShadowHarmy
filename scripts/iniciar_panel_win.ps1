@@ -81,7 +81,15 @@ Start-Process $url
 
 Write-Host ""
 Write-Host "Panel listo." -ForegroundColor Green
-Write-Host ("  Pergamino: {0}" -f $url)
+Write-Host ("  Pergamino (PC): {0}" -f $url)
+try {
+    $lan = (Get-NetIPAddress -AddressFamily IPv4 |
+        Where-Object { $_.IPAddress -notmatch '^127\.' -and $_.IPAddress -notmatch '^169\.' } |
+        Select-Object -First 1 -ExpandProperty IPAddress)
+    if ($lan) {
+        Write-Host ("  Pergamino (telefono misma WiFi): http://{0}:{1}/dashboard_sombras.html" -f $lan, $Puerto) -ForegroundColor Cyan
+    }
+} catch {}
 Write-Host ("  http.server PID {0}" -f $httpProc.Id)
 if ($ArisePid) { Write-Host ("  arise.py PID {0}" -f $ArisePid) }
 Write-Host "  Detener: .\scripts\detener_panel_win.ps1"

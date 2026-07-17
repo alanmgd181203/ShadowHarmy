@@ -121,7 +121,8 @@ def escanear_mejor_regalo_usdt_usdc(ctx_map):
     return mejor
 
 
-def calcular_banda_delta(margen: float):
+def calcular_banda_delta_legacy(margen: float):
+    """Banda simétrica que se estrecha con margen % — legacy (pre 3.5.8c)."""
     if margen <= config.DELTA_MARGEN_RELAJADO:
         tolerancia = config.DELTA_TOLERANCIA_MAX
     elif margen >= config.DELTA_MARGEN_PARANOICO:
@@ -134,7 +135,20 @@ def calcular_banda_delta(margen: float):
     return (0.50 - tolerancia, 0.50 + tolerancia)
 
 
+def calcular_banda_delta(margen: float):
+    """Ley L/S vigente: ventana 48–52 si activa; si no, legacy por margen."""
+    from core import manto_ventana as mv
+
+    if mv.ventana_activa():
+        return mv.banda_crecimiento()
+    return calcular_banda_delta_legacy(margen)
+
+
 def calcular_banda_frente(margen: float, frente: str):
+    from core import manto_ventana as mv
+
+    if mv.ventana_activa():
+        return mv.banda_crecimiento()
     if margen <= config.DELTA_MARGEN_RELAJADO:
         tolerancia_base = config.DELTA_TOLERANCIA_MAX
     elif margen >= config.DELTA_MARGEN_PARANOICO:
@@ -150,11 +164,15 @@ def calcular_banda_frente(margen: float, frente: str):
 
 
 def verificar_delta_post_maniobra(margen, masa_long_nueva, masa_short_nueva):
+    from core import manto_ventana as mv
+
     total = masa_long_nueva + masa_short_nueva
     if total <= 0:
         return True
+    if mv.ventana_activa():
+        return mv.verificar_post_maniobra(masa_long_nueva, masa_short_nueva)
     ratio = masa_long_nueva / total
-    banda_min, banda_max = calcular_banda_delta(margen)
+    banda_min, banda_max = calcular_banda_delta_legacy(margen)
     return banda_min <= ratio <= banda_max
 
 
@@ -162,6 +180,10 @@ def verificar_delta_frente(margen, frente, masa_long_frente, masa_short_frente):
     total = masa_long_frente + masa_short_frente
     if total <= 0:
         return True
+    from core import manto_ventana as mv
+
+    if mv.ventana_activa():
+        return mv.verificar_post_maniobra(masa_long_frente, masa_short_frente)
     ratio = masa_long_frente / total
     banda_min, banda_max = calcular_banda_frente(margen, frente)
     return banda_min <= ratio <= banda_max

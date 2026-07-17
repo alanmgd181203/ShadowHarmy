@@ -19,7 +19,7 @@ function Stop-NamedPython {
 
 Write-Host "Deteniendo panel..." -ForegroundColor Yellow
 
-foreach ($name in @("panel_arise.pid", "panel_http.pid")) {
+foreach ($name in @("panel_arise.pid", "panel_http.pid", "panel_tunnel.pid")) {
     $path = Join-Path $Root "data\$name"
     if (Test-Path $path) {
         $pidVal = (Get-Content $path -ErrorAction SilentlyContinue | Select-Object -First 1)
@@ -32,6 +32,12 @@ foreach ($name in @("panel_arise.pid", "panel_http.pid")) {
 
 Stop-NamedPython "arise\.py"
 Stop-NamedPython "http.server\s+$Puerto"
+
+Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -match "cloudflared" -and $_.CommandLine -match "tunnel" } |
+    ForEach-Object {
+        try { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue } catch {}
+    }
 
 Get-NetTCPConnection -LocalPort $Puerto -State Listen -ErrorAction SilentlyContinue |
     ForEach-Object {

@@ -19,10 +19,18 @@ def asegurar_peso(pesos: dict, frente: str) -> dict:
             "short": 0.0,
             "precio_medio_long": 0.0,
             "precio_medio_short": 0.0,
+            "baseline_long": 0.0,
+            "baseline_short": 0.0,
+            "fees_paid_long": 0.0,
+            "fees_paid_short": 0.0,
         }
     else:
         pesos[frente].setdefault("precio_medio_long", 0.0)
         pesos[frente].setdefault("precio_medio_short", 0.0)
+        pesos[frente].setdefault("baseline_long", 0.0)
+        pesos[frente].setdefault("baseline_short", 0.0)
+        pesos[frente].setdefault("fees_paid_long", 0.0)
+        pesos[frente].setdefault("fees_paid_short", 0.0)
     return pesos[frente]
 
 
@@ -32,20 +40,61 @@ def actualizar_promedio(
     direccion: str,
     masa: float,
     precio: float,
+    fee_usd: float = 0.0,
 ) -> None:
-    """Promedio ponderado de entrada por pierna (§E contabilidad)."""
+    """Promedio ponderado de entrada por pierna (§E contabilidad).
+
+    En la primera apertura de la pierna fija `baseline_*` (precio original
+    para auditoría de mejora Igris). Acumula fees del fill si vienen del Bridge.
+    """
     if masa <= 0 or precio <= 0:
         return
     pf = asegurar_peso(pesos, frente)
     key_masa = "long" if direccion == "LONG" else "short"
     key_px = "precio_medio_long" if direccion == "LONG" else "precio_medio_short"
+    key_base = "baseline_long" if direccion == "LONG" else "baseline_short"
+    key_fee = "fees_paid_long" if direccion == "LONG" else "fees_paid_short"
     prev_m = float(pf[key_masa])
     prev_px = float(pf[key_px])
-    nueva_m = prev_m + masa
     if prev_m <= 0 or prev_px <= 0:
         pf[key_px] = precio
     else:
-        pf[key_px] = (prev_m * prev_px + masa * precio) / nueva_m
+        pf[key_px] = (prev_m * prev_px + masa * precio) / (prev_m + masa)
+    # Baseline = primera sangre de la pierna; no se reescribe al optimizar
+    if float(pf.get(key_base) or 0) <= 0:
+        pf[key_base] = precio
+    if fee_usd and fee_usd > 0:
+        pf[key_fee] = float(pf.get(key_fee) or 0) + float(fee_usd)
+
+
+def baselines_activo(pesos: dict, symbol: str) -> dict[str, float]:
+    """Baseline L/S agregados para un activo (primer fill por pierna)."""
+    s = str(symbol or "").upper()
+    bl = bs = 0.0
+    for frente, p in (pesos or {}).items():
+        if not str(frente).upper().startswith(s):
+            continue
+        if float(p.get("long") or 0) > 0:
+            v = float(p.get("baseline_long") or 0)
+            if v > 0:
+                bl = v
+        if float(p.get("short") or 0) > 0:
+            v = float(p.get("baseline_short") or 0)
+            if v > 0:
+                bs = v
+    return {"long": bl, "short": bs}
+
+
+def fees_activo(pesos: dict, symbol: str) -> dict[str, float]:
+    """Fees acumulados L/S para un activo."""
+    s = str(symbol or "").upper()
+    fl = fs = 0.0
+    for frente, p in (pesos or {}).items():
+        if not str(frente).upper().startswith(s):
+            continue
+        fl += float(p.get("fees_paid_long") or 0)
+        fs += float(p.get("fees_paid_short") or 0)
+    return {"long": fl, "short": fs}
 
 
 def resumen_promedios(pesos: dict) -> list[dict[str, Any]]:

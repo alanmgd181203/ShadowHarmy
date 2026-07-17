@@ -123,7 +123,7 @@
 | 1 | Bootstrap inverse L + lineal S | ✅ |
 | 2 | `precio_medio` por pierna en `pesos` | ✅ |
 | 3 | Ancla + Ask/Bid + mordida (`igris_despliegue`) | ✅ 3.5.8b / 3.10 |
-| 4 | Sesgo long / banda asimétrica | ❌ 3.5.8c |
+| 4 | Ventana 48–52 / long-primero | 📋 doctrina ✅ 2026-07-17 · motor ❌ · ranking fusión pendiente |
 | 5 | Live testnet despliegue | ❌ 3.10.7 |
 
 **Validación:** `validar_igris_smoke.py`

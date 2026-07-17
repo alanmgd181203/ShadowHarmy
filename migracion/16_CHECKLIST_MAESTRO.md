@@ -99,7 +99,7 @@
 
 ## FASE 3 — 🟡 M2: Pentiverso dual LTC+BTC — **~91%** (2026-07-12)
 
-*Criterio fase:* 10 `MarketContext` con precio real; Greed USDT×USDC en LTC y BTC; ciclo ejército validado (3.6). **Beru doctrina 3.9** y **Igris §E v2 (3.10)** en smokes. **Pendiente:** Igris live 3.10.7; sesgo long (3.5.8c), 3.7.P*, Karmish.
+*Criterio fase:* 10 `MarketContext` con precio real; Greed USDT×USDC en LTC y BTC; ciclo ejército validado (3.6). **Beru doctrina 3.9** + **live 3.9.9 ✅**. **Igris §E v2 + live 3.10.7b ✅**. **3.5.8c** doctrina ventana 48–52 ✅ checkpoint · motor/ranking pendientes. **Pendiente:** 3.7.P*, Karmish.
 
 *Validación 2026-07-05:* `validar_m2.py` → **10/10 mares**. *Validación Beru 2026-07-09:* smokes + `validar_ciclo_beru_eth.py`. *Igris 2026-07-12:* `validar_igris_smoke.py` + `igris_despliegue`. Runbook: `18_ARRANQUE_TESTNET.md`.
 
@@ -131,7 +131,7 @@
 - [x] **3.5.7** Beru capital + ProtoBeru — `22_DOCTRINA_BERU.md`, `beru_tier.py`, `beru_capital.py`, cableado `beru.py`, capitanes 1.2/1.6%
 - [x] **3.5.8a** Igris §E v1 — bootstrap inverse L + lineal S + promedios pierna *(2026-07-05)*
 - [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
-- [ ] **3.5.8c** Igris §E — sesgo long / banda delta asimétrica *(pendiente doctrina)*
+- [~] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `core/manto_ventana.py` (Igris/mercado/Bellion) · ranking/mitad/dual-Kaiser/manto-completo aplazados a fusión
 
 - [~] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) + `plan_crecimiento.py` *(v1 checkpoint 2026-07-06; botín runtime y mérito pendiente)*
 
@@ -358,7 +358,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino (`dashboard_sombras.html`) — Cascada 6 portales (Códice Vol II) ✅; unificar Streamlit pendiente
+- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail (Sub-Santuario) cableado Bridge (IM/lev/marks/fees/baseline → `igris_asset_details` en estado_vivo) · unificar Streamlit pendiente · commit/push forja pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑
@@ -369,7 +369,7 @@
 
 | Horizonte | Fases | Meta en una frase |
 |-----------|-------|-------------------|
-| **Ahora** | 3 cierre + 4 | Live testnet Beru/Igris §E · **o** Telegram + safe mode |
+| **Ahora** | 3 cierre + 4 | 3.5.8c motor (doctrina ✅) · ranking fusión · Telegram 4.1 · commit Pergamino |
 | **Semanas** | 2–3 | ✅ Testnet + pentiverso + Beru doctrina + Igris despliegue |
 | **Meses** | 4–6 | **Ops** + **mainnet** + estrategia madura |
 | **Trimestres** | 7–9 | Más activos, Surge, entrenamiento |
@@ -383,24 +383,25 @@
 Fase 0:   5 /  5   ✅ 100%
 Fase 1:  19 / 19   ✅ 100%
 Fase 2:  20 / 20   ✅ 100%
-Fase 3:  72 / 78   ~92%  (3.5.8c sesgo; 3.7.P1–P3; 3.8.P3; 3.10.7; plan 23 ~)
+Fase 3:  72 / 78   ~92%  (3.5.8c doctrina✅/motor~; 3.7.P1–P3; 3.8.P3; plan 23 ~)
 Fase 4:   0 / 11   ~9%   ← ops Monarca (2 stubs Telegram/Safe)
 Fase 5:   0 / 13     0%
 Fase 6:   0 /  6     0%
 Fase 7:   2 /  5    40%
 Fase 8:   0 /  6     0%
 Fase 9:   0 /  5     0%
-Fase 10:  0 / 11   ~5%   (panel Pergamino v0 parcial)
+Fase 10:  0 / 11  ~10%   (Cascada ✅ · Manto/AssetDetail React forja local)
 ─────────────────────────────
 TOTAL:  118 / 179  ítems [x]  →  ~66% checklist completo
         + 3 parciales [~]     →  ~67% (parciales al 50%)
 Núcleo operativo (Fases 0–3): 116 / 122  →  ~95%
 ```
 
-**Última actualización checklist:** 2026-07-16 (3.9.9 Beru live PASS · flota 22 USDT · margen 10x)  
-**Próximo ítem recomendado:** **3.10.7** Igris live testnet · **3.5.8c** sesgo long · o **4.1.2** Telegram  
-**Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital  
-**Smokes Igris:** `validar_igris_smoke.py`  
+**Última actualización checklist:** 2026-07-17 (checkpoint 3.5.8c doctrina ventana 48–52 · Sub-Santuario Bridge · lives ✅)  
+**Próximo ítem recomendado:** motor 3.5.8c **o** ranking fusión · **4.1.2** Telegram · commit Pergamino · **3.7.P***  
+ 
+**Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py`  
+**Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
 **Runbook testnet:** `18_ARRANQUE_TESTNET.md`  
 **Validar estado:** `python scripts/validar_checklist.py`  
 **Validar sentidos Tank:** `python scripts/validar_panorama_tank.py --segundos 35`
@@ -413,9 +414,9 @@ Núcleo operativo (Fases 0–3): 116 / 122  →  ~95%
 Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
-Fases 0–2 ✅ · Fase 3 ~92% (Beru 3.9.9 live ✅ · Igris §E v2 ✅ · 3.10.7 live pendiente).
-Siguiente: 3.10.7 Igris live · 3.5.8c sesgo long · o Fase 4 Telegram.
-Validar: scripts/validar_*_smoke.py + validar_ciclo_beru_eth.py + validar_igris_smoke.py
+Fases 0–2 ✅ · Fase 3 ~92% (Beru 3.9.9 live ✅ · Igris §E v2 + 3.10.7b live ✅).
+Siguiente: 3.5.8c motor (doctrina checkpoint ✅) · ranking fusión · 4.1.2 Telegram · commit Pergamino.
+Validar: scripts/validar_*_smoke.py + validar_ciclo_beru_eth.py + validar_igris_smoke.py + validar_igris_asset_detail_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).
 ```

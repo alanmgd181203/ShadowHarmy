@@ -156,7 +156,15 @@ class TuskBoveda:
             self.masa_reservada_ltc += masa
             return True
 
-    async def confirmar_reserva(self, uid: str, frente: str, direccion: str, fill_confirmado=True, precio_fill: float | None = None):
+    async def confirmar_reserva(
+        self,
+        uid: str,
+        frente: str,
+        direccion: str,
+        fill_confirmado=True,
+        precio_fill: float | None = None,
+        fee_usd: float | None = None,
+    ):
         """
         Fija el peso de la sombra en un muelle real.
         En MODO_SIMULACION=False, requiere fill_confirmado=True (caller debe verificar).
@@ -171,12 +179,17 @@ class TuskBoveda:
                 sombra = self.reservas_activas[uid]
                 dir_key = "long" if direccion == "LONG" else "short"
 
-                if frente not in self.pesos:
-                    self.pesos[frente] = {"long": 0.0, "short": 0.0}
+                from core import igris_manto as im
+                im.asegurar_peso(self.pesos, frente)
 
                 if precio_fill and precio_fill > 0:
-                    from core import igris_manto as im
-                    im.actualizar_promedio(self.pesos, frente, direccion, sombra.masa, precio_fill)
+                    im.actualizar_promedio(
+                        self.pesos, frente, direccion, sombra.masa, precio_fill,
+                        fee_usd=float(fee_usd or 0),
+                    )
+                elif fee_usd and fee_usd > 0:
+                    key_fee = "fees_paid_long" if direccion == "LONG" else "fees_paid_short"
+                    self.pesos[frente][key_fee] = float(self.pesos[frente].get(key_fee) or 0) + float(fee_usd)
                 self.pesos[frente][dir_key] += sombra.masa
                 # Ya anclada: sale del tránsito (la masa auth permanece consumida)
                 self.reservas_activas.pop(uid, None)

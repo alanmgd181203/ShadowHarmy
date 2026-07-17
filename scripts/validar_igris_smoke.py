@@ -23,13 +23,23 @@ def test_fases_margen():
 
 
 def test_banda_delta():
+    from core import manto_ventana as mv
+
+    # Ventana 48–52 activa: independiente del margen
     b_lo = mercado.calcular_banda_delta(50)
     b_hi = mercado.calcular_banda_delta(96)
-    assert b_lo[0] < 0.5 < b_lo[1]
-    assert b_hi[0] == b_hi[1] == 0.5
+    assert abs(b_lo[0] - mv.long_min_operativo()) < 1e-9
+    assert abs(b_lo[1] - mv.long_max()) < 1e-9
+    assert b_lo == b_hi  # ya no se estrecha con margen
     assert mercado.verificar_delta_post_maniobra(50, 50, 50)
+    assert mercado.verificar_delta_post_maniobra(50, 52, 48)
     assert not mercado.verificar_delta_post_maniobra(50, 80, 20)
-    print("  banda delta OK:", b_lo, "->", b_hi)
+    assert not mercado.verificar_delta_post_maniobra(50, 47, 53)
+    # Legacy aún existe
+    leg = mercado.calcular_banda_delta_legacy(96)
+    assert leg[0] == leg[1] == 0.5
+    print("  ventana 48-52 OK:", b_lo)
+
 
 
 def test_resumen_manto():

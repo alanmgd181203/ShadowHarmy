@@ -382,6 +382,12 @@ DELTA_TOLERANCIA_MAX = 0.05
 DELTA_MARGEN_RELAJADO = 70.0
 DELTA_MARGEN_PARANOICO = 95.0
 
+# Ventana 48–52 / long-primero (doctrina 21 checkpoint 3.5.8c) — sustituye banda-por-margen como ley L/S
+MANTO_VENTANA_4852_ACTIVA = os.getenv("MANTO_VENTANA_4852_ACTIVA", "true").lower() == "true"
+MANTO_VENTANA_LONG_MAX = float(os.getenv("MANTO_VENTANA_LONG_MAX", "0.52"))
+MANTO_VENTANA_LONG_MIN = float(os.getenv("MANTO_VENTANA_LONG_MIN", "0.48"))
+MANTO_VENTANA_LONG_MIN_CORRECCION = float(os.getenv("MANTO_VENTANA_LONG_MIN_CORRECCION", "0.49"))
+
 SLIPPAGE_FACTOR = {
     "LTCUSDT_LINEAL": 0.7,
     "LTCUSDC_LINEAL": 0.7,

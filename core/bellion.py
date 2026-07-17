@@ -124,8 +124,10 @@ class BellionAuditor:
         igris_resumen["promedios_pierna"] = im.resumen_promedios(tusk.pesos)
         from core import plan_crecimiento as pc
         from core import beru_capital as bc
+        from core import manto_ventana as mv
         eq = float(tusk.masa_bruta_real or tusk.masa_bruta or 0)
         igris_resumen["plan_crecimiento"] = pc.resumen_plan(eq)
+        igris_resumen["ventana_manto"] = mv.resumen_barco(peso_l, peso_s)
         progresion = bc.telemetria_progresion(eq)
 
         legion_resumen = []
@@ -185,6 +187,12 @@ class BellionAuditor:
             "legion": legion_resumen,
             "ciclos_consumados": tusk.total_ciclos_consumados,
         }
+
+        try:
+            from core import igris_asset_detail as iad
+            snapshot["igris_asset_details"] = iad.mapa_asset_details(snapshot)
+        except Exception:
+            snapshot["igris_asset_details"] = {}
 
         try:
             with open("data/estado_vivo.json", "w", encoding="utf-8") as f:

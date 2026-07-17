@@ -437,12 +437,24 @@ class BybitBridge:
                         if (order_id and oid == order_id) or (link_id and olid == link_id):
                             status = orden.get("orderStatus", "")
                             if status == "Filled":
-                                avg_price = float(orden.get("avgPrice", 0))
-                                cum_qty = float(orden.get("cumExecQty", 0))
-                                await self.bel.anotar("BRIDGE", "FILL_CONFIRMADO", f"{symbol} {cum_qty}@{avg_price}")
+                                avg_price = float(orden.get("avgPrice", 0) or 0)
+                                cum_qty = float(orden.get("cumExecQty", 0) or 0)
+                                try:
+                                    cum_fee = float(orden.get("cumExecFee") or 0)
+                                except (TypeError, ValueError):
+                                    cum_fee = 0.0
+                                await self.bel.anotar(
+                                    "BRIDGE", "FILL_CONFIRMADO",
+                                    f"{symbol} {cum_qty}@{avg_price} fee={cum_fee}",
+                                )
                                 return OrdenResultado(
                                     True, order_id=oid, link_id=olid,
-                                    datos={"avgPrice": avg_price, "cumExecQty": cum_qty, "orderStatus": status},
+                                    datos={
+                                        "avgPrice": avg_price,
+                                        "cumExecQty": cum_qty,
+                                        "cumExecFee": cum_fee,
+                                        "orderStatus": status,
+                                    },
                                 )
                             elif status in ("Cancelled", "Rejected", "Deactivated"):
                                 return OrdenResultado(False, order_id=oid, link_id=olid, mensaje=f"Orden {status}")

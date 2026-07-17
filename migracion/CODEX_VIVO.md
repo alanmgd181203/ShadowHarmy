@@ -59,13 +59,17 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Fase A+B:** 2026-06-30
 - **M0–M2:** COMPLETADO — 2026-07-05 (pentiverso dual + ciclo ejército)
 - **M2.7–M2.12:** Tank sentidos · Kaiser · Greed · Beru Proto · Igris §E v1 · plan 23
-- **M2.13 Beru doctrina cirugía:** residual / frontera / colisión oz / Mega reset / fricción / flota — 2026-07-09→12 (smokes ✅; live pendiente)
+- **M2.13 Beru doctrina cirugía:** residual / frontera / colisión oz / Mega reset / fricción / flota — 2026-07-09→12 (smokes ✅)
 - **M2.14 Igris §E v2 + panel:** `igris_despliegue` · jurisdicción · Pergamino — 2026-07-11→12
+- **3.10.7b Igris live:** PASS México 2026-07-12
+- **3.9.9 Beru live:** PASS México 2026-07-16 (Jess · `61d7c2e` · flota 22 USDT)
+- **Pergamino React (local):** Cascada → Manto → AssetDetail; Sub-Santuario **cableado Bridge**; smoke asset_detail 6/6
+- **3.5.8c:** doctrina + **motor v1** `manto_ventana` (2026-07-17) · ranking fusión pendiente
 - **Cuartel México:** remoto público + colaboradora Jessica — 2026-07-09
-- **Checklist global:** ~66% (117/179) · núcleo Fases 0–3 ~94%
-- **Estado código:** Fase 3 ~91% · falta live testnet y sesgo long
-- **Próximo ítem checklist:** **3.9.9 / 3.10.7** live · **3.5.8c** sesgo long · o **4.1.2** Telegram
-- **Validar:** `python scripts/validar_checklist.py` · `validar_ciclo_beru_eth.py` · `validar_igris_smoke.py`
+- **Checklist global:** ~67% (118/179) · núcleo Fases 0–3 ~95%
+- **Estado código:** Fase 3 ~92% · lives ✅ · Sub-Santuario + ventana 48–52 en código · falta ranking/Telegram
+- **Próximo ítem checklist:** **ranking fusión** · **4.1.2** Telegram · commit forja · **3.7.P***
+- **Validar:** `validar_checklist.py` · `validar_igris_smoke.py` · `validar_manto_ventana_smoke.py` · `validar_igris_asset_detail_smoke.py`
 - **Tono obligatorio:** `17_GUIA_MONARCA.md` — términos del Ejército en cada respuesta al Monarca
 
 ---

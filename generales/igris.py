@@ -47,7 +47,12 @@ class IgrisEscudo:
         self._ultimo_heartbeat_evento = 0.0
 
     def calcular_banda_delta(self):
-        return mercado.calcular_banda_delta(self.tusk.margen_ocupado)
+        """Ventana 48–52 (crecimiento) o legacy por margen si flag off."""
+        from core import manto_ventana as mv
+
+        if mv.ventana_activa():
+            return mv.banda_crecimiento()
+        return mercado.calcular_banda_delta_legacy(self.tusk.margen_ocupado)
 
     def _umbral_capital_grado(self, rangos: dict, grado: str) -> float:
         """Capital aislado que exige el grado (costos_friccion / rangos_activo)."""
@@ -242,20 +247,27 @@ class IgrisEscudo:
         if en_cooldown:
             return
 
-        # Rebalanceo + engorde siempre (Doctrina B). El 95% NO aborta la puerta.
+        # Rebalanceo + engorde (ventana 48–52 / long-primero). El 95% NO aborta la puerta.
         if masa_bruta > 0 and not rebalanceo_en_pausa_por_greed(self.tusk):
             ratio_l = peso_l_total / masa_bruta
             banda_min, banda_max = self.calcular_banda_delta()
             if ratio_l > banda_max:
-                await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% > banda")
+                await self.bel.anotar(
+                    "IGRIS", "REBALANCEO",
+                    f"Delta long {ratio_l*100:.1f}% > techo {banda_max*100:.0f}% (ventana 48-52)",
+                )
                 await self._ejecutar_maniobra("REBALANCEO_IGRIS", "SHORT", self.tusk.masa_autorizada)
                 return
             if ratio_l < banda_min:
-                await self.bel.anotar("IGRIS", "REBALANCEO", f"Delta {ratio_l*100:.1f}% < banda")
+                await self.bel.anotar(
+                    "IGRIS", "REBALANCEO",
+                    f"Delta long {ratio_l*100:.1f}% < piso {banda_min*100:.0f}% (ventana 48-52)",
+                )
                 await self._ejecutar_maniobra("REBALANCEO_IGRIS", "LONG", self.tusk.masa_autorizada)
                 return
 
-        dir_engorde = "LONG" if peso_l_total <= peso_s_total else "SHORT"
+        from core import manto_ventana as mv
+        dir_engorde = mv.direccion_engorde_preferida(peso_l_total, peso_s_total)
         ok_engorde = await self._ejecutar_maniobra_engorde(dir_engorde)
 
         # Ley Marcial: poda el exceso en ciclos posteriores si ya estamos sobre el horizonte
@@ -316,8 +328,18 @@ class IgrisEscudo:
             if not fill.exito:
                 await self.tusk.liberar_reserva(uid)
                 return False
-            px = float(getattr(fill, "precio", 0) or getattr(fill, "avg_price", 0) or precio_fill or 0)
-            await self.tusk.confirmar_reserva(uid, frente, direccion, fill_confirmado=True, precio_fill=px)
+            datos = getattr(fill, "datos", None) or {}
+            px = float(
+                datos.get("avgPrice")
+                or getattr(fill, "precio", 0)
+                or getattr(fill, "avg_price", 0)
+                or precio_fill
+                or 0
+            )
+            fee = float(datos.get("cumExecFee") or 0)
+            await self.tusk.confirmar_reserva(
+                uid, frente, direccion, fill_confirmado=True, precio_fill=px, fee_usd=fee,
+            )
         else:
             await self.tusk.confirmar_reserva(
                 uid, frente, direccion, precio_fill=precio_fill if precio_fill > 0 else None,

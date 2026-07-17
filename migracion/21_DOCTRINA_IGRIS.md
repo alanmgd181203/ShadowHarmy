@@ -1,15 +1,15 @@
 # 21 — Doctrina Igris (escudo del manto)
 
-**Estado:** §A + §C (parcial) + §E **v2** (bootstrap + Ancla + despliegue Ask/Bid) — sesgo long pendiente  
-**Código:** `generales/igris.py`, `core/igris_estado.py`, `core/igris_despliegue.py`, `core/manto_jurisdiccion.py`, `core/manto_touch.py`, `core/telemetria_igris.py`  
-**Actualizado:** 2026-07-12
+**Estado:** §A + §C (parcial) + §E **v2** + **3.5.8c motor v1** (ventana 48–52) — ranking fusión pendiente  
+**Código:** `generales/igris.py`, `core/igris_estado.py`, `core/igris_despliegue.py`, `core/manto_ventana.py`, `core/manto_jurisdiccion.py`, `core/manto_touch.py`, `core/telemetria_igris.py`, `core/igris_asset_detail.py`  
+**Actualizado:** 2026-07-17
 
 ---
 
 ## Rol
 
 **Igris** = dueño del **manto** (derivados L/S). Ejecuta **directo en Bridge**.  
-**Greed** = arbitraje Kaiser. No administra el manto; si toca un frente del manto, `core/manto_touch.py` marca cooldown para que Igris no rebalancee en falso.
+**Greed** = arbitraje Kaiser. No administra el manto; si toca un frente del manto, `core/manto_touch.py` marca cooldown para que Igris no rebalancee en falso. *(Exención Greed vs ventana 48–52: congelada — no definir aún.)*
 
 **Beru** = casa spot — fuera de oleada Kaiser→Greed.
 
@@ -31,6 +31,8 @@ RANGO_EXPANSION_MIN=80  RANGO_PISO_IDEAL=85  RANGO_OBJETIVO_MARGEN=90
 RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 ```
 
+**Nota 2026-07-17:** la **ventana 48–52** (abajo §E) **no** se deriva de esta tabla de margen %. Sustituye la idea vieja de “holgura que se estrecha 70→95” como ley de equilibrio L/S. §A sigue gobernando fases de margen / ley marcial.
+
 ---
 
 ## §C — Igris vs Greed — PARCIAL
@@ -42,10 +44,11 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 | Igris veta Greed desde margen > X | Pendiente |
 | Mega VIP requiere OK Igris | Pendiente |
 | SAFE_MODE: Igris sin engorde, sí poda | Pendiente |
+| Greed exento de ventana 48–52 | ❄️ Congelado — no abrir aún |
 
 ---
 
-## §E — Armado del manto — PARCIAL (v2 — 2026-07-12)
+## §E — Armado del manto — PARCIAL (v2 + checkpoint 3.5.8c)
 
 ### Piernas
 - **LONG** = inversos (USD) + futuros dated (rotación al vencer o si hay mejora).
@@ -57,33 +60,97 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 |------|--------|
 | Bootstrap inverse L + lineal S | ✅ `igris_manto.frentes_bootstrap` + `_bootstrap_manto` |
 | `precio_medio` por pierna en `pesos` | ✅ `igris_manto.actualizar_promedio` vía Tusk fill |
+| Baseline + fees en anclaje | ✅ `baseline_*` / `fees_paid_*` (2026-07-17) |
 | Panel promedios | ✅ `igris.promedios_pierna` en `estado_vivo.json` |
 | Jurisdicción manto Igris→Greed | ✅ `core/manto_jurisdiccion.py` |
 | Puerta §E Ask/Bid + fees ± urgencia | ✅ `core/igris_despliegue.evaluar_puerta_se` |
 | Reloj invertido Kaiser (paciencia) | ✅ `tau_paciencia_horas` / `factor_urgencia` |
 | Mordida = techo_misión × fracción(confianza) | ✅ sin pinza 85% ni tope 1% equity |
 | Ancla en techo de liquidez | ✅ `techo_mision_usd` usa profundidad Ancla |
-| Telemetría / panel Pergamino | ✅ `telemetria_igris` + `dashboard_sombras.html` |
+| Telemetría / Sub-Santuario Bridge | ✅ `telemetria_igris` + `igris_asset_details` |
+| Live testnet despliegue | ✅ **3.10.7b** PASS_LIVE México |
 
-### Pendiente
+---
+
+### Checkpoint doctrina 3.5.8c — Ventana 48–52 / long-primero (2026-07-17)
+
+**Estado:** doctrina **estipulada** + **motor v1 en código** (`core/manto_ventana.py`, 2026-07-17) · ranking (meta bloque, mitad engorde, Kaiser dual-book) = **aplazado a fusión**.
+
+**Motor v1:** `MANTO_VENTANA_4852_ACTIVA` (default true) · banda fija **49–52%** operativa (hard 48–52) · rebalanceo/engorde long-primero en Igris · `igris.ventana_manto` en estado_vivo · smoke `scripts/validar_manto_ventana_smoke.py`.
+
+#### Nombre provisional
+**Ventana 48–52 / long-primero (por barco)** — paridad de manto con sesgo long.
+
+#### Contabilidad del ratio (por barco = activo en mando, no global de cuenta)
+1. El candado se mide en **dólares abiertos** (nocional USD de cada pierna).
+2. Lineal (si Bybit cotiza en moneda): USD = `qty × precio_entrada` (nunca mark actual para empatar con lo abierto).
+3. **Manda el inverso** para el ratio (Bybit piensa el inverso en dólares). El lineal se convierte y se muestra para auditoría.
+4. Pergamino / Sub-Santuario: mostrar **USD + moneda en ambas piernas** + **sello de unidad de apertura** (`INVERSE→USD` / `LINEAR→COIN`), marca visual distinta.
+
+#### Candado (crecimiento del manto)
+| Regla | Valor |
+|-------|--------|
+| Meta ideal | ~**50/50**, acercarse lo más posible (50.1/49.9 long = prácticamente perfecto) |
+| Techo long | **52%** — **duro** para Igris; no violar en expansión |
+| Piso long | **48%** |
+| Short gordo (long &lt; 50%) | más apretado: long no baja de **49%** → short ≤ **51%** |
+| Ámbito | Solo fase de **crecimiento** por ahora; manto completo (solo mejorar entradas) = intención “52 sigue duro”, mecánica fina **después** (con ranking) |
+
+**No es** la holgura vieja ±5% que se estrecha con margen 70→95. Esa lógica **deja de ser la ley** de equilibrio L/S (sustituir en código cuando se implemente este checkpoint).
+
+#### Long-primero y corrección
+- La intención: el **primer** desequilibrio favorezca **long**.
+- En el **camino** hacia la meta del bloque (disparos chicos), puede haber momentos con short un poco arriba; al **llegar a la meta** → lo más cerca de 50/50 con ligera preferencia long.
+- Short ligeramente mayor solo **por barco**, y solo si en ese barco ya hubo más USD long (corregir hacia 50/50).
+- Cuanto más tiempo el manto esté desequilibrado, peor (sin timer aún — se revisa al desplegar).
+
+#### Redondeo / mínimos de exchange
+- Si una pierna no encaja por decimales/mínimos: **acoplar/recortar la pierna que cotiza en dólares** para no salir de 48–52.
+
+#### Disparo dual
+- Ante oportunidad: **ambas órdenes a la vez** (limit/limit, market/market o mix — da igual).
+- No encadenar “espero fill de una y luego la otra” (el precio se mueve).
+- Si una falla: **market inmediato** en la que falta; el chiste es llenar **ambas**.
+- Kaiser viendo order book dual a fondo: **revisar después** (metaverso / si ya vive).
+
+#### Violación del candado (ej. long 53%)
+- **Antes de la mitad** del engorde → corregir en la **siguiente** apertura.
+- **Pasada la mitad** → corregir ya: cerrar lo excedido **o** abrir lo que falta, lo más conveniente.
+- Definición exacta de “mitad” y meta USD del bloque → **cuando se cablee el ranking**.
+
+#### Meta del bloque / ranking (aplazado — fusión del ejército)
+- Ejemplo doctrinal (no números finales): Beru Mariscal ETH necesita X de **margen** → mitad long / mitad short de margen × apalancamientos máx → nocional grande.
+- Rangos Aspirante / Aprendiz / Berus: **existen en mapa, no terminados**.
+- Al completar meta de crecimiento: cerrar engorde; solo **mejorar entradas** dentro de la ventana (detalle con ranking).
+- **No** cerrar 3.5.8c motor+ranking en esta sesión: el Monarca aplazó H1–H4 (mitad, manto completo fino, corte ✅ exacto, nombre final) hasta fusionar ranking + Beru + Kaiser + Igris + Tusk.
+
+#### Qué entra vs qué no (corte actual)
+| Entra en doctrina 3.5.8c (checkpoint) | Aplazado al ranking / fusión |
+|--------------------------------------|------------------------------|
+| Ventana 48–52 / 49–51 short-gordo | Meta margen × leverage |
+| Long-primero + corrección por barco | Definición “mitad del engorde” |
+| USD@entrada + sello unidad | Mecánica fina manto completo |
+| Dual simultáneo + market si falla una | Kaiser order book dual a fondo |
+| Sustituir banda-por-margen% como ley L/S | Greed exento 48–52 |
+| | Timer por tiempo desequilibrado |
+
+---
+
+### Pendiente §E (resto)
 | Ítem | Estado |
 |------|--------|
-| Banda delta asimétrica (sesgo long) | Pendiente — checklist **3.5.8c** |
-| Semáforos morado/gris (bloque B) | Pendiente |
+| **3.5.8c motor** — ventana en Igris + smoke | ✅ v1 `manto_ventana` · ranking pendiente |
+| Semáforos morado/gris (bloque B) | Pendiente (morado arena ✅) |
 | Sangrado útil / margen económico | Pendiente |
-| Validación **live** testnet del despliegue | Pendiente — **3.10.7** |
+| Ranking → meta USD manto | Pendiente fusión |
 
 ### En ~90% (zona ideal)
 Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, neto ≥ fees) pero **más tolerancia** y horizonte largo.
 
 ### Contabilidad
-- Equilibrio por **promedio de entrada**, no tick instantáneo.
+- Equilibrio por **promedio de entrada** y **USD@entrada** para el ratio, no tick/mark.
 - **Margen económico** vs % exchange — no desinflar por falso >100%.
 - Sangrado útil: si slippage mejora promedio, **aprovechar**, no podar.
-
-### Sesgo long
-- Neutralidad meta ~50/50; si hay carga, **preferir LONG** (inversos).
-- SHORT pesado → mejorar entrada/salida del short, no panic-rebalance.
 
 ### Semáforos (bloque B)
 | Color | Significado | Código |
@@ -106,7 +173,7 @@ Con `IGRIS_EVENT_DRIVEN=true` en `.env`, Igris **no escanea** cada segundo: solo
 | Ancla + despliegue §E | ✅ `igris_despliegue.py` (2026-07-12) |
 | `pesos` + precio medio por pierna | ✅ v1 `igris_manto.py` |
 | Bootstrap inverse L + lineal S | ✅ v1 |
-| Banda delta asimétrica (sesgo long) | Pendiente — 3.5.8c |
+| Ventana 48–52 / long-primero | ✅ motor v1 2026-07-17 · ranking fusión pendiente |
 | Live testnet despliegue | ✅ **3.10.7b** PASS_LIVE México (ETH/BTC dual DEMO) |
 | Arena aislada (fills virtuales) | ✅ **3.10.7a** `arena_igris_aislado.py` |
 | Event-driven Kaiser→Igris | ✅ **3.10.8** `IGRIS_EVENT_DRIVEN` |
@@ -126,6 +193,7 @@ Con `IGRIS_EVENT_DRIVEN=true` en `.env`, Igris **no escanea** cada segundo: solo
 ## Validación
 
 - `python scripts/validar_igris_smoke.py`
+- `python scripts/validar_igris_asset_detail_smoke.py`
 - `python scripts/arena_igris_aislado.py` — arena morado + fills virtuales (recomendado antes de live)
 - `python scripts/validar_greed_manto_smoke.py`
 - Live manto testnet (**3.10.7b**)

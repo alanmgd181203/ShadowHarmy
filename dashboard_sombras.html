@@ -2,7 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0c10" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Shadow Army" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/portales/igris.png" />
   <title>Shadow Army — Cascada de las Sombras · 6 Portales</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,42 +30,120 @@
     html, body {
       height: 100%;
       overflow: hidden;
-      background: #050608;
+      overflow-x: hidden;
+      background: #0a0c10; /* Vacío base — gris carbón, no negro puro */
       color: var(--ink);
       font-family: "Segoe UI", system-ui, sans-serif;
     }
 
-    .sea-of-shadows {
+    /* —— Niebla Abisal volumétrica (z-[-2] — NO toca portales) —— */
+    .abyss-fog {
       position: fixed;
       inset: 0;
-      background:
-        radial-gradient(ellipse 120% 80% at 50% 50%, var(--void-mist) 0%, var(--void) 55%),
-        radial-gradient(circle at 50% 50%, #050505 0%, #000000 100%);
-      z-index: 0;
+      z-index: -2;
+      pointer-events: none;
+      overflow: hidden;
+      background: #0a0c10;
     }
 
-    .nebula {
+    .fog-plume {
       position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.35;
-      pointer-events: none;
-      animation: nebula-drift 28s ease-in-out infinite alternate;
+      width: 120vw;
+      height: 120vh;
+      border-radius: 40%;
+      filter: blur(140px);
+      opacity: 0.85;
+      will-change: transform;
     }
-    .nebula-1 { width: 45vw; height: 45vw; top: -15%; left: -10%; background: #0a0618; }
-    .nebula-2 { width: 38vw; height: 38vw; bottom: -12%; right: -8%; background: #060810; animation-delay: -8s; }
-    .nebula-3 { width: 28vw; height: 28vw; top: 40%; left: 70%; background: #080510; animation-delay: -14s; opacity: 0.2; }
+    .fog-plume.is-black { background: #000000; }
+    .fog-plume.is-char  { background: #151821; }
 
-    @keyframes nebula-drift {
-      0%   { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(3%, -2%) scale(1.06); }
+    .fog-plume-1 {
+      top: -40%;
+      left: -35%;
+      animation: fog-heavy-a 36s ease-in-out infinite;
+    }
+    .fog-plume-2 {
+      top: -20%;
+      right: -45%;
+      left: auto;
+      animation: fog-heavy-b 40s ease-in-out infinite;
+      animation-delay: -8s;
+    }
+    .fog-plume-3 {
+      top: 25%;
+      left: -50%;
+      width: 130vw;
+      height: 110vh;
+      animation: fog-heavy-c 33s ease-in-out infinite;
+      animation-delay: -14s;
+    }
+    .fog-plume-4 {
+      bottom: -45%;
+      right: -40%;
+      left: auto;
+      top: auto;
+      animation: fog-heavy-a 38s ease-in-out infinite;
+      animation-delay: -20s;
+    }
+    .fog-plume-5 {
+      top: 10%;
+      left: 15%;
+      width: 110vw;
+      height: 100vh;
+      opacity: 0.7;
+      animation: fog-heavy-b 42s ease-in-out infinite;
+      animation-delay: -5s;
     }
 
-    #particles {
+    @keyframes fog-heavy-a {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+      50%      { transform: translate(4%, -3%) rotate(8deg) scale(1.06); }
+    }
+    @keyframes fog-heavy-b {
+      0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1.02); }
+      50%      { transform: translate(-5%, 4%) rotate(-10deg) scale(0.96); }
+    }
+    @keyframes fog-heavy-c {
+      0%, 100% { transform: translate(0, 0) rotate(-3deg) scale(1); }
+      35%      { transform: translate(3%, 5%) rotate(6deg) scale(1.08); }
+      70%      { transform: translate(-4%, -2%) rotate(-7deg) scale(0.94); }
+    }
+
+    /* Ceniza del Abismo — polvo apenas perceptible */
+    .abyss-ash {
       position: fixed;
       inset: 0;
-      z-index: 1;
+      z-index: 0;
       pointer-events: none;
+      overflow: hidden;
+    }
+    .ash-spark {
+      position: absolute;
+      bottom: -4%;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: rgba(200, 210, 230, 0.45);
+      opacity: 0.06;
+      animation: ash-rise linear infinite;
+    }
+    .ash-spark:nth-child(1)  { left: 8%;  animation-duration: 22s; animation-delay: 0s; }
+    .ash-spark:nth-child(2)  { left: 18%; animation-duration: 26s; animation-delay: -4s; width: 1px; height: 1px; }
+    .ash-spark:nth-child(3)  { left: 32%; animation-duration: 19s; animation-delay: -8s; }
+    .ash-spark:nth-child(4)  { left: 47%; animation-duration: 24s; animation-delay: -2s; width: 1.5px; height: 1.5px; }
+    .ash-spark:nth-child(5)  { left: 61%; animation-duration: 28s; animation-delay: -12s; }
+    .ash-spark:nth-child(6)  { left: 73%; animation-duration: 21s; animation-delay: -6s; width: 1px; height: 1px; }
+    .ash-spark:nth-child(7)  { left: 84%; animation-duration: 25s; animation-delay: -10s; }
+    .ash-spark:nth-child(8)  { left: 92%; animation-duration: 23s; animation-delay: -1s; }
+    .ash-spark:nth-child(9)  { left: 12%; animation-duration: 30s; animation-delay: -15s; opacity: 0.05; }
+    .ash-spark:nth-child(10) { left: 55%; animation-duration: 27s; animation-delay: -7s; opacity: 0.06; }
+
+    @keyframes ash-rise {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      12%  { opacity: 0.07; }
+      80%  { opacity: 0.04; }
+      100% { transform: translateY(-110vh) translateX(12px); opacity: 0; }
     }
 
     .command-deck {
@@ -69,25 +154,28 @@
       min-height: 100dvh;
       display: flex;
       align-items: stretch;
-      justify-content: center;
+      justify-content: center; /* el marco del Pergamino al centro; el zig-zag vive DENTRO */
       gap: 0;
       padding: 0;
       overflow: hidden;
+      overflow-x: hidden;
     }
 
     .deck-center {
       position: relative;
       width: min(100vw, 430px);
+      max-width: 430px;
       height: 100%;
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      align-items: stretch;
+      align-items: flex-start; /* items-start: zig-zag nace a la izquierda */
       justify-content: flex-start;
       gap: 0;
       flex-shrink: 0;
       overflow: hidden;
-      background: #050608;
+      overflow-x: hidden;
+      background: transparent;
     }
 
     .deck-center .bellion-scroll {
@@ -109,64 +197,148 @@
       transform: translateY(0);
     }
 
-    /* —— Cascada: flex-col compacta (FÍSICAS de colisión) —— */
+    /* —— Cascada: anclaje absoluto como Ima/referencia.png —— */
     .cascade-stage {
       position: relative;
       width: 100%;
+      height: 100%;
       min-height: 100dvh;
-      overflow-x: hidden;   /* obligatorio: nada de scroll horizontal */
-      overflow-y: visible;  /* no recortar vertical: la cascada debe “chocar” */
-      background: #050608;
+      overflow: hidden;
+      background: transparent;
       flex: 1;
       z-index: 1;
     }
 
-    /* Fondo “fonso” (en el repo existe como Ima/fondo.png) sobre el negro */
-    .cascade-stage::before {
-      content: "";
+    /* Capas: aura (0) → humo (1) → PNG (2) */
+    .aura-field {
       position: absolute;
       inset: 0;
-      background-image: url("Ima/fondo.png");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      opacity: 0.42;
+      z-index: 0;
       pointer-events: none;
-      z-index: 1;
+      overflow: hidden;
+    }
+
+    .shadow-smoke-veil {
+      position: absolute;
+      inset: 0;
+      z-index: 1; /* encima de auras, debajo de PNG */
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .shadow-smoke-veil video {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .shadow-smoke-veil canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      opacity: 1;
     }
 
     .cascade-sombras {
-      position: relative;
-      z-index: 2;
+      position: absolute;
+      inset: 0;
+      z-index: 2; /* Generales (PNG) por encima del humo */
       width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      overflow-x: hidden;
+      height: 100%;
       pointer-events: none;
+      overflow: hidden;
     }
 
     .max-w-none { max-width: none !important; }
 
-    .portal-wrap {
-      width: 100%;
-      display: flex;
+    .portal-wrap,
+    .aura-blot {
+      position: absolute;
       pointer-events: none;
     }
-    .portal-wrap.left  { justify-content: flex-start; }
-    .portal-wrap.right { justify-content: flex-end; }
+    .portal-wrap { z-index: 3; }
 
-    /* Compresión vertical: desde el 2º elemento se solapan */
-    .mt-neg-12 { margin-top: -3rem; }   /* -mt-12 (ejemplo Monarca) */
-    .mt-neg-16 { margin-top: -4rem; }   /* -mt-16 */
-    .mt-neg-24 { margin-top: -6rem; }   /* -mt-24 */
+    /* Núcleo de color detrás del humo (mismas coords que el sello) */
+    .aura-blot::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 16rem;
+      height: 16rem;
+      margin-left: -8rem;
+      margin-top: -8rem;
+      border-radius: 9999px;
+      filter: blur(64px);
+      opacity: 0.45;
+      pointer-events: none;
+    }
+    .aura-blot.slot-1::before { background: #00ff66; }
+    .aura-blot.slot-2::before { background: #00f0ff; }
+    .aura-blot.slot-3::before { background: #4a72ff; }
+    .aura-blot.slot-4::before { background: #a100ff; }
+    .aura-blot.slot-5::before { background: #e0115f; }
+    .aura-blot.slot-6::before { background: #ff0055; }
 
-    /* Off-set zig-zag por borde (translate-x-8) */
-    .tx-left   { transform: translateX(-2rem); }
-    .tx-right  { transform: translateX( 2rem); }
-    .tx-center { transform: translateX( 0); }
+    /*
+      Calibrado contra Ima/referencia.png (no zig-zag uniforme):
+      Tusk/Kamish/Greed chocan izq; Beru/Igris chocan der;
+      Bellion queda más adentro (casi entero).
+    */
+    .portal-wrap.slot-1,
+    .aura-blot.slot-1 { /* Tusk */
+      top: -1%;
+      left: -14%;
+      right: auto;
+      width: 70%;
+    }
+    .portal-wrap.slot-1 { z-index: 8; }
+    .portal-wrap.slot-2,
+    .aura-blot.slot-2 { /* Beru */
+      top: 13%;
+      right: -18%;
+      left: auto;
+      width: 68%;
+    }
+    .portal-wrap.slot-2 { z-index: 7; }
+    .portal-wrap.slot-3,
+    .aura-blot.slot-3 { /* Kamish */
+      top: 28%;
+      left: -22%;
+      right: auto;
+      width: 72%;
+    }
+    .portal-wrap.slot-3 { z-index: 6; }
+    .portal-wrap.slot-4,
+    .aura-blot.slot-4 { /* Bellion */
+      top: 44%;
+      right: 8%;
+      left: auto;
+      width: 60%;
+    }
+    .portal-wrap.slot-4 { z-index: 5; }
+    .portal-wrap.slot-5,
+    .aura-blot.slot-5 { /* Greed */
+      top: 58%;
+      left: -24%;
+      right: auto;
+      width: 72%;
+    }
+    .portal-wrap.slot-5 { z-index: 4; }
+    .portal-wrap.slot-6,
+    .aura-blot.slot-6 { /* Igris */
+      top: 74%;
+      right: -16%;
+      left: auto;
+      width: 68%;
+    }
+    .portal-wrap.slot-6 { z-index: 3; }
 
     .portal-btn {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 100%;
       pointer-events: auto;
       border: none;
       padding: 0;
@@ -174,25 +346,36 @@
       background: transparent;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      z-index: 3;
     }
 
     .portal-img {
       display: block;
+      width: 100%;
       height: auto;
-      width: 18rem; /* equivalente a w-72 */
-      max-width: none !important; /* evita recorte plano */
+      max-width: none !important;
       pointer-events: none;
       user-select: none;
       -webkit-user-drag: none;
-      transform: scale(1);
-      animation: portal-breathe 4.5s ease-in-out infinite;
+      will-change: transform;
+      animation-name: portal-alive;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      animation-duration: var(--alive-dur, 4.5s);
+      animation-delay: var(--alive-delay, 0s);
     }
 
-    @keyframes portal-breathe {
-      0%, 100% { transform: scale(1); }
-      50%      { transform: scale(1.02); }
+    @keyframes portal-alive {
+      0%, 100% { transform: scale(1) translateY(0); }
+      35%      { transform: scale(1.015) translateY(-3px); }
+      70%      { transform: scale(1.02) translateY(3px); }
     }
+
+    .portal-alive-1 { --alive-dur: 4s;   --alive-delay: 0s; }
+    .portal-alive-2 { --alive-dur: 5.5s; --alive-delay: -1s; }
+    .portal-alive-3 { --alive-dur: 3.5s; --alive-delay: -2.2s; }
+    .portal-alive-4 { --alive-dur: 6.2s; --alive-delay: -0.7s; }
+    .portal-alive-5 { --alive-dur: 4.8s; --alive-delay: -3.1s; }
+    .portal-alive-6 { --alive-dur: 5.1s; --alive-delay: -1.8s; }
 
     .portal-btn.active .portal-img { filter: brightness(1.12); }
 
@@ -537,6 +720,188 @@
     .log-ev   { color: #9aa3b0; }
     .log-msg  { color: #b8c0cc; }
 
+    /* —— Escenas de General (overlay / fade — NO scroll del altar, NO mueve slots) —— */
+    .scene-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(1.25rem, env(safe-area-inset-bottom));
+      pointer-events: none;
+    }
+    .scene-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 6, 10, 0.55);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+    }
+    .scene-layer.is-open .scene-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .general-scene {
+      position: relative;
+      width: 85%;
+      max-width: 420px;
+      max-height: min(72vh, 640px);
+      overflow: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px) scale(0.98);
+      transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+      pointer-events: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .general-scene.is-active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .general-scene-panel {
+      width: 100%;
+      min-height: 12rem;
+      padding: 1.15rem 1.25rem 1.35rem;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background: rgba(12, 14, 20, 0.42);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      font-family: "Segoe UI", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+    .general-scene-panel.igris {
+      border-color: #ff0055;
+      box-shadow:
+        0 0 28px rgba(255, 0, 85, 0.28),
+        0 0 60px rgba(255, 0, 85, 0.12),
+        inset 0 0 24px rgba(255, 0, 85, 0.06);
+    }
+    .general-scene-panel.beru {
+      border-color: #00f0ff;
+      box-shadow:
+        0 0 28px rgba(0, 240, 255, 0.25),
+        0 0 60px rgba(0, 240, 255, 0.1),
+        inset 0 0 24px rgba(0, 240, 255, 0.05);
+    }
+    .scene-kicker {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(200, 208, 220, 0.55);
+      margin-bottom: 0.35rem;
+    }
+    .scene-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.75rem;
+      line-height: 1.25;
+    }
+    .general-scene-panel.igris .scene-title { color: #ff0055; }
+    .general-scene-panel.beru .scene-title { color: #00f0ff; }
+    .scene-body {
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: rgba(200, 208, 220, 0.88);
+    }
+    .scene-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+    .scene-stat {
+      padding: 0.55rem 0.65rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .scene-stat .lbl {
+      display: block;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(200, 208, 220, 0.45);
+      margin-bottom: 0.2rem;
+    }
+    .scene-stat .val {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #e8eaef;
+      font-variant-numeric: tabular-nums;
+    }
+    .scene-close-hint {
+      margin-top: 1rem;
+      font-size: 0.68rem;
+      color: rgba(200, 208, 220, 0.4);
+      letter-spacing: 0.06em;
+    }
+    .beru-sync-pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00f0ff;
+      margin-right: 0.45rem;
+      box-shadow: 0 0 10px #00f0ff;
+      animation: beru-sync-blink 1.4s ease-in-out infinite;
+      vertical-align: middle;
+    }
+    @keyframes beru-sync-blink {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
+    }
+
+    /* Aviso: abierto en pestaña (hay barra URL) vs app instalada */
+    .pwa-hint {
+      position: fixed;
+      left: 50%;
+      bottom: max(0.85rem, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 60;
+      width: min(92vw, 380px);
+      padding: 0.75rem 0.9rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(10, 12, 16, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #c8d0dc;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      letter-spacing: 0.02em;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    }
+    .pwa-hint[hidden] { display: none !important; }
+    .pwa-hint strong { color: #e8eaef; font-weight: 600; }
+    .pwa-hint .pwa-hint-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.55rem;
+    }
+    .pwa-hint button {
+      flex: 1;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: #e8eaef;
+      border-radius: 8px;
+      padding: 0.4rem 0.5rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+    }
+    .pwa-hint button.primary {
+      border-color: rgba(255, 0, 85, 0.55);
+      background: rgba(255, 0, 85, 0.18);
+    }
+    html.is-pwa-standalone .pwa-hint { display: none !important; }
+
     .scroll-footer {
       padding: 0.45rem 1rem;
       font-size: 0.6rem;
@@ -569,29 +934,52 @@
     @media (max-width: 960px) {
       .command-deck {
         overflow: hidden;
+        overflow-x: hidden;
         height: 100vh;
         min-height: 100dvh;
         padding: 0;
       }
       .deck-center {
-        width: 100vw;
+        width: min(100vw, 430px);
         max-width: 430px;
       }
     }
 
     @media (max-width: 640px) {
       .metrics-strip { grid-template-columns: repeat(2, 1fr); }
-      html, body { overflow: hidden; height: 100%; }
+      html, body { overflow: hidden; overflow-x: hidden; height: 100%; }
+      .deck-center { width: 100vw; max-width: 100vw; }
+      .portal-wrap.slot-1,
+      .aura-blot.slot-1 { left: -16%; width: 74%; }
+      .portal-wrap.slot-2,
+      .aura-blot.slot-2 { right: -20%; width: 72%; }
+      .portal-wrap.slot-3,
+      .aura-blot.slot-3 { left: -24%; width: 76%; }
+      .portal-wrap.slot-4,
+      .aura-blot.slot-4 { right: 6%; width: 64%; }
+      .portal-wrap.slot-5,
+      .aura-blot.slot-5 { left: -26%; width: 76%; }
+      .portal-wrap.slot-6,
+      .aura-blot.slot-6 { right: -18%; width: 72%; }
     }
   </style>
 </head>
 <body>
-  <div class="sea-of-shadows">
-    <div class="nebula nebula-1"></div>
-    <div class="nebula nebula-2"></div>
-    <div class="nebula nebula-3"></div>
+  <!-- Niebla Abisal — z-[-2]; no altera layout de generales -->
+  <div class="abyss-fog" aria-hidden="true">
+    <div class="fog-plume is-black fog-plume-1"></div>
+    <div class="fog-plume is-char  fog-plume-2"></div>
+    <div class="fog-plume is-black fog-plume-3"></div>
+    <div class="fog-plume is-char  fog-plume-4"></div>
+    <div class="fog-plume is-black fog-plume-5"></div>
   </div>
-  <canvas id="particles" aria-hidden="true"></canvas>
+  <div class="abyss-ash" aria-hidden="true">
+    <span class="ash-spark"></span><span class="ash-spark"></span>
+    <span class="ash-spark"></span><span class="ash-spark"></span>
+    <span class="ash-spark"></span><span class="ash-spark"></span>
+    <span class="ash-spark"></span><span class="ash-spark"></span>
+    <span class="ash-spark"></span><span class="ash-spark"></span>
+  </div>
 
   <main class="command-deck">
     <aside class="rpg-progression-panel" id="rpgPanel" aria-label="Progresión RPG Monarca">
@@ -641,6 +1029,14 @@
 
     <div class="deck-center">
     <div class="cascade-stage" id="cascadeStage">
+      <!-- Orden: aura color → humo sombra → PNG -->
+      <div class="aura-field" id="auraField" aria-hidden="true"></div>
+      <div class="shadow-smoke-veil" aria-hidden="true" hidden>
+        <!-- Pausado en panel web; data-src listo para app (activar SMOKE_ABYSS_ENABLED) -->
+        <video id="smokeVideoA" data-src="assets/fx/humo_abismo.mp4" muted loop playsinline webkit-playsinline preload="none"></video>
+        <video id="smokeVideoB" data-src="assets/fx/humo_abismo.mp4" muted loop playsinline webkit-playsinline preload="none"></video>
+        <canvas id="smokeCanvas"></canvas>
+      </div>
       <div class="cascade-sombras" id="cascadeSombras" aria-label="Seis Generales"></div>
     </div>
 
@@ -688,6 +1084,57 @@
     </div>
   </main>
 
+  <!-- Capas de escena: no desplazan la Cascada; fade sobre el altar -->
+  <div class="scene-layer" id="sceneLayer" aria-live="polite">
+    <div class="scene-backdrop" id="sceneBackdrop" title="Cerrar"></div>
+
+    <div class="general-scene" id="sceneIgris" data-general="igris" hidden>
+      <div class="general-scene-panel igris">
+        <div class="scene-kicker">Espacio del Escudo</div>
+        <h2 class="scene-title">Igris · Manto</h2>
+        <p class="scene-body">
+          Contenedor listo para estadísticas del manto (capital, piernas, fase).
+          La Cascada permanece intacta; esto es una escena desplegable, no un scroll del altar.
+        </p>
+        <div class="scene-stats" aria-label="Indicadores Igris (placeholder)">
+          <div class="scene-stat"><span class="lbl">Masa manto</span><span class="val" id="sceneIgrisMasa">—</span></div>
+          <div class="scene-stat"><span class="lbl">Oxígeno</span><span class="val" id="sceneIgrisO2">—</span></div>
+          <div class="scene-stat"><span class="lbl">Par L / S</span><span class="val" id="sceneIgrisPar">—</span></div>
+          <div class="scene-stat"><span class="lbl">Fase</span><span class="val" id="sceneIgrisFase">—</span></div>
+        </div>
+        <p class="scene-close-hint">Toca el portal de Igris otra vez o el fondo para cerrar.</p>
+      </div>
+    </div>
+
+    <div class="general-scene" id="sceneBeru" data-general="beru" hidden>
+      <div class="general-scene-panel beru">
+        <div class="scene-kicker">Prueba de sincronización</div>
+        <h2 class="scene-title"><span class="beru-sync-pulse" aria-hidden="true"></span>Beru · Test</h2>
+        <p class="scene-body" id="sceneBeruBody">
+          Capa de prueba: al tocar a Beru, el Sistema carga esta escena con fade-in
+          sin romper las coordenadas de los Generales. Aquí irá el estado de caza / flota / sync.
+        </p>
+        <div class="scene-stats" aria-label="Test Beru">
+          <div class="scene-stat"><span class="lbl">Estado</span><span class="val" id="sceneBeruEstado">LISTO</span></div>
+          <div class="scene-stat"><span class="lbl">activeGeneral</span><span class="val">beru</span></div>
+          <div class="scene-stat"><span class="lbl">Capitán</span><span class="val">—</span></div>
+          <div class="scene-stat"><span class="lbl">Flota</span><span class="val">—</span></div>
+        </div>
+        <p class="scene-close-hint">Toca el portal de Beru otra vez o el fondo para cerrar.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pwa-hint" id="pwaHint" hidden>
+    <strong>Sigues en Chrome</strong> (por eso ves la barra URL).<br />
+    En Android, el icono de una dirección <strong>http://192.168…</strong> solo abre el navegador — no es app real.<br />
+    En la PC corre: <strong>.\scripts\iniciar_panel_pwa_win.ps1</strong> → abre la URL <strong>https://…trycloudflare.com</strong> → ⋮ Instalar app → borra el icono viejo.
+    <div class="pwa-hint-actions">
+      <button type="button" class="primary" id="pwaHintInstall">Cómo instalar</button>
+      <button type="button" id="pwaHintDismiss">Entendido</button>
+    </div>
+  </div>
+
   <script>
     /* Códice Vol II — Cascada de las Sombras (hex exactos) */
     const PORTAL_ORDER = [
@@ -698,6 +1145,14 @@
       { id: "greed",   aura: "#e0115f", label: "Greed" },
       { id: "igris",   aura: "#ff0055", label: "Igris" },
     ];
+
+    /**
+     * Humo abisal (video → sombra sobre auras).
+     * false = pausado en panel WiFi (sin latencia).
+     * true  = encender cuando el Pergamino sea app y el MP4 vaya empaquetado en local.
+     * Asset: assets/fx/humo_abismo.mp4
+     */
+    const SMOKE_ABYSS_ENABLED = false;
 
     const GENERALS = {
       all: {
@@ -845,6 +1300,51 @@
         : "none";
     }
 
+    function syncGeneralScenes(id) {
+      const layer = $("sceneLayer");
+      const scenes = {
+        igris: $("sceneIgris"),
+        beru: $("sceneBeru"),
+      };
+      const openIds = new Set(["igris", "beru"]);
+      const open = openIds.has(id);
+
+      if (layer) layer.classList.toggle("is-open", open);
+
+      Object.entries(scenes).forEach(([gid, el]) => {
+        if (!el) return;
+        const on = gid === id;
+        el.hidden = !on;
+        el.classList.toggle("is-active", on);
+      });
+
+      if (id === "beru") {
+        const st = $("sceneBeruEstado");
+        if (st) st.textContent = "SYNC";
+        const body = $("sceneBeruBody");
+        if (body) {
+          body.textContent =
+            "Escena Beru activa. El altar no hizo scroll: solo cambió la capa. " +
+            "Cuando el ritual live escriba crónica, este panel mostrará caza / negociación.";
+        }
+      }
+
+      /* Espejo suave de métricas ya existentes (si están en el DOM) */
+      if (id === "igris") {
+        const map = [
+          ["mMasa", "sceneIgrisMasa"],
+          ["mOxigeno", "sceneIgrisO2"],
+          ["posPar", "sceneIgrisPar"],
+          ["metaFase", "sceneIgrisFase"],
+        ];
+        map.forEach(([src, dst]) => {
+          const a = $(src);
+          const b = $(dst);
+          if (a && b) b.textContent = a.textContent || "—";
+        });
+      }
+    }
+
     function setActiveGeneral(id) {
       activeGeneral = id;
       document.querySelectorAll(".portal").forEach((btn) => {
@@ -854,6 +1354,75 @@
       if (deck) deck.classList.toggle("show-chronicle", id !== "all");
       updateFocus();
       refreshChronicle();
+      syncGeneralScenes(id);
+    }
+
+    function isPwaStandalone() {
+      const mq = window.matchMedia && (
+        window.matchMedia("(display-mode: standalone)").matches
+        || window.matchMedia("(display-mode: fullscreen)").matches
+        || window.matchMedia("(display-mode: minimal-ui)").matches
+      );
+      return Boolean(mq || window.navigator.standalone === true);
+    }
+
+    function registerPwa() {
+      let deferredPrompt = null;
+      const hint = $("pwaHint");
+      const btnInstall = $("pwaHintInstall");
+      const btnDismiss = $("pwaHintDismiss");
+
+      if (isPwaStandalone()) {
+        document.documentElement.classList.add("is-pwa-standalone");
+        if (hint) hint.hidden = true;
+      } else if (hint && !sessionStorage.getItem("pwaHintDismissed")) {
+        hint.hidden = false;
+      }
+
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (hint && !isPwaStandalone()) hint.hidden = false;
+      });
+
+      if (btnInstall) {
+        btnInstall.addEventListener("click", async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            try { await deferredPrompt.userChoice; } catch (_) {}
+            deferredPrompt = null;
+            return;
+          }
+          const insecureLan = location.protocol === "http:" && !/^localhost$|^127\./i.test(location.hostname);
+          if (insecureLan) {
+            alert(
+              "Android no puede quitar la barra URL con http://IP.\n\n" +
+              "En la PC ejecuta:\n" +
+              ".\\scripts\\iniciar_panel_pwa_win.ps1\n\n" +
+              "Te dará una URL https://….trycloudflare.com\n" +
+              "Ábrela en el celular → ⋮ Instalar app → borra el icono viejo de la IP."
+            );
+            return;
+          }
+          alert(
+            "iPhone: Compartir → Añadir a pantalla de inicio → abre el icono.\n" +
+            "Android: menú ⋮ → Instalar app (hace falta HTTPS)."
+          );
+        });
+      }
+      if (btnDismiss && hint) {
+        btnDismiss.addEventListener("click", () => {
+          hint.hidden = true;
+          sessionStorage.setItem("pwaHintDismissed", "1");
+        });
+      }
+
+      if (!("serviceWorker" in navigator)) return;
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch((err) => {
+          console.warn("[PWA] SW no registrado:", err);
+        });
+      });
     }
 
     function pushLog(entry) {
@@ -877,77 +1446,280 @@
       }
     }
 
+    function syncAuraToPortals() {
+      const stage = $("cascadeStage");
+      const auras = $("auraField");
+      if (!stage || !auras) return;
+      const sr = stage.getBoundingClientRect();
+      document.querySelectorAll(".portal-wrap").forEach((wrap) => {
+        const slot = [...wrap.classList].find((c) => c.startsWith("slot-"));
+        if (!slot) return;
+        const blot = auras.querySelector(`.aura-blot.${slot}`);
+        if (!blot) return;
+        const r = wrap.getBoundingClientRect();
+        /* Copia exacta del marco del PNG — evita que el aura “flote” sin altura */
+        blot.style.top = `${Math.round(r.top - sr.top)}px`;
+        blot.style.left = `${Math.round(r.left - sr.left)}px`;
+        blot.style.right = "auto";
+        blot.style.width = `${Math.round(r.width)}px`;
+        blot.style.height = `${Math.round(r.height)}px`;
+      });
+    }
+
     function buildCascade() {
       const root = $("cascadeSombras");
+      const auras = $("auraField");
       root.innerHTML = "";
+      if (auras) auras.innerHTML = "";
 
+      // Zig-zag = referencia: Izq Tusk/Kamish/Greed · Der Beru/Bellion/Igris
       const side = {
         tusk: "left",
         beru: "right",
         kamish: "left",
-        bellion: "center",
+        bellion: "right",
         greed: "left",
         igris: "right",
       };
 
-      // Compresión vertical sistemática (2º elemento en adelante)
-      const mt = ["", "mt-neg-12", "mt-neg-16", "mt-neg-16", "mt-neg-24", "mt-neg-24"];
-
+      const imgs = [];
       PORTAL_ORDER.forEach((p, idx) => {
+        const slot = `slot-${idx + 1}`;
+
+        if (auras) {
+          const blot = document.createElement("div");
+          blot.className = `aura-blot ${side[p.id]} ${slot}`;
+          auras.appendChild(blot);
+        }
+
         const wrap = document.createElement("div");
-        wrap.className = `portal-wrap ${side[p.id] === "left" ? "left" : side[p.id] === "right" ? "right" : "center"} ${mt[idx] || ""}`.trim();
+        wrap.className = `portal-wrap ${side[p.id]} ${slot}`;
         root.appendChild(wrap);
 
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.className = `portal portal-btn ${side[p.id] === "left" ? "tx-left" : side[p.id] === "right" ? "tx-right" : "tx-center"}`;
+        btn.className = "portal portal-btn";
         btn.dataset.general = p.id;
         btn.setAttribute("aria-label", GENERALS[p.id].name);
-        // max-w-none obligatorio: evita recorte plano antinatural
-        btn.innerHTML = `<img class="portal-img max-w-none" src="assets/portales/${p.id}.png" alt="${p.label}" draggable="false" />`;
+        btn.innerHTML = `<img class="portal-img max-w-none portal-alive-${idx + 1}" src="assets/portales/${p.id}.png" alt="${p.label}" draggable="false" />`;
 
+        const img = btn.querySelector("img");
+        imgs.push(img);
         wrap.appendChild(btn);
         btn.addEventListener("click", () => {
           setActiveGeneral(activeGeneral === p.id ? "all" : p.id);
         });
       });
+
+      const sync = () => requestAnimationFrame(syncAuraToPortals);
+      imgs.forEach((img) => {
+        if (img.complete) sync();
+        else img.addEventListener("load", sync, { once: true });
+      });
+      window.addEventListener("resize", sync);
+      sync();
     }
 
-    function initParticles() {
-      const canvas = $("particles");
-      const ctx = canvas.getContext("2d");
-      let w, h, dots;
+    /* Ceniza del Abismo es CSS puro (.abyss-ash); canvas de partículas retirado */
+    function initParticles() {}
 
-      function resize() {
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
-        dots = Array.from({ length: 90 }, () => ({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: Math.random() * 1.2 + 0.2,
-          a: Math.random() * 0.35 + 0.05,
-          vx: (Math.random() - 0.5) * 0.15,
-          vy: (Math.random() - 0.5) * 0.12,
-        }));
-      }
+    /* Humo → sombra. Pausado con SMOKE_ABYSS_ENABLED=false (listo para app). */
+    function initSmokeShadow() {
+      const veil = document.querySelector(".shadow-smoke-veil");
+      const videoA = $("smokeVideoA");
+      const videoB = $("smokeVideoB");
+      const canvas = $("smokeCanvas");
+      const stage = $("cascadeStage");
 
-      function frame() {
-        ctx.clearRect(0, 0, w, h);
-        for (const d of dots) {
-          d.x += d.vx; d.y += d.vy;
-          if (d.x < 0) d.x = w; if (d.x > w) d.x = 0;
-          if (d.y < 0) d.y = h; if (d.y > h) d.y = 0;
-          ctx.beginPath();
-          ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(180, 190, 210, ${d.a})`;
-          ctx.fill();
+      if (!SMOKE_ABYSS_ENABLED) {
+        if (veil) {
+          veil.hidden = true;
+          veil.style.display = "none";
         }
-        requestAnimationFrame(frame);
+        [videoA, videoB].forEach((v) => {
+          if (!v) return;
+          try { v.pause(); } catch (_) {}
+          v.removeAttribute("src");
+          v.removeAttribute("data-active");
+          try { v.load(); } catch (_) {}
+        });
+        return;
       }
 
-      resize();
-      window.addEventListener("resize", resize);
-      frame();
+      if (!videoA || !canvas) return;
+      if (veil) {
+        veil.hidden = false;
+        veil.style.display = "";
+      }
+      /* Armar src desde data-src (no carga hasta activar) */
+      [videoA, videoB].forEach((v) => {
+        if (!v) return;
+        const src = v.getAttribute("data-src");
+        if (src && !v.getAttribute("src")) v.setAttribute("src", src);
+      });
+
+      const isMobile =
+        window.matchMedia("(max-width: 820px)").matches ||
+        window.matchMedia("(pointer: coarse)").matches ||
+        /iPhone|iPad|Android/i.test(navigator.userAgent || "");
+
+      const ctx = canvas.getContext("2d", { willReadFrequently: true, alpha: true });
+      const off = document.createElement("canvas");
+      const octx = off.getContext("2d", { willReadFrequently: true });
+
+      const SKIP_INTRO = 3;
+      const FPS = isMobile ? 12 : 24;
+      const FRAME_MS = 1000 / FPS;
+      let running = false;
+      let lastPaint = 0;
+      let seekingA = false;
+      let seekingB = false;
+      let offsetB = 8;
+      let dual = !isMobile && !!videoB;
+
+      function usableSpan(v) {
+        const d = v.duration;
+        if (!Number.isFinite(d) || d <= SKIP_INTRO + 1) return 12;
+        return d - SKIP_INTRO;
+      }
+
+      function armOffsetB() {
+        offsetB = SKIP_INTRO + usableSpan(videoA) * 0.47;
+      }
+
+      function nudgeLoop(v, isSeeking, markSeeking, startAt) {
+        if (!v || isSeeking) return;
+        if (v.currentTime < startAt) {
+          markSeeking();
+          try { v.currentTime = startAt; } catch (_) {}
+        }
+      }
+
+      function sizeCanvas() {
+        const rw = stage ? stage.clientWidth : window.innerWidth;
+        const rh = stage ? stage.clientHeight : window.innerHeight;
+        const maxW = isMobile ? 220 : 400;
+        const w = Math.min(maxW, Math.max(160, Math.floor(rw * (isMobile ? 0.55 : 0.85))));
+        const h = Math.max(220, Math.floor(w * (rh / Math.max(1, rw))));
+        if (canvas.width !== w || canvas.height !== h) {
+          canvas.width = w;
+          canvas.height = h;
+          off.width = w;
+          off.height = h;
+        }
+      }
+
+      function stampShadow(video, mirror) {
+        const w = off.width;
+        const h = off.height;
+        /* Si el video está en seek/buffer, no tocar el canvas visible */
+        if (!video || video.readyState < 2 || video.seeking || w < 2) return false;
+        octx.clearRect(0, 0, w, h);
+        octx.save();
+        if (mirror) {
+          octx.translate(w, 0);
+          octx.scale(-1, 1);
+        }
+        try {
+          octx.drawImage(video, 0, 0, w, h);
+        } catch (_) {
+          octx.restore();
+          return false;
+        }
+        octx.restore();
+        let img;
+        try {
+          img = octx.getImageData(0, 0, w, h);
+        } catch (_) {
+          return false;
+        }
+        const d = img.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const L = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2];
+          d[i] = 0;
+          d[i + 1] = 0;
+          d[i + 2] = 0;
+          d[i + 3] = L < 90 ? 0 : Math.min(255, (L - 90) * 2.5);
+        }
+        octx.putImageData(img, 0, 0);
+        return true;
+      }
+
+      function paint() {
+        const w = canvas.width;
+        const h = canvas.height;
+        if (!stampShadow(videoA, false)) return; /* conservar frame anterior → sin parpadeo */
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(off, 0, 0);
+
+        if (dual && videoB && videoB.readyState >= 2 && !videoB.seeking) {
+          if (stampShadow(videoB, true)) {
+            ctx.globalAlpha = 0.65;
+            ctx.drawImage(off, 0, 0);
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+
+      function tick(now) {
+        if (!running) return;
+        requestAnimationFrame(tick);
+        if (now - lastPaint < FRAME_MS) return;
+        lastPaint = now;
+
+        nudgeLoop(videoA, seekingA, () => { seekingA = true; }, SKIP_INTRO);
+        if (dual) nudgeLoop(videoB, seekingB, () => { seekingB = true; }, offsetB);
+
+        sizeCanvas();
+        paint();
+      }
+
+      function start() {
+        if (running) return;
+        if (videoA.readyState < 1) return;
+        running = true;
+        sizeCanvas();
+
+        seekingA = true;
+        try { videoA.currentTime = SKIP_INTRO; } catch (_) { seekingA = false; }
+        videoA.muted = true;
+        videoA.playsInline = true;
+        videoA.play().catch(() => {});
+
+        if (dual && videoB) {
+          armOffsetB();
+          seekingB = true;
+          try { videoB.currentTime = offsetB; } catch (_) { seekingB = false; }
+          videoB.muted = true;
+          videoB.playsInline = true;
+          videoB.play().catch(() => {});
+        } else if (videoB) {
+          videoB.pause();
+          videoB.removeAttribute("src");
+          videoB.load();
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      videoA.addEventListener("seeked", () => { seekingA = false; });
+      if (videoB) videoB.addEventListener("seeked", () => { seekingB = false; });
+      videoA.addEventListener("loadedmetadata", () => {
+        armOffsetB();
+        start();
+      });
+      videoA.addEventListener("canplay", start);
+      /* iOS a veces necesita gesto; reintento al primer toque */
+      const unlock = () => {
+        videoA.play().catch(() => {});
+        if (dual && videoB) videoB.play().catch(() => {});
+        window.removeEventListener("touchstart", unlock);
+        window.removeEventListener("click", unlock);
+      };
+      window.addEventListener("touchstart", unlock, { once: true, passive: true });
+      window.addEventListener("click", unlock, { once: true });
+      window.addEventListener("resize", sizeCanvas);
+      start();
     }
 
     function clearDemoLogs() {
@@ -1030,6 +1802,7 @@
         }
         renderPosiciones(snap.igris_posiciones);
         if (snap.sistema) $("metaFase").textContent = snap.sistema;
+        if (activeGeneral === "igris") syncGeneralScenes("igris");
         try {
           if (typeof window.actualizarRangoDesdeEstado === "function") {
             window.actualizarRangoDesdeEstado(snap);
@@ -1065,8 +1838,16 @@
 
     buildCascade();
     initParticles();
+    initSmokeShadow();
     seedDemoLogs();
     updateFocus();
+    syncGeneralScenes("all");
+    registerPwa();
+
+    const sceneBackdrop = $("sceneBackdrop");
+    if (sceneBackdrop) {
+      sceneBackdrop.addEventListener("click", () => setActiveGeneral("all"));
+    }
     refreshChronicle();
 
     pollHistorial();
