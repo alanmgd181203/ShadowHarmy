@@ -1,0 +1,625 @@
+{
+  "category": "linear",
+  "symbols": {
+    "BTCUSDT": {
+      "maxLeverage_tier1_hint": 100.0,
+      "tiers_sample": [
+        {
+          "id": 1,
+          "riskLimitValue": "2000000",
+          "maxLeverage": "100.00",
+          "maintenanceMargin": "0.005",
+          "initialMargin": "0.01"
+        },
+        {
+          "id": 2,
+          "riskLimitValue": "2600000",
+          "maxLeverage": "90.00",
+          "maintenanceMargin": "0.0056",
+          "initialMargin": "0.0111"
+        },
+        {
+          "id": 3,
+          "riskLimitValue": "3200000",
+          "maxLeverage": "80.00",
+          "maintenanceMargin": "0.0063",
+          "initialMargin": "0.0125"
+        },
+        {
+          "id": 4,
+          "riskLimitValue": "3800000",
+          "maxLeverage": "75.00",
+          "maintenanceMargin": "0.0067",
+          "initialMargin": "0.0133"
+        },
+        {
+          "id": 5,
+          "riskLimitValue": "4400000",
+          "maxLeverage": "70.00",
+          "maintenanceMargin": "0.0071",
+          "initialMargin": "0.0143"
+        },
+        {
+          "id": 6,
+          "riskLimitValue": "5000000",
+          "maxLeverage": "65.00",
+          "maintenanceMargin": "0.0077",
+          "initialMargin": "0.0154"
+        },
+        {
+          "id": 7,
+          "riskLimitValue": "5600000",
+          "maxLeverage": "55.00",
+          "maintenanceMargin": "0.0091",
+          "initialMargin": "0.0182"
+        },
+        {
+          "id": 8,
+          "riskLimitValue": "8500000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        }
+      ],
+      "n_tiers": 35
+    },
+    "ETHUSDT": {
+      "maxLeverage_tier1_hint": 100.0,
+      "tiers_sample": [
+        {
+          "id": 11,
+          "riskLimitValue": "900000",
+          "maxLeverage": "100.00",
+          "maintenanceMargin": "0.005",
+          "initialMargin": "0.01"
+        },
+        {
+          "id": 12,
+          "riskLimitValue": "1200000",
+          "maxLeverage": "90.00",
+          "maintenanceMargin": "0.0056",
+          "initialMargin": "0.0111"
+        },
+        {
+          "id": 13,
+          "riskLimitValue": "1500000",
+          "maxLeverage": "80.00",
+          "maintenanceMargin": "0.0063",
+          "initialMargin": "0.0125"
+        },
+        {
+          "id": 14,
+          "riskLimitValue": "1800000",
+          "maxLeverage": "75.00",
+          "maintenanceMargin": "0.0067",
+          "initialMargin": "0.0133"
+        },
+        {
+          "id": 15,
+          "riskLimitValue": "2400000",
+          "maxLeverage": "70.00",
+          "maintenanceMargin": "0.0071",
+          "initialMargin": "0.0143"
+        },
+        {
+          "id": 16,
+          "riskLimitValue": "3200000",
+          "maxLeverage": "65.00",
+          "maintenanceMargin": "0.0077",
+          "initialMargin": "0.0154"
+        },
+        {
+          "id": 17,
+          "riskLimitValue": "4000000",
+          "maxLeverage": "55.00",
+          "maintenanceMargin": "0.0091",
+          "initialMargin": "0.0182"
+        },
+        {
+          "id": 18,
+          "riskLimitValue": "5000000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        }
+      ],
+      "n_tiers": 35
+    },
+    "LTCUSDT": {
+      "maxLeverage_tier1_hint": 50.0,
+      "tiers_sample": [
+        {
+          "id": 71,
+          "riskLimitValue": "200000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        },
+        {
+          "id": 72,
+          "riskLimitValue": "400000",
+          "maxLeverage": "33.33",
+          "maintenanceMargin": "0.015",
+          "initialMargin": "0.03"
+        },
+        {
+          "id": 73,
+          "riskLimitValue": "600000",
+          "maxLeverage": "25.00",
+          "maintenanceMargin": "0.02",
+          "initialMargin": "0.04"
+        },
+        {
+          "id": 74,
+          "riskLimitValue": "800000",
+          "maxLeverage": "20.00",
+          "maintenanceMargin": "0.025",
+          "initialMargin": "0.05"
+        },
+        {
+          "id": 75,
+          "riskLimitValue": "1000000",
+          "maxLeverage": "16.67",
+          "maintenanceMargin": "0.03",
+          "initialMargin": "0.06"
+        },
+        {
+          "id": 76,
+          "riskLimitValue": "1200000",
+          "maxLeverage": "14.29",
+          "maintenanceMargin": "0.035",
+          "initialMargin": "0.07"
+        },
+        {
+          "id": 77,
+          "riskLimitValue": "1400000",
+          "maxLeverage": "12.50",
+          "maintenanceMargin": "0.04",
+          "initialMargin": "0.08"
+        },
+        {
+          "id": 78,
+          "riskLimitValue": "1600000",
+          "maxLeverage": "11.11",
+          "maintenanceMargin": "0.045",
+          "initialMargin": "0.09"
+        }
+      ],
+      "n_tiers": 30
+    },
+    "SOLUSDT": {
+      "maxLeverage_tier1_hint": 100.0,
+      "tiers_sample": [
+        {
+          "id": 281,
+          "riskLimitValue": "50000",
+          "maxLeverage": "100.00",
+          "maintenanceMargin": "0.005",
+          "initialMargin": "0.01"
+        },
+        {
+          "id": 282,
+          "riskLimitValue": "100000",
+          "maxLeverage": "90.00",
+          "maintenanceMargin": "0.0056",
+          "initialMargin": "0.0111"
+        },
+        {
+          "id": 283,
+          "riskLimitValue": "250000",
+          "maxLeverage": "80.00",
+          "maintenanceMargin": "0.0063",
+          "initialMargin": "0.0125"
+        },
+        {
+          "id": 284,
+          "riskLimitValue": "400000",
+          "maxLeverage": "75.00",
+          "maintenanceMargin": "0.0067",
+          "initialMargin": "0.0133"
+        },
+        {
+          "id": 285,
+          "riskLimitValue": "550000",
+          "maxLeverage": "70.00",
+          "maintenanceMargin": "0.0071",
+          "initialMargin": "0.0143"
+        },
+        {
+          "id": 286,
+          "riskLimitValue": "700000",
+          "maxLeverage": "65.00",
+          "maintenanceMargin": "0.0077",
+          "initialMargin": "0.0154"
+        },
+        {
+          "id": 287,
+          "riskLimitValue": "850000",
+          "maxLeverage": "55.00",
+          "maintenanceMargin": "0.0091",
+          "initialMargin": "0.0182"
+        },
+        {
+          "id": 288,
+          "riskLimitValue": "1000000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        }
+      ],
+      "n_tiers": 35
+    },
+    "XRPUSDT": {
+      "maxLeverage_tier1_hint": 100.0,
+      "tiers_sample": [
+        {
+          "id": 41,
+          "riskLimitValue": "50000",
+          "maxLeverage": "100.00",
+          "maintenanceMargin": "0.005",
+          "initialMargin": "0.01"
+        },
+        {
+          "id": 42,
+          "riskLimitValue": "100000",
+          "maxLeverage": "90.00",
+          "maintenanceMargin": "0.0056",
+          "initialMargin": "0.0111"
+        },
+        {
+          "id": 43,
+          "riskLimitValue": "250000",
+          "maxLeverage": "80.00",
+          "maintenanceMargin": "0.0063",
+          "initialMargin": "0.0125"
+        },
+        {
+          "id": 44,
+          "riskLimitValue": "400000",
+          "maxLeverage": "75.00",
+          "maintenanceMargin": "0.0067",
+          "initialMargin": "0.0133"
+        },
+        {
+          "id": 45,
+          "riskLimitValue": "550000",
+          "maxLeverage": "70.00",
+          "maintenanceMargin": "0.0071",
+          "initialMargin": "0.0143"
+        },
+        {
+          "id": 46,
+          "riskLimitValue": "700000",
+          "maxLeverage": "65.00",
+          "maintenanceMargin": "0.0077",
+          "initialMargin": "0.0154"
+        },
+        {
+          "id": 47,
+          "riskLimitValue": "850000",
+          "maxLeverage": "55.00",
+          "maintenanceMargin": "0.0091",
+          "initialMargin": "0.0182"
+        },
+        {
+          "id": 48,
+          "riskLimitValue": "1000000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        }
+      ],
+      "n_tiers": 35
+    },
+    "ADAUSDT": {
+      "maxLeverage_tier1_hint": 75.0,
+      "tiers_sample": [
+        {
+          "id": 116,
+          "riskLimitValue": "200000",
+          "maxLeverage": "75.00",
+          "maintenanceMargin": "0.0075",
+          "initialMargin": "0.0133"
+        },
+        {
+          "id": 117,
+          "riskLimitValue": "300000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        },
+        {
+          "id": 118,
+          "riskLimitValue": "500000",
+          "maxLeverage": "33.33",
+          "maintenanceMargin": "0.015",
+          "initialMargin": "0.03"
+        },
+        {
+          "id": 119,
+          "riskLimitValue": "900000",
+          "maxLeverage": "25.00",
+          "maintenanceMargin": "0.02",
+          "initialMargin": "0.04"
+        },
+        {
+          "id": 120,
+          "riskLimitValue": "1300000",
+          "maxLeverage": "20.00",
+          "maintenanceMargin": "0.025",
+          "initialMargin": "0.05"
+        },
+        {
+          "id": 121,
+          "riskLimitValue": "1700000",
+          "maxLeverage": "16.67",
+          "maintenanceMargin": "0.03",
+          "initialMargin": "0.06"
+        },
+        {
+          "id": 122,
+          "riskLimitValue": "2100000",
+          "maxLeverage": "14.29",
+          "maintenanceMargin": "0.035",
+          "initialMargin": "0.07"
+        },
+        {
+          "id": 123,
+          "riskLimitValue": "2500000",
+          "maxLeverage": "12.50",
+          "maintenanceMargin": "0.04",
+          "initialMargin": "0.08"
+        }
+      ],
+      "n_tiers": 30
+    },
+    "DOGEUSDT": {
+      "maxLeverage_tier1_hint": 75.0,
+      "tiers_sample": [
+        {
+          "id": 206,
+          "riskLimitValue": "250000",
+          "maxLeverage": "75.00",
+          "maintenanceMargin": "0.0075",
+          "initialMargin": "0.0133"
+        },
+        {
+          "id": 207,
+          "riskLimitValue": "500000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        },
+        {
+          "id": 208,
+          "riskLimitValue": "750000",
+          "maxLeverage": "33.33",
+          "maintenanceMargin": "0.015",
+          "initialMargin": "0.03"
+        },
+        {
+          "id": 209,
+          "riskLimitValue": "1500000",
+          "maxLeverage": "25.00",
+          "maintenanceMargin": "0.02",
+          "initialMargin": "0.04"
+        },
+        {
+          "id": 210,
+          "riskLimitValue": "3000000",
+          "maxLeverage": "20.00",
+          "maintenanceMargin": "0.025",
+          "initialMargin": "0.05"
+        },
+        {
+          "id": 211,
+          "riskLimitValue": "5000000",
+          "maxLeverage": "16.67",
+          "maintenanceMargin": "0.03",
+          "initialMargin": "0.06"
+        },
+        {
+          "id": 212,
+          "riskLimitValue": "7000000",
+          "maxLeverage": "14.29",
+          "maintenanceMargin": "0.035",
+          "initialMargin": "0.07"
+        },
+        {
+          "id": 213,
+          "riskLimitValue": "10000000",
+          "maxLeverage": "12.50",
+          "maintenanceMargin": "0.04",
+          "initialMargin": "0.08"
+        }
+      ],
+      "n_tiers": 30
+    },
+    "LINKUSDT": {
+      "maxLeverage_tier1_hint": 50.0,
+      "tiers_sample": [
+        {
+          "id": 101,
+          "riskLimitValue": "200000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        },
+        {
+          "id": 102,
+          "riskLimitValue": "400000",
+          "maxLeverage": "33.33",
+          "maintenanceMargin": "0.015",
+          "initialMargin": "0.03"
+        },
+        {
+          "id": 103,
+          "riskLimitValue": "600000",
+          "maxLeverage": "25.00",
+          "maintenanceMargin": "0.02",
+          "initialMargin": "0.04"
+        },
+        {
+          "id": 104,
+          "riskLimitValue": "800000",
+          "maxLeverage": "20.00",
+          "maintenanceMargin": "0.025",
+          "initialMargin": "0.05"
+        },
+        {
+          "id": 105,
+          "riskLimitValue": "1000000",
+          "maxLeverage": "16.67",
+          "maintenanceMargin": "0.03",
+          "initialMargin": "0.06"
+        },
+        {
+          "id": 106,
+          "riskLimitValue": "1200000",
+          "maxLeverage": "14.29",
+          "maintenanceMargin": "0.035",
+          "initialMargin": "0.07"
+        },
+        {
+          "id": 107,
+          "riskLimitValue": "1400000",
+          "maxLeverage": "12.50",
+          "maintenanceMargin": "0.04",
+          "initialMargin": "0.08"
+        },
+        {
+          "id": 108,
+          "riskLimitValue": "1600000",
+          "maxLeverage": "11.11",
+          "maintenanceMargin": "0.045",
+          "initialMargin": "0.09"
+        }
+      ],
+      "n_tiers": 30
+    },
+    "BNBUSDT": {
+      "maxLeverage_tier1_hint": 50.0,
+      "tiers_sample": [
+        {
+          "id": 251,
+          "riskLimitValue": "200000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        },
+        {
+          "id": 252,
+          "riskLimitValue": "400000",
+          "maxLeverage": "33.33",
+          "maintenanceMargin": "0.015",
+          "initialMargin": "0.03"
+        },
+        {
+          "id": 253,
+          "riskLimitValue": "600000",
+          "maxLeverage": "25.00",
+          "maintenanceMargin": "0.02",
+          "initialMargin": "0.04"
+        },
+        {
+          "id": 254,
+          "riskLimitValue": "800000",
+          "maxLeverage": "20.00",
+          "maintenanceMargin": "0.025",
+          "initialMargin": "0.05"
+        },
+        {
+          "id": 255,
+          "riskLimitValue": "1000000",
+          "maxLeverage": "16.67",
+          "maintenanceMargin": "0.03",
+          "initialMargin": "0.06"
+        },
+        {
+          "id": 256,
+          "riskLimitValue": "1200000",
+          "maxLeverage": "14.29",
+          "maintenanceMargin": "0.035",
+          "initialMargin": "0.07"
+        },
+        {
+          "id": 257,
+          "riskLimitValue": "1400000",
+          "maxLeverage": "12.50",
+          "maintenanceMargin": "0.04",
+          "initialMargin": "0.08"
+        },
+        {
+          "id": 258,
+          "riskLimitValue": "1600000",
+          "maxLeverage": "11.11",
+          "maintenanceMargin": "0.045",
+          "initialMargin": "0.09"
+        }
+      ],
+      "n_tiers": 30
+    },
+    "SUIUSDT": {
+      "maxLeverage_tier1_hint": 50.0,
+      "tiers_sample": [
+        {
+          "id": 1,
+          "riskLimitValue": "200000",
+          "maxLeverage": "50.00",
+          "maintenanceMargin": "0.01",
+          "initialMargin": "0.02"
+        },
+        {
+          "id": 2,
+          "riskLimitValue": "400000",
+          "maxLeverage": "40.00",
+          "maintenanceMargin": "0.013",
+          "initialMargin": "0.025"
+        },
+        {
+          "id": 3,
+          "riskLimitValue": "600000",
+          "maxLeverage": "33.30",
+          "maintenanceMargin": "0.015",
+          "initialMargin": "0.03"
+        },
+        {
+          "id": 4,
+          "riskLimitValue": "800000",
+          "maxLeverage": "28.60",
+          "maintenanceMargin": "0.018",
+          "initialMargin": "0.035"
+        },
+        {
+          "id": 5,
+          "riskLimitValue": "1000000",
+          "maxLeverage": "25.00",
+          "maintenanceMargin": "0.02",
+          "initialMargin": "0.04"
+        },
+        {
+          "id": 6,
+          "riskLimitValue": "1500000",
+          "maxLeverage": "20.00",
+          "maintenanceMargin": "0.025",
+          "initialMargin": "0.05"
+        },
+        {
+          "id": 7,
+          "riskLimitValue": "2000000",
+          "maxLeverage": "16.70",
+          "maintenanceMargin": "0.03",
+          "initialMargin": "0.06"
+        },
+        {
+          "id": 8,
+          "riskLimitValue": "2500000",
+          "maxLeverage": "14.30",
+          "maintenanceMargin": "0.035",
+          "initialMargin": "0.07"
+        }
+      ],
+      "n_tiers": 30
+    }
+  }
+}

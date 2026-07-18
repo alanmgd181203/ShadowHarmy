@@ -75,16 +75,19 @@ ACTIVOS_BERU_FLOTA = [
 ]
 MANTO_LEVERAGE_DEFAULT = float(os.getenv("MANTO_LEVERAGE_DEFAULT", "25"))
 MANTO_LEVERAGE_LINEAR_MAX_BY_ASSET: dict[str, float] = {
-    "ETH": 100, "BTC": 100, "LTC": 75, "SOL": 50, "XRP": 75, "DOGE": 50,
-    "ADA": 50, "LINK": 50, "AVAX": 50, "MATIC": 50, "DOT": 50, "UNI": 50,
-    "ATOM": 50, "FIL": 25, "APT": 50, "ARB": 50, "OP": 50, "SUI": 50,
-    "WIF": 20, "PEPE": 20,
+    "AAVE": 75, "ADA": 75, "APT": 50, "ARB": 50, "ATOM": 75,
+    "AVAX": 50, "BCH": 50, "BTC": 100, "DOGE": 75, "DOT": 50,
+    "ETC": 50, "ETH": 100, "FIL": 25, "HYPE": 75, "LINK": 50,
+    "LTC": 50, "MATIC": 75, "MNT": 25, "NEAR": 50, "OP": 50,
+    "SOL": 100, "SUI": 50, "UNI": 50, "WIF": 50, "XLM": 50,
+    "XRP": 100,
 }
 MANTO_LEVERAGE_INVERSE_MAX_BY_ASSET: dict[str, float] = {
-    "ETH": 100, "BTC": 100, "LTC": 50, "SOL": 50, "XRP": 50, "DOGE": 50,
-    "ADA": 50, "LINK": 50, "AVAX": 50, "MATIC": 50, "DOT": 50, "UNI": 50,
-    "ATOM": 50, "FIL": 25, "APT": 50, "ARB": 50, "OP": 50, "SUI": 50,
-    "WIF": 20, "PEPE": 20,
+    "AAVE": 20, "ADA": 50, "APT": 20, "AVAX": 20, "BCH": 20,
+    "BTC": 100, "DOGE": 25, "DOT": 50, "ETC": 20, "ETH": 100,
+    "FIL": 20, "HYPE": 20, "LINK": 20, "LTC": 50, "MNT": 50,
+    "NEAR": 20, "OP": 20, "SOL": 50, "SUI": 20, "UNI": 20,
+    "WIF": 20, "XLM": 20, "XRP": 50,
 }
 
 # Trinidad + USDC spot + USDE (core/trinidad.py)

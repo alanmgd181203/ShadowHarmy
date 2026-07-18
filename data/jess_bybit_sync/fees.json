@@ -1,0 +1,46 @@
+{
+  "nota": "Maker/taker por simbolo: GET /v5/account/fee-rate (autenticado). Sin API keys solo queda deliveryFeeRate en instrumentos.",
+  "account_fee_rate": [
+    {
+      "symbol": "BTCUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    },
+    {
+      "symbol": "ETHUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    },
+    {
+      "symbol": "LTCUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    },
+    {
+      "symbol": "SOLUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    },
+    {
+      "symbol": "XRPUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    },
+    {
+      "symbol": "ADAUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    },
+    {
+      "symbol": "LINKUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    },
+    {
+      "symbol": "BNBUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    },
+    {
+      "symbol": "SUIUSDT",
+      "error": "'HTTP' object has no attribute 'get_fee_rate'"
+    }
+  ],
+  "tried_auth": true
+}

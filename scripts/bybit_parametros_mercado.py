@@ -40,7 +40,8 @@ def page_instruments(category: str, *, quote_coin: str | None = None) -> list[di
         if cursor:
             q += f"&cursor={cursor}"
         payload = get_json(q)
-        if int(payload.get("retCode") or -1) != 0:
+        rc = payload.get("retCode")
+        if rc is None or int(rc) != 0:
             raise RuntimeError(f"instruments {category}: {payload.get('retMsg')}")
         result = payload.get("result") or {}
         for x in result.get("list") or []:

@@ -71,7 +71,8 @@ def _max_lev(instr: dict[str, Any] | None) -> float | None:
 
 def fetch_instrument(category: str, symbol: str) -> dict[str, Any] | None:
     data = _get_json(f"/v5/market/instruments-info?category={category}&symbol={symbol}")
-    if int(data.get("retCode") or -1) != 0:
+    rc = data.get("retCode")
+    if rc is None or int(rc) != 0:
         raise RuntimeError(f"{symbol} {category}: {data.get('retMsg')}")
     lst = (data.get("result") or {}).get("list") or []
     return lst[0] if lst else None
