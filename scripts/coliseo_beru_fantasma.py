@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Coliseo — ranking Beru Fantasma v2 (100%: caza + negociador + ciclo).
+"""Coliseo — Fase 1: vacío Adán + activos eficientes (cascada de horizontes).
 
-Barrido vacío Adán: 0.6% … 2.0% (paso 0.2%).
-Métrica: botín neto / dólar de manto.
-Calor: día 20% · semana 50% · año 30%.
+Fase 1 (ahora): barrido vacío 0.8%…2.0%, Mariscal, 1 Beru/activo.
+  Cascada: --dias 1 → 7 → 30 → 365. Tras 1d/7d: --top N para no quemar año en perdedores.
+
+Fase 2 (después): malla oz/red ×2, sub-Berus/tiers, legión/Mega — NO mezclar aún.
 
 Uso:
-  python scripts/coliseo_beru_fantasma.py
-  python scripts/coliseo_beru_fantasma.py --vacios 0.012,0.016 --only BTC,ETH
-  python scripts/coliseo_beru_fantasma.py --slip-bps 2 --path-policy min
+  python scripts/coliseo_beru_fantasma.py --dias 1
+  python scripts/coliseo_beru_fantasma.py --dias 7 --top 8
+  python scripts/coliseo_beru_fantasma.py --dias 365 --only BTC,ETH,SOL,...
 """
 from __future__ import annotations
 
@@ -62,6 +63,15 @@ def _window(candles, now_ts: int, days: int):
     return [c for c in candles if c[0] >= since]
 
 
+def _ventanas(candles, now_ts: int, horizonte_dias: int) -> tuple[list, list, list]:
+    """Recorta la estela al horizonte y arma dia/semana/anio dentro de ese techo."""
+    base = _window(candles, now_ts, horizonte_dias) if horizonte_dias < 400 else candles
+    d1 = min(1, horizonte_dias)
+    d7 = min(7, horizonte_dias)
+    # "anio" = todo lo disponible bajo el horizonte
+    return _window(base, now_ts, d1), _window(base, now_ts, d7), base
+
+
 def rank_for_vacio(
     vacio: float,
     *,
@@ -69,7 +79,7 @@ def rank_for_vacio(
     fee_pct: float,
     slip_bps: float,
     only: list[str] | None,
-    quick: bool,
+    horizonte_dias: int,
 ) -> dict[str, Any]:
     con = bov.connect()
     margenes = _margen_map()
@@ -81,7 +91,7 @@ def rank_for_vacio(
         t0 = time.time()
         candles = bov.load_candles(con, base)
         print(f"  [{i}/{len(flota)}] {base} velas={len(candles)}…", flush=True)
-        if len(candles) < 100:
+        if len(candles) < 50:
             por_activo.append(
                 {
                     "activo": base,
@@ -91,15 +101,16 @@ def rank_for_vacio(
             )
             continue
         margen = margenes.get(base, 12.5)
-        # quick: solo 7d + 30d proxy si --quick; else full
-        if quick:
-            c_anio = _window(candles, now_ts, 30)
-            c_sem = _window(candles, now_ts, 7)
-            c_dia = _window(candles, now_ts, 1)
-        else:
-            c_anio = candles
-            c_sem = _window(candles, now_ts, 7)
-            c_dia = _window(candles, now_ts, 1)
+        c_dia, c_sem, c_anio = _ventanas(candles, now_ts, horizonte_dias)
+        if len(c_anio) < 30:
+            por_activo.append(
+                {
+                    "activo": base,
+                    "datos": "INSUFICIENTES",
+                    "margen_usd": margen,
+                }
+            )
+            continue
 
         kw = dict(
             activo=base,
@@ -110,8 +121,8 @@ def rank_for_vacio(
             path_policy=path_policy,  # type: ignore[arg-type]
         )
         r_anio = simular_desde_velas(c_anio, **kw)
-        r_sem = simular_desde_velas(c_sem, **kw)
-        r_dia = simular_desde_velas(c_dia, **kw)
+        r_sem = simular_desde_velas(c_sem, **kw) if c_sem else r_anio
+        r_dia = simular_desde_velas(c_dia, **kw) if c_dia else r_sem
         calor = calor_eficiencia(r_dia.eficiencia, r_sem.eficiencia, r_anio.eficiencia)
         por_activo.append(
             {
@@ -146,7 +157,7 @@ def rank_for_vacio(
         )
         print(
             f"      calor={calor:.3f} efi7d={r_sem.eficiencia:.2f} "
-            f"efi1a={r_anio.eficiencia:.2f} ({por_activo[-1]['secs']}s)",
+            f"efiH={r_anio.eficiencia:.2f} ({por_activo[-1]['secs']}s)",
             flush=True,
         )
     con.close()
@@ -165,7 +176,9 @@ def rank_for_vacio(
     return {
         "meta": {
             "ts_utc": datetime.now(timezone.utc).isoformat(),
-            "version": "beru_fantasma_v2",
+            "version": "beru_fantasma_v2_fase1",
+            "fase": 1,
+            "horizonte_dias": horizonte_dias,
             "vacio": vacio,
             "vacio_pct": vacio * 100,
             "path_policy": path_policy,
@@ -174,8 +187,12 @@ def rank_for_vacio(
             "abismo": "acoplado_a_vacio",
             "metrica": "botin_neto / margen_usd",
             "pesos_calor": {"dia": 0.20, "semana": 0.50, "anio": 0.30},
-            "quick": quick,
             "n": len(por_activo),
+            "fase2_aplazada": [
+                "malla_oz_red_x2",
+                "sub_berus_tiers",
+                "legion_fusiones_mega",
+            ],
         },
         "ranking": sorted(
             por_activo,
@@ -188,15 +205,15 @@ def rank_for_vacio(
 def write_md(report: dict[str, Any], path: Path) -> None:
     meta = report["meta"]
     lines = [
-        f"# Ranking Beru Fantasma v2 — vacío {meta['vacio_pct']:.1f}%",
+        f"# Ranking Beru Fantasma — vacío {meta['vacio_pct']:.1f}% · horizonte {meta['horizonte_dias']}d",
         f"",
-        f"- UTC: `{meta['ts_utc']}`",
+        f"- UTC: `{meta['ts_utc']}` · **Fase 1** (vacío + activos)",
         f"- Métrica: **botín neto / dólar de manto**",
         f"- Path: `{meta['path_policy']}` · fee `{meta['fee_pct']*100:.2f}%/pierna` · slip `{meta['slip_bps']} bps`",
         f"- Calor: día 20% · **semana 50%** · año 30%",
         f"",
-        f"| # | Activo | Calor | Semáforo | Efi 7d | Efi 1a | Efi 1d | Margen |",
-        f"|---|--------|------:|----------|-------:|-------:|-------:|-------:|",
+        f"| # | Activo | Calor | Semáforo | Efi 7d | Efi H | Efi 1d | Margen |",
+        f"|---|--------|------:|----------|-------:|------:|-------:|-------:|",
     ]
     for row in report["ranking"]:
         if row.get("datos") != "OK":
@@ -214,12 +231,24 @@ def write_md(report: dict[str, Any], path: Path) -> None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Coliseo Beru Fantasma v2")
+    ap = argparse.ArgumentParser(description="Coliseo Fase 1 — vacío Adán + ranking activos")
     ap.add_argument(
         "--vacios",
         type=str,
         default=",".join(str(v) for v in VACIOS_BARRIDO_DEFAULT),
-        help="Lista de vacíos Adán (fracción). Default 0.6%%…2.0%% paso 0.2%%",
+        help="Vacíos Adán (fracción). Default 0.8%%…2.0%% paso 0.2%%",
+    )
+    ap.add_argument(
+        "--dias",
+        type=int,
+        default=1,
+        help="Horizonte de estela: 1 → 7 → 30 → 365 (cascada). Default 1 (smoke rápido)",
+    )
+    ap.add_argument(
+        "--top",
+        type=int,
+        default=0,
+        help="Tras el barrido, escribe top N activos (promedio calor) para el siguiente --only",
     )
     ap.add_argument("--path-policy", choices=["min", "ohlc", "olhc"], default="min")
     ap.add_argument(
@@ -227,41 +256,41 @@ def main() -> int:
         type=float,
         default=float(getattr(config, "BERU_RAIL_FEE_USDT_PCT", 0.10)) / 100.0,
     )
-    ap.add_argument("--slip-bps", type=float, default=2.0, help="Slippage conservador (default 2 bps)")
-    ap.add_argument("--only", type=str, default="", help="Activos CSV (prueba rápida)")
-    ap.add_argument("--quick", action="store_true", help="Solo 30d como 'año' (smoke)")
-    ap.add_argument("--out-dir", type=str, default="", help="Carpeta salida (default data/coliseo)")
+    ap.add_argument("--slip-bps", type=float, default=2.0)
+    ap.add_argument("--only", type=str, default="", help="Activos CSV (poda tras --top)")
+    ap.add_argument("--quick", action="store_true", help="Alias de --dias 30")
+    ap.add_argument("--out-dir", type=str, default="")
     args = ap.parse_args()
 
     if not bov.BOVEDA_PATH.exists():
         print(f"Sin bóveda: {bov.BOVEDA_PATH}")
-        print("Copia el pack de Jess a data/coliseo/")
         return 2
 
+    horizonte = 30 if args.quick else max(1, int(args.dias))
     vacios = [float(x.strip()) for x in args.vacios.split(",") if x.strip()]
     only = [x.strip().upper() for x in args.only.split(",") if x.strip()] or None
     out_dir = Path(args.out_dir) if args.out_dir else bov.COLISEO_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print("=" * 60)
-    print("COLISEO — Beru Fantasma v2 (100%)")
-    print(f"Vacíos: {[round(v*100,1) for v in vacios]} %")
-    print(f"Fee {args.fee_pct*100:.2f}%/pierna · slip {args.slip_bps} bps · path {args.path_policy}")
+    print("COLISEO FASE 1 — vacio Adan + activos (sin malla x2 / sin sub-Berus)")
+    print(f"Horizonte: {horizonte}d | Vacios %: {[round(v*100,1) for v in vacios]}")
+    print(f"Fee {args.fee_pct*100:.2f}%/pierna | slip {args.slip_bps} bps | path {args.path_policy}")
     print("=" * 60)
 
     summary = []
-    mejores_por_activo: dict[str, dict[str, Any]] = {}
+    calor_por_activo: dict[str, list[float]] = {}
 
     for v in vacios:
-        label = f"v{str(round(v*100,1)).replace('.', 'p')}"
-        print(f"\n>>> Vacío {v*100:.1f}%")
+        label = f"h{horizonte}d_v{str(round(v*100,1)).replace('.', 'p')}"
+        print(f"\n>>> Vacio {v*100:.1f}% · {horizonte}d")
         report = rank_for_vacio(
             v,
             path_policy=args.path_policy,
             fee_pct=args.fee_pct,
             slip_bps=args.slip_bps,
             only=only,
-            quick=args.quick,
+            horizonte_dias=horizonte,
         )
         out_json = out_dir / f"ranking_{label}.json"
         out_md = out_dir / f"ranking_{label}.md"
@@ -281,41 +310,80 @@ def main() -> int:
         for row in report["ranking"]:
             if row.get("datos") != "OK":
                 continue
-            a = row["activo"]
-            prev = mejores_por_activo.get(a)
-            if prev is None or float(row["calor"]) > float(prev["calor"]):
-                mejores_por_activo[a] = {
-                    "activo": a,
-                    "vacio_pct_optimo": v * 100,
-                    "calor": row["calor"],
-                    "efi_semana": row["semana"]["eficiencia"],
-                    "margen_usd": row["margen_usd"],
-                }
+            calor_por_activo.setdefault(row["activo"], []).append(float(row["calor"]))
         print(f"    -> {out_md.name} · top {summary[-1]['top']}")
+
+    # Vacío dorado + ranking de activos (promedio de calor en el barrido)
+    activos_rank = sorted(
+        (
+            {
+                "activo": a,
+                "calor_medio": sum(vals) / len(vals),
+                "n_vacios": len(vals),
+            }
+            for a, vals in calor_por_activo.items()
+        ),
+        key=lambda x: x["calor_medio"],
+        reverse=True,
+    )
+    dorado = max(summary, key=lambda x: x["mediana_calor"]) if summary else None
+    top_n = activos_rank[: args.top] if args.top > 0 else activos_rank[:8]
+    only_sugerido = ",".join(x["activo"] for x in top_n)
 
     comp = {
         "ts_utc": datetime.now(timezone.utc).isoformat(),
-        "barrido": summary,
-        "vacio_dorado_flota": max(summary, key=lambda x: x["mediana_calor"]) if summary else None,
-        "vacio_optimo_por_activo": sorted(
-            mejores_por_activo.values(),
-            key=lambda x: float(x["calor"]),
-            reverse=True,
-        ),
+        "fase": 1,
+        "horizonte_dias": horizonte,
+        "barrido_vacios": summary,
+        "vacio_dorado_flota": dorado,
+        "activos_por_calor_medio": activos_rank,
+        "top_sugerido_siguiente": {
+            "n": len(top_n),
+            "activos": [x["activo"] for x in top_n],
+            "only_cli": only_sugerido,
+            "comando_siguiente": (
+                f"python scripts/coliseo_beru_fantasma.py --dias { _siguiente_horizonte(horizonte) }"
+                f" --only {only_sugerido}"
+                if only_sugerido
+                else None
+            ),
+        },
+        "fase2_aplazada": [
+            "ensanchamiento oz/red 0.2%/0.1%",
+            "sub-Berus Soldado..Mariscal",
+            "legion / fusiones / Mega",
+        ],
         "notas": {
-            "fee": "0.1%/pierna (0.2% round-trip)",
+            "fee": "0.1%/pierna",
             "slip_bps": args.slip_bps,
             "calor": "20/50/30",
-            "abismo": "acoplado al vacío Adán",
-            "fusiones": "no simuladas (1 Beru por activo)",
+            "vacios": "0.8%…2.0% (sin 0.6%)",
+            "cascada": "1d → 7d → 30d → 365d; poda con --top / --only",
         },
     }
     (out_dir / "comparativa_vacios.json").write_text(
         json.dumps(comp, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     _write_comparativa_md(comp, out_dir / "comparativa_vacios.md")
+    (out_dir / "top_activos_siguiente.txt").write_text(only_sugerido + "\n", encoding="utf-8")
     print("\nComparativa:", out_dir / "comparativa_vacios.md")
+    if only_sugerido:
+        print("Top para siguiente horizonte:", only_sugerido)
+        print(
+            "Comando:",
+            comp["top_sugerido_siguiente"]["comando_siguiente"],
+        )
     return 0
+
+
+def _siguiente_horizonte(d: int) -> int:
+    if d <= 1:
+        return 7
+    if d <= 7:
+        return 30
+    if d <= 30:
+        return 365
+    return 365
 
 
 def _median(xs: list[float]) -> float:
@@ -330,35 +398,48 @@ def _median(xs: list[float]) -> float:
 
 def _write_comparativa_md(comp: dict[str, Any], path: Path) -> None:
     lines = [
-        "# Comparativa vacíos Adán — Coliseo",
+        f"# Comparativa Fase 1 — horizonte {comp['horizonte_dias']}d",
         "",
         f"- UTC: `{comp['ts_utc']}`",
         "",
-        "## Por vacío (mediana de calor de la flota)",
+        "## Vacíos (mediana de calor de la flota)",
         "",
         "| Vacío % | Top activo | Calor top | Mediana calor |",
         "|--------:|------------|----------:|--------------:|",
     ]
-    for row in comp.get("barrido") or []:
+    for row in comp.get("barrido_vacios") or []:
         lines.append(
             f"| {row['vacio_pct']:.1f} | {row['top']} | {row['calor_top']:.3f} | {row['mediana_calor']:.3f} |"
         )
     dorado = comp.get("vacio_dorado_flota") or {}
     lines += [
         "",
-        f"**Vacío dorado (flota):** {dorado.get('vacio_pct', '—')}% "
+        f"**Vacío dorado (esta pasada):** {dorado.get('vacio_pct', '—')}% "
         f"(mediana calor {dorado.get('mediana_calor', '—')})",
         "",
-        "## Vacío óptimo por activo (mejor calor en el barrido)",
+        "## Activos por calor medio (en todos los vacíos de esta pasada)",
         "",
-        "| Activo | Vacío óptimo % | Calor | Efi 7d | Margen |",
-        "|--------|---------------:|------:|-------:|-------:|",
+        "| # | Activo | Calor medio |",
+        "|---|--------|------------:|",
     ]
-    for row in comp.get("vacio_optimo_por_activo") or []:
-        lines.append(
-            f"| {row['activo']} | {row['vacio_pct_optimo']:.1f} | {row['calor']:.3f} | "
-            f"{row['efi_semana']:.3f} | {row['margen_usd']:.1f} |"
-        )
+    for i, row in enumerate(comp.get("activos_por_calor_medio") or [], 1):
+        lines.append(f"| {i} | {row['activo']} | {row['calor_medio']:.3f} |")
+    top = comp.get("top_sugerido_siguiente") or {}
+    lines += [
+        "",
+        "## Siguiente paso (cascada)",
+        "",
+        f"No gastes el año en toda la flota. Usa el top:",
+        f"",
+        f"```",
+        f"{top.get('comando_siguiente') or '—'}",
+        f"```",
+        "",
+        "## Fase 2 (aplazada — no correr aún)",
+        "",
+    ]
+    for x in comp.get("fase2_aplazada") or []:
+        lines.append(f"- {x}")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

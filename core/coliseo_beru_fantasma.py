@@ -433,4 +433,4 @@ def semaforo(rank: int, n: int) -> str:
     return "ROJO"
 
 
-VACIOS_BARRIDO_DEFAULT = (0.006, 0.008, 0.010, 0.012, 0.014, 0.016, 0.018, 0.020)
+VACIOS_BARRIDO_DEFAULT = (0.008, 0.010, 0.012, 0.014, 0.016, 0.018, 0.020)  # 0.8%…2.0% — sin 0.6%

@@ -1,106 +1,72 @@
 # Informe del Coliseo — Beru Fantasma (para el Monarca)
 
-**Fecha:** 2026-07-18  
-**Qué es:** el teatro donde Beru pelea en el pasado (bóveda de Jess) para saber qué barcos merecen oxígeno.
+**Fecha:** 2026-07-18 (Fase 1 fijada)  
+**Qué es:** teatro con la bóveda histórica para elegir **vacío Adán** y **activos** sin soltar Beru a Bybit.
 
 ---
 
-## Qué quedó listo
+## Orden de batalla (lo que firmaste)
 
-1. **Bóveda en su sitio** — `data/coliseo/boveda_spot_1m.sqlite`  
-   Los 22 spots · 1 minuto · 1 año que bajó Jess.
+**Fase 1 — ahora (una perilla a la vez)**  
+1. Encontrar el **vacío más eficiente** (desde **0,8 %** hasta 2,0 %; ya no 0,6 %).  
+2. Ver qué **activos** ganan (calor / semáforos).  
+3. Cascada de tiempo: **1 día → 7 días → 30 días → año**.  
+4. Tras el día/semana: quédate solo con el **top** y no gastes el año en barcos que ya perdieron en todo.
 
-2. **Beru Fantasma v2 (al 100 % de un barco)**  
-   Ya no es solo “salir a cazar una vez”. Ahora el fantasma hace:
-   - **Caza real** (engorda en la red, cosecha en la oz)
-   - **Negociador** (pelotea sin engordar)
-   - **Ciclo infinito** (red → espera gatillo → caza fantasma sin engorde → otra vez negociador)
+**Fase 2 — después (no mezclar aún)**  
+- Ensanchamiento oz/red (0,2 % / 0,1 %)  
+- Sub-Berus Soldado…Mariscal  
+- Legión / fusiones / Mega  
 
-   **No** simula fusiones ni Mega Beru (eso es cuando varios Berus del mismo activo se juntan; aquí cada activo pelea **solo**).
-
-3. **Barrido del Vacío de Adán**  
-   Prueba: **0,6 % · 0,8 % · 1,0 % · 1,2 % · 1,4 % · 1,6 % · 1,8 % · 2,0 %**  
-   El “abismo” del negociador va **amarrado** al mismo vacío (una sola perilla), para buscar el Adán perfecto sin mezclar dos diales.
-
-4. **Cómo se corona al ganador**  
-   - Botín **después** de comisiones ÷ **dólares de manto** (margen del diccionario vivo)  
-   - Tres miradas: **día · semana · año**  
-   - **Calor** = 20 % día + **50 % semana** + 30 % año  
-   - Semáforos verde / amarillo / rojo por terciles
-
-5. **Fricción**  
-   - Comisión **0,1 %** por pierna (ida y vuelta ≈ 0,2 %) — pesimista a propósito  
-   - **Slippage 2 bps** por defecto (el precio “real” un poquito peor que el latido) — se puede cambiar
-
-6. **Latidos**  
-   Velas de 1 minuto → pasos de **0,05 %**.  
-   Política **min**: prueba dos caminos dentro del minuto y se queda con el **peor** resultado (no se autoengaña).
+De nada sirve mil simulaciones de un año en un activo que ya es peor que los primeros.
 
 ---
 
-## Cómo lo corres tú (forja, sin Bybit)
+## Qué hace el Fantasma hoy (Fase 1)
 
-Prueba corta (2 activos, 2 vacíos, “año” = 30 días):
+- Un Beru tipo **Mariscal** por activo (caza + negociador + ciclo).  
+- Engorde **+$5 / 0,1 % sin techo** de $50.  
+- Fees 0,1 %/pierna · slip 2 bps · calor 20/50/30.  
+- **No** fusiones, **no** malla doble, **no** tiers chicos.
+
+---
+
+## Cómo correrlo (cascada)
 
 ```text
-python scripts/coliseo_beru_fantasma.py --only BTC,ETH --vacios 0.012,0.016 --quick
+# 1) Smoke de 1 día — toda la flota, todos los vacíos 0.8…2.0
+python scripts/coliseo_beru_fantasma.py --dias 1 --top 8
+
+# 2) Mira data/coliseo/comparativa_vacios.md y top_activos_siguiente.txt
+#    Luego 7 días solo con el top:
+python scripts/coliseo_beru_fantasma.py --dias 7 --only BTC,ETH,... 
+
+# 3) Mes, luego año — mismo --only (poda)
+python scripts/coliseo_beru_fantasma.py --dias 30 --only ...
+python scripts/coliseo_beru_fantasma.py --dias 365 --only ...
 ```
 
-Barrido completo (puede tardar; deja la laptop trabajando):
+El script te imprime un **comando sugerido** para el siguiente horizonte.
 
-```text
-python scripts/coliseo_beru_fantasma.py
-```
-
-Salidas en `data/coliseo/`:
-- `ranking_v1p2.md` (y los demás vacíos)
-- `comparativa_vacios.md` ← **mira este** para el vacío dorado de la flota y el óptimo por activo
-
-Más rápido (menos castigo de camino): `--path-policy ohlc`  
-Sin slippage: `--slip-bps 0`  
-Más slippage: `--slip-bps 5`
+Más rápido (menos castigo de camino): `--path-policy ohlc`
 
 ---
 
-## Qué puedes modificar después (perillas)
+## Dónde mirar resultados
 
-| Perilla | Qué mueve | Dónde |
-|---------|-----------|--------|
-| Lista de vacíos | Buscar Adán más fino | `--vacios 0.011,0.012,0.013…` |
-| Comisión | Más/menos dura | `--fee-pct 0.001` |
-| Slippage | Realismo de fill | `--slip-bps` |
-| Camino OHLC | Honestidad vs velocidad | `--path-policy min\|ohlc` |
-| Pesos del calor | Si semana debe mandar más | en código `PESOS_CALOR` (hoy 20/50/30, firmado) |
-| Abismo ≠ vacío | Si quieres desacoplar negociador | hoy van juntos a propósito |
+- `data/coliseo/comparativa_vacios.md` — vacío dorado de esa pasada + ranking de activos  
+- `data/coliseo/top_activos_siguiente.txt` — lista para `--only`  
+- `ranking_h1d_v1p2.md` etc. — detalle por vacío
 
 ---
 
-## Engorde (doctrina viva)
+## Engorde
 
-**+$5 por cada 0,1 %** de red en frontera · **sin techo de $50**.  
-Si el precio corre 100 %, Beru puede ir comiendo todo el surf (oz detrás).  
-Único freno en batalla real: el oxígeno que Tusk pueda prestar.  
-(Regla vieja “capa 1 hasta $50” = **derogada** 2026-07-18.)
-
-Puedes ver **eficiencias negativas**. No es un bug del ranking: con fee 0,2 % ida-vuelta, cosechas muy chicas (≈0,1 %) **pierden** dinero. Beru solo “gana” de verdad cuando el movimiento capturado (o el engorde) supera esa fricción.  
-
-Para decidir despertar, mira el **orden** (quién sangra menos / quién rinde más), el **calor**, y la **comparativa de vacíos** — no un dólar contable de Bybit.
+**+$5 / 0,1 %** libre (sin techo $50). Único freno en vivo: oxígeno Tusk.
 
 ---
 
-## Qué no hace (a propósito)
+## Siguiente del camino
 
-- No manda órdenes reales  
-- No fusiona Berus  
-- No es el código vivo de `generales/beru.py` línea por línea (es el mismo **espíritu** de doctrina, en teatro)  
-- El Pergamino aún no muestra estos rankings (eso sería después)
-
----
-
-## Siguiente paso del camino
-
-1. Correr el barrido completo cuando tengas tiempo de máquina.  
-2. Leer `comparativa_vacios.md`: vacío dorado de flota + óptimo por barco.  
-3. Con eso, decidir semilla / orden de Ascensión Aprendiz con evidencia (checklist **5.3.3**).
-
-Si algo del teatro no cuadra con cómo tú sientes la batalla real de Beru (pasos del negociador, abismo fijo 2 % en vez de acoplado, etc.), se retoca la perilla y se vuelve a correr — la bóveda ya no hay que bajarla otra vez.
+Terminar Fase 1 (vacío + top activos en cascada).  
+Solo entonces Fase 2 (malla ancha / sub-Berus / legión).
