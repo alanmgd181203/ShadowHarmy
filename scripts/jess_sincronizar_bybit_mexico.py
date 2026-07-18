@@ -1,30 +1,26 @@
 #!/usr/bin/env python3
 """Ritual Jess (Mexico) — sincronizar Bybit vivo y dejar evidencia en git.
 
-Pasos (este script hace casi todo solo):
+Pasos:
   1) Comprueba acceso a api.bybit.com
-  2) Verifica apalancamientos (flota Beru + contraste config)
-  3) Regenera diccionario_beru_flota_manto.json
-  4) Aplica maxLeverage vivos a core/config.py
-  5) Vuelca instrumentos Tank (linear+inverse Trading) + risk-limit muestra
-  6) Intenta fees (publico limitado; con API keys si hay .env)
+  2) Vuelca instrumentos Tank (linear+inverse) + spot USDT/USDC (Beru)
+  3) Construye data/bybit_parametros_mercado.json (lev max + minimos + piso_manto)
+  4) Verifica apalancamientos vs config y aplica vivos
+  5) Regenera diccionario_beru_flota_manto.json
+  6) Risk-limit muestra + fees (si hay keys)
 
-Salida:
-  data/jess_bybit_sync/
-    RESUMEN.md
-    apalancamientos_vivo.json
-    instrumentos_linear.jsonl
-    instrumentos_inverse.jsonl
-    risk_limits_muestra.json
-    fees.json  (si aplica)
+Salida principal:
+  data/bybit_parametros_mercado.json   ← base para Igris/Beru/Kaiser
+  data/jess_bybit_sync/RESUMEN.md
+  data/jess_bybit_sync/*.json(l)
 
 Uso:
   python scripts/jess_sincronizar_bybit_mexico.py
-  python scripts/jess_sincronizar_bybit_mexico.py --skip-apply-config
 """
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import sys
@@ -41,6 +37,15 @@ OUT_DIR = ROOT / "data" / "jess_bybit_sync"
 API = "https://api.bybit.com"
 
 
+def _load(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"no load {path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def _get_json(path: str, *, timeout: float = 60) -> dict[str, Any]:
     url = f"{API}{path}"
     req = urllib.request.Request(
@@ -49,53 +54,6 @@ def _get_json(path: str, *, timeout: float = 60) -> dict[str, Any]:
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return json.loads(resp.read().decode())
-
-
-def _page_instruments(category: str, *, quote_coin: str | None = None) -> list[dict[str, Any]]:
-    out: list[dict[str, Any]] = []
-    cursor = ""
-    while True:
-        q = f"/v5/market/instruments-info?category={category}&limit=1000"
-        if cursor:
-            q += f"&cursor={cursor}"
-        payload = _get_json(q)
-        if int(payload.get("retCode") or -1) != 0:
-            raise RuntimeError(f"instruments {category}: {payload.get('retMsg')}")
-        result = payload.get("result") or {}
-        for x in result.get("list") or []:
-            if x.get("status") != "Trading":
-                continue
-            if quote_coin and x.get("quoteCoin") != quote_coin:
-                continue
-            out.append(x)
-        cursor = result.get("nextPageCursor") or ""
-        if not cursor:
-            break
-    return out
-
-
-def _slim_instrument(x: dict[str, Any]) -> dict[str, Any]:
-    lf = x.get("leverageFilter") or {}
-    lot = x.get("lotSizeFilter") or {}
-    price = x.get("priceFilter") or {}
-    return {
-        "symbol": x.get("symbol"),
-        "baseCoin": x.get("baseCoin"),
-        "quoteCoin": x.get("quoteCoin"),
-        "contractType": x.get("contractType"),
-        "status": x.get("status"),
-        "maxLeverage": lf.get("maxLeverage"),
-        "minLeverage": lf.get("minLeverage"),
-        "leverageStep": lf.get("leverageStep"),
-        "minOrderQty": lot.get("minOrderQty"),
-        "qtyStep": lot.get("qtyStep"),
-        "maxOrderQty": lot.get("maxOrderQty"),
-        "minNotionalValue": lot.get("minNotionalValue"),
-        "tickSize": price.get("tickSize"),
-        "deliveryFeeRate": x.get("deliveryFeeRate"),
-        "fundingInterval": x.get("fundingInterval"),
-        "unifiedMarginTrade": x.get("unifiedMarginTrade"),
-    }
 
 
 def probe() -> None:
@@ -123,8 +81,15 @@ def sample_risk_limits(symbols: list[str], category: str = "linear") -> dict[str
         try:
             data = _get_json(f"/v5/market/risk-limit?category={category}&symbol={sym}")
             lst = (data.get("result") or {}).get("list") or []
-            # tier mas permisivo suele ser el de menor riskLimitValue / mayor maxLeverage
             tiers = []
+            max_lev = None
+            for t in lst:
+                try:
+                    ml = float(t.get("maxLeverage") or 0)
+                except (TypeError, ValueError):
+                    ml = 0.0
+                if max_lev is None or ml > max_lev:
+                    max_lev = ml
             for t in lst[:8]:
                 tiers.append(
                     {
@@ -135,26 +100,21 @@ def sample_risk_limits(symbols: list[str], category: str = "linear") -> dict[str
                         "initialMargin": t.get("initialMargin"),
                     }
                 )
-            max_lev = None
-            for t in lst:
-                try:
-                    ml = float(t.get("maxLeverage") or 0)
-                except (TypeError, ValueError):
-                    ml = 0.0
-                if max_lev is None or ml > max_lev:
-                    max_lev = ml
-            out["symbols"][sym] = {"maxLeverage_tier1_hint": max_lev, "tiers_sample": tiers, "n_tiers": len(lst)}
+            out["symbols"][sym] = {
+                "maxLeverage_tier1_hint": max_lev,
+                "tiers_sample": tiers,
+                "n_tiers": len(lst),
+            }
         except Exception as e:
             out["symbols"][sym] = {"error": str(e)}
     return out
 
 
 def try_fees(symbols: list[str]) -> dict[str, Any]:
-    """Fees de cuenta requieren firma. Sin keys: solo nota + deliveryFeeRate ya en instrumentos."""
     report: dict[str, Any] = {
         "nota": (
-            "Maker/taker por simbolo suele ir en GET /v5/account/fee-rate (autenticado). "
-            "Sin API keys solo dejamos deliveryFeeRate en instrumentos y esta nota."
+            "Maker/taker por simbolo: GET /v5/account/fee-rate (autenticado). "
+            "Sin API keys solo queda deliveryFeeRate en instrumentos."
         ),
         "account_fee_rate": None,
         "tried_auth": False,
@@ -162,7 +122,6 @@ def try_fees(symbols: list[str]) -> dict[str, Any]:
     key = os.getenv("BYBIT_API_KEY") or os.getenv("API_KEY")
     secret = os.getenv("BYBIT_API_SECRET") or os.getenv("API_SECRET")
     if not key or not secret:
-        # intentar .env via config si existe
         try:
             from dotenv import load_dotenv
 
@@ -174,10 +133,8 @@ def try_fees(symbols: list[str]) -> dict[str, Any]:
     if not key or not secret:
         report["skipped"] = "sin API keys en entorno"
         return report
-
     report["tried_auth"] = True
     try:
-        # Usar cliente del ejercito si existe
         from pybit.unified_trading import HTTP
 
         session = HTTP(testnet=False, api_key=key, api_secret=secret)
@@ -200,7 +157,11 @@ def write_resumen(
     ts: str,
     n_lin: int,
     n_inv: int,
+    n_spot_u: int,
+    n_spot_c: int,
+    n_bases: int,
     lev_focus: dict[str, Any],
+    min_focus: dict[str, Any],
     dict_n: int,
     fees_note: str,
 ) -> None:
@@ -208,12 +169,13 @@ def write_resumen(
         f"# Jess Bybit sync — {ts}",
         "",
         "## Hecho",
-        f"- Instrumentos linear Trading: **{n_lin}**",
-        f"- Instrumentos inverse Trading: **{n_inv}**",
-        f"- Diccionario flota Beru regenerado: **{dict_n}** activos",
-        f"- Config apalancamientos: actualizado desde vivo (salvo --skip-apply-config)",
+        f"- Linear Trading: **{n_lin}** · Inverse: **{n_inv}**",
+        f"- Spot USDT: **{n_spot_u}** · Spot USDC: **{n_spot_c}**",
+        f"- Bases en `bybit_parametros_mercado.json`: **{n_bases}**",
+        f"- Diccionario flota Beru: **{dict_n}** activos",
+        f"- Config `MANTO_LEVERAGE_*` alineado al vivo (salvo --skip-apply-config)",
         "",
-        "## Foco apalancamiento (instruments-info)",
+        "## Foco apalancamiento",
         "",
         "| Activo | Linear | Inverse |",
         "|--------|-------:|--------:|",
@@ -222,22 +184,33 @@ def write_resumen(
         lines.append(f"| {a} | {row.get('linear')} | {row.get('inverse')} |")
     lines += [
         "",
+        "## Foco minimos (USD est.)",
+        "",
+        "| Activo | Lin min | Inv min | **Piso manto** | Spot USDT |",
+        "|--------|--------:|--------:|---------------:|----------:|",
+    ]
+    for a, row in min_focus.items():
+        lines.append(
+            f"| {a} | {row.get('lin')} | {row.get('inv')} | **{row.get('piso')}** | {row.get('spot')} |"
+        )
+    lines += [
+        "",
         "## Fees",
         fees_note,
         "",
         "## Archivos",
-        "- `apalancamientos_vivo.json`",
-        "- `instrumentos_linear.jsonl` / `instrumentos_inverse.jsonl`",
-        "- `risk_limits_muestra.json`",
-        "- `fees.json`",
-        "- `config/diccionario_beru_flota_manto.json` (repo)",
-        "- `core/config.py` (MANTO_LEVERAGE_* si apply)",
+        "- `data/bybit_parametros_mercado.json` — BD lev + minimos + piso_manto + spot",
+        "- `data/jess_bybit_sync/apalancamientos_vivo.json`",
+        "- `instrumentos_linear.jsonl` / `inverse` / `spot_usdt` / `spot_usdc`",
+        "- `risk_limits_muestra.json` · `fees.json`",
+        "- `config/diccionario_beru_flota_manto.json` · `core/config.py`",
         "",
-        "## Siguiente (Jess / Cursor)",
-        "1. Revisar RESUMEN y foco LTC/SOL/BTC/ETH/XRP",
-        "2. `git add` de data/jess_bybit_sync/ + diccionario + config.py",
-        "3. `git commit` + `git push` a origin",
-        "4. Avisar al Monarca para `git pull`",
+        "## Siguiente",
+        "1. Revisar este RESUMEN (LTC/SOL/BTC + pisos manto)",
+        "2. Commit + push (ver migracion/JESS_SINCRONIZAR_BYBIT.md)",
+        "3. Monarca: `git pull`",
+        "",
+        "Refresh futuro: `python scripts/kaiser_actualizar_parametros_bybit.py`",
         "",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
@@ -247,6 +220,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--skip-apply-config", action="store_true")
     ap.add_argument("--skip-dict", action="store_true")
+    ap.add_argument("--no-prices", action="store_true", help="No tickers (min_usd parcial)")
     args = ap.parse_args()
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -262,19 +236,55 @@ def main() -> int:
         return 2
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    bpm = _load("bybit_parametros_mercado", ROOT / "scripts" / "bybit_parametros_mercado.py")
 
-    # 1) Snapshot Tank / sentidos: todos los perps Trading
-    print("\n[1/5] Instrumentos linear + inverse…")
-    linear = _page_instruments("linear", quote_coin="USDT")
-    inverse = _page_instruments("inverse")
-    slim_l = [_slim_instrument(x) for x in linear]
-    slim_i = [_slim_instrument(x) for x in inverse]
+    # 1) Instrumentos completos
+    print("\n[1/6] Instrumentos linear + inverse + spot…")
+    linear = bpm.page_instruments("linear", quote_coin="USDT")
+    inverse = bpm.page_instruments("inverse")
+    spot_usdt = bpm.page_instruments("spot", quote_coin="USDT")
+    spot_usdc = bpm.page_instruments("spot", quote_coin="USDC")
+    slim_l = [bpm.slim_instrument(x) for x in linear]
+    slim_i = [bpm.slim_instrument(x) for x in inverse]
+    slim_su = [bpm.slim_instrument(x) for x in spot_usdt]
+    slim_sc = [bpm.slim_instrument(x) for x in spot_usdc]
     dump_jsonl(OUT_DIR / "instrumentos_linear.jsonl", slim_l)
     dump_jsonl(OUT_DIR / "instrumentos_inverse.jsonl", slim_i)
-    print(f"  linear={len(slim_l)}  inverse={len(slim_i)}")
+    dump_jsonl(OUT_DIR / "instrumentos_spot_usdt.jsonl", slim_su)
+    dump_jsonl(OUT_DIR / "instrumentos_spot_usdc.jsonl", slim_sc)
+    print(
+        f"  linear={len(slim_l)} inverse={len(slim_i)} "
+        f"spotUSDT={len(slim_su)} spotUSDC={len(slim_sc)}"
+    )
 
-    # 2) Risk limits muestra (vanguardia + extras)
-    print("\n[2/5] Risk-limit muestra…")
+    # 2) BD parametros (lev + minimos + piso manto)
+    print("\n[2/6] Base bybit_parametros_mercado.json (con precios)…")
+    db = bpm.construir_base_parametros(
+        linear=linear,
+        inverse=inverse,
+        spot_usdt=spot_usdt,
+        spot_usdc=spot_usdc,
+        fetch_prices=not args.no_prices,
+    )
+    db_path = bpm.guardar_base(db)
+    # Copia en carpeta Jess para el commit visible
+    (OUT_DIR / "bybit_parametros_mercado.json").write_text(
+        json.dumps(db, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    print(f"  OK → {db_path}  bases={db['meta']['n_bases']}")
+
+    min_focus = {}
+    for a in ("BTC", "ETH", "LTC", "SOL", "XRP", "ADA"):
+        row = (db.get("activos") or {}).get(a) or {}
+        min_focus[a] = {
+            "lin": (row.get("linear") or {}).get("min_usd_est"),
+            "inv": (row.get("inverse") or {}).get("min_usd_est"),
+            "piso": row.get("piso_manto_usd"),
+            "spot": (row.get("spot_usdt") or {}).get("min_usd_est"),
+        }
+
+    # 3) Risk limits
+    print("\n[3/6] Risk-limit muestra…")
     sample_syms = [
         "BTCUSDT", "ETHUSDT", "LTCUSDT", "SOLUSDT", "XRPUSDT", "ADAUSDT",
         "DOGEUSDT", "LINKUSDT", "BNBUSDT", "SUIUSDT",
@@ -284,20 +294,9 @@ def main() -> int:
         json.dumps(risk, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
 
-    # 3) Verificar apalancamientos (reusa script)
-    print("\n[3/5] Verificar apalancamientos vs config…")
-    import importlib.util
-
-    def _load(name: str, path: Path):
-        spec = importlib.util.spec_from_file_location(name, path)
-        if spec is None or spec.loader is None:
-            raise RuntimeError(f"no load {path}")
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        return mod
-
+    # 4) Apalancamientos vs config
+    print("\n[4/6] Verificar apalancamientos vs config…")
     ver = _load("verificar_apalancamientos_bybit", ROOT / "scripts" / "verificar_apalancamientos_bybit.py")
-
     rows = []
     for a in ver.assets_to_check():
         try:
@@ -305,8 +304,7 @@ def main() -> int:
             print(f"  ok {a}")
         except Exception as e:
             print(f"  FAIL {a}: {e}")
-    lev_path = OUT_DIR / "apalancamientos_vivo.json"
-    lev_path.write_text(
+    (OUT_DIR / "apalancamientos_vivo.json").write_text(
         json.dumps({"ts_utc": ts, "rows": rows}, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
@@ -321,10 +319,10 @@ def main() -> int:
         if r:
             lev_focus[a] = {"linear": r.get("vivo_linear"), "inverse": r.get("vivo_inverse")}
 
-    # 4) Regenerar diccionario Beru
+    # 5) Diccionario Beru
     dict_n = 0
     if not args.skip_dict:
-        print("\n[4/5] Regenerar diccionario_beru…")
+        print("\n[5/6] Regenerar diccionario_beru…")
         gen = _load("generar_diccionario_beru", ROOT / "scripts" / "generar_diccionario_beru.py")
         code = int(gen.main() or 0)
         if code != 0:
@@ -335,10 +333,10 @@ def main() -> int:
         except Exception:
             dict_n = 0
     else:
-        print("\n[4/5] skip dict")
+        print("\n[5/6] skip dict")
 
-    # 5) Fees
-    print("\n[5/5] Fees…")
+    # 6) Fees
+    print("\n[6/6] Fees…")
     fees = try_fees(sample_syms)
     (OUT_DIR / "fees.json").write_text(json.dumps(fees, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     fees_note = fees.get("nota", "")
@@ -352,14 +350,19 @@ def main() -> int:
         ts=ts,
         n_lin=len(slim_l),
         n_inv=len(slim_i),
+        n_spot_u=len(slim_su),
+        n_spot_c=len(slim_sc),
+        n_bases=int(db["meta"]["n_bases"]),
         lev_focus=lev_focus,
+        min_focus=min_focus,
         dict_n=dict_n,
         fees_note=fees_note,
     )
 
     print("\n" + "=" * 72)
     print(f"  OK → {OUT_DIR}")
-    print("  Siguiente: commit + push de data/jess_bybit_sync/ + diccionario + config")
+    print(f"  BD → {db_path}")
+    print("  Siguiente: commit + push (ver migracion/JESS_SINCRONIZAR_BYBIT.md)")
     print("=" * 72)
     return 0
 

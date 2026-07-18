@@ -1,0 +1,8 @@
+{
+  "meta": {
+    "nota": "Placeholder — Jess regenera este archivo con el ritual Mexico. Ver migracion/JESS_SINCRONIZAR_BYBIT.md",
+    "n_bases": 0,
+    "activos_esperados": "lev max + minimos linear/inverse/spot + piso_manto_usd"
+  },
+  "activos": {}
+}
