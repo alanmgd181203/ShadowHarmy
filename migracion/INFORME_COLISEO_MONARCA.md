@@ -75,7 +75,12 @@ Más slippage: `--slip-bps 5`
 
 ---
 
-## Lectura honesta de los números
+## Engorde (doctrina viva)
+
+**+$5 por cada 0,1 %** de red en frontera · **sin techo de $50**.  
+Si el precio corre 100 %, Beru puede ir comiendo todo el surf (oz detrás).  
+Único freno en batalla real: el oxígeno que Tusk pueda prestar.  
+(Regla vieja “capa 1 hasta $50” = **derogada** 2026-07-18.)
 
 Puedes ver **eficiencias negativas**. No es un bug del ranking: con fee 0,2 % ida-vuelta, cosechas muy chicas (≈0,1 %) **pierden** dinero. Beru solo “gana” de verdad cuando el movimiento capturado (o el engorde) supera esa fricción.  
 

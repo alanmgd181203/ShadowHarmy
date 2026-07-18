@@ -25,11 +25,23 @@ def gatillo_pct(vacio_adan: float) -> float:
 
 
 def capa1_masa_usd(masa_autorizada: float) -> float:
-    cap = float(getattr(config, "BERU_CAZA_CAPA1_MAX_USD", 50.0))
+    """Masa inicial al gatillar capa 1.
+
+    Default: mordida ($5). El engorde en frontera (+$5 / 0.1%) **no tiene techo
+    artificial** — solo el oxígeno que Tusk reserve (doctrina Monarca 2026-07-18).
+
+    BERU_CAZA_CAPA1_USD > 0 → fuerza masa inicial fija.
+    BERU_CAZA_CAPA1_MAX_USD > 0 → techo legacy opcional (0 = sin techo).
+    """
     fijo = float(getattr(config, "BERU_CAZA_CAPA1_USD", 0.0))
-    if fijo > 0:
-        return min(fijo, cap, masa_autorizada)
-    return min(max(mordida_usd(), masa_autorizada), cap)
+    cap = float(getattr(config, "BERU_CAZA_CAPA1_MAX_USD", 0.0))
+    masa = fijo if fijo > 0 else mordida_usd()
+    auth = float(masa_autorizada or 0.0)
+    if auth > 0:
+        masa = min(masa, auth)
+    if cap > 0:
+        masa = min(masa, cap)
+    return max(0.0, float(masa))
 
 
 def centro_manto_desde_tusk(tusk: TuskBoveda) -> float:

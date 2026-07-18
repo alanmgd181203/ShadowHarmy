@@ -73,12 +73,13 @@ No fusionar en `ESPERANDO_ABISMO` ni sin grid desplegada.
 |-------|--------|
 | Gatillo Normal | ±**0,8 %** desde el 0 |
 | Al gatillar | oz **−0,1 %** del toque; red a **distancia de clon** del tier (Mariscal +0,1 % … Soldado +0,8 %) |
-| Toque de red (frontera) | Solo el Beru con la **red más extrema** engorda: oz/red **+0,1 %** juntas; **+$5** |
+| Toque de red (frontera) | Solo el Beru con la **red más extrema** engorda: oz/red **+0,1 %** juntas; **+$5** · **sin techo artificial** (surf del movimiento; la oz va detrás) |
 | Peloteo en rangos intermedios | Caza fantasma / ciclo infinito **sin engorde** |
 | Cosecha (Hoz) | Pasa a **Negociador** · deja `red_residual` en memoria |
 | Clonación | Toque de `red_residual` → **Capa N+1** con **$5** (legión paralela OK) |
-| Capa 1 | hasta **$50** (o `BERU_CAZA_CAPA1_USD`) |
+| Capa 1 (masa) | Arranque **+$5** (mordida) · engorde libre **+$5 / 0,1 %** · único límite = **oxígeno Tusk** (`BERU_CAZA_CAPA1_MAX_USD=0` = sin techo; Monarca 2026-07-18) |
 
+**Eliminado:** techo fijo ~**$50** de capa 1 — era miope ante corridas largas.  
 **Eliminado:** spawn automático cada **0,3 %** durante caza activa — el cazador de frontera **engorda solo**.
 
 **Código:** `core/beru_cazador.py`, `core/beru_residual.py`, `generales/beru.py`.  

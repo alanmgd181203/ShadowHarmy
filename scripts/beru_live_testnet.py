@@ -47,7 +47,8 @@ os.environ["BERU_MODO_COMBATE_DEFAULT"] = "CAZA"
 os.environ["BERU_VACIO_ANSIEDAD"] = os.environ.get("BERU_VACIO_ANSIEDAD", "0.012")
 os.environ.setdefault("BERU_CAZADOR_MORDIDA_USD", os.environ.get("LIVE_BERU_MORDIDA_USD", "20"))
 os.environ.setdefault("BERU_CAZA_CAPA1_USD", os.environ.get("LIVE_BERU_MORDIDA_USD", "20"))
-os.environ["BERU_CAZA_CAPA1_MAX_USD"] = os.environ.get("BERU_CAZA_CAPA1_MAX_USD", "100")
+# 0 = sin techo artificial de engorde (doctrina Monarca 2026-07-18)
+os.environ["BERU_CAZA_CAPA1_MAX_USD"] = os.environ.get("BERU_CAZA_CAPA1_MAX_USD", "0")
 os.environ["BERU_SPOT_MARGEN_ENABLED"] = "true"
 os.environ.setdefault("BERU_SPOT_MARGEN_LEVERAGE", "10")
 os.environ["BERU_RAIL_USDT_ONLY"] = "true"

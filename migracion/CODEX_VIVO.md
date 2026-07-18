@@ -70,8 +70,8 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Estado código:** Fase 3 ~92% · lives ✅ · Sub-Santuario + ventana 48–52 en código · falta ranking/Telegram
 - **Jess sync Bybit (2026-07-18):** lev+mínimos+piso manto vivos · LTC 50/50 · Ascensión techo ~$86 / flota ~$698
 - **Coliseo:** bóveda spot 1m + Beru Fantasma (5.3.3) · ritual noche [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md)
-- **Próximo ítem checklist:** **noche bóveda Jess** · ranking fusión · **4.1.2** Telegram · **3.7.P***
-- **Validar:** `validar_checklist.py` · `validar_igris_smoke.py` · `validar_manto_ventana_smoke.py` · `validar_igris_asset_detail_smoke.py`
+- **Beru engorde:** sin techo artificial $50 — +$5/0.1% libre (oxígeno Tusk) · [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) 2026-07-18
+- **Próximo ítem checklist:** **Coliseo v3 legión** · noche bóveda hecha · ranking fusión · **4.1.2** Telegram · **3.7.P***- **Validar:** `validar_checklist.py` · `validar_igris_smoke.py` · `validar_manto_ventana_smoke.py` · `validar_igris_asset_detail_smoke.py`
 - **Tono obligatorio:** `17_GUIA_MONARCA.md` — términos del Ejército en cada respuesta al Monarca
 
 ---

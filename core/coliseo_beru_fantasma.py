@@ -2,6 +2,9 @@
 
 Métrica corona: botín_neto / margen_usd (dólar de manto).
 Un Beru por activo (sin fusiones/Mega). Path OHLC → latidos 0.05%.
+
+Engorde: +$5 / 0.1% en red de frontera **sin techo artificial** (doctrina Monarca
+2026-07-18). Único límite en vivo = oxígeno Tusk; en teatro = el propio movimiento.
 """
 from __future__ import annotations
 
@@ -17,7 +20,7 @@ PASO_TRAILING = 0.001         # 0.1%
 PASO_OZ_NEG = 0.001           # 0.1%
 PASO_RED_NEG = 0.0005         # 0.05% (toques 2–5)
 CLON_RED = 0.001              # 0.1% inicial
-MORDIDA_USD = 5.0
+MORDIDA_USD = 5.0             # +$5 por escalón; engorde libre (sin tope $50)
 FEE_PCT = 0.001               # 0.1% por pierna
 PESOS_CALOR = (0.20, 0.50, 0.30)  # día / semana / año
 
