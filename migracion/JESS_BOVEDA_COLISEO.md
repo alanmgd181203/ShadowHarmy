@@ -1,86 +1,87 @@
-# Jess — Bóveda Coliseo + Beru Fantasma (noche México)
+# Jess — Bóveda Coliseo (noche México · SOLO descarga)
 
 **Para:** Cursor en la Mac de Jess  
-**Por qué:** la forja del Monarca tiene HTTP 403 a Bybit. México descarga la memoria; el teatro se reparte.
-
----
-
-## Orden de batallas
-
-1. **Ya hecho:** sync lev + mínimos (`jess_sincronizar_bybit_mexico.py`).
-2. **Esta noche:** Gran Consumo spot **1m** (bóveda) + ranking Normal **1,6 %**.
-3. **Día siguiente:** Monarca (y/o Jess) corre Ansiedad / barrido de vacíos **sin** Bybit, sobre el pack Drive.
+**Objetivo de esta noche:** armar la bóveda spot 1m lo más rápido posible.  
+**No** simular Beru Fantasma ahora — eso es mañana en paralelo (Monarca + Jess).
 
 ---
 
 ## Mandato listo para pegar en Cursor (Agent) — NOCHE
 
 ```
-Actualiza el repo y deja corriendo el ritual nocturno del Coliseo (bóveda spot 1m).
+Actualiza el repo y deja corriendo SOLO la descarga de la bóveda Coliseo.
 
-1) git pull origin master
+1) git status && git pull origin master
 
-2) Deja la laptop conectada a corriente y sin dormir.
-   Ejecuta EN UN TERMINAL (toda la noche):
+2) Laptop en corriente, sin dormir. Un solo terminal:
 
 python scripts/jess_boveda_coliseo_noche.py --dias 365 --watchdog
 
-   - Descarga velas spot USDT 1m de la flota Beru (~22 activos, ~1 año)
-   - Vigilante cada 10 min: si se cae o se congela, reanuda solo
-   - Al terminar: ranking Beru Fantasma Normal (vacío 1.6%) + zip para Drive
+   Por defecto:
+   - Solo Gran Consumo (spot USDT 1m, ~22 barcos, ~1 año)
+   - 3 puentes en paralelo (activos distintos)
+   - Vigilante cada 10 min (si se cae, reanuda)
+   - Al terminar: zip en data/coliseo/ para Drive
+   - SIN ranking / SIN simulación
 
 3) Por la mañana revisa:
-   - data/coliseo/PROGRESO.md
+   - data/coliseo/PROGRESO.md  (todas las bases OK)
    - data/coliseo/MANIFIESTO.md
-   - data/coliseo/ranking_normal_1p6.md
    - data/coliseo/ShadowHarmy_Coliseo_*.zip
 
 4) Sube el ZIP (o la carpeta data/coliseo) a Google Drive y avisa al Monarca.
 
-NO subas el sqlite/zip enorme a GitHub.
-NO subas Ima/, tools/, videos ni logs basura.
-Si quieres commit solo de scripts/docs que hayan cambiado localmente, OK —
-pero la bóveda NO va a git.
+NO subas el sqlite/zip a GitHub.
+NO subas Ima/, tools/, videos ni logs.
 ```
 
-### Si se cae a media noche (manual)
+### Si se cae a media noche
 
 ```
 python scripts/jess_boveda_coliseo_noche.py --dias 365 --once
 ```
 
-Es **reanudable**: sigue desde el checkpoint.
+Es reanudable (checkpoint). El vigilante ya lo relanza solo si usaste `--watchdog`.
+
+### Si Bybit frena mucho (429 / errores)
+
+Bajar presión a 2 puentes:
+
+```
+python scripts/jess_boveda_coliseo_noche.py --dias 365 --watchdog --workers 2 --sleep 0.2
+```
+
+### Solo si sobra tiempo y quieren ranking esa misma noche
+
+```
+python scripts/jess_boveda_coliseo_noche.py --dias 365 --once --with-ranking
+```
+
+(No es el plan: el Monarca prefiere teatro paralelo mañana.)
 
 ---
 
-## Mandato Monarca — teatro paralelo (después del Drive)
+## Mandato Monarca — teatro (después del Drive)
 
 ```
-1) Copia el pack a data/coliseo/ (bóveda sqlite + manifiestos)
+1) Copia el pack a data/coliseo/
 
-2) Barrido Ansiedad / número dorado (sin Bybit):
+2) Barrido (sin Bybit):
 
 python scripts/coliseo_beru_fantasma.py --vacios 0.010,0.012,0.016,0.020
 
-3) Compara ranking_*.md — métrica corona = botín neto / dólar de manto
-   Semáforos: día / semana / año · calor (semana manda 50%)
+3) Compara ranking_*.md — botín neto / dólar de manto
 ```
-
-Jess puede correr solo `0.016` (ya lo hace la noche) o repetir `0.012` si sobra CPU.
 
 ---
 
-## Qué hay dentro
+## Por qué debería tardar menos
 
-| Pieza | Rol |
-|-------|-----|
-| `data/coliseo/boveda_spot_1m.sqlite` | Memoria OHLC 1m |
-| Latidos 0,05 % | Los fabrica el Fantasma al simular (path peor de dos caminos) |
-| Fees | Fee spot rail (~0,1 %/pierna) restado del botín |
-| Calor | Como Kaiser: semana manda, año confirma, día testigo |
+| Antes | Ahora |
+|-------|--------|
+| 1 activo a la vez | **3** activos en paralelo |
+| Simulación al final | **Omitida** (default) |
+| sleep 0.25s | sleep **0.12s** + backoff solo si falla |
 
-## Notas honestas
-
-- El Fantasma es **replay simplificado** (cazador + cosechas), no el Beru vivo completo con Mega/fusión.
-- Sirve para **ranking relativo** y buscar el vacío dorado; no para PnL contable exacto.
-- Piso de datos: si un activo tiene pocas velas → semáforo GRIS / DATOS_INSUFICIENTES.
+Estimación orientativa: de ~1–3 h según red/límites Bybit (no es exacto).  
+Si tarda de más, usar `--workers 2`.
