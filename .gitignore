@@ -14,5 +14,12 @@ venv/
 *.tmp
 data/*.tmp
 
+# Coliseo — bóveda pesada (Drive, no git)
+data/coliseo/*.sqlite
+data/coliseo/*.sqlite-*
+data/coliseo/*.zip
+data/coliseo/heartbeat.json
+data/coliseo/checkpoint.json
+
 # IDE (opcional local)
 .vscode/

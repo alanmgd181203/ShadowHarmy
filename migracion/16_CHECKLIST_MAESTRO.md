@@ -279,7 +279,7 @@
 ### 5.3 Bellion — mariscal de verdad
 - [ ] **5.3.1** Ratio_Eficiencia latidos/amputaciones por activo
 - [ ] **5.3.2** Reporte horario (manual) — Telegram resumen
-- [ ] **5.3.3** Clasificar activos parásitos vs eficientes
+- [~] **5.3.3** Clasificar activos parásitos vs eficientes — Coliseo Beru Fantasma (bóveda 1m + calor botín/margen) · [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · noche México pendiente
 
 ### 5.4 Beru — legión completa
 - [ ] **5.4.1** SUPER_FUSION estable bajo carga
@@ -358,7 +358,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · Ascensión Aspirante (estrella 5) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México: [`JESS_SINCRONIZAR_BYBIT.md`](JESS_SINCRONIZAR_BYBIT.md) · unificar Streamlit pendiente · commit/push forja pendiente
+- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · Ascensión Aspirante (estrella 5 · techo ~$86 post-Jess) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑

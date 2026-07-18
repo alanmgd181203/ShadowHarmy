@@ -69,9 +69,11 @@ BERU_CAZADOR_GATILLO_FRACCION = float(os.getenv("BERU_CAZADOR_GATILLO_FRACCION",
 BERU_CAZA_CAPA1_USD = float(os.getenv("BERU_CAZA_CAPA1_USD", "0"))
 BERU_CAZA_CAPA1_MAX_USD = float(os.getenv("BERU_CAZA_CAPA1_MAX_USD", "50"))
 # Peces / barcos — apalancamiento máx Bybit (promedio inverse+lineal en beru_capital)
+# Flota manto viva (Jess sync 2026-07-18): Inverse ∩ Linear USDT — ver diccionario_beru_flota_manto.json
 ACTIVOS_BERU_FLOTA = [
-    "ETH", "BTC", "LTC", "SOL", "XRP", "DOGE", "ADA", "LINK", "AVAX", "MATIC",
-    "DOT", "UNI", "ATOM", "FIL", "APT", "ARB", "OP", "SUI", "WIF", "PEPE",
+    "BTC", "ETH", "SOL", "XRP", "ADA", "DOGE", "DOT", "LTC", "AAVE", "HYPE",
+    "MNT", "APT", "AVAX", "BCH", "ETC", "LINK", "NEAR", "OP", "SUI", "UNI",
+    "XLM", "FIL",
 ]
 MANTO_LEVERAGE_DEFAULT = float(os.getenv("MANTO_LEVERAGE_DEFAULT", "25"))
 MANTO_LEVERAGE_LINEAR_MAX_BY_ASSET: dict[str, float] = {

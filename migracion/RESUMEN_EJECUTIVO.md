@@ -9,7 +9,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ## Veredicto en una frase
 
-**Fases 0–2 cerradas · Fase 3 ~92%.** Lives Beru+Igris ✅. Sub-Santuario cableado. **3.5.8c motor v1** (ventana 48–52) en código; ranking fusión pendiente. Pergamino React local. **Siguiente:** ranking (fusión ejército) · Telegram **4.1.2**.
+**Fases 0–2 cerradas · Fase 3 ~92%.** Lives Beru+Igris ✅. Sync Bybit México ✅ (lev/mínimos). **Coliseo** (bóveda 1m + Beru Fantasma) listo para noche Jess. **Siguiente:** Gran Consumo México · ranking eficiencia · Telegram **4.1.2**.
 
 ## Progreso checklist (16)
 

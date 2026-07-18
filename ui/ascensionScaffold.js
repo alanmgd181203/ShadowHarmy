@@ -2,18 +2,18 @@
  * Scaffold Camino de Ascensión (Tusk).
  *
  * Rangos de cuenta (provisional Monarca — sujeto a cambio):
- * - Aspirante = solo la estrella (5 Soldados mayor lev) · techo ~$104
- * - Aprendiz  = despertar el resto de Soldados de la flota · hasta ~$766 acum.
- * Snapshot X desde beru_capital; recalcular si Bybit mueve mínimos.
+ * - Aspirante = solo la estrella (5 Soldados mayor lev) · techo ~$86 (Jess 2026-07-18)
+ * - Aprendiz  = despertar el resto de Soldados de la flota · hasta ~$698 acum.
+ * Snapshot X desde diccionario_beru_flota_manto.json (Bybit vivo México).
  */
 
 /** 5 barcos mayor apalancamiento promedio · Soldado = capital X con colchón ~5%. */
 export const VANGUARDIA_SOLDADOS = [
   { id: "v_btc", activo: "BTC", costoX: 14, margenLS: 12.5, lev: 100 },
   { id: "v_eth", activo: "ETH", costoX: 14, margenLS: 12.5, lev: 100 },
-  { id: "v_xrp", activo: "XRP", costoX: 22, margenLS: 20.0, lev: 75 },
-  { id: "v_sol", activo: "SOL", costoX: 27, margenLS: 25.0, lev: 75 },
-  { id: "v_ada", activo: "ADA", costoX: 27, margenLS: 25.0, lev: 62.5 },
+  { id: "v_sol", activo: "SOL", costoX: 18, margenLS: 16.67, lev: 75 },
+  { id: "v_xrp", activo: "XRP", costoX: 18, margenLS: 16.67, lev: 75 },
+  { id: "v_ada", activo: "ADA", costoX: 22, margenLS: 20.0, lev: 62.5 },
 ];
 
 export const VANGUARDIA_SUMA_X = VANGUARDIA_SOLDADOS.reduce((s, v) => s + v.costoX, 0);
@@ -22,10 +22,10 @@ export const VANGUARDIA_SUMA_X = VANGUARDIA_SOLDADOS.reduce((s, v) => s + v.cost
 export const ASPIRANTE_TECHO_X = VANGUARDIA_SUMA_X;
 
 /**
- * Suma X Soldado flota completa (22).
+ * Suma X Soldado flota completa (22 · sync Jess).
  * Aprendiz = despertar los Soldados que faltan tras la vanguardia → este techo.
  */
-export const APRENDIZ_TECHO_FLOTA_SOLDADO_X = 766;
+export const APRENDIZ_TECHO_FLOTA_SOLDADO_X = 698;
 
 /** Piso gestación: bajo el Soldado más barato de la vanguardia. */
 export const FASE_CERO_TECHO_X = Math.min(...VANGUARDIA_SOLDADOS.map((v) => v.costoX));

@@ -68,7 +68,9 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Cuartel México:** remoto público + colaboradora Jessica — 2026-07-09
 - **Checklist global:** ~67% (118/179) · núcleo Fases 0–3 ~95%
 - **Estado código:** Fase 3 ~92% · lives ✅ · Sub-Santuario + ventana 48–52 en código · falta ranking/Telegram
-- **Próximo ítem checklist:** **ranking fusión** · **4.1.2** Telegram · commit forja · **3.7.P***
+- **Jess sync Bybit (2026-07-18):** lev+mínimos+piso manto vivos · LTC 50/50 · Ascensión techo ~$86 / flota ~$698
+- **Coliseo:** bóveda spot 1m + Beru Fantasma (5.3.3) · ritual noche [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md)
+- **Próximo ítem checklist:** **noche bóveda Jess** · ranking fusión · **4.1.2** Telegram · **3.7.P***
 - **Validar:** `validar_checklist.py` · `validar_igris_smoke.py` · `validar_manto_ventana_smoke.py` · `validar_igris_asset_detail_smoke.py`
 - **Tono obligatorio:** `17_GUIA_MONARCA.md` — términos del Ejército en cada respuesta al Monarca
 
