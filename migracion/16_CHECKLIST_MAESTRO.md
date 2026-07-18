@@ -279,7 +279,7 @@
 ### 5.3 Bellion — mariscal de verdad
 - [ ] **5.3.1** Ratio_Eficiencia latidos/amputaciones por activo
 - [ ] **5.3.2** Reporte horario (manual) — Telegram resumen
-- [~] **5.3.3** Clasificar activos parásitos vs eficientes — Coliseo Beru Fantasma (bóveda 1m + calor botín/margen) · [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · noche México pendiente
+- [~] **5.3.3** Clasificar activos parásitos vs eficientes — Coliseo Beru Fantasma **v2** (caza+negociador+ciclo · barrido vacío 0.6–2.0%) · bóveda en `data/coliseo/` · informe [`INFORME_COLISEO_MONARCA.md`](INFORME_COLISEO_MONARCA.md) · barrido completo pendiente de corrida
 
 ### 5.4 Beru — legión completa
 - [ ] **5.4.1** SUPER_FUSION estable bajo carga
