@@ -34,6 +34,49 @@ from core.coliseo_beru_fantasma import (
 )
 
 
+def _fmt_secs(s: float) -> str:
+    s = max(0, int(s))
+    h, r = divmod(s, 3600)
+    m, sec = divmod(r, 60)
+    if h:
+        return f"{h}h{m:02d}m"
+    if m:
+        return f"{m}m{sec:02d}s"
+    return f"{sec}s"
+
+
+class _BarraProgreso:
+    """Barra ASCII + % + ETA (sin dependencias extra)."""
+
+    def __init__(self, total: int, ancho: int = 28):
+        self.total = max(1, total)
+        self.hecho = 0
+        self.ancho = ancho
+        self.t0 = time.time()
+
+    def tick(self, etiqueta: str = "") -> None:
+        self.hecho += 1
+        frac = min(1.0, self.hecho / self.total)
+        filled = int(self.ancho * frac)
+        bar = "#" * filled + "-" * (self.ancho - filled)
+        elapsed = time.time() - self.t0
+        rate = self.hecho / elapsed if elapsed > 0 else 0.0
+        eta = (self.total - self.hecho) / rate if rate > 0 else 0.0
+        pct = frac * 100.0
+        msg = (
+            f"\r  [{bar}] {pct:5.1f}%  {self.hecho}/{self.total}"
+            f"  eta {_fmt_secs(eta)}  ok {_fmt_secs(elapsed)}"
+        )
+        if etiqueta:
+            msg += f"  | {etiqueta[:40]}"
+        # pad to clear previous longer line
+        sys.stdout.write(msg.ljust(100))
+        sys.stdout.flush()
+        if self.hecho >= self.total:
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+
+
 def _margen_map() -> dict[str, float]:
     path = ROOT / "config" / "diccionario_beru_flota_manto.json"
     if not path.exists():
@@ -80,6 +123,7 @@ def rank_for_vacio(
     slip_bps: float,
     only: list[str] | None,
     horizonte_dias: int,
+    barra: _BarraProgreso | None = None,
 ) -> dict[str, Any]:
     con = bov.connect()
     margenes = _margen_map()
@@ -87,10 +131,9 @@ def rank_for_vacio(
     now_ts = int(time.time())
     por_activo: list[dict[str, Any]] = []
 
-    for i, base in enumerate(flota, 1):
+    for base in flota:
         t0 = time.time()
         candles = bov.load_candles(con, base)
-        print(f"  [{i}/{len(flota)}] {base} velas={len(candles)}…", flush=True)
         if len(candles) < 50:
             por_activo.append(
                 {
@@ -99,6 +142,8 @@ def rank_for_vacio(
                     "margen_usd": margenes.get(base, 12.5),
                 }
             )
+            if barra:
+                barra.tick(f"v{vacio*100:.1f}% {base} (sin datos)")
             continue
         margen = margenes.get(base, 12.5)
         c_dia, c_sem, c_anio = _ventanas(candles, now_ts, horizonte_dias)
@@ -110,6 +155,8 @@ def rank_for_vacio(
                     "margen_usd": margen,
                 }
             )
+            if barra:
+                barra.tick(f"v{vacio*100:.1f}% {base} (corto)")
             continue
 
         kw = dict(
@@ -155,11 +202,10 @@ def rank_for_vacio(
                 "path_policy": r_anio.path_policy,
             }
         )
-        print(
-            f"      calor={calor:.3f} efi7d={r_sem.eficiencia:.2f} "
-            f"efiH={r_anio.eficiencia:.2f} ({por_activo[-1]['secs']}s)",
-            flush=True,
-        )
+        if barra:
+            barra.tick(
+                f"v{vacio*100:.1f}% {base} calor={calor:.2f} ({por_activo[-1]['secs']}s)"
+            )
     con.close()
 
     valid = [x for x in por_activo if x.get("datos") == "OK"]
@@ -276,8 +322,15 @@ def main() -> int:
     print("COLISEO FASE 1 — vacio Adan + activos (sin malla x2 / sin sub-Berus)")
     print(f"Horizonte: {horizonte}d | Vacios %: {[round(v*100,1) for v in vacios]}")
     print(f"Fee {args.fee_pct*100:.2f}%/pierna | slip {args.slip_bps} bps | path {args.path_policy}")
+    # Contar trabajos totales (vacios x activos) para la barra
+    con0 = bov.connect()
+    n_activos = len(_flota(con0, only))
+    con0.close()
+    total_jobs = max(1, len(vacios) * n_activos)
+    print(f"Trabajos: {len(vacios)} vacios x {n_activos} activos = {total_jobs}")
     print("=" * 60)
 
+    barra = _BarraProgreso(total_jobs)
     summary = []
     calor_por_activo: dict[str, list[float]] = {}
 
@@ -291,6 +344,7 @@ def main() -> int:
             slip_bps=args.slip_bps,
             only=only,
             horizonte_dias=horizonte,
+            barra=barra,
         )
         out_json = out_dir / f"ranking_{label}.json"
         out_md = out_dir / f"ranking_{label}.md"
