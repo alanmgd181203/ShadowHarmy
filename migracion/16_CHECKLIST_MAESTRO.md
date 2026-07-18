@@ -358,7 +358,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail (Sub-Santuario) cableado Bridge (IM/lev/marks/fees/baseline → `igris_asset_details` en estado_vivo) · unificar Streamlit pendiente · commit/push forja pendiente
+- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · Ascensión Aspirante (estrella 5) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México: [`JESS_SINCRONIZAR_BYBIT.md`](JESS_SINCRONIZAR_BYBIT.md) · unificar Streamlit pendiente · commit/push forja pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑

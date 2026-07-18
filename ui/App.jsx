@@ -1,5 +1,6 @@
 import { useState } from "react";
 import IgrisPanel from "./IgrisPanel.jsx";
+import TuskAscension, { TuskOrbButton } from "./TuskAscension.jsx";
 
 import imgTusk from "../assets/portales/tusk.png";
 import imgBeru from "../assets/portales/beru.png";
@@ -9,8 +10,8 @@ import imgGreed from "../assets/portales/greed.png";
 import imgIgris from "../assets/portales/igris.png";
 
 /**
- * Cascada + umbral cinematográfico hacia Igris / MANTO.
- * Layout absoluto de portales intacto; solo clases dinámicas.
+ * Cascada + umbral Igris + Orbe de Ascensión (Tusk).
+ * Cosas apagadas: ui/featuresApagadas.js
  */
 const PORTALS = [
   { id: "tusk", src: imgTusk, label: "Tusk", style: { top: "-1%", left: "-14%", width: "70%", zIndex: 8 } },
@@ -24,10 +25,13 @@ const PORTALS = [
 export default function App() {
   const [activeGeneral, setActiveGeneral] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [ascensionOpen, setAscensionOpen] = useState(false);
 
   const umbralIgris = isTransitioning && activeGeneral === "igris";
+  const vanguardiaOculta = umbralIgris || ascensionOpen;
 
   function openIgris() {
+    setAscensionOpen(false);
     setIsTransitioning(true);
     setActiveGeneral("igris");
   }
@@ -55,7 +59,7 @@ export default function App() {
               ? umbralIgris
                 ? "scale-150 opacity-100 brightness-125"
                 : "scale-100 opacity-100 brightness-100"
-              : umbralIgris
+              : vanguardiaOculta
                 ? "opacity-0 scale-75 blur-md"
                 : "opacity-90 scale-100 blur-0",
           ].join(" ");
@@ -93,10 +97,18 @@ export default function App() {
             </div>
           );
         })}
+
+        {!vanguardiaOculta && (
+          <TuskOrbButton onOpen={() => setAscensionOpen(true)} />
+        )}
       </div>
 
       {activeGeneral === "igris" && (
         <IgrisPanel onClose={closeIgris} />
+      )}
+
+      {ascensionOpen && (
+        <TuskAscension onClose={() => setAscensionOpen(false)} />
       )}
     </div>
   );

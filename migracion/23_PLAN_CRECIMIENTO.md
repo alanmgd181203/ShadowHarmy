@@ -32,11 +32,16 @@ Definir **cómo crece el ejército según el capital (equity UTA) del Monarca**:
 
 Subniveles por **barcos desbloqueados**, no por % dentro del rango.
 
-| Rango | Equity | Cazas desbloqueadas | Greed |
-|-------|--------|---------------------|-------|
-| **Aspirante** | &lt; $100 | ETH (tier BERUBBY→PROTO hasta $100) | off |
-| **Recluta** (Aprendiz de brujo) | $100 – $499 | ETH pleno | colchón 5% |
-| **Soldado** (Chamán) | $500 – $1.999 | ETH, SOL, FIL, LTC | colchón |
+> **Revisión viva (Monarca 2026-07-17):**  
+> **Aspirante** = estrella de **5** Soldados (mayor lev) · techo acum. ~**$104**.  
+> **Aprendiz** = despertar el **resto** de Soldados de la flota · hasta acum. ~**$766**.  
+> Sí es cambio de rango de cuenta. Bandas viejas ($100 / $500) = v1; **sujetas a cambio**.
+
+| Rango | Equity (orient.) | Cazas / foco | Greed |
+|-------|------------------|--------------|-------|
+| **Aspirante** | gestación → ~$104 (5 Soldados estrella) | BTC ETH XRP SOL ADA | off |
+| **Aprendiz** (Recluta) | ~$104 → ~$766 (resto Soldados flota) | LTC…FIL + evolución a Caballero (fusión) | colchón 5% |
+| **Soldado** (Chamán) | *(antes $500 – $1.999 — por revisar)* | por definir tras flota Soldado completa | colchón |
 | **Capitán** (Invocador) | $2.000+ | Flota `ACTIVOS_BERU_FLOTA` | colchón |
 | **General** (Nigromante) | $10.000+ | Flota completa | colchón + VIP |
 | **Señor de las Sombras** | $100.000+ | Flota completa | full |
