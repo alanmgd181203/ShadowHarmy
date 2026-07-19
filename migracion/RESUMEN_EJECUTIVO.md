@@ -15,8 +15,8 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 | Horizonte | % |
 |-----------|---|
-| **Global (Fases 0–10)** | **~67%** (118/179 + parciales) |
-| **Núcleo operativo (0–3)** | **~95%** (116/122) |
+| **Global (Fases 0–10)** | **~69%** (125/184 [x] + 4 [~]) |
+| **Núcleo operativo (0–3)** | **~95%** |
 | **Fase 4 ops Monarca** | **~9%** (stubs listos) |
 
 ## Qué leer según urgencia

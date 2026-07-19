@@ -123,22 +123,23 @@
 | 1 | Bootstrap inverse L + lineal S | ✅ |
 | 2 | `precio_medio` por pierna en `pesos` | ✅ |
 | 3 | Ancla + Ask/Bid + mordida (`igris_despliegue`) | ✅ 3.5.8b / 3.10 |
-| 4 | Ventana 48–52 / long-primero | 📋 doctrina ✅ 2026-07-17 · motor ❌ · ranking fusión pendiente |
-| 5 | Live testnet despliegue | ❌ 3.10.7 |
+| 4 | Ventana 48–52 / long-primero | 📋 doctrina ✅ · motor v1 parcial · ranking fusión pendiente |
+| 5 | Live testnet despliegue | ✅ **3.10.7b** PASS México 2026-07-12 |
 
 **Validación:** `validar_igris_smoke.py`
 
 ---
 
-## M2.12 — Plan crecimiento Monarca — **BORRADOR v0** (2026-07-05)
+## M2.12 — Plan crecimiento Monarca — **v2 pase** (2026-07-19)
 
 | # | Tarea | Estado |
 |---|-------|--------|
-| 1 | Doctrina `23_PLAN_CRECIMIENTO.md` | ✅ v1 |
-| 2 | `core/plan_crecimiento.py` — rangos, tiers, colchón 5%, convivencia | ✅ |
-| 3 | Panel/Bellion publican `plan_crecimiento` | ✅ |
-| 4 | Auto-tier Tusk NAV (3 días promedio) | ✅ |
-| 5 | Multi-flota Beru + mérito Bellion | ❌ pendiente |
+| 1 | Doctrina `23_PLAN_CRECIMIENTO.md` | ✅ v2 |
+| 2 | `core/plan_crecimiento.py` — Aspirante→Chamán + techos pase | ✅ |
+| 3 | Pergamino `PASE_BATALLA_13_SANTOS.md` | ✅ |
+| 4 | Panel/Bellion publican `plan_crecimiento` | ✅ |
+| 5 | Auto-tier Tusk NAV (3 días promedio) | ✅ |
+| 6 | Multi-flota Beru + mérito Bellion | ❌ pendiente |
 
 **Validación:** `validar_plan_crecimiento_smoke.py`
 

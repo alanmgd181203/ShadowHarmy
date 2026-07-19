@@ -120,9 +120,9 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 
 #### Meta del bloque / ranking (aplazado — fusión del ejército)
 - Ejemplo doctrinal (no números finales): Beru Mariscal ETH necesita X de **margen** → mitad long / mitad short de margen × apalancamientos máx → nocional grande.
-- Rangos Aspirante / Aprendiz / Berus: **existen en mapa, no terminados**.
+- Rangos de **cuenta** Aspirante / Aprendiz / Brujo / Chamán: **firmados** en [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) (2026-07-19). Lo pendiente es cablear meta de engorde Igris a ese pase (fusión ranking).
 - Al completar meta de crecimiento: cerrar engorde; solo **mejorar entradas** dentro de la ventana (detalle con ranking).
-- **No** cerrar 3.5.8c motor+ranking en esta sesión: el Monarca aplazó H1–H4 (mitad, manto completo fino, corte ✅ exacto, nombre final) hasta fusionar ranking + Beru + Kaiser + Igris + Tusk.
+- **No** cerrar 3.5.8c motor+ranking en una sola sesión: el Monarca aplazó H1–H4 (mitad, manto completo fino, corte ✅ exacto, nombre final) hasta fusionar ranking + Beru + Kaiser + Igris + Tusk.
 
 #### Qué entra vs qué no (corte actual)
 | Entra en doctrina 3.5.8c (checkpoint) | Aplazado al ranking / fusión |

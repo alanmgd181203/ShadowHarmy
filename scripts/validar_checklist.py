@@ -15,7 +15,16 @@ sys.path.insert(0, ROOT)
 
 from core.validacion import CHECKS_FASE, ejecutar_checks, guardar_informe  # noqa: E402
 
-ICONOS = {"pass": "✅", "fail": "❌", "pending": "⏳", "stub": "🔧", "skip": "—"}
+# ASCII para consolas Windows (cp1252); el JSON del informe sigue siendo la fuente.
+ICONOS = {"pass": "[OK]", "fail": "[X]", "pending": "[..]", "stub": "[~]", "skip": "[-]"}
+
+# Evitar UnicodeEncodeError en stdout heredado
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 
 
 def main():

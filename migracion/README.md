@@ -1,7 +1,7 @@
 # Migración — Códice operativo Shadow Army
 
 **Destilación Fase A** (2026-06-30) — planos para Cursor / el Monarca.  
-**Actualizado índice:** 2026-07-12.
+**Actualizado índice:** 2026-07-19 (pase 13 Santos · checkpoint cuartel).
 
 **Empieza aquí (agente):** [`17_GUIA_MONARCA.md`](17_GUIA_MONARCA.md) → [`RESUMEN_EJECUTIVO.md`](RESUMEN_EJECUTIVO.md) → [`CODEX_VIVO.md`](CODEX_VIVO.md) → [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md)
 
@@ -9,11 +9,12 @@
 |------|--------|
 | **A** — Destilación manual → planos | ✅ 2026-06-30 |
 | **B** — ShadowHarmy vs planos | ✅ 2026-06-30 |
-| **Código** — Fases 0–2 | ✅ · Fase 3 ~91% (2026-07-12) |
+| **Código** — Fases 0–2 | ✅ · Fase 3 ~92% · pase Chamán firmado (2026-07-19) |
 
 **Código canónico:** `C:\Users\alans\Desktop\ShadowHarmy`  
 **Remoto:** https://github.com/alanmgd181203/ShadowHarmy  
 **Codex junto al código:** `ShadowHarmy/migracion/`
+**Checkpoint hoy:** [`CHECKPOINT_2026-07-19.md`](CHECKPOINT_2026-07-19.md)
 
 ## Para qué sirve esto
 
@@ -62,6 +63,14 @@
 26. [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) — capital, tiers, escalera Monarca  
 26b. [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) — pase Coliseo Aspirante→Chamán (2026-07-19)
 
+## Coliseo / México (ops)
+
+27. [`MEGA_COLISEO_PLAN.md`](MEGA_COLISEO_PLAN.md) — campaña legión + tiers + malla  
+28. [`INFORME_COLISEO_MONARCA.md`](INFORME_COLISEO_MONARCA.md) — cómo leer el teatro Fantasma  
+29. [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) — ritual bóveda (si aplica)  
+30. [`JESS_SINCRONIZAR_BYBIT.md`](JESS_SINCRONIZAR_BYBIT.md) — sync lev/mínimos México  
+31. [`CHECKPOINT_2026-07-19.md`](CHECKPOINT_2026-07-19.md) — sello cuartel pase + purge  
+
 ## Carpetas auxiliares
 
 - `_fuentes_extraidas/` — copia literal de `manual_v2/` + `catalog.json` (no editar a mano)
@@ -71,6 +80,6 @@
 
 **`C:\Users\alans\Desktop\ShadowHarmy`** — Lilit de Hierro v2.0. Análisis Fase B en `13_ANALISIS_SHADOWHARMY.md`.
 
-## Checkpoint Analista
+## Checkpoint Analista (histórico)
 
-Pipeline F1→F3 cerrado. Ver `logs_caja_negra/CHECKPOINT_FUNDACIONAL_QWEN14_V1.md` (si existe en origen).
+Pipeline F1→F3 cerrado en origen Analista. El sello vivo del cuartel es [`CHECKPOINT_2026-07-19.md`](CHECKPOINT_2026-07-19.md).

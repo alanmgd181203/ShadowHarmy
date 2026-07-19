@@ -24,6 +24,12 @@ data/coliseo/mega/jobs/
 data/coliseo/mega/charts/
 data/coliseo/mega/checkpoint.json
 data/coliseo/mega/campana.log
+data/coliseo/mega/acto0_*
+data/coliseo/mega/estado_mega.json
+data/coliseo/ranking_*
+data/coliseo/h365/
+data/coliseo/comparativa_vacios.*
+data/coliseo/top_activos_siguiente.txt
 ShadowHarmy_Coliseo_*/
 
 # Kaiser samples / logs locales

@@ -66,11 +66,12 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Pergamino React (local):** Cascada → Manto → AssetDetail; Sub-Santuario **cableado Bridge**; smoke asset_detail 6/6
 - **3.5.8c:** doctrina + **motor v1** `manto_ventana` (2026-07-17) · ranking fusión pendiente
 - **Cuartel México:** remoto público + colaboradora Jessica — 2026-07-09
-- **Checklist global:** ~67% (118/179) · núcleo Fases 0–3 ~95%
-- **Estado código:** Fase 3 ~92% · lives ✅ · Sub-Santuario + ventana 48–52 en código · falta ranking/Telegram
+- **Checklist global:** ~69% (125/184 [x] + 4 [~]) · núcleo Fases 0–3 ~95%
+- **Estado código:** Fase 3 ~92% · lives ✅ · pase Chamán firmado · falta Telegram/ranking fusión
 - **Jess sync Bybit (2026-07-18):** lev+mínimos+piso manto vivos · LTC 50/50
 - **Pase batalla 13 Santos (2026-07-19):** vacío 1,6 % · rangos Aspirante($123)→Aprendiz($411)→Brujo($1451)→Chamán($3161) · [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) · plan 23 v2
 - **Coliseo:** Mega done · indicador calor · informe `data/coliseo/mega/`
+- **Checkpoint cuartel:** [`CHECKPOINT_2026-07-19.md`](CHECKPOINT_2026-07-19.md) · purge debug_ws + gitignore jobs/media
 - **Beru engorde:** sin techo artificial $50 — +$5/0.1% libre (oxígeno Tusk) · [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) 2026-07-18
 - **Próximo ítem checklist:** **4.1.2** Telegram · mérito Bellion · **3.7.P*** · Gran Consumo México
 - **Validar:** `validar_checklist.py` · `validar_plan_crecimiento_smoke.py` · `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`

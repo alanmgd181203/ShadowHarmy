@@ -380,28 +380,24 @@
 ## Progreso global
 
 ```
-Fase 0:   5 /  5   ✅ 100%
-Fase 1:  19 / 19   ✅ 100%
-Fase 2:  20 / 20   ✅ 100%
-Fase 3:  72 / 78   ~92%  (3.5.8c doctrina✅/motor~; 3.7.P1–P3; 3.8.P3; plan 23 ~)
-Fase 4:   0 / 11   ~9%   ← ops Monarca (2 stubs Telegram/Safe)
-Fase 5:   0 / 13     0%
-Fase 6:   0 /  6     0%
-Fase 7:   2 /  5    40%
-Fase 8:   0 /  6     0%
-Fase 9:   0 /  5     0%
-Fase 10:  0 / 11  ~10%   (Cascada ✅ · Manto/AssetDetail React forja local)
+Fase 0–2:        ✅ 100%
+Fase 3:          ~92%  (lives Beru+Igris ✅ · plan 23/pase ✅ · 3.5.8c motor~ · 3.7.P* abiertos)
+Fase 4:          ~9%   ← ops Monarca (Telegram/Safe stubs)
+Fase 5:          ~8%+  (5.3.3 Mega Coliseo + pase ✅ · resto Bellion/legión abierto)
+Fase 6–9:        bajo
+Fase 10:         ~10%  (Cascada / Ascensión / Manto React local)
 ─────────────────────────────
-TOTAL:  118 / 179  ítems [x]  →  ~66% checklist completo
-        + 3 parciales [~]     →  ~67% (parciales al 50%)
-Núcleo operativo (Fases 0–3): 116 / 122  →  ~95%
+TOTAL checklist:  125 / 184  [x]  →  ~68%
+                 + 4 parciales [~] →  ~69% (parciales al 50%)
+Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-07-17 (checkpoint 3.5.8c doctrina ventana 48–52 · Sub-Santuario Bridge · lives ✅)  
-**Próximo ítem recomendado:** motor 3.5.8c **o** ranking fusión · **4.1.2** Telegram · commit Pergamino · **3.7.P***  
+**Última actualización checklist:** 2026-07-19 (pase 13 Santos · checkpoint cuartel · purge scripts muertos)  
+**Próximo ítem recomendado:** **4.1.2** Telegram · **4.1.3** alertas críticas · **3.5.8c** ranking fusión · **3.7.P***  
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
+**Smokes plan:** `validar_plan_crecimiento_smoke.py`  
 **Runbook testnet:** `18_ARRANQUE_TESTNET.md`  
 **Validar estado:** `python scripts/validar_checklist.py`  
 **Validar sentidos Tank:** `python scripts/validar_panorama_tank.py --segundos 35`
@@ -414,9 +410,9 @@ Núcleo operativo (Fases 0–3): 116 / 122  →  ~95%
 Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
-Fases 0–2 ✅ · Fase 3 ~92% (Beru 3.9.9 live ✅ · Igris §E v2 + 3.10.7b live ✅).
-Siguiente: 3.5.8c motor (doctrina checkpoint ✅) · ranking fusión · 4.1.2 Telegram · commit Pergamino.
-Validar: scripts/validar_*_smoke.py + validar_ciclo_beru_eth.py + validar_igris_smoke.py + validar_igris_asset_detail_smoke.py
+Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
+Siguiente: 4.1.2 Telegram · 3.5.8c ranking fusión · 3.7.P*.
+Validar: scripts/validar_*_smoke.py + validar_plan_crecimiento_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).
 ```
