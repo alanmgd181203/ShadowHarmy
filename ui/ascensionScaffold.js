@@ -1,33 +1,32 @@
 /**
  * Scaffold Camino de Ascensión (Tusk).
  *
- * Rangos de cuenta (provisional Monarca — sujeto a cambio):
- * - Aspirante = solo la estrella (5 Soldados mayor lev) · techo ~$86 (Jess 2026-07-18)
- * - Aprendiz  = despertar el resto de Soldados de la flota · hasta ~$698 acum.
- * Snapshot X desde diccionario_beru_flota_manto.json (Bybit vivo México).
+ * Rangos de cuenta — firma Monarca 2026-07-19 (pase Coliseo):
+ * - Aspirante = estrella 5 Soldados (ETH HYPE XRP MNT LTC) · techo ~$123
+ * - Aprendiz  = resto Santos + AVAX Caballero · techo ~$411
+ * - Brujo     = hasta LTC Mariscal · techo ~$1451
+ * - Chamán    = hasta 13 Mariscales · techo ~$3161
+ * Pergamino: migracion/PASE_BATALLA_13_SANTOS.md
  */
 
-/** 5 barcos mayor apalancamiento promedio · Soldado = capital X con colchón ~5%. */
+/** Estrella Aspirante — pasos 1–5 del pase (costo X Igris). */
 export const VANGUARDIA_SOLDADOS = [
-  { id: "v_btc", activo: "BTC", costoX: 14, margenLS: 12.5, lev: 100 },
   { id: "v_eth", activo: "ETH", costoX: 14, margenLS: 12.5, lev: 100 },
-  { id: "v_sol", activo: "SOL", costoX: 18, margenLS: 16.67, lev: 75 },
+  { id: "v_hype", activo: "HYPE", costoX: 28, margenLS: 26.32, lev: 47.5 },
   { id: "v_xrp", activo: "XRP", costoX: 18, margenLS: 16.67, lev: 75 },
-  { id: "v_ada", activo: "ADA", costoX: 22, margenLS: 20.0, lev: 62.5 },
+  { id: "v_mnt", activo: "MNT", costoX: 36, margenLS: 33.33, lev: 37.5 },
+  { id: "v_ltc", activo: "LTC", costoX: 27, margenLS: 25.0, lev: 50 },
 ];
 
 export const VANGUARDIA_SUMA_X = VANGUARDIA_SOLDADOS.reduce((s, v) => s + v.costoX, 0);
 
-/** Techo Aspirante = corona de la estrella (5 Soldados). */
-export const ASPIRANTE_TECHO_X = VANGUARDIA_SUMA_X;
+/** Techos del pase (acumulado Igris). */
+export const ASPIRANTE_TECHO_X = 123;
+export const APRENDIZ_TECHO_FLOTA_SOLDADO_X = 411;
+export const BRUJO_TECHO_X = 1451;
+export const CHAMAN_TECHO_X = 3161;
 
-/**
- * Suma X Soldado flota completa (22 · sync Jess).
- * Aprendiz = despertar los Soldados que faltan tras la vanguardia → este techo.
- */
-export const APRENDIZ_TECHO_FLOTA_SOLDADO_X = 698;
-
-/** Piso gestación: bajo el Soldado más barato de la vanguardia. */
+/** Piso gestación: bajo el Soldado más barato de la estrella. */
 export const FASE_CERO_TECHO_X = Math.min(...VANGUARDIA_SOLDADOS.map((v) => v.costoX));
 
 export const ASCENSION_RANKS = [
@@ -55,7 +54,7 @@ export const ASCENSION_RANKS = [
     id: "aspirante",
     nivel: "1",
     titulo: "Aspirante",
-    subtitulo: `Estrella · 5 Soldados · ~$${ASPIRANTE_TECHO_X}`,
+    subtitulo: `Estrella · ETH HYPE XRP MNT LTC · ~$${ASPIRANTE_TECHO_X}`,
     zigzag: "center",
     gapBefore: "2rem",
     peso: "firme",
@@ -78,7 +77,7 @@ export const ASCENSION_RANKS = [
         forma: "poligono",
         escala: "md",
         etiqueta: "Corona",
-        valor: `$${VANGUARDIA_SUMA_X}`,
+        valor: `$${ASPIRANTE_TECHO_X}`,
         peso: "fortificado",
       },
     ],
@@ -86,18 +85,18 @@ export const ASCENSION_RANKS = [
   {
     id: "aprendiz",
     nivel: "2",
-    titulo: "Aprendiz de Mago",
-    subtitulo: `Resto Soldados flota · hasta ~$${APRENDIZ_TECHO_FLOTA_SOLDADO_X}`,
+    titulo: "Aprendiz",
+    subtitulo: `13 Santos despertados · hasta ~$${APRENDIZ_TECHO_FLOTA_SOLDADO_X}`,
     zigzag: "left",
     gapBefore: "3.25rem",
     peso: "firme",
     nodes: [
       {
-        id: "apr_caballeros",
+        id: "apr_santos",
         forma: "cuña",
         escala: "md",
-        etiqueta: "Caballeros",
-        valor: "—",
+        etiqueta: "Grial Soldado",
+        valor: `~$${APRENDIZ_TECHO_FLOTA_SOLDADO_X}`,
         peso: "firme",
       },
     ],
@@ -106,12 +105,38 @@ export const ASCENSION_RANKS = [
     id: "brujo",
     nivel: "3",
     titulo: "Brujo",
-    subtitulo: "Flota despierta · horizonte",
+    subtitulo: `Hasta LTC Mariscal · ~$${BRUJO_TECHO_X}`,
     zigzag: "right",
     gapBefore: "4rem",
     peso: "fortificado",
     nodes: [
-      { id: "bru_flota", forma: "agresivo", escala: "lg", etiqueta: "Flota", valor: "—", peso: "fortificado" },
+      {
+        id: "bru_ltc_mariscal",
+        forma: "agresivo",
+        escala: "lg",
+        etiqueta: "LTC Mariscal",
+        valor: `~$${BRUJO_TECHO_X}`,
+        peso: "fortificado",
+      },
+    ],
+  },
+  {
+    id: "chaman",
+    nivel: "4",
+    titulo: "Chamán",
+    subtitulo: `13 Mariscales · ~$${CHAMAN_TECHO_X}`,
+    zigzag: "left",
+    gapBefore: "4.5rem",
+    peso: "fortificado",
+    nodes: [
+      {
+        id: "cha_grial",
+        forma: "rasgado",
+        escala: "lg",
+        etiqueta: "Grial pleno",
+        valor: `~$${CHAMAN_TECHO_X}`,
+        peso: "fortificado",
+      },
     ],
   },
   {
@@ -144,11 +169,11 @@ export const FORMA_CLIP = {
 
 /** Vértices de la estrella irregular (ángulo deg, radio %). */
 export const ESTRELLA_LAYOUT = [
-  { id: "v_btc", angle: -90, r: 40 },
-  { id: "v_eth", angle: -18, r: 46 },
+  { id: "v_eth", angle: -90, r: 40 },
+  { id: "v_hype", angle: -18, r: 46 },
   { id: "v_xrp", angle: 54, r: 42 },
-  { id: "v_sol", angle: 126, r: 48 },
-  { id: "v_ada", angle: 198, r: 44 },
+  { id: "v_mnt", angle: 126, r: 48 },
+  { id: "v_ltc", angle: 198, r: 44 },
 ];
 
 export function flattenNodeOrder(ranks = ASCENSION_RANKS) {
@@ -190,7 +215,10 @@ export function equityLabelForNode(nodeId) {
     sum += v.costoX;
     if (v.id === nodeId) return `~$${sum}`;
   }
-  if (nodeId === "asp_corona") return `~$${VANGUARDIA_SUMA_X}`;
+  if (nodeId === "asp_corona") return `~$${ASPIRANTE_TECHO_X}`;
+  if (nodeId === "apr_santos") return `~$${APRENDIZ_TECHO_FLOTA_SOLDADO_X}`;
+  if (nodeId === "bru_ltc_mariscal") return `~$${BRUJO_TECHO_X}`;
+  if (nodeId === "cha_grial") return `~$${CHAMAN_TECHO_X}`;
   return "—";
 }
 

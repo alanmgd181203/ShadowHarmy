@@ -16,7 +16,7 @@ import {
 } from "./ascensionScaffold.js";
 
 /**
- * Camino de Ascensión — Fase Cero + estrella Aspirante (5 Soldados).
+ * Camino de Ascensión — Aspirante→Aprendiz→Brujo→Chamán (pase 13 Santos).
  * Altar 3 marchas: featuresApagadas → altarTresMarchas.
  */
 const ALTAR_TRES_MARCHAS_ON = featureEncendida("altarTresMarchas");

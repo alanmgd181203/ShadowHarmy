@@ -133,7 +133,7 @@
 - [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
 - [~] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `core/manto_ventana.py` (Igris/mercado/Bellion) · ranking/mitad/dual-Kaiser/manto-completo aplazados a fusión
 
-- [~] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) + `plan_crecimiento.py` *(v1 checkpoint 2026-07-06; botín runtime y mérito pendiente)*
+- [x] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v2 + `plan_crecimiento.py` + [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) *(Aspirante→Chamán 2026-07-19; botín runtime y mérito aún pendiente)*
 
 ### 3.6 Validación ciclo ejército *(ex M1 — 2.6.3)*
 - [x] **3.6.1** 1 ciclo CAZA → COSECHA en Bellion — ✅ `scripts/probar_ciclo_beru.py` + historial
@@ -279,7 +279,7 @@
 ### 5.3 Bellion — mariscal de verdad
 - [ ] **5.3.1** Ratio_Eficiencia latidos/amputaciones por activo
 - [ ] **5.3.2** Reporte horario (manual) — Telegram resumen
-- [~] **5.3.3** Clasificar activos parásitos vs eficientes — Coliseo **Fase 1** (vacío 0.8–2.0% · cascada 1d→365d · poda top) · Fase 2 (malla×2 / sub-Berus / legión) aplazada · [`INFORME_COLISEO_MONARCA.md`](INFORME_COLISEO_MONARCA.md)
+- [x] **5.3.3** Clasificar activos parásitos vs eficientes — **Mega Coliseo done** · pase firma Monarca [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) · [`MEGA_COLISEO_PLAN.md`](MEGA_COLISEO_PLAN.md) · [`INFORME_COLISEO_MONARCA.md`](INFORME_COLISEO_MONARCA.md)
 
 ### 5.4 Beru — legión completa
 - [ ] **5.4.1** SUPER_FUSION estable bajo carga
@@ -358,7 +358,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · Ascensión Aspirante (estrella 5 · techo ~$86 post-Jess) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit pendiente
+- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · Ascensión Aspirante→Chamán (estrella ETH/HYPE/XRP/MNT/LTC · techos pase) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑

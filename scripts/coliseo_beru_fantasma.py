@@ -115,6 +115,53 @@ def _ventanas(candles, now_ts: int, horizonte_dias: int) -> tuple[list, list, li
     return _window(base, now_ts, d1), _window(base, now_ts, d7), base
 
 
+def _partir_por_mes(
+    candles: list[tuple[int, float, float, float, float]],
+) -> list[tuple[str, list]]:
+    """Agrupa velas por YYYY-MM (UTC)."""
+    buckets: dict[str, list] = {}
+    for row in candles:
+        ts = int(row[0])
+        key = datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m")
+        buckets.setdefault(key, []).append(row)
+    return sorted(buckets.items(), key=lambda x: x[0])
+
+
+def _recurrencia_meses(
+    por_mes: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Resumen de recurrencia a partir de efi mensuales."""
+    if not por_mes:
+        return {
+            "n_meses": 0,
+            "meses_top_tercio": 0,
+            "mejor_mes": None,
+            "peor_mes": None,
+            "efi_mediana": None,
+            "efi_media": None,
+            "meses_sobre_mediana": 0,
+        }
+    efis = [float(m["eficiencia"]) for m in por_mes]
+    med = _median(efis)
+    mean = sum(efis) / len(efis)
+    orden = sorted(por_mes, key=lambda m: float(m["eficiencia"]), reverse=True)
+    tercio = max(1, len(orden) // 3)
+    top_set = {m["mes"] for m in orden[:tercio]}
+    sobre = sum(1 for e in efis if e >= med)
+    return {
+        "n_meses": len(por_mes),
+        "meses_top_tercio": len(top_set),
+        "mejor_mes": orden[0]["mes"],
+        "mejor_efi": orden[0]["eficiencia"],
+        "peor_mes": orden[-1]["mes"],
+        "peor_efi": orden[-1]["eficiencia"],
+        "efi_mediana": round(med, 6),
+        "efi_media": round(mean, 6),
+        "meses_sobre_mediana": sobre,
+        "consistencia": round(sobre / len(efis), 3),  # 1 = todos los meses >= mediana (inútil); útil vs flota luego
+    }
+
+
 def rank_for_vacio(
     vacio: float,
     *,
@@ -124,6 +171,7 @@ def rank_for_vacio(
     only: list[str] | None,
     horizonte_dias: int,
     barra: _BarraProgreso | None = None,
+    por_mes: bool = False,
 ) -> dict[str, Any]:
     con = bov.connect()
     margenes = _margen_map()
@@ -171,6 +219,25 @@ def rank_for_vacio(
         r_sem = simular_desde_velas(c_sem, **kw) if c_sem else r_anio
         r_dia = simular_desde_velas(c_dia, **kw) if c_dia else r_sem
         calor = calor_eficiencia(r_dia.eficiencia, r_sem.eficiencia, r_anio.eficiencia)
+
+        meses_out: list[dict[str, Any]] = []
+        rec: dict[str, Any] = {}
+        if por_mes and horizonte_dias >= 28:
+            for mes_key, chunk in _partir_por_mes(c_anio):
+                if len(chunk) < 100:
+                    continue
+                rm = simular_desde_velas(chunk, **kw)
+                meses_out.append(
+                    {
+                        "mes": mes_key,
+                        "velas": len(chunk),
+                        "cosechas": rm.cosechas,
+                        "botin_neto": rm.botin_neto,
+                        "eficiencia": rm.eficiencia,
+                    }
+                )
+            rec = _recurrencia_meses(meses_out)
+
         por_activo.append(
             {
                 "activo": base,
@@ -198,13 +265,18 @@ def rank_for_vacio(
                     "fees": r_anio.fees,
                     "eficiencia": r_anio.eficiencia,
                 },
+                "meses": meses_out,
+                "recurrencia": rec,
                 "calor": calor,
                 "path_policy": r_anio.path_policy,
             }
         )
         if barra:
+            extra = ""
+            if rec.get("mejor_mes"):
+                extra = f" best={rec['mejor_mes']} cons={rec.get('consistencia')}"
             barra.tick(
-                f"v{vacio*100:.1f}% {base} calor={calor:.2f} ({por_activo[-1]['secs']}s)"
+                f"v{vacio*100:.1f}% {base} calor={calor:.2f} ({por_activo[-1]['secs']}s){extra}"
             )
     con.close()
 
@@ -234,6 +306,7 @@ def rank_for_vacio(
             "metrica": "botin_neto / margen_usd",
             "pesos_calor": {"dia": 0.20, "semana": 0.50, "anio": 0.30},
             "n": len(por_activo),
+            "por_mes": any(bool(r.get("meses")) for r in por_activo),
             "fase2_aplazada": [
                 "malla_oz_red_x2",
                 "sub_berus_tiers",
@@ -305,6 +378,11 @@ def main() -> int:
     ap.add_argument("--slip-bps", type=float, default=2.0)
     ap.add_argument("--only", type=str, default="", help="Activos CSV (poda tras --top)")
     ap.add_argument("--quick", action="store_true", help="Alias de --dias 30")
+    ap.add_argument(
+        "--por-mes",
+        action="store_true",
+        help="Desglose por mes calendario + recurrencia (auto si --dias 365)",
+    )
     ap.add_argument("--out-dir", type=str, default="")
     args = ap.parse_args()
 
@@ -313,6 +391,7 @@ def main() -> int:
         return 2
 
     horizonte = 30 if args.quick else max(1, int(args.dias))
+    por_mes = bool(args.por_mes or horizonte >= 365)
     vacios = [float(x.strip()) for x in args.vacios.split(",") if x.strip()]
     only = [x.strip().upper() for x in args.only.split(",") if x.strip()] or None
     out_dir = Path(args.out_dir) if args.out_dir else bov.COLISEO_DIR
@@ -322,6 +401,8 @@ def main() -> int:
     print("COLISEO FASE 1 — vacio Adan + activos (sin malla x2 / sin sub-Berus)")
     print(f"Horizonte: {horizonte}d | Vacios %: {[round(v*100,1) for v in vacios]}")
     print(f"Fee {args.fee_pct*100:.2f}%/pierna | slip {args.slip_bps} bps | path {args.path_policy}")
+    if por_mes:
+        print("Desglose: POR MES (recurrencia)")
     # Contar trabajos totales (vacios x activos) para la barra
     con0 = bov.connect()
     n_activos = len(_flota(con0, only))
@@ -333,6 +414,7 @@ def main() -> int:
     barra = _BarraProgreso(total_jobs)
     summary = []
     calor_por_activo: dict[str, list[float]] = {}
+    reports_mes: list[dict[str, Any]] = []
 
     for v in vacios:
         label = f"h{horizonte}d_v{str(round(v*100,1)).replace('.', 'p')}"
@@ -345,11 +427,15 @@ def main() -> int:
             only=only,
             horizonte_dias=horizonte,
             barra=barra,
+            por_mes=por_mes,
         )
         out_json = out_dir / f"ranking_{label}.json"
         out_md = out_dir / f"ranking_{label}.md"
         out_json.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         write_md(report, out_md)
+        if por_mes:
+            reports_mes.append(report)
+            _write_meses_md(report, out_dir / f"meses_{label}.md")
         top = next((r for r in report["ranking"] if r.get("datos") == "OK"), None)
         summary.append(
             {
@@ -421,6 +507,13 @@ def main() -> int:
     _write_comparativa_md(comp, out_dir / "comparativa_vacios.md")
     (out_dir / "top_activos_siguiente.txt").write_text(only_sugerido + "\n", encoding="utf-8")
     print("\nComparativa:", out_dir / "comparativa_vacios.md")
+    if reports_mes:
+        rec_path = out_dir / "recurrencia_mensual.md"
+        rec_json = out_dir / "recurrencia_mensual.json"
+        rec = _agregar_recurrencia_global(reports_mes)
+        rec_json.write_text(json.dumps(rec, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        _write_recurrencia_md(rec, rec_path)
+        print("Recurrencia mensual:", rec_path)
     if only_sugerido:
         print("Top para siguiente horizonte:", only_sugerido)
         print(
@@ -494,6 +587,121 @@ def _write_comparativa_md(comp: dict[str, Any], path: Path) -> None:
     ]
     for x in comp.get("fase2_aplazada") or []:
         lines.append(f"- {x}")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_meses_md(report: dict[str, Any], path: Path) -> None:
+    meta = report["meta"]
+    lines = [
+        f"# Meses — vacío {meta['vacio_pct']:.1f}% · horizonte {meta['horizonte_dias']}d",
+        "",
+        f"- UTC: `{meta['ts_utc']}`",
+        "",
+    ]
+    for row in report["ranking"]:
+        if row.get("datos") != "OK" or not row.get("meses"):
+            continue
+        rec = row.get("recurrencia") or {}
+        lines += [
+            f"## {row['activo']}",
+            f"- Mejor mes: **{rec.get('mejor_mes')}** (efi {rec.get('mejor_efi')})",
+            f"- Peor mes: **{rec.get('peor_mes')}** (efi {rec.get('peor_efi')})",
+            f"- Meses sobre mediana: **{rec.get('meses_sobre_mediana')}/{rec.get('n_meses')}** "
+            f"(consistencia {rec.get('consistencia')})",
+            "",
+            "| Mes | Efi | Cosechas | Botín neto |",
+            "|-----|----:|---------:|-----------:|",
+        ]
+        for m in row["meses"]:
+            lines.append(
+                f"| {m['mes']} | {m['eficiencia']:.3f} | {m['cosechas']} | {m['botin_neto']:.2f} |"
+            )
+        lines.append("")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _agregar_recurrencia_global(reports: list[dict[str, Any]]) -> dict[str, Any]:
+    """Cruza vacíos: cuántas veces un mes es el mejor por activo; efi media por mes."""
+    # activo -> mes -> list efi across vacios
+    efi_am: dict[str, dict[str, list[float]]] = {}
+    best_count: dict[str, dict[str, int]] = {}
+    for rep in reports:
+        for row in rep.get("ranking") or []:
+            if row.get("datos") != "OK":
+                continue
+            a = row["activo"]
+            efi_am.setdefault(a, {})
+            best_count.setdefault(a, {})
+            meses = row.get("meses") or []
+            if not meses:
+                continue
+            best = max(meses, key=lambda m: float(m["eficiencia"]))
+            best_count[a][best["mes"]] = best_count[a].get(best["mes"], 0) + 1
+            for m in meses:
+                efi_am[a].setdefault(m["mes"], []).append(float(m["eficiencia"]))
+
+    por_activo = []
+    for a, meses_map in efi_am.items():
+        serie = []
+        for mes, vals in sorted(meses_map.items()):
+            serie.append(
+                {
+                    "mes": mes,
+                    "efi_media": round(sum(vals) / len(vals), 6),
+                    "n_vacios": len(vals),
+                    "veces_mejor": best_count.get(a, {}).get(mes, 0),
+                }
+            )
+        if not serie:
+            continue
+        orden = sorted(serie, key=lambda x: x["efi_media"], reverse=True)
+        # recurrencia: meses que fueron "mejor" en >=2 vacíos o top efi media
+        recurrentes = [x["mes"] for x in serie if x["veces_mejor"] >= 2]
+        por_activo.append(
+            {
+                "activo": a,
+                "mejor_mes_media": orden[0]["mes"],
+                "peor_mes_media": orden[-1]["mes"],
+                "efi_media_mejor_mes": orden[0]["efi_media"],
+                "meses_recurrentes_mejor": recurrentes,
+                "n_meses_recurrentes": len(recurrentes),
+                "meses": serie,
+            }
+        )
+    por_activo.sort(key=lambda x: (-x["n_meses_recurrentes"], -x["efi_media_mejor_mes"]))
+    return {
+        "ts_utc": datetime.now(timezone.utc).isoformat(),
+        "n_reports_vacios": len(reports),
+        "activos": por_activo,
+    }
+
+
+def _write_recurrencia_md(rec: dict[str, Any], path: Path) -> None:
+    lines = [
+        "# Recurrencia mensual (año · todos los vacíos)",
+        "",
+        f"- UTC: `{rec['ts_utc']}`",
+        f"- Vacíos cruzados: **{rec['n_reports_vacios']}**",
+        "",
+        "Un mes **recurrente** = fue el mejor del activo en ≥2 vacíos distintos.",
+        "",
+        "| # | Activo | Mejor mes (media) | Peor mes | Meses recurrentes | # rec |",
+        "|---|--------|-------------------|----------|-------------------|------:|",
+    ]
+    for i, row in enumerate(rec.get("activos") or [], 1):
+        recs = ", ".join(row.get("meses_recurrentes_mejor") or []) or "—"
+        lines.append(
+            f"| {i} | {row['activo']} | {row['mejor_mes_media']} | {row['peor_mes_media']} | "
+            f"{recs} | {row['n_meses_recurrentes']} |"
+        )
+    lines += ["", "## Detalle por activo (efi media por mes)", ""]
+    for row in rec.get("activos") or []:
+        lines += [f"### {row['activo']}", "", "| Mes | Efi media | Veces mejor |", "|-----|----------:|------------:|"]
+        for m in row.get("meses") or []:
+            lines.append(
+                f"| {m['mes']} | {m['efi_media']:.3f} | {m['veces_mejor']} |"
+            )
+        lines.append("")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

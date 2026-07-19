@@ -27,6 +27,7 @@ De nada sirve mil simulaciones de un año en un activo que ya es peor que los pr
 - Un Beru tipo **Mariscal** por activo (caza + negociador + ciclo).  
 - Engorde **+$5 / 0,1 % sin techo** de $50.  
 - Fees 0,1 %/pierna · slip 2 bps · calor 20/50/30.  
+- **Contabilidad:** fee y botín sobre **masa spot** (dólares secos del manto). **No** nocional $5k de Igris (corregido 2026-07-18).  
 - **No** fusiones, **no** malla doble, **no** tiers chicos.
 
 ---
@@ -68,5 +69,8 @@ Más rápido (menos castigo de camino): `--path-policy ohlc`
 
 ## Siguiente del camino
 
-Terminar Fase 1 (vacío + top activos en cascada).  
-Solo entonces Fase 2 (malla ancha / sub-Berus / legión).
+**Pase de batalla firmado (2026-07-19):** 13 Santos · vacío **1,6 %** · rangos Aspirante→Aprendiz→Brujo→Chamán.  
+Pergamino: [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) · plan [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v2.
+
+Mega Coliseo: `data/coliseo/mega/INFORME_PASE_BATALLA.md` · status done.  
+Próximo checklist: **4.1.2** Telegram.

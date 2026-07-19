@@ -5,10 +5,14 @@ Un Beru por activo (sin fusiones/Mega). Path OHLC → latidos 0.05%.
 
 Engorde: +$5 / 0.1% en red de frontera **sin techo artificial** (doctrina Monarca
 2026-07-18). Único límite en vivo = oxígeno Tusk; en teatro = el propio movimiento.
+
+Contabilidad (Monarca 2026-07-18 — corrección):
+  Beru transmuta dólares secos de la **masa** spot del manto (una pierna tapa a la otra).
+  Fee = fee_pct × masa × 2 (ida/vuelta sobre esa plata), **no** sobre nocional $5k de Igris.
+  Botín = masa × (movimiento / 0.1%) — doctrina +$5/0.1% por capa, sin pasar por $5000.
 """
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 from typing import Iterable, Literal
 
@@ -21,7 +25,7 @@ PASO_OZ_NEG = 0.001           # 0.1%
 PASO_RED_NEG = 0.0005         # 0.05% (toques 2–5)
 CLON_RED = 0.001              # 0.1% inicial
 MORDIDA_USD = 5.0             # +$5 por escalón; engorde libre (sin tope $50)
-FEE_PCT = 0.001               # 0.1% por pierna
+FEE_PCT = 0.001               # 0.1% por pierna — sobre masa spot, no nocional Igris
 PESOS_CALOR = (0.20, 0.50, 0.30)  # día / semana / año
 
 
@@ -104,23 +108,24 @@ class _St:
     masa_congelada: bool = False
 
 
-def _capas(masa: float, mordida: float) -> float:
-    return max(1.0, masa / mordida) if mordida > 0 else 1.0
-
-
 def _cobrar(
     *,
     entry: float,
     exit_px: float,
-    capas: float,
-    notional: float,
+    masa: float,
     fee_pct: float,
+    paso_trailing: float = PASO_TRAILING,
 ) -> tuple[float, float]:
-    if entry <= 0:
+    """Botín y fee sobre dólares secos de la masa Beru (no nocional Igris).
+
+    - Botín: masa × (Δprecio / paso_trailing) → $5 por cada 0.1% si masa=$5.
+    - Fee: fee_pct × masa × 2 (entrada+salida spot sobre esa masa).
+    """
+    if entry <= 0 or masa <= 0 or paso_trailing <= 0:
         return 0.0, 0.0
     move = abs(exit_px - entry) / entry
-    pnl = notional * move * capas
-    fee = notional * capas * fee_pct * 2.0
+    pnl = masa * (move / paso_trailing)
+    fee = masa * fee_pct * 2.0
     return pnl, fee
 
 
@@ -134,18 +139,18 @@ def simular_beru_fantasma(
     paso_trailing: float = PASO_TRAILING,
     clon_red: float = CLON_RED,
     mordida_usd: float = MORDIDA_USD,
-    notional_por_pierna: float | None = None,
+    notional_por_pierna: float | None = None,  # legacy ignorado (era el bug Igris)
     slip_bps: float = 0.0,
     abismo: float | None = None,
 ) -> FantasmaResult:
     """Beru al 100% (un barco): caza real → negociador → ciclo infinito.
 
     abismo: distancia del negociador; default = vacio (misma perilla Adán).
+    Gatillo primera caza: ± vacío/2 desde el centro del manto.
     """
+    _ = notional_por_pierna  # no usar: fee/botín van por masa spot
     gatillo = vacio * 0.5
     ab = float(abismo) if abismo is not None else float(vacio)
-    if notional_por_pierna is None:
-        notional_por_pierna = mordida_usd / paso_trailing  # 5000
 
     st: _St | None = None
     cosechas = 0
@@ -262,9 +267,9 @@ def simular_beru_fantasma(
                     pnl, fee = _cobrar(
                         entry=st.entry,
                         exit_px=fill,
-                        capas=_capas(st.masa, mordida_usd),
-                        notional=notional_por_pierna,
+                        masa=st.masa,
                         fee_pct=fee_pct,
+                        paso_trailing=paso_trailing,
                     )
                     bruto += pnl
                     fees += fee
@@ -284,9 +289,9 @@ def simular_beru_fantasma(
                     pnl, fee = _cobrar(
                         entry=st.entry,
                         exit_px=fill,
-                        capas=_capas(st.masa, mordida_usd),
-                        notional=notional_por_pierna,
+                        masa=st.masa,
                         fee_pct=fee_pct,
+                        paso_trailing=paso_trailing,
                     )
                     bruto += pnl
                     fees += fee
@@ -308,9 +313,9 @@ def simular_beru_fantasma(
                 pnl, fee = _cobrar(
                     entry=st.entry,
                     exit_px=fill,
-                    capas=_capas(st.masa, mordida_usd),
-                    notional=notional_por_pierna,
+                    masa=st.masa,
                     fee_pct=fee_pct,
+                    paso_trailing=paso_trailing,
                 )
                 bruto += pnl
                 fees += fee

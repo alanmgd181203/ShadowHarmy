@@ -59,7 +59,8 @@
 23. [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md) — Kaiser (anclas, perfiles, manos)
 24. [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) — Igris manto · §E v2 despliegue
 25. [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) — Beru caza · residual · Mega · fricción
-26. [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) — capital, tiers, escalera Monarca
+26. [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) — capital, tiers, escalera Monarca  
+26b. [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) — pase Coliseo Aspirante→Chamán (2026-07-19)
 
 ## Carpetas auxiliares
 

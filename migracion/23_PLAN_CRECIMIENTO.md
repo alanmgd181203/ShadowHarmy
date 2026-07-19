@@ -1,7 +1,8 @@
 # 23 — Plan de crecimiento del Ejército (capital del Monarca)
 
-**Estado:** v1 — Monarca 2026-07-06 (checkpoint antes de profundizar Beru)  
-**Código espejo:** `core/plan_crecimiento.py`  
+**Estado:** v2 — Monarca 2026-07-19 (pase Coliseo + rangos Aspirante→Chamán)  
+**Código espejo:** `core/plan_crecimiento.py` · UI `ui/ascensionScaffold.js`  
+**Pase canónico:** [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md)  
 **Relacionado:** [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) · [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 
 ---
@@ -30,21 +31,23 @@ Definir **cómo crece el ejército según el capital (equity UTA) del Monarca**:
 
 ## Rangos del Monarca (equity UTA)
 
-Subniveles por **barcos desbloqueados**, no por % dentro del rango.
+Subniveles por **pasos del pase de batalla** (efi Coliseo ÷ costo Igris), no por % suelto.
 
-> **Revisión viva (Jess sync Bybit 2026-07-18):**  
-> **Aspirante** = estrella de **5** Soldados (mayor lev) · techo acum. ~**$86** (BTC/ETH $14 · SOL/XRP $18 · ADA $22).  
-> **Aprendiz** = despertar el **resto** de Soldados de la flota · hasta acum. ~**$698**.  
-> LTC vivo = **50×/50×** (no 75). Piso manto foco ≈ **$5**. Sí es cambio de rango de cuenta.
+> **Firma Monarca 2026-07-19** — ver tabla completa en [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md).  
+> Costo = capital Igris del barco (`X` / rangos del diccionario = margen L+S + colchón 5 %).  
+> Vacío Adán del pase: **1,6 %** · malla normal. Meta teórica 13 Mariscales: **~$3161**.
 
-| Rango | Equity (orient.) | Cazas / foco | Greed |
-|-------|------------------|--------------|-------|
-| **Aspirante** | gestación → ~$86 (5 Soldados estrella) | BTC ETH SOL XRP ADA | off |
-| **Aprendiz** (Recluta) | ~$86 → ~$698 (resto Soldados flota) | DOGE…FIL + evolución a Caballero (fusión) | colchón 5% |
-| **Soldado** (Chamán) | *(antes $500 – $1.999 — por revisar)* | por definir tras flota Soldado completa | colchón |
-| **Capitán** (Invocador) | $2.000+ | Flota `ACTIVOS_BERU_FLOTA` | colchón |
-| **General** (Nigromante) | $10.000+ | Flota completa | colchón + VIP |
-| **Señor de las Sombras** | $100.000+ | Flota completa | full |
+| Rango | Pasos pase | Equity techo ~$ | Foco | Greed |
+|-------|------------|----------------:|------|-------|
+| **Aspirante** | 1 → 5 | **123** (LTC Soldado) | Estrella: ETH HYPE XRP MNT LTC | off |
+| **Aprendiz** | 6 → 13 | **411** (OP Soldado) | Resto Santos + AVAX Caballero | colchón 5% |
+| **Brujo** | 14 → 27 | **1451** (LTC Mariscal) | Primeros Mariscales: LINK→SOL→MNT→AVAX→LTC | colchón |
+| **Chamán** | 28 → 52 | **3161** (13 Mariscales) | Remate ADA…FIL + HYPE/XRP Mariscal | colchón |
+| **Capitán** (Invocador) | post-pase | $3161+ | Flota `ACTIVOS_BERU_FLOTA` | colchón |
+| **General** (Nigromante) | — | $10.000+ | Flota completa | colchón + VIP |
+| **Señor de las Sombras** | — | $100.000+ | Flota completa | full |
+
+**Nota viva:** HYPE/XRP en Mariscal están en el pase teórico; el Coliseo recomienda **dejarlos Soldado** en vivo salvo override del Monarca.
 
 ---
 
@@ -158,8 +161,9 @@ Tank y Kaiser: vigilantes transversales (radar), no pasos del ciclo.
 
 | Pieza | Estado |
 |-------|--------|
-| Doctrina este doc | ✅ v1 |
-| `core/plan_crecimiento.py` | ✅ rangos, tiers, colchón, convivencia, hist equity |
+| Doctrina este doc | ✅ v2 (pase 13 Santos) |
+| Pergamino pase | ✅ `PASE_BATALLA_13_SANTOS.md` |
+| `core/plan_crecimiento.py` | ✅ rangos Aspirante→Chamán + umbrales pase |
 | `core/beru_tier.py` BERUBBY | ✅ |
 | Tusk NAV → nivel + tier | ✅ |
 | Beru tier desde Tusk + oz BERUBBY | ✅ |

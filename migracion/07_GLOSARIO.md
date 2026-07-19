@@ -41,6 +41,13 @@ Vocabulario acordado (P0.1 **B**). Usar estos nombres en código, logs y docs.
 | **Plancton** | Micro-ineficiencias menores |
 | **Regalo** | Desviación arbitraje USDT/USDC |
 | **DISPARO_SIMULADO** | Ejecución sin orden real (deuda prototipo) |
+| **13 Santos / Grial** | Cupo fijo de activos Beru del pase Coliseo |
+| **Pase de batalla** | Orden de despertar/ascender Berus por efi÷costo Igris |
+| **Aspirante** | Rango cuenta · estrella 5 Soldados · techo ~$123 |
+| **Aprendiz** | Rango cuenta · 13 Santos despertados · techo ~$411 |
+| **Brujo** | Rango cuenta · hasta LTC Mariscal · techo ~$1451 |
+| **Chamán** | Rango cuenta · 13 Mariscales · techo ~$3161 |
+| **X (costo Igris)** | Capital del barco = margen L+S + colchón Tusk 5% |
 
 ## Etiquetas manuales (#)
 

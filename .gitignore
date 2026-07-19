@@ -20,6 +20,28 @@ data/coliseo/*.sqlite-*
 data/coliseo/*.zip
 data/coliseo/heartbeat.json
 data/coliseo/checkpoint.json
+data/coliseo/mega/jobs/
+data/coliseo/mega/charts/
+data/coliseo/mega/checkpoint.json
+data/coliseo/mega/campana.log
+ShadowHarmy_Coliseo_*/
+
+# Kaiser samples / logs locales
+data/kaiser/samples/
+data/logs/
+data/panel_http.pid
+data/*.png
+data/historial_cola.jsonl
+data/arena_igris_report.json
+
+# Binarios / media local
+tools/cloudflared.exe
+Ima/
+assets/fx/
+*.mp4
+
+# Cursor skills locales (opcionales)
+.cursor/skills/
 
 # IDE (opcional local)
 .vscode/

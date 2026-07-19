@@ -179,6 +179,8 @@ Pentiverso operativo (LTC/BTC) puede convivir; la semilla doctrinal para crecer 
 
 Variables por usuario: activo semilla, tier (auto por equity), vacíos, modo combate, `BERU_PNL_OBJETIVO_POR_1PCT_USD`, catálogo `ACTIVOS_BERU_FLOTA`. Ver escalera completa en [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md).
 
+**Pase de batalla (2026-07-19):** vacío Adán preferido del grial **1,6 %** · malla normal · orden de despertar/ascenso en [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md). HYPE/XRP: en vivo conviene **Soldado** (Mariscal solo en meta teórica del pase).
+
 ---
 
 ## Validación

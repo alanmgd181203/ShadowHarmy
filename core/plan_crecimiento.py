@@ -1,4 +1,8 @@
-"""Plan de crecimiento — equity Monarca → despliegue del ejército (doctrina 23 v1)."""
+"""Plan de crecimiento — equity Monarca → despliegue del ejército (doctrina 23 v2).
+
+Rangos Aspirante→Chamán anclados al pase de batalla Coliseo
+(`migracion/PASE_BATALLA_13_SANTOS.md`, firma Monarca 2026-07-19).
+"""
 from __future__ import annotations
 
 import json
@@ -11,16 +15,36 @@ import core.config as config
 from core import beru_capital as bc
 
 NivelMonarca = Literal[
-    "ASPIRANTE", "RECLUTA", "SOLDADO", "CAPITAN", "GENERAL", "SENOR_SOMBRAS",
+    "ASPIRANTE",
+    "APRENDIZ",
+    "BRUJO",
+    "CHAMAN",
+    "CAPITAN",
+    "GENERAL",
+    "SENOR_SOMBRAS",
 ]
 BeruTierId = Literal["BERUBBY", "PROTO2", "PROTO1", "PLENO"]
 
-# Umbrales equity UTA (USD) — Monarca 2026-07-06
-# eq < umbral → ese rango (Recluta desde $100, Soldado desde $500, …)
-_NIVELES_MONARCA: tuple[tuple[float, NivelMonarca, list[str] | None, str]] = (
-    (100.0, "ASPIRANTE", ["ETH"], "off"),
-    (500.0, "RECLUTA", ["ETH"], "colchon"),
-    (2000.0, "SOLDADO", ["ETH", "SOL", "FIL", "LTC"], "colchon"),
+# 13 Santos del Grial (sillas fijas — Coliseo 1.6% malla ×1)
+SANTOS_GRIAL: tuple[str, ...] = (
+    "MNT", "LINK", "AVAX", "LTC", "HYPE", "BCH", "XRP",
+    "SOL", "ETH", "ADA", "AAVE", "FIL", "OP",
+)
+# Estrella Aspirante — pasos 1–5 del pase
+ESTRELLA_ASPIRANTE: tuple[str, ...] = ("ETH", "HYPE", "XRP", "MNT", "LTC")
+
+# Techos acumulados Igris del pase (eq < umbral → ese rango)
+ASPIRANTE_TECHO_USD = 123.0
+APRENDIZ_TECHO_USD = 411.0
+BRUJO_TECHO_USD = 1451.0
+CHAMAN_TECHO_USD = 3161.0
+
+# eq < umbral → ese nivel
+_NIVELES_MONARCA: tuple[tuple[float, NivelMonarca, list[str] | None, str], ...] = (
+    (ASPIRANTE_TECHO_USD, "ASPIRANTE", list(ESTRELLA_ASPIRANTE), "off"),
+    (APRENDIZ_TECHO_USD, "APRENDIZ", list(SANTOS_GRIAL), "colchon"),
+    (BRUJO_TECHO_USD, "BRUJO", list(SANTOS_GRIAL), "colchon"),
+    (CHAMAN_TECHO_USD, "CHAMAN", list(SANTOS_GRIAL), "colchon"),
     (10000.0, "CAPITAN", None, "colchon"),
     (100000.0, "GENERAL", None, "colchon_vip"),
     (float("inf"), "SENOR_SOMBRAS", None, "full"),
@@ -43,11 +67,15 @@ _TIER_NOMBRES: dict[str, str] = {
 
 _NIVEL_TITULOS: dict[str, str] = {
     "ASPIRANTE": "Aspirante",
-    "RECLUTA": "Recluta (Aprendiz de brujo)",
-    "SOLDADO": "Soldado (Chamán)",
+    "APRENDIZ": "Aprendiz",
+    "BRUJO": "Brujo",
+    "CHAMAN": "Chamán",
     "CAPITAN": "Capitán (Invocador)",
     "GENERAL": "General (Nigromante)",
     "SENOR_SOMBRAS": "Señor de las Sombras",
+    # Alias legacy (lecturas antiguas / panel)
+    "RECLUTA": "Aprendiz",
+    "SOLDADO": "Brujo",
 }
 
 
@@ -118,6 +146,17 @@ def tier_beru_nombre(tier_id: str) -> str:
 
 def nivel_titulo(nivel: str) -> str:
     return _NIVEL_TITULOS.get(nivel, nivel)
+
+
+def techos_pase_batalla() -> dict[str, float]:
+    """Techos equity del pase 13 Santos (doctrina 23 v2)."""
+    return {
+        "aspirante_usd": ASPIRANTE_TECHO_USD,
+        "aprendiz_usd": APRENDIZ_TECHO_USD,
+        "brujo_usd": BRUJO_TECHO_USD,
+        "chaman_usd": CHAMAN_TECHO_USD,
+        "meta_13_mariscales_usd": CHAMAN_TECHO_USD,
+    }
 
 
 def equity_min_por_caza(asset: str | None = None, tier_id: str | None = None) -> float:
@@ -230,6 +269,9 @@ def nivel_por_equity(equity_usd: float) -> dict[str, Any]:
         "equity_usd": round(eq, 2),
         "nivel": nivel,
         "nivel_titulo": nivel_titulo(nivel),
+        "pase_techos": techos_pase_batalla(),
+        "santos_grial": list(SANTOS_GRIAL),
+        "estrella_aspirante": list(ESTRELLA_ASPIRANTE),
         "cazas_desbloqueadas": activos,
         "cazas_max": cazas_max,
         "tier_instantaneo": tier_inst,

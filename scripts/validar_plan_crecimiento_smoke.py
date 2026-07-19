@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke plan crecimiento — motor dinámico X/A_base + niveles Monarca."""
+"""Smoke plan crecimiento — motor dinámico X/A_base + rangos pase 13 Santos."""
 from __future__ import annotations
 
 import sys
@@ -14,20 +14,31 @@ from core import beru_capital as bc
 
 def test_niveles():
     casos = [
-        (15, "ASPIRANTE", ["ETH"]),
-        (100, "RECLUTA", ["ETH"]),
-        (500, "SOLDADO", ["ETH", "SOL", "FIL", "LTC"]),
-        (2500, "CAPITAN"),
+        (15, "ASPIRANTE", list(pc.ESTRELLA_ASPIRANTE)),
+        (122, "ASPIRANTE", list(pc.ESTRELLA_ASPIRANTE)),
+        (123, "APRENDIZ", list(pc.SANTOS_GRIAL)),
+        (410, "APRENDIZ", list(pc.SANTOS_GRIAL)),
+        (411, "BRUJO", list(pc.SANTOS_GRIAL)),
+        (1450, "BRUJO", list(pc.SANTOS_GRIAL)),
+        (1451, "CHAMAN", list(pc.SANTOS_GRIAL)),
+        (3160, "CHAMAN", list(pc.SANTOS_GRIAL)),
+        (3161, "CAPITAN"),
         (15000, "GENERAL"),
         (150000, "SENOR_SOMBRAS"),
     ]
     for item in casos:
         eq, nivel = item[0], item[1]
         r = pc.nivel_por_equity(eq)
-        assert r["nivel"] == nivel, (eq, r)
+        assert r["nivel"] == nivel, (eq, r["nivel"], nivel)
         if len(item) > 2:
             assert r["cazas_desbloqueadas"] == item[2], (eq, r)
-    print("  niveles por equity OK")
+    assert pc.nivel_titulo("APRENDIZ") == "Aprendiz"
+    assert pc.nivel_titulo("BRUJO") == "Brujo"
+    assert pc.nivel_titulo("CHAMAN") == "Chamán"
+    techos = pc.techos_pase_batalla()
+    assert techos["aspirante_usd"] == 123.0
+    assert techos["chaman_usd"] == 3161.0
+    print("  niveles pase Aspirante-Chaman OK")
 
 
 def test_tiers_beru_motor():
@@ -68,14 +79,15 @@ def test_convivencia():
 
 def test_resumen():
     r = pc.resumen_plan(500)
-    assert r["nivel"] == "SOLDADO"
+    assert r["nivel"] == "BRUJO"
     assert "doctrina_multi_beru" in r
     assert r["concentracion_max_pct"] == 0.20
+    assert "pase_techos" in r
     print("  resumen OK", r["nivel_titulo"], "cazas", r["cazas_max"])
 
 
 def main():
-    print("[SMOKE] Plan crecimiento — motor 5 reglas")
+    print("[SMOKE] Plan crecimiento — pase 13 Santos")
     test_niveles()
     test_tiers_beru_motor()
     test_presupuesto()
