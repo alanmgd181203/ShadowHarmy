@@ -69,13 +69,17 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Checklist global:** ~69% (125/184 [x] + 4 [~]) · núcleo Fases 0–3 ~95%
 - **Estado código:** Fase 3 ~92% · lives ✅ · pase Chamán firmado · falta Telegram/ranking fusión
 - **Jess sync Bybit (2026-07-18):** lev+mínimos+piso manto vivos · LTC 50/50
-- **Pase batalla 13 Santos (2026-07-19):** vacío 1,6 % · rangos Aspirante($123)→Aprendiz($411)→Brujo($1451)→Chamán($3161) · [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) · plan 23 v2
-- **Coliseo:** Mega done · indicador calor · informe `data/coliseo/mega/`
-- **Checkpoint cuartel:** [`CHECKPOINT_2026-07-19.md`](CHECKPOINT_2026-07-19.md) · purge debug_ws + gitignore jobs/media
-- **Beru engorde:** sin techo artificial $50 — +$5/0.1% libre (oxígeno Tusk) · [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) 2026-07-18
-- **Próximo ítem checklist:** **4.1.2** Telegram · mérito Bellion · **3.7.P*** · Gran Consumo México
-- **Validar:** `validar_checklist.py` · `validar_plan_crecimiento_smoke.py` · `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`
-- **Tono obligatorio:** `17_GUIA_MONARCA.md` — términos del Ejército en cada respuesta al Monarca
+- **Pase batalla 13 Santos (2026-07-19):** vacío 1,6 % · rangos Aspirante→Chamán · [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md)
+- **Candado rango (2026-07-19):** `MONARCA_RANK_GATE` → Igris auditoría/despliegue + Beru casa (no live) + Ascensión viva desde `estado_vivo`
+- **Director pase (2026-07-19):** `pase_director` — potencia/lote/reserva · 3 marchas (fees / ½ fees / asalto) · Beru tras manto · altar UI on · `panel_http_server` guarda marcha · Táctico=Limit
+- **Disparo dual Igris (2026-07-19):** L+S a la vez + salvavidas Market si una pierna huérfana (`IGRIS_DUAL_*`)
+- **Escalera precios (2026-07-20):** micro-bocados Limit Igris+Greed · cancel no llenos · equilibrar Market · `core/escalera_precios.py`
+- **Lotes Bybit qtyStep (2026-07-20):** `core/lote_bybit.py` lee BD Jess · peldaños/órdenes en múltiplos reales · [`CHECKPOINT_LOTES_BYBIT_2026-07-20.md`](CHECKPOINT_LOTES_BYBIT_2026-07-20.md) · Jess: `JESS_SINCRONIZAR_BYBIT.md`
+- **Kaiser memoria barcos (2026-07-19):** Tank horario → `data/kaiser/memoria/` · digest vivo · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
+- **Oído Monarca:** **Pergamino** (app); Telegram = legado (`06_NOTIFICACIONES.md` v2)
+- **Próximo ítem checklist:** **4.1.2** eventos Pergamino · **3.5.8c** fusión · **3.7.P***
+- **Validar:** `validar_lote_bybit_smoke.py` · `validar_pase_director_smoke.py` · `validar_escalera_precios_smoke.py` · `validar_igris_smoke.py`
+- **Tono obligatorio:** `17_GUIA_MONARCA.md`
 
 ---
 

@@ -34,6 +34,7 @@ ShadowHarmy_Coliseo_*/
 
 # Kaiser samples / logs locales
 data/kaiser/samples/
+data/kaiser/memoria/
 data/logs/
 data/panel_http.pid
 data/*.png

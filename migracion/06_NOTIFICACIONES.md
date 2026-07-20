@@ -1,6 +1,7 @@
 # 06 — Notificaciones y alertas
 
-**Fuente principal:** `sandbox/notificaciones_alertas.md` (destilado limpio, ~2.5 KB).
+**Fuente principal:** `sandbox/notificaciones_alertas.md` (destilado limpio, ~2.5 KB).  
+**Actualizado:** 2026-07-19 — oído principal = **Pergamino** (app); Telegram = legado / opcional.
 
 ## Principio
 
@@ -10,9 +11,19 @@ Sobrecarga → usuario silencia el canal → se pierden fallos reales.
 
 ---
 
-## Jerarquía
+## Canal oficial del Monarca (v2)
 
-### 🚨 Críticas → Telegram **con sonido**
+| Canal | Rol |
+|-------|-----|
+| **Pergamino / Cascada** (`ui/`, panel vivo) | **Oído principal** — digest Kaiser, manto, Ascensión, memoria barcos |
+| **Bellion** (`estado_vivo.json`, historial) | Escriba del ejército hacia la app |
+| **Telegram** | **Legado** — stubs 4.1.\*; no es el camino de crecimiento del cuartel |
+
+---
+
+## Jerarquía (legado Telegram — si se reactiva)
+
+### Criticas → Telegram **con sonido** (opcional)
 
 | Evento | Acción humana esperada |
 |--------|------------------------|

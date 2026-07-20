@@ -168,6 +168,13 @@ KAISER_BACKFILL_ON_START = os.getenv("KAISER_BACKFILL_ON_START", "True").lower()
 KAISER_BACKFILL_DIAS = int(os.getenv("KAISER_BACKFILL_DIAS", "365"))
 KAISER_BACKFILL_MAX_BASES = int(os.getenv("KAISER_BACKFILL_MAX_BASES", "12"))
 
+# Memoria de barcos — diario horario Tank → data/kaiser/memoria/{BASE}.jsonl
+KAISER_MEMORIA_INTERVAL_S = float(os.getenv("KAISER_MEMORIA_INTERVAL_S", "3600"))
+KAISER_MEMORIA_MAX_LINES = int(os.getenv("KAISER_MEMORIA_MAX_LINES", "2160"))
+KAISER_MEMORIA_MAX_DAYS = int(os.getenv("KAISER_MEMORIA_MAX_DAYS", "120"))
+KAISER_MEMORIA_MAX_BASES = int(os.getenv("KAISER_MEMORIA_MAX_BASES", "40"))
+KAISER_MEMORIA_DELTA_UMBRAL_PCT = float(os.getenv("KAISER_MEMORIA_DELTA_UMBRAL_PCT", "0.35"))
+
 # Ancla de Realidad — slippage desde orderbook (Capa 1 liquidez)
 ANCLA_MIN_NOTIONAL_USD = float(os.getenv("ANCLA_MIN_NOTIONAL_USD", "10"))
 ANCLA_PASO_BUSQUEDA_USD = float(os.getenv("ANCLA_PASO_BUSQUEDA_USD", "25"))
@@ -300,6 +307,16 @@ IGRIS_URGENCIA_TAU_MAX_HORAS = float(os.getenv("IGRIS_URGENCIA_TAU_MAX_HORAS", "
 IGRIS_URGENCIA_HOLGURA_MAX_PCT = float(os.getenv("IGRIS_URGENCIA_HOLGURA_MAX_PCT", "0.05"))
 IGRIS_ESPERA_LOG_S = float(os.getenv("IGRIS_ESPERA_LOG_S", "60"))
 IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))
+# Disparo dual §E: timeout fill inicial + salvavidas Market si una pierna queda huérfana
+IGRIS_DUAL_FILL_TIMEOUT_S = float(os.getenv("IGRIS_DUAL_FILL_TIMEOUT_S", "20"))
+IGRIS_DUAL_SALVAVIDAS_MARKET = os.getenv("IGRIS_DUAL_SALVAVIDAS_MARKET", "true").lower() == "true"
+# Escalera de precios — micro-bocados Limit a distintos niveles (Igris/Greed)
+ESCALERA_PRECIOS_ACTIVA = os.getenv("ESCALERA_PRECIOS_ACTIVA", "true").lower() == "true"
+ESCALERA_IGRIS_ACTIVA = os.getenv("ESCALERA_IGRIS_ACTIVA", "true").lower() == "true"
+ESCALERA_GREED_ACTIVA = os.getenv("ESCALERA_GREED_ACTIVA", "true").lower() == "true"
+ESCALERA_MAX_PELDANOS = int(os.getenv("ESCALERA_MAX_PELDANOS", "8"))
+ESCALERA_TICK_PCT = float(os.getenv("ESCALERA_TICK_PCT", "0.00015"))
+ESCALERA_FILL_TIMEOUT_S = float(os.getenv("ESCALERA_FILL_TIMEOUT_S", "12"))
 # Horizonte 95% = colchón de cálculo; rebase táctico permitido (poda posterior)
 IGRIS_COLCHON_OXIGENO_PCT = float(os.getenv("IGRIS_COLCHON_OXIGENO_PCT", "5"))
 
@@ -380,6 +397,11 @@ MONARCA_MARGEN_OBJETIVO_PCT = float(os.getenv("MONARCA_MARGEN_OBJETIVO_PCT", "93
 MONARCA_TIER_AUTO_DIAS = int(os.getenv("MONARCA_TIER_AUTO_DIAS", "3"))
 MONARCA_MEGA_VIP_EQUITY_MIN = float(os.getenv("MONARCA_MEGA_VIP_EQUITY_MIN", "100"))
 MONARCA_NIVEL_AUTO = os.getenv("MONARCA_NIVEL_AUTO", "true").lower() == "true"
+# Candado pase → Igris (activos por rango). Lives saltan con LIVE_IGRIS_TESTNET / ARENA SIN_RANGOS.
+MONARCA_RANK_GATE = os.getenv("MONARCA_RANK_GATE", "true").lower() == "true"
+# Director pase: lote/reserva + marcha (tactico | marcha_forzada | asalto)
+PASE_DIRECTOR_ACTIVO = os.getenv("PASE_DIRECTOR_ACTIVO", "true").lower() == "true"
+MARCHA_DESPLIEGUE = os.getenv("MARCHA_DESPLIEGUE", "marcha_forzada").strip().lower()
 # Legacy — botín 50/50 retirado; Greed usa colchón 5%
 MONARCA_BOTIN_CIMIENTOS_PCT = float(os.getenv("MONARCA_BOTIN_CIMIENTOS_PCT", "1.0"))
 

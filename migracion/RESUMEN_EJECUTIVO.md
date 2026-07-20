@@ -9,7 +9,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ## Veredicto en una frase
 
-**Fases 0–2 cerradas · Fase 3 ~92%.** Lives Beru+Igris ✅. **Mega Coliseo done** · pase de batalla firmado (1,6 % · Aspirante→Chamán). **Siguiente:** Telegram **4.1.2** · Gran Consumo México.
+**Fases 0–2 cerradas · Fase 3 ~92%.** Lives ✅. Pase Chamán firmado. **Kaiser memoria barcos viva** (Tank→diario). Oído = **Pergamino**. **Siguiente:** eventos en app (**4.1.2**) · fusión manto (**3.5.8c**).
 
 ## Progreso checklist (16)
 
@@ -49,9 +49,9 @@ python scripts/validar_ciclo_beru_eth.py
 
 ## Qué falta (corto)
 
-1. **4.1.2+** Telegram  
-2. Mérito Bellion · tope 20% por barco  
+1. **4.1.2+** Eventos críticos en Pergamino (Telegram legado)  
+2. **3.5.8c** ranking fusión pase ↔ manto  
 3. Semáforos **3.7.P*** · Karmish **3.8.P3**  
-4. Commit/push Pergamino cuando el Monarca ordene  
+4. Mérito Bellion runtime  
 
 Hablar siempre en términos del Ejército (Beru, Igris, manto, Cascada, Sub-Santuario).

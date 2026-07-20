@@ -15,7 +15,43 @@ function serveDataPlugin() {
         if (!req.url?.startsWith("/data/")) return next();
         const rel = decodeURIComponent(req.url.slice("/data/".length).split("?")[0]);
         const file = path.normalize(path.join(dataDir, rel));
-        if (!file.startsWith(dataDir) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
+        if (!file.startsWith(dataDir)) {
+          res.statusCode = 403;
+          res.end("forbidden");
+          return;
+        }
+
+        // Escritura segura: solo marcha_despliegue.json (ritmo del ejército)
+        if (req.method === "POST" && rel === "marcha_despliegue.json") {
+          const chunks = [];
+          req.on("data", (c) => chunks.push(c));
+          req.on("end", () => {
+            try {
+              const raw = Buffer.concat(chunks).toString("utf8");
+              const data = JSON.parse(raw);
+              if (!data.marcha_id || typeof data.marcha_id !== "string") {
+                res.statusCode = 400;
+                res.end("marcha_id required");
+                return;
+              }
+              fs.mkdirSync(dataDir, { recursive: true });
+              fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
+              res.setHeader("Content-Type", "application/json; charset=utf-8");
+              res.end(JSON.stringify({ ok: true, ...data }));
+            } catch (e) {
+              res.statusCode = 400;
+              res.end(String(e?.message || e));
+            }
+          });
+          return;
+        }
+
+        if (req.method !== "GET" && req.method !== "HEAD") {
+          res.statusCode = 405;
+          res.end("method not allowed");
+          return;
+        }
+        if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
           res.statusCode = 404;
           res.end("not found");
           return;

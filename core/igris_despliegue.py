@@ -321,6 +321,15 @@ def evaluar_puerta_se(
             "spread_pct": round(spread, 6),
         }
         umbral = umbral_micro
+    elif getattr(config, "PASE_DIRECTOR_ACTIVO", True):
+        from core import pase_director as pd
+        urg = pd.umbral_por_marcha(
+            fees_be,
+            t0_paciencia=t0_paciencia,
+            perfil_edge=perfil,
+            ahora=ahora,
+        )
+        umbral = float(urg["umbral_pct"])
     else:
         urg = umbral_urgencia_pct(fees_be, t0_paciencia, perfil_edge=perfil, ahora=ahora)
         umbral = urg["umbral_pct"]

@@ -46,6 +46,7 @@ liberar_http() {
   local port="$1"
   pkill -f "http.server ${port}" 2>/dev/null || true
   pkill -f "http.server.*${port}" 2>/dev/null || true
+  pkill -f "panel_http_server.py" 2>/dev/null || true
   if command -v lsof >/dev/null 2>&1; then
     local pids
     pids="$(lsof -tiTCP:"${port}" -sTCP:LISTEN 2>/dev/null || true)"
@@ -90,7 +91,7 @@ if command -v lsof >/dev/null 2>&1 && lsof -tiTCP:"${PORT}" -sTCP:LISTEN >/dev/n
   liberar_http "$PORT"
 fi
 
-nohup python -m http.server "$PORT" --directory "$ROOT" >> "$LOG_DIR/panel_http.log" 2>&1 &
+nohup python scripts/panel_http_server.py --port "$PORT" --directory "$ROOT" >> "$LOG_DIR/panel_http.log" 2>&1 &
 HTTP_PID=$!
 echo "$HTTP_PID" > "$ROOT/data/panel_http.pid"
 sleep 1
@@ -101,7 +102,7 @@ if ! kill -0 "$HTTP_PID" 2>/dev/null; then
     echo "$HTTP_PID" > "$ROOT/data/panel_http.pid"
     echo "  ✓ Reutilizando servidor en :${PORT} (PID ${HTTP_PID})"
   else
-    echo "❌ http.server no arrancó — ver data/logs/panel_http.log"
+    echo "❌ panel_http no arrancó — ver data/logs/panel_http.log"
     exit 1
   fi
 fi
@@ -118,7 +119,7 @@ echo ""
 echo "═══════════════════════════════════════════════"
 echo "  ✅ Panel listo (arise activo al abrir)"
 echo "  arise.py      → PID ${ARISE_PID}"
-echo "  http.server   → PID ${HTTP_PID} (puerto ${PORT})"
+echo "  panel_http    → PID ${HTTP_PID} (puerto ${PORT})"
 echo "  Pergamino     → http://localhost:${PORT}/dashboard_sombras.html"
 echo "  Logs          → data/logs/"
 echo "═══════════════════════════════════════════════"

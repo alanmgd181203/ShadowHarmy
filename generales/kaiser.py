@@ -9,6 +9,7 @@ import time
 
 import core.config as config
 from core import kaiser_indicators as indic
+from core import kaiser_memoria_barcos as memoria
 from core import kaiser_perfil as perfil
 from core import kaiser_sampler as sampler
 from core import metaverso_grafo as metaverso
@@ -23,6 +24,8 @@ class KaiserVocero:
         self._ultimo_refresh = 0.0
         self._ultimo_muestra = 0.0
         self._ultimo_perfil = 0.0
+        self._ultimo_memoria = 0.0
+        self._memoria_resumen: dict = {}
         self._alertas_logeadas: dict[str, float] = {}
         self._backfill_hecho = False
         from core.kaiser_pipeline import ColaOportunidadesGreed, RastreadorSpread
@@ -100,6 +103,23 @@ class KaiserVocero:
             rastreador=self._rastreador_spread,
             cola_greed=self._cola_greed,
         )
+
+        # Memoria horaria de barcos (Tank → diario por activo)
+        n_mem, self._ultimo_memoria, alertas_mem, res_mem = memoria.append_memoria_si_toca(
+            self.tank, self._ultimo_memoria,
+        )
+        if res_mem:
+            self._memoria_resumen = res_mem
+        self.ultimo_digest["memoria_barcos"] = memoria.snapshot_para_digest(self._memoria_resumen)
+        if alertas_mem:
+            self.ultimo_digest.setdefault("alertas", []).extend(alertas_mem)
+            # re-cortar cola si creció
+            max_a = getattr(config, "KAISER_MAX_ALERTAS", 50)
+            self.ultimo_digest["alertas"] = self.ultimo_digest["alertas"][:max_a]
+        if n_mem:
+            ind = self.ultimo_digest.setdefault("indicadores", {})
+            ind["memoria_barcos_escritos"] = n_mem
+
         self._ultimo_calc_ms = (_time.time() - t0) * 1000.0
         self._ultimo_refresh = _time.time()
         return self.ultimo_digest
@@ -186,7 +206,7 @@ class KaiserVocero:
     async def vigilar_indicadores(self):
         await self.bel.anotar(
             "KAISER", "DESPERTAR",
-            "Vocero activo — Ancla (orderbook) + perfiles + metaverso; no disparo.",
+            "Vocero activo — Ancla + perfiles + metaverso + memoria barcos (Tank horario); no disparo.",
         )
         asyncio.create_task(self._backfill_inicial())
         intervalo = getattr(config, "KAISER_INTERVAL_S", 3.0)

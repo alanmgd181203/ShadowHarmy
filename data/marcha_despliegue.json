@@ -1,0 +1,9 @@
+{
+  "marcha_id": "marcha_forzada",
+  "titulo": "Marcha Forzada",
+  "ts": 1784514706.629107,
+  "reserva_pasos": 2,
+  "umbral_fees_mult": 0.5,
+  "force_market": false,
+  "permite_urgencia": true
+}

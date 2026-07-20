@@ -28,9 +28,10 @@
 
 ## Siguiente del camino (checklist)
 
-1. **4.1.2** Telegram — tabla evento → nivel  
-2. **4.1.3** Alertas críticas  
-3. **3.5.8c** ranking fusión (motor parcial)  
-4. **3.7.P*** Semáforos matriz  
+1. **4.1.2** Eventos → Pergamino/Bellion (Telegram legado)  
+2. **3.5.8c** ranking fusión pase ↔ manto  
+3. **3.7.P*** Semáforos matriz  
 
-Validar: `python scripts/validar_plan_crecimiento_smoke.py`
+**Kaiser memoria barcos:** cableada 2026-07-19 — `core/kaiser_memoria_barcos.py` · smoke `validar_kaiser_memoria_smoke.py`.
+
+Validar: `python scripts/validar_plan_crecimiento_smoke.py` · `python scripts/validar_kaiser_memoria_smoke.py`

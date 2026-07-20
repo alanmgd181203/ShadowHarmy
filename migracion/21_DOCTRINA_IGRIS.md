@@ -111,6 +111,9 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 - Ante oportunidad: **ambas órdenes a la vez** (limit/limit, market/market o mix — da igual).
 - No encadenar “espero fill de una y luego la otra” (el precio se mueve).
 - Si una falla: **market inmediato** en la que falta; el chiste es llenar **ambas**.
+- **Escalera de precios:** micro-bocados Limit a distintos niveles (`core/escalera_precios.py`); cancelar no llenos; equilibrar Market; manto parcial OK.
+- **Lotes Bybit:** cada peldaño/orden respeta `minOrderQty` + `qtyStep` de la BD Jess (`core/lote_bybit.py` · `data/bybit_parametros_mercado.json`).
+- **Código:** `IgrisEscudo._disparo_dual_simultaneo` + `_salvavidas_market_pierna` · Greed `_ejecutar_dos_piernas` · flags `ESCALERA_*` / `IGRIS_DUAL_*`.
 - Kaiser viendo order book dual a fondo: **revisar después** (metaverso / si ya vive).
 
 #### Violación del candado (ej. long 53%)
@@ -130,7 +133,7 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 | Ventana 48–52 / 49–51 short-gordo | Meta margen × leverage |
 | Long-primero + corrección por barco | Definición “mitad del engorde” |
 | USD@entrada + sello unidad | Mecánica fina manto completo |
-| Dual simultáneo + market si falla una | Kaiser order book dual a fondo |
+| Dual simultáneo + market si falla una | ✅ v1 `_disparo_dual_simultaneo` + salvavidas (2026-07-19) · Kaiser dual-book a fondo pendiente |
 | Sustituir banda-por-margen% como ley L/S | Greed exento 48–52 |
 | | Timer por tiempo desequilibrado |
 

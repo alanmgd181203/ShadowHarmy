@@ -34,6 +34,40 @@ class BeruCazador:
             return str(tid)
         return str(getattr(config, "BERU_TIER_DEFAULT", "PROTO1"))
 
+    def _activo_casa(self) -> str:
+        """Casa spot: preferido del pase / foco director; live testnet no toca."""
+        if getattr(config, "LIVE_BERU_TESTNET", False):
+            return beru_rail.activo_semilla()
+        try:
+            from core import pase_director as pd
+            from core import plan_crecimiento as pc
+            eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+            if pd.director_activo():
+                # Caza en Santos ya logrados; si no hay, foco manto (espera)
+                logs = pd.cargar_progreso().get("pasos_logrados") or []
+                for n in sorted(logs, reverse=True):
+                    paso = pd.paso_por_n(int(n))
+                    if paso:
+                        return str(paso["activo"]).upper()
+                return pd.activo_manto_foco(eq)
+            if pc.rank_gate_activo():
+                return pc.activo_manto_preferido(eq)
+        except Exception:
+            pass
+        return beru_rail.activo_semilla()
+
+    def _beru_caza_permitida(self) -> bool:
+        if getattr(config, "LIVE_BERU_TESTNET", False):
+            return True
+        try:
+            from core import pase_director as pd
+            if not pd.director_activo():
+                return True
+            eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+            return pd.beru_puede_cazar(self._activo_casa(), eq)
+        except Exception:
+            return True
+
     def _tier_barco(self, beru: BeruShip) -> beru_tier.BeruGridTier:
         tid = getattr(beru, "tier_id", None) or self._tier_efectivo()
         return beru_tier.tier_por_id(tid)
@@ -108,7 +142,9 @@ class BeruCazador:
             self._redes_residuales.append(rr)
 
     def plantar_semilla_adan(self, precio_actual):
-        nuevo_uid = f"BERU_SEM_{str(getattr(config, 'BERU_ACTIVO_SEMILLA', '') or 'X')}_{time.time_ns()}"
+        if not self._beru_caza_permitida():
+            return
+        nuevo_uid = f"BERU_SEM_{self._activo_casa()}_{time.time_ns()}"
         semilla = BeruShip(
             uid=nuevo_uid, centro_local=precio_actual, masa=0.0,
             direccion="LONG", estado="ACECHANDO", generacion=1,
@@ -192,6 +228,7 @@ class BeruCazador:
         libros = (lider.libros if lider else {}) or {}
         frente, p_ef, meta = beru_rail.elegir_mejor_rail(
             ctx_map, masa, is_long,
+            base=self._activo_casa(),
             libros=libros,
             kaiser=self.kaiser,
         )
@@ -203,6 +240,10 @@ class BeruCazador:
         return frente, p_ef
 
     async def _ejecutar_caza(self, beru):
+        if not self._beru_caza_permitida():
+            await self.tusk.liberar_reserva(beru.uid)
+            beru.estado = "ACECHANDO"
+            return
         ctx_map, estado = await self.tank.vision_especulativa()
         if estado in ("GLITCH_DETECTADO", "ROJO") or not ctx_map:
             await self.tusk.liberar_reserva(beru.uid)
@@ -523,7 +564,7 @@ class BeruCazador:
         masa = beru_cazador.mordida_usd()
         if masa <= 0:
             return
-        nuevo_uid = f"BERU_CAPA{capa}_{str(getattr(config, 'BERU_ACTIVO_SEMILLA', '') or 'X')}_{time.time_ns()}"
+        nuevo_uid = f"BERU_CAPA{capa}_{self._activo_casa()}_{time.time_ns()}"
         barco = BeruShip(
             uid=nuevo_uid,
             centro_local=precio_actual,

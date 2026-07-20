@@ -233,6 +233,69 @@ export const DEMO_PROGRESS = {
 };
 
 /**
+ * Progreso vivo desde plan_crecimiento (estado_vivo.igris.plan_crecimiento).
+ * Si falta plan, el altar sigue en demo.
+ */
+export function progressFromPlan(plan) {
+  if (!plan || typeof plan !== "object") return null;
+  const eq = Math.max(0, Number(plan.equity_usd) || 0);
+  const nivel = String(plan.nivel || "ASPIRANTE").toUpperCase();
+  const director = plan.pase_director || {};
+  const potentialByNivel = {
+    ASPIRANTE: "asp_corona",
+    APRENDIZ: "apr_santos",
+    BRUJO: "bru_ltc_mariscal",
+    CHAMAN: "cha_grial",
+    CAPITAN: "senor",
+    GENERAL: "senor",
+    SENOR_SOMBRAS: "senor",
+  };
+  const potentialNodeId = potentialByNivel[nivel] || "asp_corona";
+
+  let achievedNodeId = "n0_gestacion";
+  if (eq >= FASE_CERO_TECHO_X) {
+    let sum = 0;
+    for (const v of VANGUARDIA_SOLDADOS) {
+      sum += v.costoX;
+      if (eq >= sum) achievedNodeId = v.id;
+      else break;
+    }
+    if (eq >= ASPIRANTE_TECHO_X) achievedNodeId = "asp_corona";
+    if (eq >= APRENDIZ_TECHO_FLOTA_SOLDADO_X) achievedNodeId = "apr_santos";
+    if (eq >= BRUJO_TECHO_X) achievedNodeId = "bru_ltc_mariscal";
+    if (eq >= CHAMAN_TECHO_X) achievedNodeId = "cha_grial";
+  }
+
+  const nLog = Number(director.n_logrados) || 0;
+  if (nLog >= 1 && nLog <= 5) {
+    const v = VANGUARDIA_SOLDADOS[nLog - 1];
+    if (v) achievedNodeId = v.id;
+  } else if (nLog >= 5 && eq < APRENDIZ_TECHO_FLOTA_SOLDADO_X) {
+    achievedNodeId = "asp_corona";
+  }
+
+  const label =
+    eq > 0 ? `~$${Math.round(eq)}` : equityLabelForNode(achievedNodeId);
+  const foco = director.foco;
+  const focoLabel = foco
+    ? `${foco.activo || ""} ${foco.grado || ""}`.trim()
+    : plan.activo_manto_preferido || plan.activo_semilla || null;
+
+  return {
+    potentialNodeId,
+    achievedNodeId,
+    equityLabel: label,
+    live: true,
+    nivel,
+    activoPreferido: focoLabel,
+    rankGate: Boolean(plan.rank_gate),
+    marchaId: director.marcha_id || null,
+    potenciaN: director.potencia_n ?? null,
+    nLogrados: nLog,
+  };
+}
+
+/**
  * locked | potential | achieved | frontier
  */
 export function resolveNodePhase(nodeId, { potentialNodeId, achievedNodeId }, order = flattenNodeOrder()) {

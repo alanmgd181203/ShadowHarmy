@@ -450,13 +450,144 @@ class GreedFrancotirador:
             )
             return True
 
+        from core import escalera_precios as esc
+        from core import igris_despliegue as ides
+
         sym_l = mercado.frente_a_symbol(frente_buy)
         cat_l = mercado.frente_a_category(frente_buy)
         sym_s = mercado.frente_a_symbol(frente_sell)
         cat_s = mercado.frente_a_category(frente_sell)
 
-        res_l = await self.bridge.place_order(sym_l, "Buy", mitad, category=cat_l)
-        res_s = await self.bridge.place_order(sym_s, "Sell", mitad, category=cat_s)
+        ask_l = ides.best_ask(ides.libro_tank(self.tank, frente_buy)[1])
+        bid_s = ides.best_bid(ides.libro_tank(self.tank, frente_sell)[0])
+
+        usar_esc = (
+            esc.escalera_activa("GREED")
+            and ask_l > 0
+            and bid_s > 0
+            and mitad > 0
+        )
+
+        if usar_esc:
+            n_max, mid = esc.n_y_marcha_para_general()
+            if mid == "asalto" or n_max <= 1:
+                usar_esc = False
+
+        if usar_esc:
+            from core import lote_bybit as lote
+
+            pel_l = esc.armar_peldaños_lote(
+                mitad, ask_l, "Buy",
+                frente=frente_buy, unidad="usd", n_max=n_max, marcha_id=mid,
+            )
+            pel_s = esc.armar_peldaños_lote(
+                mitad, bid_s, "Sell",
+                frente=frente_sell, unidad="usd", n_max=n_max, marcha_id=mid,
+            )
+            if len(pel_l) >= 2 and len(pel_s) >= 2:
+                timeout = float(getattr(config, "ESCALERA_FILL_TIMEOUT_S", 12) or 12)
+                r_l, r_s = await asyncio.gather(
+                    esc.ejecutar_escalera(
+                        self.bridge, symbol=sym_l, side="Buy", category=cat_l,
+                        peldaños=pel_l, bel=self.bel, general="GREED", fill_timeout_s=timeout,
+                    ),
+                    esc.ejecutar_escalera(
+                        self.bridge, symbol=sym_s, side="Sell", category=cat_s,
+                        peldaños=pel_s, bel=self.bel, general="GREED", fill_timeout_s=timeout,
+                    ),
+                )
+                filled_l = float(r_l.get("filled_tamaño") or 0)
+                filled_s = float(r_s.get("filled_tamaño") or 0)
+                if filled_l <= 0 and filled_s <= 0:
+                    await self.tusk.liberar_reserva(uid)
+                    await self.bel.anotar("GREED", "ESCALERA_VACIA", "Ningún peldaño llenó")
+                    return False
+
+                # Equilibrar: Market en la pierna deficitaria (qty ya cuantizada)
+                diff = filled_l - filled_s
+                min_q_l = float(lote.filtros_lote(frente_buy).get("minOrderQty") or 0)
+                min_q_s = float(lote.filtros_lote(frente_sell).get("minOrderQty") or 0)
+                tol = max(
+                    abs(filled_l + filled_s) * 0.025,
+                    min(min_q_l, min_q_s) * 0.5 if min_q_l and min_q_s else 0.0,
+                )
+                if abs(diff) > tol:
+                    if diff > 0:
+                        # Falta sell
+                        dq = lote.cuantizar_qty(
+                            abs(diff),
+                            min_qty=min_q_s,
+                            qty_step=float(lote.filtros_lote(frente_sell).get("qtyStep") or 0),
+                            mode="floor",
+                        )
+                        if dq > 0:
+                            res = await self.bridge.place_order(
+                                sym_s, "Sell", dq, category=cat_s, order_type="Market",
+                            )
+                            if res.exito:
+                                await self.bridge.esperar_fill(
+                                    sym_s, order_id=res.order_id, category=cat_s, timeout_s=timeout,
+                                )
+                                filled_s += dq
+                                await self.bel.anotar(
+                                    "GREED", "SALVAVIDAS_MARKET",
+                                    f"Sell {frente_sell} +{dq:.6f} equilibrar",
+                                )
+                    else:
+                        dq = lote.cuantizar_qty(
+                            abs(diff),
+                            min_qty=min_q_l,
+                            qty_step=float(lote.filtros_lote(frente_buy).get("qtyStep") or 0),
+                            mode="floor",
+                        )
+                        if dq > 0:
+                            res = await self.bridge.place_order(
+                                sym_l, "Buy", dq, category=cat_l, order_type="Market",
+                            )
+                            if res.exito:
+                                await self.bridge.esperar_fill(
+                                    sym_l, order_id=res.order_id, category=cat_l, timeout_s=timeout,
+                                )
+                                filled_l += dq
+                                await self.bel.anotar(
+                                    "GREED", "SALVAVIDAS_MARKET",
+                                    f"Buy {frente_buy} +{dq:.6f} equilibrar",
+                                )
+
+                if filled_l <= 0 or filled_s <= 0:
+                    await self.tusk.liberar_reserva(uid)
+                    await self.bel.anotar(
+                        "GREED", "ESCALERA_DESEQUILIBRIO",
+                        f"L={filled_l:.4f} S={filled_s:.4f} — abort",
+                    )
+                    return False
+
+                await self.tusk.confirmar_reserva(uid, frente_buy, "LONG", fill_confirmado=True)
+                uid_s = f"{uid}_S"
+                if await self.tusk.solicitar_reserva(uid_s, filled_s, "GREED", "SHORT"):
+                    await self.tusk.confirmar_reserva(uid_s, frente_sell, "SHORT", fill_confirmado=True)
+                registrar_toque_greed(self.tusk, [frente_buy, frente_sell], motivo="ESCALERA")
+                await self.bel.anotar(
+                    "GREED", "ESCALERA_OK",
+                    f"buy:{frente_buy}@{filled_l:.4f} sell:{frente_sell}@{filled_s:.4f} · "
+                    f"peldaños L{r_l.get('n_filled')}/S{r_s.get('n_filled')}",
+                )
+                return True
+
+        # Legacy: dual Market de una vez (USD → qty Bybit)
+        from core import lote_bybit as lote
+
+        q_l = lote.cuantizar_presupuesto_usd(mitad, ask_l if ask_l > 0 else 1.0, frente_buy)
+        q_s = lote.cuantizar_presupuesto_usd(mitad, bid_s if bid_s > 0 else 1.0, frente_sell)
+        if not q_l.get("ok") or not q_s.get("ok"):
+            await self.tusk.liberar_reserva(uid)
+            await self.bel.anotar(
+                "GREED", "ORDEN_FALLIDA",
+                f"qty bajo lote Bybit L={q_l.get('qty')} S={q_s.get('qty')}",
+            )
+            return False
+        res_l = await self.bridge.place_order(sym_l, "Buy", q_l["qty"], category=cat_l)
+        res_s = await self.bridge.place_order(sym_s, "Sell", q_s["qty"], category=cat_s)
 
         if not res_l.exito or not res_s.exito:
             await self.tusk.liberar_reserva(uid)

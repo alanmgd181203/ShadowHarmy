@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AspiranteStar from "./AspiranteStar.jsx";
 import DeploymentAltar from "./DeploymentAltar.jsx";
-import { loadMarchId, marchById, saveMarchId } from "./deploymentMarches.js";
+import { loadMarchId, marchById, persistMarchaBackend, saveMarchId } from "./deploymentMarches.js";
 import { featureEncendida } from "./featuresApagadas.js";
 import {
   DEMO_PROGRESS,
@@ -10,6 +10,7 @@ import {
   equityLabelForNode,
   flattenNodeOrder,
   nextAchievedAlongPotential,
+  progressFromPlan,
   ranksFromHorizon,
   resolveNodePhase,
   resolveRankPhase,
@@ -18,9 +19,12 @@ import {
 /**
  * Camino de Ascensión — Aspirante→Aprendiz→Brujo→Chamán (pase 13 Santos).
  * Altar 3 marchas: featuresApagadas → altarTresMarchas.
+ * Progreso vivo: /data/estado_vivo.json → igris.plan_crecimiento.
  */
 const ALTAR_TRES_MARCHAS_ON = featureEncendida("altarTresMarchas");
 const MARCHA_DEFAULT = "marcha_forzada";
+const ESTADO_VIVO_URL = "/data/estado_vivo.json";
+const PLAN_POLL_MS = 4000;
 
 function NodeShell({ forma, escala, etiqueta, valor, peso, phase, revealDelay, lit, forging }) {
   const clip = FORMA_CLIP[forma] || FORMA_CLIP.rombo;
@@ -303,6 +307,13 @@ function AscensionTrack({ progress, march, lit, forgingId, onResetMarch, onClose
             {march ? (
               <p className="text-[10px] text-[#6a5a40] mt-1 tracking-wide">{march.titulo}</p>
             ) : null}
+            {progress?.live ? (
+              <p className="text-[10px] text-[#8a7a55] mt-1 tracking-wide">
+                {progress.nivel || "—"} · {progress.equityLabel}
+                {progress.activoPreferido ? ` · foco ${progress.activoPreferido}` : ""}
+                {progress.potenciaN != null ? ` · potencia ${progress.nLogrados || 0}/${progress.potenciaN}` : ""}
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0">
             <button
@@ -392,6 +403,7 @@ export default function TuskAscension({ onClose }) {
   });
   const [lit, setLit] = useState(false);
   const [progress, setProgress] = useState(() => ({ ...DEMO_PROGRESS }));
+  const [liveMode, setLiveMode] = useState(false);
   const [forgingId, setForgingId] = useState(null);
   const forgeTimer = useRef(null);
 
@@ -406,6 +418,7 @@ export default function TuskAscension({ onClose }) {
   function handleChoose(m) {
     setCollapsing(true);
     saveMarchId(m.id);
+    persistMarchaBackend(m.id);
     setMarchId(m.id);
     window.setTimeout(() => {
       setCollapsing(false);
@@ -428,11 +441,52 @@ export default function TuskAscension({ onClose }) {
     setShowTrack(false);
     setLit(false);
     setForgingId(null);
+    setLiveMode(false);
     setProgress({ ...DEMO_PROGRESS });
   }
 
   useEffect(() => {
-    if (!showTrack || !march) return undefined;
+    if (!marchId) return undefined;
+    persistMarchaBackend(marchId);
+    return undefined;
+  }, [marchId]);
+
+  // Pulso vivo: equity Tusk → nodos del pase (si hay plan en estado_vivo)
+  useEffect(() => {
+    if (!showTrack) return undefined;
+    let cancelled = false;
+    let lastAchieved = null;
+
+    async function tick() {
+      try {
+        const res = await fetch(ESTADO_VIVO_URL, { cache: "no-store" });
+        if (!res.ok || cancelled) return;
+        const data = await res.json();
+        const plan = data?.igris?.plan_crecimiento || data?.plan_crecimiento;
+        const next = progressFromPlan(plan);
+        if (!next || cancelled) return;
+        setLiveMode(true);
+        setProgress(next);
+        setLit(true);
+        if (next.achievedNodeId && next.achievedNodeId !== lastAchieved) {
+          lastAchieved = next.achievedNodeId;
+          sparkForge(next.achievedNodeId);
+        }
+      } catch {
+        /* sin panel → demo */
+      }
+    }
+
+    tick();
+    const id = window.setInterval(tick, PLAN_POLL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [showTrack]);
+
+  useEffect(() => {
+    if (!showTrack || !march || liveMode) return undefined;
     const pot = DEMO_PROGRESS.potentialNodeId;
     let achieved = "n0_gestacion";
     setProgress({
@@ -463,7 +517,7 @@ export default function TuskAscension({ onClose }) {
       timers.forEach(clearTimeout);
       if (forgeTimer.current) clearTimeout(forgeTimer.current);
     };
-  }, [showTrack, marchId, march, order]);
+  }, [showTrack, marchId, march, order, liveMode]);
 
   return (
     <>
@@ -476,6 +530,11 @@ export default function TuskAscension({ onClose }) {
             potentialNodeId: progress.potentialNodeId || DEMO_PROGRESS.potentialNodeId,
             achievedNodeId: progress.achievedNodeId || "n0_gestacion",
             equityLabel: progress.equityLabel || DEMO_PROGRESS.equityLabel,
+            live: Boolean(progress.live),
+            nivel: progress.nivel,
+            activoPreferido: progress.activoPreferido,
+            potenciaN: progress.potenciaN,
+            nLogrados: progress.nLogrados,
           }}
           march={march}
           lit={lit}

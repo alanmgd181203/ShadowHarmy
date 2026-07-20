@@ -28,6 +28,7 @@ function Stop-NamedPython {
 function Liberar-Puerto {
     param([int]$Port)
     Stop-NamedPython "http.server\s+$Port"
+    Stop-NamedPython "panel_http_server"
     Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue |
         ForEach-Object {
             try { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } catch {}
@@ -69,7 +70,7 @@ if (-not $SoloPanel) {
 Write-Host "Servidor http ..."
 $httpOut = Join-Path $LogDir "panel_http_out.log"
 $httpErr = Join-Path $LogDir "panel_http_err.log"
-$httpProc = Start-Process -FilePath $Py -ArgumentList "-m","http.server","$Puerto","--directory",$Root `
+$httpProc = Start-Process -FilePath $Py -ArgumentList "scripts/panel_http_server.py","--port","$Puerto","--directory",$Root `
     -WorkingDirectory $Root -WindowStyle Hidden -PassThru `
     -RedirectStandardOutput $httpOut -RedirectStandardError $httpErr
 Set-Content -Path (Join-Path $Root "data\panel_http.pid") -Value $httpProc.Id
@@ -90,7 +91,7 @@ try {
         Write-Host ("  Pergamino (telefono misma WiFi): http://{0}:{1}/dashboard_sombras.html" -f $lan, $Puerto) -ForegroundColor Cyan
     }
 } catch {}
-Write-Host ("  http.server PID {0}" -f $httpProc.Id)
+Write-Host ("  panel_http PID {0}" -f $httpProc.Id)
 if ($ArisePid) { Write-Host ("  arise.py PID {0}" -f $ArisePid) }
 Write-Host "  Detener: .\scripts\detener_panel_win.ps1"
 Write-Host ""

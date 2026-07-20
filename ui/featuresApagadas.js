@@ -18,13 +18,13 @@ export const FEATURES_APAGADAS = {
       "Pausado en WiFi (latencia). Encender cuando el Pergamino sea app y el MP4 vaya empaquetado en local.",
   },
 
-  /** Pantalla de las 3 opciones al despertar. El Camino de Ascensión y el orbe siguen activos. */
+  /** Pantalla de las 3 opciones al despertar — cableada al director de pase. */
   altarTresMarchas: {
-    encendido: false,
+    encendido: true,
     nombre: "Altar de las tres marchas (elegir ritmo)",
-    donde: "ui/DeploymentAltar.jsx · cableado en ui/TuskAscension.jsx",
+    donde: "ui/DeploymentAltar.jsx · core/pase_director.py · data/marcha_despliegue.json",
     porQue:
-      "Elección Táctico / Marcha Forzada / Asalto en pausa. Queda el botón «cambiar marcha» en el Camino. Encender cuando se calibren tiempos/ranking.",
+      "Táctico / Marcha Forzada / Asalto mandan umbral fees y reserva de lote del pase.",
   },
 };
 

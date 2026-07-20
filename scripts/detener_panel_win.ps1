@@ -32,6 +32,7 @@ foreach ($name in @("panel_arise.pid", "panel_http.pid", "panel_tunnel.pid")) {
 
 Stop-NamedPython "arise\.py"
 Stop-NamedPython "http.server\s+$Puerto"
+Stop-NamedPython "panel_http_server"
 
 Get-CimInstance Win32_Process -ErrorAction SilentlyContinue |
     Where-Object { $_.Name -match "cloudflared" -and $_.CommandLine -match "tunnel" } |

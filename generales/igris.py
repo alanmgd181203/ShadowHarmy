@@ -75,9 +75,14 @@ class IgrisEscudo:
         Sin tope BOOTSTRAP_MANTO_FRACCION (0.25 erradicado).
         """
         capital = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
-        motor = bc.resolver_activo_y_grado(capital)
+        from core import plan_crecimiento as pc
+        permitidos = pc.activos_permitidos(capital) if pc.rank_gate_activo() else None
+        motor = bc.resolver_activo_y_grado(capital, activos=permitidos)
         a_base = int(motor.get("A_base") or 0)
-        activo_m = str(motor.get("activo") or activo or config.TICKER_BASE).upper()
+        if pc.rank_gate_activo():
+            activo_m = pc.activo_manto_preferido(capital)
+        else:
+            activo_m = str(motor.get("activo") or activo or config.TICKER_BASE).upper()
         grado = str(motor.get("grado") or "SOLDADO")
         rangos = bc.rangos_activo(activo_m, a_base=a_base)
         self._rangos_beru = rangos
@@ -106,8 +111,13 @@ class IgrisEscudo:
         paso_min = float(getattr(config, "ENGORDE_PASO_MIN", 0.1))
 
         capital = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
-        motor = bc.resolver_activo_y_grado(capital)
-        activo = str(motor.get("activo") or self._activo_beru or config.TICKER_BASE).upper()
+        from core import plan_crecimiento as pc
+        permitidos = pc.activos_permitidos(capital) if pc.rank_gate_activo() else None
+        motor = bc.resolver_activo_y_grado(capital, activos=permitidos)
+        if pc.rank_gate_activo():
+            activo = pc.activo_manto_preferido(capital)
+        else:
+            activo = str(motor.get("activo") or self._activo_beru or config.TICKER_BASE).upper()
         rangos = bc.rangos_activo(activo, a_base=int(motor.get("A_base") or 0))
         self._rangos_beru = rangos
         umbral = self._umbral_capital_grado(rangos, str(motor.get("grado") or "SOLDADO"))
@@ -303,8 +313,23 @@ class IgrisEscudo:
     async def _radar_manto(self, ctx_map, masa, is_long):
         return mercado.escanear_mejor_precio(config.FRENTES_MANTO_ALL, ctx_map, masa, is_long)
 
-    async def _materializar_en_frente(self, uid, frente, direccion, masa, precio_fill: float = 0.0):
-        """Orden real (live), fill virtual arena, o confirmación simulada en Tusk."""
+    async def _materializar_en_frente(
+        self,
+        uid,
+        frente,
+        direccion,
+        masa,
+        precio_fill: float = 0.0,
+        *,
+        force_market: bool = False,
+        fill_timeout_s: float | None = None,
+    ) -> dict:
+        """
+        Orden real / virtual / sim.
+        Retorna {ok, masa, precio} — masa puede ser parcial si escalera llenó solo algunos peldaños.
+        """
+        from core import escalera_precios as esc
+
         virtual = (
             getattr(config, "ARENA_IGRIS_ACTIVA", False)
             and getattr(config, "ARENA_IGRIS_FILLS_VIRTUALES", True)
@@ -314,20 +339,107 @@ class IgrisEscudo:
                 uid, frente, direccion, fill_confirmado=True,
                 precio_fill=precio_fill if precio_fill > 0 else None,
             )
-            return True
+            return {"ok": True, "masa": float(masa), "precio": float(precio_fill or 0)}
         if not config.MODO_SIMULACION and self.bridge:
             side = "Buy" if direccion == "LONG" else "Sell"
             sym = mercado.frente_a_symbol(frente)
             cat = mercado.frente_a_category(frente)
-            res = await self.bridge.place_order(sym, side, masa, category=cat)
+            timeout = float(
+                fill_timeout_s
+                if fill_timeout_s is not None
+                else getattr(config, "IGRIS_DUAL_FILL_TIMEOUT_S", 20)
+            )
+
+            usar_esc = (
+                (not force_market)
+                and esc.escalera_activa("IGRIS")
+                and float(precio_fill or 0) > 0
+                and float(masa) > 0
+            )
+            if usar_esc:
+                n_max, mid = esc.n_y_marcha_para_general()
+                if n_max <= 1 and mid == "asalto":
+                    usar_esc = False
+
+            if usar_esc:
+                px = float(precio_fill)
+                peldaños = esc.armar_peldaños_lote(
+                    float(masa),
+                    px,
+                    side,  # type: ignore[arg-type]
+                    frente=frente,
+                    unidad="qty",
+                    n_max=n_max,
+                    marcha_id=mid,
+                )
+                rungs = [{"tamaño": p["tamaño"], "precio": p["precio"]} for p in peldaños]
+                if len(rungs) >= 2:
+                    resultado = await esc.ejecutar_escalera(
+                        self.bridge,
+                        symbol=sym,
+                        side=side,  # type: ignore[arg-type]
+                        category=cat,
+                        peldaños=rungs,
+                        bel=self.bel,
+                        general="IGRIS",
+                        fill_timeout_s=float(
+                            getattr(config, "ESCALERA_FILL_TIMEOUT_S", 12) or 12
+                        ),
+                    )
+                    filled = float(resultado.get("filled_tamaño") or 0)
+                    if filled <= 0:
+                        await self.tusk.liberar_reserva(uid)
+                        return {"ok": False, "masa": 0.0, "precio": 0.0}
+                    avg = float(resultado.get("avg_price") or px)
+                    await self.tusk.confirmar_reserva(
+                        uid, frente, direccion, fill_confirmado=True,
+                        precio_fill=avg, fee_usd=0.0,
+                    )
+                    await self.bel.anotar(
+                        "IGRIS", "ESCALERA_OK",
+                        f"{direccion} {frente} · {resultado.get('n_filled')} peldaños · "
+                        f"masa {filled:.6f}/{float(masa):.6f}",
+                    )
+                    return {"ok": True, "masa": filled, "precio": avg}
+
+            if force_market:
+                order_type, price = "Market", None
+            else:
+                order_type, price = self._orden_tipo_manto(precio_fill)
+            from core import lote_bybit as lote
+
+            filt = lote.filtros_lote(frente)
+            masa_q = lote.cuantizar_qty(
+                float(masa),
+                min_qty=float(filt.get("minOrderQty") or 0),
+                qty_step=float(filt.get("qtyStep") or 0),
+                mode="floor",
+            )
+            if masa_q <= 0:
+                await self.tusk.liberar_reserva(uid)
+                await self.bel.anotar(
+                    "IGRIS", "ORDEN_FALLIDA",
+                    f"{frente} {direccion}: qty bajo minOrderQty/qtyStep",
+                )
+                return {"ok": False, "masa": 0.0, "precio": 0.0}
+            res = await self.bridge.place_order(
+                sym, side, masa_q, category=cat, order_type=order_type, price=price,
+            )
             if not res.exito:
                 await self.tusk.liberar_reserva(uid)
                 await self.bel.anotar("IGRIS", "ORDEN_FALLIDA", f"{frente} {direccion}: {res.mensaje}")
-                return False
-            fill = await self.bridge.esperar_fill(sym, order_id=res.order_id, category=cat)
+                return {"ok": False, "masa": 0.0, "precio": 0.0}
+            fill = await self.bridge.esperar_fill(
+                sym, order_id=res.order_id, category=cat, timeout_s=timeout,
+            )
             if not fill.exito:
+                if order_type == "Limit" and res.order_id:
+                    try:
+                        await self.bridge.cancel_order(sym, order_id=res.order_id, category=cat)
+                    except Exception:
+                        pass
                 await self.tusk.liberar_reserva(uid)
-                return False
+                return {"ok": False, "masa": 0.0, "precio": 0.0}
             datos = getattr(fill, "datos", None) or {}
             px = float(
                 datos.get("avgPrice")
@@ -337,14 +449,126 @@ class IgrisEscudo:
                 or 0
             )
             fee = float(datos.get("cumExecFee") or 0)
+            filled_m = float(datos.get("cumExecQty") or masa)
             await self.tusk.confirmar_reserva(
                 uid, frente, direccion, fill_confirmado=True, precio_fill=px, fee_usd=fee,
             )
-        else:
-            await self.tusk.confirmar_reserva(
-                uid, frente, direccion, precio_fill=precio_fill if precio_fill > 0 else None,
+            return {"ok": True, "masa": filled_m, "precio": px}
+
+        await self.tusk.confirmar_reserva(
+            uid, frente, direccion, precio_fill=precio_fill if precio_fill > 0 else None,
+        )
+        return {"ok": True, "masa": float(masa), "precio": float(precio_fill or 0)}
+
+    def _orden_tipo_manto(self, precio_fill: float) -> tuple[str, float | None]:
+        """Táctico → Limit@Ask/Bid · Forzada/Asalto → Market (Asalto force; Forzada mix vía umbral)."""
+        try:
+            from core import pase_director as pd
+            if not pd.director_activo():
+                return "Market", None
+            perfil = pd.perfil_marcha()
+            if perfil.get("force_market"):
+                return "Market", None
+            if str(perfil.get("id")) == "tactico" and float(precio_fill or 0) > 0:
+                return "Limit", float(precio_fill)
+        except Exception:
+            pass
+        return "Market", None
+
+    async def _salvavidas_market_pierna(
+        self, uid, frente, direccion, masa, precio_ref: float = 0.0,
+    ) -> dict:
+        """Pierna huérfana / desbalance: Market para equilibrar."""
+        await self.bel.anotar(
+            "IGRIS", "SALVAVIDAS_MARKET",
+            f"{direccion} {frente} — equilibrar · masa {float(masa):.6f}",
+        )
+        if float(masa) <= 0:
+            return {"ok": False, "masa": 0.0, "precio": 0.0}
+        if not await self.tusk.solicitar_reserva(uid, masa, "IGRIS", direccion):
+            await self.bel.anotar(
+                "IGRIS", "SALVAVIDAS_FALLIDO",
+                f"Sin reserva Tusk para {direccion} {frente}",
             )
-        return True
+            return {"ok": False, "masa": 0.0, "precio": 0.0}
+        return await self._materializar_en_frente(
+            uid, frente, direccion, masa, precio_ref,
+            force_market=True,
+            fill_timeout_s=float(getattr(config, "IGRIS_DUAL_FILL_TIMEOUT_S", 20)),
+        )
+
+    async def _disparo_dual_simultaneo(
+        self,
+        uid_l: str,
+        uid_s: str,
+        frente_l: str,
+        frente_s: str,
+        masa: float,
+        ask_l: float,
+        bid_s: float,
+    ) -> bool:
+        """
+        Ambas piernas a la vez. Escalera de precios si activa.
+        Si una llena más que la otra → Market en la deficitaria. Cancel implícito en escalera.
+        """
+        timeout = float(getattr(config, "IGRIS_DUAL_FILL_TIMEOUT_S", 20))
+        r_l, r_s = await asyncio.gather(
+            self._materializar_en_frente(
+                uid_l, frente_l, "LONG", masa, ask_l, fill_timeout_s=timeout,
+            ),
+            self._materializar_en_frente(
+                uid_s, frente_s, "SHORT", masa, bid_s, fill_timeout_s=timeout,
+            ),
+        )
+        ok_l = bool(r_l.get("ok"))
+        ok_s = bool(r_s.get("ok"))
+        masa_l = float(r_l.get("masa") or 0)
+        masa_s = float(r_s.get("masa") or 0)
+
+        if ok_l and ok_s:
+            # Equilibrio fino si la escalera llenó distinto
+            diff = masa_l - masa_s
+            tol = max(float(masa) * 0.05, 1e-8)
+            salvavidas = bool(getattr(config, "IGRIS_DUAL_SALVAVIDAS_MARKET", True))
+            if salvavidas and abs(diff) > tol:
+                if diff > 0:
+                    # Falta short
+                    uid_fix = f"{uid_s}_EQ"
+                    r = await self._salvavidas_market_pierna(
+                        uid_fix, frente_s, "SHORT", abs(diff), bid_s,
+                    )
+                    return bool(r.get("ok"))
+                uid_fix = f"{uid_l}_EQ"
+                r = await self._salvavidas_market_pierna(
+                    uid_fix, frente_l, "LONG", abs(diff), ask_l,
+                )
+                return bool(r.get("ok"))
+            return True
+
+        salvavidas = bool(getattr(config, "IGRIS_DUAL_SALVAVIDAS_MARKET", True))
+        if not salvavidas:
+            await self.bel.anotar(
+                "IGRIS", "DUAL_INCOMPLETO",
+                f"L={ok_l}({masa_l}) S={ok_s}({masa_s}) · salvavidas off",
+            )
+            return False
+
+        if ok_l and not ok_s:
+            r = await self._salvavidas_market_pierna(
+                uid_s, frente_s, "SHORT", masa_l or masa, bid_s,
+            )
+            return bool(r.get("ok"))
+        if ok_s and not ok_l:
+            r = await self._salvavidas_market_pierna(
+                uid_l, frente_l, "LONG", masa_s or masa, ask_l,
+            )
+            return bool(r.get("ok"))
+
+        await self.bel.anotar(
+            "IGRIS", "DUAL_FALLIDO",
+            f"Ninguna pierna llenó · L={frente_l} S={frente_s}",
+        )
+        return False
 
     async def _auditoria_pre_despliegue(self) -> bool:
         """Candado de bóveda — umbrales dinámicos desde motor X/A_base (rangos_activo)."""
@@ -366,7 +590,12 @@ class IgrisEscudo:
             return True
         capital = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
         self._capital_pre_vuelo = capital
-        res = bc.resolver_activo_y_grado(capital)
+        from core import plan_crecimiento as pc
+
+        permitidos = None
+        if pc.rank_gate_activo():
+            permitidos = pc.activos_permitidos(capital)
+        res = bc.resolver_activo_y_grado(capital, activos=permitidos)
         grado = res.get("grado", "BLOQUEADO")
         mapa = {
             "BLOQUEADO": "BLOQUEADO",
@@ -376,7 +605,21 @@ class IgrisEscudo:
             "MARISCAL": "MARISCAL",
         }
         self._rango_progresion = mapa.get(grado, "BLOQUEADO")
-        self._activo_beru = str(res.get("activo") or config.TICKER_BASE).upper() if res.get("activo") else str(config.TICKER_BASE).upper()
+        # Preferido del pase / foco director
+        from core import pase_director as pd
+        if pd.director_activo() and grado != "BLOQUEADO":
+            self._activo_beru = pd.activo_manto_foco(capital, tusk=self.tusk)
+        elif pc.rank_gate_activo() and grado != "BLOQUEADO":
+            pref = pc.activo_manto_preferido(capital)
+            self._activo_beru = pref
+        else:
+            self._activo_beru = (
+                str(res.get("activo") or config.TICKER_BASE).upper()
+                if res.get("activo")
+                else str(config.TICKER_BASE).upper()
+            )
+        plan_nv = pc.nivel_por_equity(capital)
+        self._nivel_monarca = plan_nv.get("nivel", "ASPIRANTE")
         if res.get("rangos"):
             self._rangos_beru = res["rangos"]
         elif self._activo_beru and grado != "BLOQUEADO":
@@ -444,6 +687,30 @@ class IgrisEscudo:
         return True
 
     def _activo_despliegue(self) -> str:
+        """Activo del manto: foco del director de pase, o legado ETH en grado Soldado."""
+        from core import plan_crecimiento as pc
+        from core import pase_director as pd
+
+        sin_rangos = (
+            (
+                getattr(config, "ARENA_IGRIS_ACTIVA", False)
+                and getattr(config, "ARENA_IGRIS_SIN_RANGOS", False)
+            )
+            or getattr(config, "LIVE_IGRIS_TESTNET", False)
+        )
+        if sin_rangos:
+            return (self._activo_beru or config.TICKER_BASE or "ETH").upper()
+
+        eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+        if pd.director_activo():
+            try:
+                pd.sincronizar_logrados_desde_tusk(self.tusk, eq)
+            except Exception:
+                pass
+            return pd.activo_manto_foco(eq, tusk=self.tusk)
+
+        if pc.rank_gate_activo():
+            return pc.activo_manto_preferido(eq)
         rango = self._rango_progresion or ""
         if rango == "ASPIRANTE":
             return "ETH"
@@ -589,12 +856,14 @@ class IgrisEscudo:
 
         if not await self.tusk.solicitar_reserva(uid_l, masa, "IGRIS", "LONG"):
             return False
-        if not await self._materializar_en_frente(uid_l, frente_l, "LONG", masa, ask_l):
+        if not await self.tusk.solicitar_reserva(uid_s, masa, "IGRIS", "SHORT"):
+            await self.tusk.liberar_reserva(uid_l)
             return False
 
-        if not await self.tusk.solicitar_reserva(uid_s, masa, "IGRIS", "SHORT"):
-            return False
-        if not await self._materializar_en_frente(uid_s, frente_s, "SHORT", masa, bid_s):
+        # Disparo dual simultáneo + salvavidas Market si una pierna queda huérfana
+        if not await self._disparo_dual_simultaneo(
+            uid_l, uid_s, frente_l, frente_s, masa, ask_l, bid_s,
+        ):
             return False
 
         self._bloque_inyectado_usd += micro_usd
@@ -605,6 +874,18 @@ class IgrisEscudo:
                     "IGRIS", "MISION_BERU",
                     f"Rango simétrico cumplido (${self._bloque_objetivo_usd:.1f}/pata) — Doctrina B → horizonte 95%.",
                 )
+            try:
+                from core import pase_director as pd
+                if pd.director_activo():
+                    eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+                    marked = pd.marcar_foco_si_bloque_completo(eq, activo)
+                    if marked:
+                        await self.bel.anotar(
+                            "IGRIS", "PASE_PASO",
+                            f"Paso logrado · foco {activo} · logrados {marked.get('pasos_logrados')}",
+                        )
+            except Exception:
+                pass
             self._bloque_objetivo_usd = 0.0
             self._bloque_inyectado_usd = 0.0
 
@@ -743,7 +1024,8 @@ class IgrisEscudo:
         nuevo_l = peso_l + (masa_rest if dir_refuerzo == "LONG" else 0)
         nuevo_s = peso_s + (masa_rest if dir_refuerzo == "SHORT" else 0)
         if mercado.verificar_delta_post_maniobra(margen, nuevo_l, nuevo_s):
-            if await self._materializar_en_frente(uid, mejor_f, dir_refuerzo, masa_rest, precio):
+            r = await self._materializar_en_frente(uid, mejor_f, dir_refuerzo, masa_rest, precio)
+            if r.get("ok"):
                 await self.bel.anotar("IGRIS", "REBALANCEO_APERTURA", f"Abierto {masa_rest:.4f} {dir_refuerzo} en {mejor_f}")
                 return True
 

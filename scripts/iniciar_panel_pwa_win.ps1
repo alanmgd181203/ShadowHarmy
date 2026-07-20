@@ -33,6 +33,7 @@ function Stop-NamedPython {
 function Liberar-Puerto {
     param([int]$Port)
     Stop-NamedPython "http.server\s+$Port"
+    Stop-NamedPython "panel_http_server"
     Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue |
         ForEach-Object {
             try { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } catch {}
@@ -81,7 +82,7 @@ Liberar-Puerto -Port $Puerto
 Write-Host ("Servidor http local :{0} ..." -f $Puerto)
 $httpOut = Join-Path $LogDir "panel_http_out.log"
 $httpErr = Join-Path $LogDir "panel_http_err.log"
-$httpProc = Start-Process -FilePath $Py -ArgumentList "-m","http.server","$Puerto","--directory",$Root `
+$httpProc = Start-Process -FilePath $Py -ArgumentList "scripts/panel_http_server.py","--port","$Puerto","--directory",$Root `
     -WorkingDirectory $Root -WindowStyle Hidden -PassThru `
     -RedirectStandardOutput $httpOut -RedirectStandardError $httpErr
 Set-Content -Path (Join-Path $Root "data\panel_http.pid") -Value $httpProc.Id
@@ -125,7 +126,7 @@ if ($httpsUrl) {
     Write-Host ("Revisa el log: {0}" -f $tunnelLog)
 }
 
-Write-Host ("  http.server PID {0}" -f $httpProc.Id)
+Write-Host ("  panel_http PID {0}" -f $httpProc.Id)
 Write-Host ("  cloudflared PID {0}" -f $tunnelProc.Id)
 Write-Host "  Detener: .\scripts\detener_panel_win.ps1"
 Write-Host ""

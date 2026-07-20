@@ -131,9 +131,9 @@
 - [x] **3.5.7** Beru capital + ProtoBeru — `22_DOCTRINA_BERU.md`, `beru_tier.py`, `beru_capital.py`, cableado `beru.py`, capitanes 1.2/1.6%
 - [x] **3.5.8a** Igris §E v1 — bootstrap inverse L + lineal S + promedios pierna *(2026-07-05)*
 - [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
-- [~] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `core/manto_ventana.py` (Igris/mercado/Bellion) · ranking/mitad/dual-Kaiser/manto-completo aplazados a fusión
+- [~] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · **disparo dual + salvavidas Market** ✅ 2026-07-19 · ranking/mitad/manto-completo aplazados a fusión
 
-- [x] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v2 + `plan_crecimiento.py` + [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) *(Aspirante→Chamán 2026-07-19; botín runtime y mérito aún pendiente)*
+- [x] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v2 + `plan_crecimiento.py` + [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) *(Aspirante→Chamán; candado + **director pase** `pase_director.py` · 3 marchas 2026-07-19; botín runtime y mérito aún pendiente)*
 
 ### 3.6 Validación ciclo ejército *(ex M1 — 2.6.3)*
 - [x] **3.6.1** 1 ciclo CAZA → COSECHA en Bellion — ✅ `scripts/probar_ciclo_beru.py` + historial
@@ -199,6 +199,7 @@
 - [x] **3.8.12** Kaiser `OPORTUNIDAD_LIQUIDEZ` + `consultar_liquidez(intencion)` → Greed/Bellion
 - [x] **3.8.13** Metaverso usa Ancla cuando hay libro (`scripts/validar_ancla_smoke.py`)
 - [x] **3.8.14** Pipeline Kaiser→Greed — `kaiser_pipeline.py`, cola, abort, spread estable
+- [x] **3.8.15** Memoria de barcos viva — Tank horario → `data/kaiser/memoria/` + digest (`kaiser_memoria_barcos.py`, 2026-07-19)
 - [x] **3.8.P1** Greed consume Kaiser + sizing 1% (`validar_greed_sizing_smoke.py`)
 - [x] **3.8.P2** VIP / Mega VIP micro-órdenes (`validar_greed_vip_smoke.py`)
 - [ ] **3.8.P3** Karmish (mundo externo) — pausa doctrinal
@@ -240,14 +241,14 @@
 
 ## FASE 4 — 🟡 M3: Operaciones Monarca (vivir con el bot)
 
-*Criterio fase:* Telegram crítico funciona; puedes apagar todo en emergencia.
+*Criterio fase:* el Monarca ve lo crítico en **Pergamino**; Telegram es legado.
 
-### 4.1 Notificaciones
-- [~] **4.1.1** `core/telegram.py` — stub ✅; envío real pendiente
-- [ ] **4.1.2** Tabla evento → nivel (`06_NOTIFICACIONES.md`)
-- [ ] **4.1.3** Crítico: crash, API error, desconexión prolongada
-- [ ] **4.1.4** Fill: sin sonido
-- [ ] **4.1.5** Resumen salud 1×/día (cron o timer)
+### 4.1 Notificaciones *(oído = Pergamino)*
+- [~] **4.1.1** `core/telegram.py` — stub ✅; **legado** (no prioridad de camino)
+- [ ] **4.1.2** Tabla evento → nivel en **Pergamino/Bellion** (`06_NOTIFICACIONES.md` v2); Telegram opcional
+- [ ] **4.1.3** Crítico en app: crash, API error, desconexión prolongada
+- [ ] **4.1.4** Fill en app: sin ruido
+- [ ] **4.1.5** Resumen salud 1×/día en Pergamino
 
 ### 4.2 Safe mode (Iron absorbido)
 - [~] **4.2.1** Flag `SAFE_MODE` en config + bloqueo CAZA Beru — stub ✅; cancel órdenes pendiente
@@ -358,7 +359,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · Ascensión Aspirante→Chamán (estrella ETH/HYPE/XRP/MNT/LTC · techos pase) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit pendiente
+- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · Ascensión Aspirante→Chamán (estrella · techos pase · **progreso vivo** `plan_crecimiento`) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑
@@ -369,7 +370,7 @@
 
 | Horizonte | Fases | Meta en una frase |
 |-----------|-------|-------------------|
-| **Ahora** | 3 cierre + 4 | 3.5.8c motor (doctrina ✅) · ranking fusión · Telegram 4.1 · commit Pergamino |
+| **Ahora** | 3 cierre + 4 + 10 | Memoria Kaiser ✅ · **4.1.2 Pergamino** · 3.5.8c fusión · 3.7.P* |
 | **Semanas** | 2–3 | ✅ Testnet + pentiverso + Beru doctrina + Igris despliegue |
 | **Meses** | 4–6 | **Ops** + **mainnet** + estrategia madura |
 | **Trimestres** | 7–9 | Más activos, Surge, entrenamiento |
@@ -392,8 +393,8 @@ TOTAL checklist:  125 / 184  [x]  →  ~68%
 Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-07-19 (pase 13 Santos · checkpoint cuartel · purge scripts muertos)  
-**Próximo ítem recomendado:** **4.1.2** Telegram · **4.1.3** alertas críticas · **3.5.8c** ranking fusión · **3.7.P***  
+**Última actualización checklist:** 2026-07-19 (memoria Kaiser barcos · Telegram→Pergamino · pase 13 Santos)  
+**Próximo ítem recomendado:** **4.1.2** eventos en Pergamino · **3.5.8c** ranking fusión · **3.7.P***  
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
@@ -411,8 +412,8 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 4.1.2 Telegram · 3.5.8c ranking fusión · 3.7.P*.
-Validar: scripts/validar_*_smoke.py + validar_plan_crecimiento_smoke.py
+Siguiente: 4.1.2 eventos Pergamino · 3.5.8c ranking fusión · 3.7.P*.
+Validar: scripts/validar_*_smoke.py + validar_kaiser_memoria_smoke.py + validar_plan_crecimiento_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).
 ```

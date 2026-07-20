@@ -48,6 +48,9 @@ Vocabulario acordado (P0.1 **B**). Usar estos nombres en código, logs y docs.
 | **Brujo** | Rango cuenta · hasta LTC Mariscal · techo ~$1451 |
 | **Chamán** | Rango cuenta · 13 Mariscales · techo ~$3161 |
 | **X (costo Igris)** | Capital del barco = margen L+S + colchón Tusk 5% |
+| **Memoria de barcos** | Diario horario Tank→Kaiser por activo (`data/kaiser/memoria/`) |
+| **Pergamino** | App/UI — oído principal del Monarca (sustituye Telegram en el camino) |
+
 
 ## Etiquetas manuales (#)
 

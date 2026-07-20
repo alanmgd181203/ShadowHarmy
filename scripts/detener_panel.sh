@@ -26,6 +26,7 @@ fi
 
 pkill -f "http.server ${PORT}" 2>/dev/null || true
 pkill -f "http.server.*${PORT}" 2>/dev/null || true
+pkill -f "panel_http_server.py" 2>/dev/null || true
 
 if command -v lsof >/dev/null 2>&1; then
   PIDS="$(lsof -tiTCP:"${PORT}" -sTCP:LISTEN 2>/dev/null || true)"

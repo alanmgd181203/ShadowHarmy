@@ -114,6 +114,21 @@ Precio de **referencia multi-exchange** que Bybit calcula promediando spot en va
 - Foco actual: **Greed**. Beru usará **varios indicadores** después; misión: **morder más, pagar/perder menos**.
 - Beru **no entra** en la implementación Kaiser→Greed de la primera oleada, pero comparte filosofía probabilística.
 
+### Memoria de barcos (vivo — 2026-07-19)
+
+Kaiser **no olvida** el grial tras el Coliseo: cada hora (default) toma lo que **Tank ya calcula** (matriz, desvío, funding, semáforo) y lo **añade al diario** de cada barco en `data/kaiser/memoria/{BASE}.jsonl`.
+
+| Pieza | Rol |
+|-------|-----|
+| `core/kaiser_memoria_barcos.py` | Append horario + trim + alertas de pulso |
+| Digest `memoria_barcos` | Resumen en `estado_vivo.kaiser` → Pergamino |
+| Alertas `GRIAL_PULSO` / `CANDIDATO_PULSO` | Salto vs hora anterior; candidato fuera de los 13 Santos |
+| Coliseo Mega | Sigue siendo el **juicio** del pase; la memoria es el **pulso continuo** |
+
+**No** re-corre el Mega cada hora. Si un candidato insiste en el pulso → ritual Coliseo ligero / revisión del grial (Monarca).
+
+Knob: `KAISER_MEMORIA_INTERVAL_S` (3600) · umbral Δ `KAISER_MEMORIA_DELTA_UMBRAL_PCT`.
+
 ### Rutas y tamaño (Greed)
 
 - **Regla dura:** solo actuar si la **ruta completa** (cruces, fees, slippage) deja **neto positivo** en teoría.

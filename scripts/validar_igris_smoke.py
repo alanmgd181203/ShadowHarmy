@@ -203,8 +203,68 @@ def test_arise_kaiser_cable():
     igris_src = (ROOT / "generales" / "igris.py").read_text(encoding="utf-8")
     assert "kaiser" in igris_src
     assert "_consumir_kaiser_jurisdiccion" in igris_src
+    assert "_disparo_dual_simultaneo" in igris_src
+    assert "_salvavidas_market_pierna" in igris_src
+    assert "escalera_precios" in igris_src
+    assert "armar_peldaños_lote" in igris_src
+    assert "lote_bybit" in igris_src
+    greed_src = (ROOT / "generales" / "greed.py").read_text(encoding="utf-8")
+    assert "escalera_precios" in greed_src
+    assert "armar_peldaños_lote" in greed_src
+    assert "lote_bybit" in greed_src
+    assert "ESCALERA_OK" in greed_src or "ejecutar_escalera" in greed_src
     assert "fraccion_mordida_igris" in (ROOT / "core" / "igris_despliegue.py").read_text(encoding="utf-8")
     print("  arise-Kaiser-Igris cable OK")
+
+
+def test_disparo_dual_salvavidas_sim():
+    """Sim: ambas piernas OK en paralelo; salvavidas cableado."""
+    import asyncio
+    from generales.igris import IgrisEscudo
+
+    class Bel:
+        async def anotar(self, *a, **k):
+            return None
+
+    class Tusk:
+        def __init__(self):
+            self.reservas = set()
+            self.pesos = {}
+            self.margen_ocupado = 0.0
+            self.masa_autorizada = 1000.0
+            self.masa_bruta = 100.0
+            self.masa_bruta_real = 100.0
+
+        async def solicitar_reserva(self, uid, masa, quien, direccion):
+            self.reservas.add(uid)
+            return True
+
+        async def liberar_reserva(self, uid):
+            self.reservas.discard(uid)
+
+        async def confirmar_reserva(self, uid, frente, direccion, **kw):
+            self.reservas.discard(uid)
+            return True
+
+    class Tank:
+        pass
+
+    igris = IgrisEscudo(Tusk(), Tank(), Bel(), bridge=None)
+    config.MODO_SIMULACION = True
+
+    async def run():
+        ok = await igris._disparo_dual_simultaneo(
+            "L1", "S1", "ETHUSD_INVERSE", "ETHUSDT_LINEAL", 0.01, 100.0, 100.2,
+        )
+        assert ok is True
+        # Salvavidas: fuerza market path en sim también confirma
+        r2 = await igris._salvavidas_market_pierna(
+            "S2", "ETHUSDT_LINEAL", "SHORT", 0.01, 100.2,
+        )
+        assert r2.get("ok") is True
+
+    asyncio.run(run())
+    print("  disparo dual + salvavidas sim OK")
 
 
 def main():
@@ -217,6 +277,7 @@ def main():
     test_libro_tank_desde_lider()
     test_oportunidad_manto_kaiser()
     test_arise_kaiser_cable()
+    test_disparo_dual_salvavidas_sim()
     print("OK igris smoke")
     return 0
 

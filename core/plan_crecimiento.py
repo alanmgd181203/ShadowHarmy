@@ -159,6 +159,39 @@ def techos_pase_batalla() -> dict[str, float]:
     }
 
 
+def _nivel_y_barcos_raw(equity_usd: float) -> tuple[str, list[str]]:
+    """Solo umbral de cuenta → nivel + lista doctrinal (sin motor Beru)."""
+    eq = max(0.0, float(equity_usd))
+    for umbral, nom, acts, _greed in _NIVELES_MONARCA:
+        if eq < umbral:
+            barcos = list(acts) if acts is not None else flota_completa()
+            return nom, [a.upper() for a in barcos]
+    return "SENOR_SOMBRAS", [a.upper() for a in flota_completa()]
+
+
+def activos_permitidos(equity_usd: float) -> list[str]:
+    """Barcos desbloqueados por rango ∩ flota Beru."""
+    _nivel, permitidos = _nivel_y_barcos_raw(equity_usd)
+    flota = {a.upper() for a in flota_completa()}
+    out = [a for a in permitidos if a in flota]
+    if out:
+        return out
+    return [a for a in ESTRELLA_ASPIRANTE if a in flota] or list(ESTRELLA_ASPIRANTE)
+
+
+def activo_manto_preferido(equity_usd: float) -> str:
+    """Preferido Igris: primer Santo de la estrella aún permitido."""
+    permitidos = activos_permitidos(equity_usd)
+    for pref in ESTRELLA_ASPIRANTE:
+        if pref in permitidos:
+            return pref
+    return permitidos[0] if permitidos else activo_semilla()
+
+
+def rank_gate_activo() -> bool:
+    return bool(getattr(config, "MONARCA_RANK_GATE", True))
+
+
 def equity_min_por_caza(asset: str | None = None, tier_id: str | None = None) -> float:
     a = (asset or activo_semilla()).upper()
     tid = tier_id or tier_beru_instantaneo(0)
@@ -255,7 +288,11 @@ def nivel_por_equity(equity_usd: float) -> dict[str, Any]:
 
     tier_inst = tier_beru_instantaneo(eq)
     tier_aplicado = tier_beru_para_cuenta(eq) if getattr(config, "MONARCA_NIVEL_AUTO", False) else tier_inst
-    motor = bc.resolver_activo_y_grado(eq)
+    # Motor Beru: cola filtrada por pase si candado activo
+    if rank_gate_activo():
+        motor = bc.resolver_activo_y_grado(eq, activos=activos)
+    else:
+        motor = bc.resolver_activo_y_grado(eq)
     res = reserva_pct()
     eq_deploy = eq * (1.0 - res)
     min_caza = equity_min_por_caza(tier_id=tier_aplicado)
@@ -264,6 +301,8 @@ def nivel_por_equity(equity_usd: float) -> dict[str, Any]:
     piso_soldado = float((motor.get("rangos") or {}).get("SOLDADO", (0, 0))[0] or 0)
     if eq < piso_soldado:
         cazas_max = 0
+
+    manto_pref = activo_manto_preferido(eq) if rank_gate_activo() else activo_semilla()
 
     return {
         "equity_usd": round(eq, 2),
@@ -274,6 +313,8 @@ def nivel_por_equity(equity_usd: float) -> dict[str, Any]:
         "estrella_aspirante": list(ESTRELLA_ASPIRANTE),
         "cazas_desbloqueadas": activos,
         "cazas_max": cazas_max,
+        "rank_gate": rank_gate_activo(),
+        "activo_manto_preferido": manto_pref,
         "tier_instantaneo": tier_inst,
         "tier_aplicado": tier_aplicado,
         "tier_nombre": tier_beru_nombre(tier_aplicado),
@@ -361,6 +402,8 @@ def doctrina_multi_beru() -> dict[str, str]:
 
 def resumen_plan(equity_usd: float) -> dict[str, Any]:
     nv = nivel_por_equity(equity_usd)
+    from core import pase_director as pd
+    director = pd.resumen_director(equity_usd) if pd.director_activo() else {"activo": False}
     return {
         **nv,
         "presupuesto": presupuesto_objetivo(equity_usd),
@@ -369,4 +412,5 @@ def resumen_plan(equity_usd: float) -> dict[str, Any]:
         "doctrina_multi_beru": doctrina_multi_beru(),
         "greed_riesgo_max_pct_cuenta": float(getattr(config, "GREED_RIESGO_MAX_PCT_CUENTA", 0.01)),
         "ultimas_muestras_equity": ultimas_muestras_equity(5),
+        "pase_director": director,
     }

@@ -154,6 +154,20 @@ Tank y Kaiser: vigilantes transversales (radar), no pasos del ciclo.
 | `MONARCA_TIER_AUTO_DIAS` | **3** | Días promedio para subir/bajar tier |
 | `MONARCA_MEGA_VIP_EQUITY_MIN` | **100** | Mega VIP desde Recluta+ |
 | `MONARCA_NIVEL_AUTO` | **true** | Tier auto al NAV sync |
+| `PASE_DIRECTOR_ACTIVO` | **true** | Director lote/reserva + marcha |
+| `MARCHA_DESPLIEGUE` | **marcha_forzada** | Fallback si no hay `data/marcha_despliegue.json` |
+
+### Director del pase + tres marchas
+
+| Marcha | Umbral Igris | Reserva lote |
+|--------|--------------|-------------:|
+| **Táctico** | ≥ fees | 3 |
+| **Marcha Forzada** | ≥ ½ fees | 2 |
+| **Asalto** | 0 (market) | 0 |
+
+Ejemplo: 10 pasos en potencia + Forzada → abre **8** en lote; al llenarlos, el **9** y el **10** uno a uno. Beru caza solo cuando hay manto logrado en ese Santo.
+
+Código: `core/pase_director.py` · UI altar · `data/marcha_despliegue.json`
 
 ---
 
@@ -164,6 +178,7 @@ Tank y Kaiser: vigilantes transversales (radar), no pasos del ciclo.
 | Doctrina este doc | ✅ v2 (pase 13 Santos) |
 | Pergamino pase | ✅ `PASE_BATALLA_13_SANTOS.md` |
 | `core/plan_crecimiento.py` | ✅ rangos Aspirante→Chamán + umbrales pase |
+| `core/pase_director.py` | ✅ potencia/lote/marchas (2026-07-19) |
 | `core/beru_tier.py` BERUBBY | ✅ |
 | Tusk NAV → nivel + tier | ✅ |
 | Beru tier desde Tusk + oz BERUBBY | ✅ |
@@ -173,7 +188,7 @@ Tank y Kaiser: vigilantes transversales (radar), no pasos del ciclo.
 | Tope 20% por barco enforced | ❌ pendiente |
 | Beru contabilidad neutra al margen | ❌ pendiente |
 
-**Validar:** `python scripts/validar_plan_crecimiento_smoke.py`
+**Validar:** `python scripts/validar_pase_director_smoke.py` · `python scripts/validar_plan_crecimiento_smoke.py`
 
 ---
 

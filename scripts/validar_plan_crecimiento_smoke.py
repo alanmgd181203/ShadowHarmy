@@ -86,9 +86,26 @@ def test_resumen():
     print("  resumen OK", r["nivel_titulo"], "cazas", r["cazas_max"])
 
 
+def test_rank_gate():
+    """Candado de pase: barcos por equity + preferido estrella."""
+    assert pc.rank_gate_activo() is True
+    asp = pc.activos_permitidos(50)
+    assert asp == list(pc.ESTRELLA_ASPIRANTE) or set(asp).issubset(set(pc.ESTRELLA_ASPIRANTE))
+    assert "ETH" in asp or pc.activo_manto_preferido(50) in asp
+    assert pc.activo_manto_preferido(50) == "ETH" or pc.activo_manto_preferido(50) == asp[0]
+    apr = pc.activos_permitidos(200)
+    assert set(pc.ESTRELLA_ASPIRANTE).issubset(set(apr)) or set(apr) == set(pc.SANTOS_GRIAL)
+    r = pc.nivel_por_equity(50)
+    assert r["rank_gate"] is True
+    assert "activo_manto_preferido" in r
+    assert r["cazas_desbloqueadas"] == list(pc.ESTRELLA_ASPIRANTE)
+    print("  rank_gate pase OK", "pref", r["activo_manto_preferido"])
+
+
 def main():
     print("[SMOKE] Plan crecimiento — pase 13 Santos")
     test_niveles()
+    test_rank_gate()
     test_tiers_beru_motor()
     test_presupuesto()
     test_botin_greed()

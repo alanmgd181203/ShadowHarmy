@@ -1,16 +1,32 @@
 {
-  "ts": 1783313733.9722948,
+  "ts": 1784504406.7657144,
   "resumen": {
-    "stub": 2,
-    "pass": 10
+    "pass": 14,
+    "stub": 2
   },
   "checks": [
+    {
+      "id": "0.3",
+      "fase": "0",
+      "titulo": ".env BYBIT keys",
+      "status": "pass",
+      "detalle": "Keys presentes",
+      "meta": {}
+    },
+    {
+      "id": "2.5.1",
+      "fase": "2",
+      "titulo": "Trade redondo testnet M1",
+      "status": "pass",
+      "detalle": "BTCUSDT pnl=0.51368",
+      "meta": {}
+    },
     {
       "id": "3.0",
       "fase": "3",
       "titulo": "Fase 3 M2 cerrada",
-      "status": "stub",
-      "detalle": "Gates OK; parcial: ['3.5.8']",
+      "status": "pass",
+      "detalle": "Todos los gates Fase 3 OK",
       "meta": {}
     },
     {
@@ -45,7 +61,7 @@
       "fase": "3",
       "titulo": "Bootstrap manto Igris (código)",
       "status": "pass",
-      "detalle": "BOOTSTRAP_MANTO_FRACCION=0.25",
+      "detalle": "BOOTSTRAP_MANTO_FRACCION=0.0 · beru_capital",
       "meta": {}
     },
     {
@@ -100,8 +116,24 @@
       "id": "3.5.8",
       "fase": "3",
       "titulo": "Igris §E manto",
+      "status": "pass",
+      "detalle": "dual §E Ask/Bid + fees break-even + urgencia + micro-mordidas",
+      "meta": {}
+    },
+    {
+      "id": "4.1.1",
+      "fase": "4",
+      "titulo": "Telegram enviar_telegram",
       "status": "stub",
-      "detalle": "bootstrap inverse L + promedios OK; Ancla maniobras pendiente",
+      "detalle": "Stub listo — falta token en .env",
+      "meta": {}
+    },
+    {
+      "id": "4.2.1",
+      "fase": "4",
+      "titulo": "SAFE_MODE flag",
+      "status": "stub",
+      "detalle": "Flag definido; lógica Fase 4.2",
       "meta": {}
     }
   ]
