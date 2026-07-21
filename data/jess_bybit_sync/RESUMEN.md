@@ -1,9 +1,9 @@
-# Jess Bybit sync — 2026-07-21T04:00:27Z
+# Jess Bybit sync — 2026-07-21T20:23:57Z
 
 ## Hecho
-- Linear Trading: **678** · Inverse: **26**
+- Linear Trading: **684** · Inverse: **26**
 - Spot USDT: **425** · Spot USDC: **87**
-- Bases en `bybit_parametros_mercado.json`: **774**
+- Bases en `bybit_parametros_mercado.json`: **780**
 - Diccionario flota Beru: **22** activos
 - Config `MANTO_LEVERAGE_*` alineado al vivo (salvo --skip-apply-config)
 
