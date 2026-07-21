@@ -1,5 +1,5 @@
 {
-  "ts_utc": "2026-07-18T03:22:16Z",
+  "ts_utc": "2026-07-21T03:41:12Z",
   "rows": [
     {
       "activo": "AAVE",
@@ -10,13 +10,13 @@
       "vivo_linear": 75.0,
       "vivo_inverse": 20.0,
       "vivo_avg": 47.5,
-      "config_linear": null,
-      "config_inverse": null,
+      "config_linear": 75.0,
+      "config_inverse": 20.0,
       "dict_linear": 75.0,
       "dict_inverse": 20.0,
       "dict_avg": 47.5,
-      "diff_config_linear": null,
-      "diff_config_inverse": null
+      "diff_config_linear": 0.0,
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "ADA",
@@ -27,12 +27,12 @@
       "vivo_linear": 75.0,
       "vivo_inverse": 50.0,
       "vivo_avg": 62.5,
-      "config_linear": 50.0,
+      "config_linear": 75.0,
       "config_inverse": 50.0,
       "dict_linear": 75.0,
       "dict_inverse": 50.0,
       "dict_avg": 62.5,
-      "diff_config_linear": 25.0,
+      "diff_config_linear": 0.0,
       "diff_config_inverse": 0.0
     },
     {
@@ -45,12 +45,12 @@
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
       "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
       "diff_config_linear": 0.0,
-      "diff_config_inverse": -30.0
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "ARB",
@@ -62,7 +62,7 @@
       "vivo_inverse": null,
       "vivo_avg": 50.0,
       "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_inverse": null,
       "dict_linear": null,
       "dict_inverse": null,
       "dict_avg": null,
@@ -78,12 +78,12 @@
       "vivo_linear": 75.0,
       "vivo_inverse": null,
       "vivo_avg": 75.0,
-      "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_linear": 75.0,
+      "config_inverse": null,
       "dict_linear": null,
       "dict_inverse": null,
       "dict_avg": null,
-      "diff_config_linear": 25.0,
+      "diff_config_linear": 0.0,
       "diff_config_inverse": null
     },
     {
@@ -96,12 +96,12 @@
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
       "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
       "diff_config_linear": 0.0,
-      "diff_config_inverse": -30.0
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "BCH",
@@ -112,13 +112,13 @@
       "vivo_linear": 50.0,
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
-      "config_linear": null,
-      "config_inverse": null,
+      "config_linear": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
-      "diff_config_linear": null,
-      "diff_config_inverse": null
+      "diff_config_linear": 0.0,
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "BTC",
@@ -146,13 +146,13 @@
       "vivo_linear": 75.0,
       "vivo_inverse": 25.0,
       "vivo_avg": 50.0,
-      "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_linear": 75.0,
+      "config_inverse": 25.0,
       "dict_linear": 75.0,
       "dict_inverse": 25.0,
       "dict_avg": 50.0,
-      "diff_config_linear": 25.0,
-      "diff_config_inverse": -25.0
+      "diff_config_linear": 0.0,
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "DOT",
@@ -180,13 +180,13 @@
       "vivo_linear": 50.0,
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
-      "config_linear": null,
-      "config_inverse": null,
+      "config_linear": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
-      "diff_config_linear": null,
-      "diff_config_inverse": null
+      "diff_config_linear": 0.0,
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "ETH",
@@ -215,12 +215,12 @@
       "vivo_inverse": 20.0,
       "vivo_avg": 22.5,
       "config_linear": 25.0,
-      "config_inverse": 25.0,
+      "config_inverse": 20.0,
       "dict_linear": 25.0,
       "dict_inverse": 20.0,
       "dict_avg": 22.5,
       "diff_config_linear": 0.0,
-      "diff_config_inverse": -5.0
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "HYPE",
@@ -231,13 +231,13 @@
       "vivo_linear": 75.0,
       "vivo_inverse": 20.0,
       "vivo_avg": 47.5,
-      "config_linear": null,
-      "config_inverse": null,
+      "config_linear": 75.0,
+      "config_inverse": 20.0,
       "dict_linear": 75.0,
       "dict_inverse": 20.0,
       "dict_avg": 47.5,
-      "diff_config_linear": null,
-      "diff_config_inverse": null
+      "diff_config_linear": 0.0,
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "LINK",
@@ -249,12 +249,12 @@
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
       "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
       "diff_config_linear": 0.0,
-      "diff_config_inverse": -30.0
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "LTC",
@@ -265,12 +265,12 @@
       "vivo_linear": 50.0,
       "vivo_inverse": 50.0,
       "vivo_avg": 50.0,
-      "config_linear": 75.0,
+      "config_linear": 50.0,
       "config_inverse": 50.0,
       "dict_linear": 50.0,
       "dict_inverse": 50.0,
       "dict_avg": 50.0,
-      "diff_config_linear": -25.0,
+      "diff_config_linear": 0.0,
       "diff_config_inverse": 0.0
     },
     {
@@ -282,12 +282,12 @@
       "vivo_linear": 75.0,
       "vivo_inverse": null,
       "vivo_avg": 75.0,
-      "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_linear": 75.0,
+      "config_inverse": null,
       "dict_linear": null,
       "dict_inverse": null,
       "dict_avg": null,
-      "diff_config_linear": 25.0,
+      "diff_config_linear": 0.0,
       "diff_config_inverse": null
     },
     {
@@ -299,13 +299,13 @@
       "vivo_linear": 25.0,
       "vivo_inverse": 50.0,
       "vivo_avg": 37.5,
-      "config_linear": null,
-      "config_inverse": null,
+      "config_linear": 25.0,
+      "config_inverse": 50.0,
       "dict_linear": 25.0,
       "dict_inverse": 50.0,
       "dict_avg": 37.5,
-      "diff_config_linear": null,
-      "diff_config_inverse": null
+      "diff_config_linear": 0.0,
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "NEAR",
@@ -316,13 +316,13 @@
       "vivo_linear": 50.0,
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
-      "config_linear": null,
-      "config_inverse": null,
+      "config_linear": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
-      "diff_config_linear": null,
-      "diff_config_inverse": null
+      "diff_config_linear": 0.0,
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "OP",
@@ -334,12 +334,12 @@
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
       "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
       "diff_config_linear": 0.0,
-      "diff_config_inverse": -30.0
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "SOL",
@@ -350,12 +350,12 @@
       "vivo_linear": 100.0,
       "vivo_inverse": 50.0,
       "vivo_avg": 75.0,
-      "config_linear": 50.0,
+      "config_linear": 100.0,
       "config_inverse": 50.0,
       "dict_linear": 100.0,
       "dict_inverse": 50.0,
       "dict_avg": 75.0,
-      "diff_config_linear": 50.0,
+      "diff_config_linear": 0.0,
       "diff_config_inverse": 0.0
     },
     {
@@ -368,12 +368,12 @@
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
       "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
       "diff_config_linear": 0.0,
-      "diff_config_inverse": -30.0
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "UNI",
@@ -385,12 +385,12 @@
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
       "config_linear": 50.0,
-      "config_inverse": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
       "diff_config_linear": 0.0,
-      "diff_config_inverse": -30.0
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "WIF",
@@ -401,12 +401,12 @@
       "vivo_linear": 50.0,
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
-      "config_linear": 20.0,
+      "config_linear": 50.0,
       "config_inverse": 20.0,
       "dict_linear": null,
       "dict_inverse": null,
       "dict_avg": null,
-      "diff_config_linear": 30.0,
+      "diff_config_linear": 0.0,
       "diff_config_inverse": 0.0
     },
     {
@@ -418,13 +418,13 @@
       "vivo_linear": 50.0,
       "vivo_inverse": 20.0,
       "vivo_avg": 35.0,
-      "config_linear": null,
-      "config_inverse": null,
+      "config_linear": 50.0,
+      "config_inverse": 20.0,
       "dict_linear": 50.0,
       "dict_inverse": 20.0,
       "dict_avg": 35.0,
-      "diff_config_linear": null,
-      "diff_config_inverse": null
+      "diff_config_linear": 0.0,
+      "diff_config_inverse": 0.0
     },
     {
       "activo": "XRP",
@@ -435,12 +435,12 @@
       "vivo_linear": 100.0,
       "vivo_inverse": 50.0,
       "vivo_avg": 75.0,
-      "config_linear": 75.0,
+      "config_linear": 100.0,
       "config_inverse": 50.0,
       "dict_linear": 100.0,
       "dict_inverse": 50.0,
       "dict_avg": 75.0,
-      "diff_config_linear": 25.0,
+      "diff_config_linear": 0.0,
       "diff_config_inverse": 0.0
     }
   ]
