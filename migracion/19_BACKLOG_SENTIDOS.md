@@ -78,7 +78,7 @@
 
 
 
-- [ ] **Semáforo aliado spot:** verde/amarillo/rojo por perp según spot aliado. *(checklist 3.7.P3)*
+- [ ] **Semáforo aliado spot / huérfano / global:** verde/amarillo/rojo para **Greed** (lineal+spot o desvío vs Bybit). No es de Igris. *(checklist 3.7.P3 · pausa mainnet)*
 
 - [ ] **FRENTES_MANTO_ALL** expandir desde `LINEAR_PERP` + `INVERSE_PERP` filtrados, no solo LTC/BTC.
 
@@ -106,7 +106,7 @@
 
 - [ ] **3.8.P1** ~~Greed/Beru/Igris consumen Kaiser~~ — **Greed ✅** (`consumir_greed` + **multicruce spot**); Beru/Igris fuera por doctrina
 
-- [ ] **Semáforos** sobre matriz spreads — umbral disparo. *(3.7.P1)*
+- [x] **Semáforos** sobre matriz spreads — luces V/A/R en digest Kaiser. *(3.7.P1 ✅ 2026-07-20)*
 
 
 

@@ -63,22 +63,26 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **M2.14 Igris §E v2 + panel:** `igris_despliegue` · jurisdicción · Pergamino — 2026-07-11→12
 - **3.10.7b Igris live:** PASS México 2026-07-12
 - **3.9.9 Beru live:** PASS México 2026-07-16 (Jess · `61d7c2e` · flota 22 USDT)
-- **Pergamino React (local):** Cascada → Manto → AssetDetail; Sub-Santuario **cableado Bridge**; smoke asset_detail 6/6
+- **Pergamino React (local):** Cascada → Manto Igris → AssetDetail · **portal Beru → flota → Sub-Santuario** (`BeruPanel` / `BeruAssetDetail`) · Bridge cableado · smokes asset_detail Igris + Beru
+- **Sub-Santuario Beru (2026-07-24):** `beru_asset_detail` · flota caza/neg · red engorde frontera · crónica `data/beru/cronicas/` · Bellion `beru_flota` / `beru_asset_details` · panel Streamlit
 - **3.5.8c:** doctrina + **motor v1** `manto_ventana` (2026-07-17) · ranking fusión pendiente
 - **Cuartel México:** remoto público + colaboradora Jessica — 2026-07-09
 - **Checklist global:** ~69% (125/184 [x] + 4 [~]) · núcleo Fases 0–3 ~95%
 - **Estado código:** Fase 3 ~92% · lives ✅ · pase Chamán firmado · falta Telegram/ranking fusión
-- **Jess sync Bybit (2026-07-18):** lev+mínimos+piso manto vivos · LTC 50/50
+- **Jess sync Bybit (2026-07-21):** lev+mínimos+piso manto vivos · 780 bases · origin `349b375` (rama principal; feature = mismo tip)
 - **Pase batalla 13 Santos (2026-07-19):** vacío 1,6 % · rangos Aspirante→Chamán · [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md)
 - **Candado rango (2026-07-19):** `MONARCA_RANK_GATE` → Igris auditoría/despliegue + Beru casa (no live) + Ascensión viva desde `estado_vivo`
 - **Director pase (2026-07-19):** `pase_director` — potencia/lote/reserva · 3 marchas (fees / ½ fees / asalto) · Beru tras manto · altar UI on · `panel_http_server` guarda marcha · Táctico=Limit
 - **Disparo dual Igris (2026-07-19):** L+S a la vez + salvavidas Market si una pierna huérfana (`IGRIS_DUAL_*`)
 - **Escalera precios (2026-07-20):** micro-bocados Limit Igris+Greed · cancel no llenos · equilibrar Market · `core/escalera_precios.py`
-- **Lotes Bybit qtyStep (2026-07-20):** `core/lote_bybit.py` lee BD Jess · peldaños/órdenes en múltiplos reales · [`CHECKPOINT_LOTES_BYBIT_2026-07-20.md`](CHECKPOINT_LOTES_BYBIT_2026-07-20.md) · Jess: `JESS_SINCRONIZAR_BYBIT.md`
+- **Lotes Bybit qtyStep (2026-07-20):** `core/lote_bybit.py` lee BD Jess · peldaños/órdenes en múltiplos reales · [`CHECKPOINT_LOTES_BYBIT_2026-07-20.md`](CHECKPOINT_LOTES_BYBIT_2026-07-20.md)
+- **Meta engorde pase (2026-07-20):** `pase_director.meta_engorde_usd` → Igris bloque = Δ del paso · sin Doctrina B 95% si director on · 3.5.8c MVP
+- **Semáforos matriz 3.7.P1 (2026-07-20):** `matriz_luces` V/A/R en digest Kaiser · sin órdenes · **3.7.P3** reclasificado a Greed (pausa)
+- **Frecuencia manto 3.5.8b2 (2026-07-24):** 4 umbrales (fees/½/tablas/morado) · plazos 50/40/10 · ETA por marcha · `manto_frecuencia.py` → tau Igris + panel
 - **Kaiser memoria barcos (2026-07-19):** Tank horario → `data/kaiser/memoria/` · digest vivo · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 - **Oído Monarca:** **Pergamino** (app); Telegram = legado (`06_NOTIFICACIONES.md` v2)
-- **Próximo ítem checklist:** **4.1.2** eventos Pergamino · **3.5.8c** fusión · **3.7.P***
-- **Validar:** `validar_lote_bybit_smoke.py` · `validar_pase_director_smoke.py` · `validar_escalera_precios_smoke.py` · `validar_igris_smoke.py`
+- **Próximo ítem checklist:** **4.1.2** eventos Pergamino · mitad engorde Igris · Greed mainnet (P2/P3)
+- **Validar:** `validar_beru_asset_detail_smoke.py` · `validar_manto_frecuencia_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_lote_bybit_smoke.py` · `validar_pase_director_smoke.py` · `validar_igris_smoke.py`
 - **Tono obligatorio:** `17_GUIA_MONARCA.md`
 
 ---

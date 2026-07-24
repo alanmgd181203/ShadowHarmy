@@ -305,6 +305,17 @@ IGRIS_URGENCIA_TAU_HORAS = float(os.getenv("IGRIS_URGENCIA_TAU_HORAS", "8"))  # 
 IGRIS_URGENCIA_TAU_MIN_HORAS = float(os.getenv("IGRIS_URGENCIA_TAU_MIN_HORAS", "1"))  # baja frecuencia
 IGRIS_URGENCIA_TAU_MAX_HORAS = float(os.getenv("IGRIS_URGENCIA_TAU_MAX_HORAS", "24"))  # alta frecuencia
 IGRIS_URGENCIA_HOLGURA_MAX_PCT = float(os.getenv("IGRIS_URGENCIA_HOLGURA_MAX_PCT", "0.05"))
+# Frecuencia manto: 4 umbrales × plazos (corto 50% · mediano 40% · anual 10%)
+MANTO_FREQ_ACTIVA = os.getenv("MANTO_FREQ_ACTIVA", "true").lower() in ("1", "true", "yes", "on")
+MANTO_FREQ_PESO_CORTO = float(os.getenv("MANTO_FREQ_PESO_CORTO", "0.50"))
+MANTO_FREQ_PESO_MEDIANO = float(os.getenv("MANTO_FREQ_PESO_MEDIANO", "0.40"))
+MANTO_FREQ_PESO_LARGO = float(os.getenv("MANTO_FREQ_PESO_LARGO", "0.10"))
+MANTO_FREQ_TABLAS_EPS_PCT = float(os.getenv("MANTO_FREQ_TABLAS_EPS_PCT", "0.01"))
+MANTO_FREQ_MIN_MUESTRAS = int(os.getenv("MANTO_FREQ_MIN_MUESTRAS", "20"))
+MANTO_FREQ_SCORE_TACTICO = float(os.getenv("MANTO_FREQ_SCORE_TACTICO", "0.25"))
+MANTO_FREQ_SCORE_FORZADA = float(os.getenv("MANTO_FREQ_SCORE_FORZADA", "0.08"))
+MANTO_FREQ_MORDIDA_USD = float(os.getenv("MANTO_FREQ_MORDIDA_USD", "5"))
+MANTO_FREQ_META_DEFAULT_USD = float(os.getenv("MANTO_FREQ_META_DEFAULT_USD", "100"))
 IGRIS_ESPERA_LOG_S = float(os.getenv("IGRIS_ESPERA_LOG_S", "60"))
 IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))
 # Disparo dual §E: timeout fill inicial + salvavidas Market si una pierna queda huérfana

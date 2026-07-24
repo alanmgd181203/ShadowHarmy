@@ -718,11 +718,37 @@ class IgrisEscudo:
 
     def _asegurar_bloque_usd(self, activo: str, precio_ref: float) -> float:
         """
-        Misión simétrica Beru: objetivo = notional por pata ($L = $S).
-        Al completar, Doctrina B: nuevo bloque hacia horizonte 95% (crecimiento continuo).
+        Misión simétrica: objetivo = notional por pata ($L = $S).
+        Con director de pase: meta = delta_usd del paso × fill − ya desplegado.
+        Sin director: Beru-grade + Doctrina B hacia horizonte 95%.
         """
         if self._bloque_objetivo_usd > 0 and self._bloque_inyectado_usd < self._bloque_objetivo_usd:
             return max(0.0, self._bloque_objetivo_usd - self._bloque_inyectado_usd)
+
+        from core import pase_director as pd
+
+        # Ranking → meta USD (pase): no engordar de más el paso foco
+        if pd.director_activo():
+            eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+            try:
+                pd.sincronizar_logrados_desde_tusk(self.tusk, eq)
+            except Exception:
+                pass
+            meta = pd.meta_engorde_usd(eq, activo, tusk=self.tusk)
+            if not meta.get("ok"):
+                self._bloque_objetivo_usd = 0.0
+                self._bloque_inyectado_usd = 0.0
+                return 0.0
+            restante_total = float(meta.get("restante_usd") or 0.0)
+            if restante_total <= 0:
+                self._bloque_objetivo_usd = 0.0
+                self._bloque_inyectado_usd = 0.0
+                return 0.0
+            # Dual L+S: cada pata lleva la mitad del restante del paso
+            objetivo = restante_total / 2.0
+            self._bloque_objetivo_usd = objetivo
+            self._bloque_inyectado_usd = 0.0
+            return objetivo
 
         masa_pata = self._masa_pata_desde_beru(activo, precio_ref)
         fraccion_legacy = float(getattr(config, "BOOTSTRAP_MANTO_FRACCION", 0) or 0)
@@ -737,9 +763,7 @@ class IgrisEscudo:
             hueco_pct = max(0.0, horizonte - margen) / 100.0
             equity = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
             lev = max(bc.apalancamiento_manto_promedio(activo), 1.0)
-            # Notional por pata para acercar margen al horizonte (aprox.)
             objetivo_h = max(objetivo, (equity * hueco_pct * lev) / 2.0) if hueco_pct > 0 else objetivo
-            # Si ya estamos ≥ horizonte, aún permitir mordida táctica (rebase): paso engorde
             if hueco_pct <= 0:
                 paso = self.masa_paso_engorde()
                 objetivo_h = max(objetivo * 0.1, paso * max(precio_ref, 0.0))
@@ -868,24 +892,29 @@ class IgrisEscudo:
 
         self._bloque_inyectado_usd += micro_usd
         if self._bloque_inyectado_usd >= self._bloque_objetivo_usd - 1e-6:
-            if not self._mision_beru_completa:
-                self._mision_beru_completa = True
-                await self.bel.anotar(
-                    "IGRIS", "MISION_BERU",
-                    f"Rango simétrico cumplido (${self._bloque_objetivo_usd:.1f}/pata) — Doctrina B → horizonte 95%.",
-                )
-            try:
-                from core import pase_director as pd
-                if pd.director_activo():
-                    eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+            from core import pase_director as pd
+            if pd.director_activo():
+                eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+                try:
                     marked = pd.marcar_foco_si_bloque_completo(eq, activo)
                     if marked:
                         await self.bel.anotar(
                             "IGRIS", "PASE_PASO",
                             f"Paso logrado · foco {activo} · logrados {marked.get('pasos_logrados')}",
                         )
-            except Exception:
-                pass
+                except Exception:
+                    pass
+                await self.bel.anotar(
+                    "IGRIS", "MISION_PASE",
+                    f"Bloque pase cumplido (${self._bloque_objetivo_usd:.1f}/pata) — "
+                    f"siguiente foco o solo ventana.",
+                )
+            elif not self._mision_beru_completa:
+                self._mision_beru_completa = True
+                await self.bel.anotar(
+                    "IGRIS", "MISION_BERU",
+                    f"Rango simétrico cumplido (${self._bloque_objetivo_usd:.1f}/pata) — Doctrina B → horizonte 95%.",
+                )
             self._bloque_objetivo_usd = 0.0
             self._bloque_inyectado_usd = 0.0
 

@@ -336,6 +336,86 @@ def activo_manto_foco(
     return str(best["activo"]).upper()
 
 
+def meta_engorde_usd(
+    equity_usd: float,
+    activo: str | None = None,
+    *,
+    tusk=None,
+    marcha_id: str | None = None,
+    pasos_logrados: list[int] | None = None,
+) -> dict[str, Any]:
+    """
+    Meta de engorde del paso en trabajo (delta_usd × fill_ratio).
+    restante_usd = need_fill − notional L+S desplegado.
+    Si restante ≤ 0 → Igris no engorda más ese foco (solo ventana/corrección).
+    mitad_alcanzada = have ≥ need_fill / 2 (para corrección dura más adelante).
+    """
+    plan = plan_lote(equity_usd, marcha_id=marcha_id, pasos_logrados=pasos_logrados)
+    trabajo = list(plan.get("trabajo") or [])
+    if not trabajo:
+        return {
+            "ok": False,
+            "motivo": "sin_trabajo",
+            "activo": (activo or "").upper() or None,
+            "need_usd": 0.0,
+            "need_fill_usd": 0.0,
+            "have_usd": 0.0,
+            "restante_usd": 0.0,
+            "paso_n": None,
+            "mitad_alcanzada": False,
+            "fill_ratio": float(plan.get("fill_ratio") or 1.0),
+        }
+
+    act = (activo or "").upper()
+    if act:
+        candidatos = [p for p in trabajo if str(p["activo"]).upper() == act]
+        if not candidatos:
+            have = notional_manto_usd(tusk, act) if tusk is not None else 0.0
+            return {
+                "ok": False,
+                "motivo": "activo_fuera_trabajo",
+                "activo": act,
+                "need_usd": 0.0,
+                "need_fill_usd": 0.0,
+                "have_usd": round(have, 4),
+                "restante_usd": 0.0,
+                "paso_n": None,
+                "mitad_alcanzada": False,
+                "fill_ratio": float(plan.get("fill_ratio") or 1.0),
+            }
+        paso = candidatos[0]
+    else:
+        # Mismo criterio que activo_manto_foco
+        if tusk is not None and len(trabajo) > 1:
+            act = activo_manto_foco(
+                equity_usd, marcha_id=marcha_id, pasos_logrados=pasos_logrados, tusk=tusk,
+            )
+            paso = next(p for p in trabajo if str(p["activo"]).upper() == act)
+        else:
+            paso = trabajo[0]
+            act = str(paso["activo"]).upper()
+
+    fill = float(plan.get("fill_ratio") or 1.0)
+    need = float(paso["delta_usd"])
+    need_fill = need * fill
+    have = notional_manto_usd(tusk, act) if tusk is not None else 0.0
+    restante = max(0.0, need_fill - have)
+    return {
+        "ok": True,
+        "motivo": "ok",
+        "activo": act,
+        "need_usd": round(need, 4),
+        "need_fill_usd": round(need_fill, 4),
+        "have_usd": round(have, 4),
+        "restante_usd": round(restante, 4),
+        "paso_n": int(paso["n"]),
+        "grado": paso.get("grado"),
+        "mitad_alcanzada": have + 1e-9 >= need_fill * 0.5,
+        "fill_ratio": fill,
+        "marcha_id": plan.get("marcha_id"),
+    }
+
+
 def activos_lote_abiertos(
     equity_usd: float,
     *,
@@ -353,6 +433,7 @@ def umbral_por_marcha(
     t0_paciencia: float | None = None,
     perfil_edge: dict | None = None,
     ahora: float | None = None,
+    base: str | None = None,
 ) -> dict[str, Any]:
     """
     Táctico: umbral = fees (sin degradar).
@@ -390,7 +471,7 @@ def umbral_por_marcha(
     # Urgencia: parte de fees y baja hacia el piso (½ fees), no por debajo
     from core import igris_despliegue as ides
     urg = ides.umbral_urgencia_pct(
-        fees, float(t0_paciencia), perfil_edge=perfil_edge, ahora=ahora,
+        fees, float(t0_paciencia), perfil_edge=perfil_edge, ahora=ahora, base=base,
     )
     umbral_dyn = float(urg.get("umbral_pct") or fees)
     umbral = max(piso, umbral_dyn) if piso > 0 else umbral_dyn

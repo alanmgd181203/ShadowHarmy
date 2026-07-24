@@ -34,6 +34,26 @@ class BeruCazador:
             return str(tid)
         return str(getattr(config, "BERU_TIER_DEFAULT", "PROTO1"))
 
+    def _cronica(self, beru, tipo: str, detalle: str = "", **extra):
+        """Append al pergamino Sub-Santuario (data/beru/cronicas/)."""
+        try:
+            from core import beru_asset_detail as bad
+            act = bad.activo_de_legionario(beru, self._activo_casa())
+            bad.append_cronica(
+                act,
+                {
+                    "tipo": tipo,
+                    "uid": getattr(beru, "uid", ""),
+                    "detalle": detalle,
+                    "precio": float(getattr(beru, "precio_salida_real", 0) or 0)
+                    or float(extra.pop("precio", 0) or 0)
+                    or None,
+                    **extra,
+                },
+            )
+        except Exception:
+            pass
+
     def _activo_casa(self) -> str:
         """Casa spot: preferido del pase / foco director; live testnet no toca."""
         if getattr(config, "LIVE_BERU_TESTNET", False):
@@ -490,10 +510,14 @@ class BeruCazador:
             uid=nuevo_uid,
         )
         self.legion.append(semilla)
-        await self.bel.anotar(
-            "BERU", "MEGA_RESET",
+        msg = (
             f"{beru.uid} red @ {precio_actual:.2f} → bóveda ${masa_suelta:.0f} · "
-            f"nuevo 0 · {nuevo_uid} acecha (masa $0).",
+            f"nuevo 0 · {nuevo_uid} acecha (masa $0)."
+        )
+        await self.bel.anotar("BERU", "MEGA_RESET", msg)
+        self._cronica(
+            beru, "MEGA_RESET", msg,
+            precio=precio_actual, masa=masa_suelta, nuevo_uid=nuevo_uid,
         )
 
     async def _soltar_mega_a_boveda(self, beru: BeruShip):
@@ -520,11 +544,12 @@ class BeruCazador:
         beru.neg_toques_ciclo = 0
         beru.neg_red_pct = 0.0
         beru.neg_oz_pct = 0.0
-        await self.bel.anotar(
-            "BERU", "VUELTA_CAZA",
+        msg = (
             f"{beru.uid} red negociador tocada @ {precio_actual:.2f} — "
-            f"recorriendo abismo (${beru.masa_congelada:.0f} fijos).",
+            f"recorriendo abismo (${beru.masa_congelada:.0f} fijos)."
         )
+        await self.bel.anotar("BERU", "VUELTA_CAZA", msg)
+        self._cronica(beru, "VUELTA_CAZA", msg, precio=precio_actual)
 
     async def _flip_caza_a_neg(self, beru: BeruShip, precio_actual: float):
         """Oz cazador tocada = red negociador → armar condicional al otro lado."""
@@ -539,10 +564,11 @@ class BeruCazador:
         beru.modo_combate = "NEGOCIADOR"
         beru.oz_pct = 0.0
         beru.red_pct = 0.0
-        await self.bel.anotar(
-            "BERU", "VUELTA_NEG",
-            f"{beru.uid} oz cazador {ancla*100:.2f}% → condicional {cond*100:.2f}%.",
+        msg = (
+            f"{beru.uid} oz cazador {ancla*100:.2f}% → condicional {cond*100:.2f}%."
         )
+        await self.bel.anotar("BERU", "VUELTA_NEG", msg)
+        self._cronica(beru, "VUELTA_NEG", msg, precio=precio_actual)
 
     async def _pulsar_clonacion_residual(self, precio_actual: float):
         """Toque de red_residual → Capa N+1 con masa base ($5)."""
@@ -908,7 +934,12 @@ class BeruCazador:
         barco.frente_salida = mejor_f
         barco.precio_salida_real = p_ef
         barco.estado = "COSECHADO"
-        await self.bel.anotar("BERU", "COSECHA", f"Botín asegurado @ {beneficio*100:.2f}%")
+        msg = f"Botín asegurado @ {beneficio*100:.2f}%"
+        await self.bel.anotar("BERU", "COSECHA", msg)
+        self._cronica(
+            barco, "COSECHA", msg,
+            precio=float(p_ef or 0), beneficio_pct=round(beneficio * 100.0, 4),
+        )
         if getattr(barco, "ciclo_infinito", False) or getattr(barco, "engorde_bloqueado", False):
             await self._iniciar_reciclaje_post_venta(barco, float(p_ef or 0))
 
@@ -933,10 +964,14 @@ class BeruCazador:
             lider.precio_fusion_ref = float(lider.oz_adan or 0)
             lider.es_super_beru = True
             tag = "NEG" if self._modo_barco(lider) == "NEGOCIADOR" else "CAZA"
-            await self.bel.anotar(
-                "BERU", "FUSION_COLISION",
+            msg = (
                 f"{lider.uid} <- {len(victimas) + 1} {tag} oz~{lider.oz_adan:.2f} "
-                f"${lider.masa_congelada:.0f} (reciclaje volumen sumado).",
+                f"${lider.masa_congelada:.0f} (reciclaje volumen sumado)."
+            )
+            await self.bel.anotar("BERU", "FUSION_COLISION", msg)
+            self._cronica(
+                lider, "FUSION", msg,
+                n_fusionados=len(victimas) + 1, tag=tag,
             )
 
         for lider, victimas, prom in beru_fusion.grupos_mega_beru(self.legion):
@@ -944,10 +979,14 @@ class BeruCazador:
             beru_fusion.aplicar_mega_beru(lider, victimas, prom, vacio)
             for v in victimas:
                 v.estado = "FUSIONADO"
-            await self.bel.anotar(
-                "BERU", "MEGA_BERU",
+            msg_mega = (
                 f"{lider.uid} prom ancla {prom * 100:.2f}% <- {len(victimas) + 1} barcos "
-                f"(${lider.masa_congelada:.0f}) · cond {lider.neg_oz_pct * 100:.2f}%.",
+                f"(${lider.masa_congelada:.0f}) · cond {lider.neg_oz_pct * 100:.2f}%."
+            )
+            await self.bel.anotar("BERU", "MEGA_BERU", msg_mega)
+            self._cronica(
+                lider, "MEGA_BERU", msg_mega,
+                n_fusionados=len(victimas) + 1, ancla_pct=round(prom * 100.0, 4),
             )
 
     # === FUSIÓN Y LIMPIEZA ===

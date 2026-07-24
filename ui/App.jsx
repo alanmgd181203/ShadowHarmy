@@ -1,5 +1,6 @@
 import { useState } from "react";
 import IgrisPanel from "./IgrisPanel.jsx";
+import BeruPanel from "./BeruPanel.jsx";
 import TuskAscension, { TuskOrbButton } from "./TuskAscension.jsx";
 
 import imgTusk from "../assets/portales/tusk.png";
@@ -10,7 +11,7 @@ import imgGreed from "../assets/portales/greed.png";
 import imgIgris from "../assets/portales/igris.png";
 
 /**
- * Cascada + umbral Igris + Orbe de Ascensión (Tusk).
+ * Cascada + umbral Igris/Beru + Orbe de Ascensión (Tusk).
  * Cosas apagadas: ui/featuresApagadas.js
  */
 const PORTALS = [
@@ -22,21 +23,24 @@ const PORTALS = [
   { id: "igris", src: imgIgris, label: "Igris", style: { top: "74%", right: "-16%", width: "68%", zIndex: 3 } },
 ];
 
+const UMBRAL_IDS = new Set(["igris", "beru"]);
+
 export default function App() {
   const [activeGeneral, setActiveGeneral] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [ascensionOpen, setAscensionOpen] = useState(false);
 
-  const umbralIgris = isTransitioning && activeGeneral === "igris";
-  const vanguardiaOculta = umbralIgris || ascensionOpen;
+  const umbralActivo =
+    isTransitioning && (activeGeneral === "igris" || activeGeneral === "beru");
+  const vanguardiaOculta = umbralActivo || ascensionOpen;
 
-  function openIgris() {
+  function openGeneral(id) {
     setAscensionOpen(false);
     setIsTransitioning(true);
-    setActiveGeneral("igris");
+    setActiveGeneral(id);
   }
 
-  function closeIgris() {
+  function closeGeneral() {
     setIsTransitioning(false);
     setActiveGeneral(null);
   }
@@ -45,38 +49,41 @@ export default function App() {
     <div className="relative min-h-screen w-full max-w-[430px] mx-auto bg-[#0a0c10] overflow-hidden">
       <div className="relative w-full h-[100dvh] min-h-[720px]">
         {PORTALS.map((p) => {
-          const isIgris = p.id === "igris";
+          const esUmbral = UMBRAL_IDS.has(p.id);
+          const enFoco = umbralActivo && activeGeneral === p.id;
           const wrapStyle = {
             ...p.style,
-            zIndex: isIgris && umbralIgris ? 40 : p.style.zIndex,
+            zIndex: enFoco ? 40 : p.style.zIndex,
           };
 
           const imgClass = [
             "w-full h-auto max-w-none select-none",
             "transition-all duration-1000 ease-in-out",
             "origin-center",
-            isIgris
-              ? umbralIgris
-                ? "scale-150 opacity-100 brightness-125"
-                : "scale-100 opacity-100 brightness-100"
-              : vanguardiaOculta
-                ? "opacity-0 scale-75 blur-md"
-                : "opacity-90 scale-100 blur-0",
+            esUmbral && enFoco
+              ? "scale-150 opacity-100 brightness-125"
+              : esUmbral && !vanguardiaOculta
+                ? "scale-100 opacity-100 brightness-100"
+                : vanguardiaOculta
+                  ? "opacity-0 scale-75 blur-md"
+                  : "opacity-90 scale-100 blur-0",
           ].join(" ");
 
           return (
             <div
               key={p.id}
               className={`absolute pointer-events-none transition-all duration-1000 ease-in-out ${
-                isIgris && umbralIgris ? "opacity-100" : ""
+                enFoco ? "opacity-100" : ""
               }`}
               style={wrapStyle}
             >
-              {isIgris ? (
+              {esUmbral ? (
                 <button
                   type="button"
-                  onClick={openIgris}
-                  aria-label="Abrir Manto · Igris"
+                  onClick={() => openGeneral(p.id)}
+                  aria-label={
+                    p.id === "igris" ? "Abrir Manto · Igris" : "Abrir flota · Beru"
+                  }
                   className="block w-full p-0 m-0 bg-transparent border-0 cursor-pointer pointer-events-auto active:scale-[0.98]"
                 >
                   <img
@@ -104,7 +111,11 @@ export default function App() {
       </div>
 
       {activeGeneral === "igris" && (
-        <IgrisPanel onClose={closeIgris} />
+        <IgrisPanel onClose={closeGeneral} />
+      )}
+
+      {activeGeneral === "beru" && (
+        <BeruPanel onClose={closeGeneral} />
       )}
 
       {ascensionOpen && (

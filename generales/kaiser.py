@@ -120,6 +120,15 @@ class KaiserVocero:
             ind = self.ultimo_digest.setdefault("indicadores", {})
             ind["memoria_barcos_escritos"] = n_mem
 
+        # Frecuencia manto 4 umbrales (ranking / reloj invertido)
+        try:
+            from core import manto_frecuencia as mf
+
+            if getattr(config, "MANTO_FREQ_ACTIVA", True):
+                self.ultimo_digest["frecuencia_manto"] = mf.snapshot_ranking()
+        except Exception as e:
+            self.ultimo_digest["frecuencia_manto"] = {"error": str(e)}
+
         self._ultimo_calc_ms = (_time.time() - t0) * 1000.0
         self._ultimo_refresh = _time.time()
         return self.ultimo_digest

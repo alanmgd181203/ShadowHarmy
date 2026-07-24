@@ -81,21 +81,44 @@ def pct_tiempo_sobre_umbral(perfil_edge: dict | None) -> float | None:
     return float(m.get("pct_tiempo_sobre_umbral") or 0.0)
 
 
-def tau_paciencia_horas(perfil_edge: dict | None) -> dict[str, Any]:
+def tau_paciencia_horas(
+    perfil_edge: dict | None,
+    *,
+    base: str | None = None,
+) -> dict[str, Any]:
     """
     Reloj invertido (costo de oportunidad):
 
-      tau = tau_min + (tau_max − tau_min) × pct_tiempo_sobre_umbral
+      tau = tau_min + (tau_max − tau_min) × pct_frecuencia
 
-    Alta frecuencia (pct↑) → tau grande → degradación LENTA.
-    Baja frecuencia (pct↓) → tau chico → degradación RÁPIDA.
-    Sin datos Kaiser → tau_base estático (fallback).
+    Preferencia (Monarca 2026-07-24): `manto_frecuencia` — 4 umbrales
+    (fees / ½ fees / tablas / morado) × plazos (corto 50% · mediano 40% · anual 10%).
+    Fallback: pct_tiempo_sobre_umbral del perfil Kaiser (umbral evento genérico).
+    Alta frecuencia → tau grande → degradación LENTA.
+    Baja frecuencia → tau chico → degradación RÁPIDA.
     """
     tau_base = float(getattr(config, "IGRIS_URGENCIA_TAU_HORAS", 8.0) or 8.0)
     tau_min = float(getattr(config, "IGRIS_URGENCIA_TAU_MIN_HORAS", 1.0) or 1.0)
     tau_max = float(getattr(config, "IGRIS_URGENCIA_TAU_MAX_HORAS", 24.0) or 24.0)
     if tau_max < tau_min:
         tau_max = tau_min
+
+    bu = (base or (perfil_edge or {}).get("base") or "").upper()
+    if bu and getattr(config, "MANTO_FREQ_ACTIVA", True):
+        try:
+            from core import manto_frecuencia as mf
+
+            freq = mf.frecuencia_activo(bu)
+            if freq.get("ok") and freq.get("score_paciencia") is not None:
+                info = mf.tau_desde_score(float(freq["score_paciencia"]))
+                info["modo_sugerido"] = freq.get("modo_sugerido")
+                info["contadores"] = {
+                    k: (freq.get("contadores") or {}).get(k, {}).get("pct_blend")
+                    for k in ("fees", "medio_fees", "tablas", "morado")
+                }
+                return info
+        except Exception:
+            pass
 
     pct = pct_tiempo_sobre_umbral(perfil_edge)
     if pct is None:
@@ -118,10 +141,11 @@ def factor_urgencia(
     *,
     perfil_edge: dict | None = None,
     ahora: float | None = None,
+    base: str | None = None,
 ) -> dict[str, Any]:
     """factor ∈ [0,1] = edad_h / tau_h (tau dinámico invertido)."""
     ahora = ahora if ahora is not None else time.time()
-    info = tau_paciencia_horas(perfil_edge)
+    info = tau_paciencia_horas(perfil_edge, base=base)
     tau_h = float(info["tau_h"]) or 1.0
     edad_h = max(0.0, (ahora - float(t0 or ahora)) / 3600.0)
     factor = min(1.0, edad_h / tau_h)
@@ -138,11 +162,12 @@ def umbral_urgencia_pct(
     *,
     perfil_edge: dict | None = None,
     ahora: float | None = None,
+    base: str | None = None,
 ) -> dict[str, float]:
     """umbral = fees_be − factor × (fees_be + holgura_max)."""
     ahora = ahora if ahora is not None else time.time()
     holgura = float(getattr(config, "IGRIS_URGENCIA_HOLGURA_MAX_PCT", 0.05) or 0.0)
-    urg = factor_urgencia(t0, perfil_edge=perfil_edge, ahora=ahora)
+    urg = factor_urgencia(t0, perfil_edge=perfil_edge, ahora=ahora, base=base)
     factor = float(urg["factor"])
     umbral = fees_be - factor * (fees_be + holgura)
     return {
@@ -328,10 +353,13 @@ def evaluar_puerta_se(
             t0_paciencia=t0_paciencia,
             perfil_edge=perfil,
             ahora=ahora,
+            base=base,
         )
         umbral = float(urg["umbral_pct"])
     else:
-        urg = umbral_urgencia_pct(fees_be, t0_paciencia, perfil_edge=perfil, ahora=ahora)
+        urg = umbral_urgencia_pct(
+            fees_be, t0_paciencia, perfil_edge=perfil, ahora=ahora, base=base,
+        )
         umbral = urg["umbral_pct"]
 
     if spread < umbral:

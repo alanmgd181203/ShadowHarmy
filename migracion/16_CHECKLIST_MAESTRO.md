@@ -131,7 +131,8 @@
 - [x] **3.5.7** Beru capital + ProtoBeru — `22_DOCTRINA_BERU.md`, `beru_tier.py`, `beru_capital.py`, cableado `beru.py`, capitanes 1.2/1.6%
 - [x] **3.5.8a** Igris §E v1 — bootstrap inverse L + lineal S + promedios pierna *(2026-07-05)*
 - [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
-- [~] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · **disparo dual + salvavidas Market** ✅ 2026-07-19 · ranking/mitad/manto-completo aplazados a fusión
+- [x] **3.5.8b2** Frecuencia manto 4 umbrales (fees · ½ · tablas · morado) × plazos 50/40/10 · ETA por marcha · `core/manto_frecuencia.py` *(2026-07-24)*
+- [~] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · dual+salvavidas ✅ · **meta engorde = `delta_usd` del pase** ✅ MVP 2026-07-20 · mitad/manto-completo fino aún abiertos
 
 - [x] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v2 + `plan_crecimiento.py` + [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) *(Aspirante→Chamán; candado + **director pase** `pase_director.py` · 3 marchas 2026-07-19; botín runtime y mérito aún pendiente)*
 
@@ -177,9 +178,9 @@
 - [x] **3.V7** Backlog vivo: `19_BACKLOG_SENTIDOS.md`
 
 #### Pendiente estrategia *(no bloquea Fase 4)*
-- [ ] **3.7.P1** Semáforos sobre matriz spreads — umbral disparo
-- [ ] **3.7.P2** Convert quote vs spot — lag Greed
-- [ ] **3.7.P3** Semáforo aliado spot por perp (Igris)
+- [x] **3.7.P1** Semáforos sobre matriz spreads — luces V/A/R en digest Kaiser (`matriz_luces`) · umbral disparo · **sin órdenes** (2026-07-20)
+- [ ] **3.7.P2** Convert quote vs spot — lag Greed *(pausa con Greed mainnet)*
+- [ ] **3.7.P3** Semáforo aliado spot / huérfano / desvío global — **Greed** (no Igris) · *pausa doctrinal hasta mainnet*
 
 ### 3.8 Kaiser — vocero interno *(COMPLETA v0 — 2026-07-05)*
 
@@ -359,7 +360,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · Ascensión Aspirante→Chamán (estrella · techos pase · **progreso vivo** `plan_crecimiento`) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit pendiente
+- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · **Sub-Santuario Beru** (flota por moneda · caza/neg · red engorde · crónica · `beru_asset_detail` + panel Streamlit + portal Cascada) · Ascensión Aspirante→Chamán (estrella · techos pase · **progreso vivo** `plan_crecimiento`) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit↔Pergamino pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑
@@ -370,7 +371,7 @@
 
 | Horizonte | Fases | Meta en una frase |
 |-----------|-------|-------------------|
-| **Ahora** | 3 cierre + 4 + 10 | Memoria Kaiser ✅ · **4.1.2 Pergamino** · 3.5.8c fusión · 3.7.P* |
+| **Ahora** | 3 cierre + 4 + 10 | Meta pase Igris ✅ · **3.7.P1 luces** ✅ · Greed pausa · **4.1.2 Pergamino** · mitad engorde |
 | **Semanas** | 2–3 | ✅ Testnet + pentiverso + Beru doctrina + Igris despliegue |
 | **Meses** | 4–6 | **Ops** + **mainnet** + estrategia madura |
 | **Trimestres** | 7–9 | Más activos, Surge, entrenamiento |
@@ -393,12 +394,12 @@ TOTAL checklist:  125 / 184  [x]  →  ~68%
 Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-07-19 (memoria Kaiser barcos · Telegram→Pergamino · pase 13 Santos)  
-**Próximo ítem recomendado:** **4.1.2** eventos en Pergamino · **3.5.8c** ranking fusión · **3.7.P***  
+**Última actualización checklist:** 2026-07-20 (meta engorde pase · luces matriz 3.7.P1 · P3→Greed pausa)  
+**Próximo ítem recomendado:** **4.1.2** eventos Pergamino · mitad/manto-completo Igris · **3.7.P2** con Greed mainnet  
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
-**Smokes plan:** `validar_plan_crecimiento_smoke.py`  
+**Smokes plan:** `validar_plan_crecimiento_smoke.py` · `validar_pase_director_smoke.py` · `validar_semaforos_meta_smoke.py`  
 **Runbook testnet:** `18_ARRANQUE_TESTNET.md`  
 **Validar estado:** `python scripts/validar_checklist.py`  
 **Validar sentidos Tank:** `python scripts/validar_panorama_tank.py --segundos 35`
@@ -412,8 +413,8 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 4.1.2 eventos Pergamino · 3.5.8c ranking fusión · 3.7.P*.
-Validar: scripts/validar_*_smoke.py + validar_kaiser_memoria_smoke.py + validar_plan_crecimiento_smoke.py
+Siguiente: 4.1.2 eventos Pergamino · mitad engorde Igris · Greed mainnet (P2/P3).
+Validar: scripts/validar_*_smoke.py + validar_semaforos_meta_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).
 ```

@@ -1,6 +1,6 @@
 # 21 — Doctrina Igris (escudo del manto)
 
-**Estado:** §A + §C (parcial) + §E **v2** + **3.5.8c motor v1** (ventana 48–52) — ranking fusión pendiente  
+**Estado:** §A + §C (parcial) + §E **v2** + **3.5.8c motor v1** (ventana 48–52) + **meta engorde pase MVP** — mitad/manto-completo fino pendiente  
 **Código:** `generales/igris.py`, `core/igris_estado.py`, `core/igris_despliegue.py`, `core/manto_ventana.py`, `core/manto_jurisdiccion.py`, `core/manto_touch.py`, `core/telemetria_igris.py`, `core/igris_asset_detail.py`  
 **Actualizado:** 2026-07-17
 
@@ -65,6 +65,7 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 | Jurisdicción manto Igris→Greed | ✅ `core/manto_jurisdiccion.py` |
 | Puerta §E Ask/Bid + fees ± urgencia | ✅ `core/igris_despliegue.evaluar_puerta_se` |
 | Reloj invertido Kaiser (paciencia) | ✅ `tau_paciencia_horas` / `factor_urgencia` |
+| **Frecuencia manto 4 umbrales** (fees / ½ / tablas / morado) × plazos **50/40/10** | ✅ `core/manto_frecuencia.py` → tau + ranking + ETA marchas (2026-07-24) |
 | Mordida = techo_misión × fracción(confianza) | ✅ sin pinza 85% ni tope 1% equity |
 | Ancla en techo de liquidez | ✅ `techo_mision_usd` usa profundidad Ancla |
 | Telemetría / Sub-Santuario Bridge | ✅ `telemetria_igris` + `igris_asset_details` |
@@ -112,8 +113,8 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 - No encadenar “espero fill de una y luego la otra” (el precio se mueve).
 - Si una falla: **market inmediato** en la que falta; el chiste es llenar **ambas**.
 - **Escalera de precios:** micro-bocados Limit a distintos niveles (`core/escalera_precios.py`); cancelar no llenos; equilibrar Market; manto parcial OK.
-- **Lotes Bybit:** cada peldaño/orden respeta `minOrderQty` + `qtyStep` de la BD Jess (`core/lote_bybit.py` · `data/bybit_parametros_mercado.json`).
-- **Código:** `IgrisEscudo._disparo_dual_simultaneo` + `_salvavidas_market_pierna` · Greed `_ejecutar_dos_piernas` · flags `ESCALERA_*` / `IGRIS_DUAL_*`.
+- **Lotes Bybit:** cada peldaño/orden respeta `minOrderQty` + `qtyStep` de la BD Jess (`core/lote_bybit.py` · `data/bybit_parametros_mercado.json`). Sync México **2026-07-21** en origin (`349b375`).
+- **Frecuencia / paciencia (2026-07-24):** cuatro contadores en paralelo sobre historia `lineal_vs_inverse` — **fees** (Táctico), **½ fees** (Marcha Forzada), **tablas** (~0 edge / Asalto), **morado** (`OPORTUNIDAD_MANTO`). Fusión de plazos: corto **50%** · mediano **40%** · anual **10%**. Alta frecuencia → más tau (espera); baja → modo sugerido Asalto. ETA de despliegue por marcha en `estado_vivo.igris.frecuencia_manto` y panel.- **Código:** `IgrisEscudo._disparo_dual_simultaneo` + `_salvavidas_market_pierna` · Greed `_ejecutar_dos_piernas` · flags `ESCALERA_*` / `IGRIS_DUAL_*`.
 - Kaiser viendo order book dual a fondo: **revisar después** (metaverso / si ya vive).
 
 #### Violación del candado (ej. long 53%)
@@ -145,7 +146,7 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 | **3.5.8c motor** — ventana en Igris + smoke | ✅ v1 `manto_ventana` · ranking pendiente |
 | Semáforos morado/gris (bloque B) | Pendiente (morado arena ✅) |
 | Sangrado útil / margen económico | Pendiente |
-| Ranking → meta USD manto | Pendiente fusión |
+| Ranking → meta USD manto | ✅ MVP `pase_director.meta_engorde_usd` → Igris bloque (2026-07-20) · mitad/manto-completo fino pendiente |
 
 ### En ~90% (zona ideal)
 Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, neto ≥ fees) pero **más tolerancia** y horizonte largo.
@@ -158,9 +159,11 @@ Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, net
 ### Semáforos (bloque B)
 | Color | Significado | Código |
 |-------|-------------|--------|
-| V/A/R spot | Salud spot aliado del perp | Pendiente 3.7.P3 |
+| V/A/R spot / huérfano / global | **No es de Igris** — es luz de **Greed** (cruzar lineal+spot o desvío vs marca Bybit). Checklist **3.7.P3** · *pausa con Greed mainnet* | — |
 | **Morado** | Oportunidad L/S Ask/Bid (misma visión que Puerta §E) → **`OPORTUNIDAD_MANTO`** | ✅ arena micro / prod ≥ fees |
 | **Gris/slippage** | Paridad rota temporal — falsa alarma, esperar | Pendiente |
+
+**Regla de manto:** Igris solo arma activos con **inverse + lineal**. Sin inverse → fuera del Escudo.
 
 Con `IGRIS_EVENT_DRIVEN=true` en `.env`, Igris **no escanea** cada segundo: solo actúa ante `OPORTUNIDAD_MANTO` o `MATRIZ_SPREAD` (lineal_vs_inverse) del activo en mando.
 
@@ -176,7 +179,7 @@ Con `IGRIS_EVENT_DRIVEN=true` en `.env`, Igris **no escanea** cada segundo: solo
 | Ancla + despliegue §E | ✅ `igris_despliegue.py` (2026-07-12) |
 | `pesos` + precio medio por pierna | ✅ v1 `igris_manto.py` |
 | Bootstrap inverse L + lineal S | ✅ v1 |
-| Ventana 48–52 / long-primero | ✅ motor v1 2026-07-17 · ranking fusión pendiente |
+| Ventana 48–52 / long-primero | ✅ motor v1 2026-07-17 · meta pase MVP 2026-07-20 · mitad fina pendiente |
 | Live testnet despliegue | ✅ **3.10.7b** PASS_LIVE México (ETH/BTC dual DEMO) |
 | Arena aislada (fills virtuales) | ✅ **3.10.7a** `arena_igris_aislado.py` |
 | Event-driven Kaiser→Igris | ✅ **3.10.8** `IGRIS_EVENT_DRIVEN` |

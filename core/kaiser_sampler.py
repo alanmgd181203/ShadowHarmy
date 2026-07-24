@@ -7,15 +7,29 @@ import core.config as config
 from core.kaiser_samples import append_sample
 
 
+def _flota_manto() -> list[str]:
+    """Activos Inverse∩Linear del diccionario Beru (ranking manto)."""
+    from pathlib import Path
+    import json
+
+    path = Path(__file__).resolve().parents[1] / "config" / "diccionario_beru_flota_manto.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return [str(x).upper() for x in ((data.get("meta") or {}).get("activos") or [])]
+    except (OSError, json.JSONDecodeError, TypeError):
+        return []
+
+
 def _bases_prioritarias(tank) -> list[str]:
     penta = list(config.ACTIVOS_PENTIVERSO)
     trinidad = list(getattr(config, "ACTIVOS_TRINIDAD", []) or [])
+    flota = _flota_manto()
     huerfanas = list(getattr(config, "ACTIVOS_HUERFANOS", []) or [])
     cap_h = getattr(config, "KAISER_SAMPLE_HUERFANAS_CAP", 60)
     top_desv = [r.get("base") for r in (tank.desvios_indice or [])[:20]]
     out: list[str] = []
     seen: set[str] = set()
-    for b in penta + trinidad + top_desv + huerfanas[:cap_h]:
+    for b in flota + penta + trinidad + top_desv + huerfanas[:cap_h]:
         if not b:
             continue
         bu = str(b).upper()
@@ -50,6 +64,10 @@ def muestrear_desde_tank(tank) -> int:
         )
         n += 1
 
+    flota_set = set(_flota_manto())
+    penta_set = set(config.ACTIVOS_PENTIVERSO) | set(
+        getattr(config, "ACTIVOS_TRINIDAD", []) or []
+    )
     for row in tank.matriz_spreads or []:
         base = str(row.get("base", "")).upper()
         tipo = row.get("tipo", "")
@@ -58,9 +76,11 @@ def muestrear_desde_tank(tank) -> int:
             "perp_vs_index", "spot_vs_index",
         ):
             continue
-        if base not in config.ACTIVOS_PENTIVERSO and base not in (
-            getattr(config, "ACTIVOS_TRINIDAD", []) or []
-        ):
+        # lineal_vs_inverse: flota manto completa (frecuencia 4 umbrales)
+        if tipo == "lineal_vs_inverse":
+            if base not in flota_set and base not in penta_set:
+                continue
+        elif base not in penta_set:
             continue
         signed = float(row.get("desvio_signed_pct") or row.get("spread_pct") or 0)
         append_sample(

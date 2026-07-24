@@ -1,6 +1,6 @@
 # Resumen ejecutivo — Migración Shadow Army
 
-**Actualizado:** 2026-07-19 (pase 13 Santos · rangos Aspirante→Chamán)
+**Actualizado:** 2026-07-24 (frecuencia manto 4 umbrales · Jess sync 21 jul)
 
 ## Código canónico
 
@@ -9,7 +9,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ## Veredicto en una frase
 
-**Fases 0–2 cerradas · Fase 3 ~92%.** Lives ✅. Pase Chamán firmado. **Kaiser memoria barcos viva** (Tank→diario). Oído = **Pergamino**. **Siguiente:** eventos en app (**4.1.2**) · fusión manto (**3.5.8c**).
+**Fases 0–2 cerradas · Fase 3 ~93%.** Lives ✅. Jess sync Bybit **21 jul** en master. Reloj invertido con **4 umbrales** de oportunidad + ETA por marcha. **Sub-Santuario Beru** en Cascada (flota · red engorde · crónica). **Greed en pausa** hasta mainnet. **Siguiente:** oído Pergamino (**4.1.2**) · mitad engorde.
 
 ## Progreso checklist (16)
 
@@ -35,23 +35,24 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ```powershell
 python scripts/validar_checklist.py
-python scripts/validar_igris_asset_detail_smoke.py
-python scripts/validar_ciclo_beru_eth.py
+python scripts/validar_manto_frecuencia_smoke.py
+python scripts/validar_semaforos_meta_smoke.py
+python scripts/validar_igris_smoke.py
+python scripts/validar_lote_bybit_smoke.py
 ```
 
 ## Hechos recientes
 
-- **Pase 13 Santos (2026-07-19):** rangos Aspirante $123 · Aprendiz $411 · Brujo $1451 · Chamán $3161 · estrella ETH/HYPE/XRP/MNT/LTC.
-- **3.9.9** Beru live PASS — `61d7c2e` (Jess). JSON report no subió a git.
-- **3.10.7b** Igris live ✅.
-- **Sub-Santuario cableado** — IM/lev/marks/fees/baseline · smoke 6/6.
-- **Checkpoint 3.5.8c (2026-07-17):** ventana 48–52, long-primero por barco, USD@entrada, dual simultáneo, violación mitad/mitad — escrito en `21`.
+- **Frecuencia manto 3.5.8b2 (2026-07-24):** 4 umbrales (fees · ½ · tablas · morado) × plazos 50/40/10 · ETA por marcha · alimenta el reloj de paciencia de Igris.
+- **Jess sync Bybit (2026-07-21):** en master — 780 bases, mínimos/qtyStep frescos; lotes de Igris ya leen esa BD.
+- **Meta engorde pase (2026-07-20):** Igris engorda solo el Δ del paso foco; no empuja 95% si director on.
+- **3.7.P1 luces matriz:** V/A/R en `estado_vivo.kaiser.indicadores.matriz_luces`.
+- **3.7.P3** reclasificado: semáforo aliado/huérfano/global = **Greed** (pausa).
 
 ## Qué falta (corto)
 
-1. **4.1.2+** Eventos críticos en Pergamino (Telegram legado)  
-2. **3.5.8c** ranking fusión pase ↔ manto  
-3. Semáforos **3.7.P*** · Karmish **3.8.P3**  
-4. Mérito Bellion runtime  
+1. **4.1.2+** Eventos críticos en Pergamino  
+2. Mitad engorde / manto-completo fino Igris  
+3. Greed mainnet · Convert **3.7.P2** · aliado **3.7.P3**  
 
 Hablar siempre en términos del Ejército (Beru, Igris, manto, Cascada, Sub-Santuario).

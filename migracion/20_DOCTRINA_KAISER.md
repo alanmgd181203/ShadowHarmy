@@ -84,6 +84,10 @@ Precio de **referencia multi-exchange** que Bybit calcula promediando spot en va
 
 **Regla:** situaciones “normales” en trinidad/pentiverso = optimización **intra-Bybit**. Greed es quien **toma riesgo entre mares/exchanges**.
 
+**Semáforos matriz (3.7.P1 ✅):** `indicadores.matriz_luces` en digest — VERDE &lt; umbral · AMARILLO ≥ umbral · ROJO ≥ 2× · **sin órdenes**.
+
+**3.7.P3 (pausa):** luz aliado spot / huérfano / panorama global → **Greed**, no Igris. Igris solo manto con inverse.
+
 ---
 
 ## §2 — Perfiles multietiqueta (3d / 1m / 1a) — CERRADO
@@ -312,9 +316,11 @@ Nada de Karmish en disparos hasta orden explícita del Monarca.
 
 ## Referencia código (sin disparos)
 
-- Perfiles: `core/kaiser_perfil.py`  
-- Rutas: `core/metaverso_grafo.py`  
-- Digest: `generales/kaiser.py` → `estado_vivo.kaiser`  
-- Checklist: `16` §3.8.P1  
+- Perfiles: `core/kaiser_perfil.py`
+- Frecuencia manto (Igris): `core/manto_frecuencia.py` — 4 umbrales fees/½/tablas/morado · pesos 50/40/10 · muestras `lineal_vs_inverse` flota · tau + panel
+- Sampler: `kaiser_sampler` incluye flota manto para arista L/S
+- Rutas: `core/metaverso_grafo.py`
+- Digest: `generales/kaiser.py` → `estado_vivo.kaiser` (+ `frecuencia_manto`)
+- Checklist: `16` §3.8.P1 · **3.5.8b2**
 
 *Actualizar este doc al cerrar cada §. Override codex: frase explícita del Monarca.*

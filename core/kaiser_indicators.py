@@ -71,13 +71,44 @@ def interpretar_matriz(snap: dict) -> list[dict]:
         base = row.get("base") or row.get("activo") or "?"
         tipo_sp = row.get("tipo", "spread")
         sev = "ALERTA" if pct >= umbral * 2 else "AVISO"
+        luz = "ROJO" if pct >= umbral * 2 else "AMARILLO"
         msg = f"Spread {tipo_sp} {base}: {pct:.3f}%"
         # lineal_vs_inverse → Igris (manto §E); resto → Greed cazador
         if tipo_sp == "lineal_vs_inverse":
             dest = ["IGRIS", "BELLION"]
         else:
             dest = ["GREED", "BELLION"]
-        out.append(_alerta("MATRIZ_SPREAD", str(base), msg, sev, dest, dict(row)))
+        payload = dict(row)
+        payload["luz"] = luz
+        payload["umbral_pct"] = umbral
+        out.append(_alerta("MATRIZ_SPREAD", str(base), msg, sev, dest, payload))
+    return out
+
+
+def luces_matriz(snap: dict, *, top_n: int = 20) -> list[dict]:
+    """
+    Semáforos 3.7.P1 — luces V/A/R sobre filas de la matriz (solo digest).
+    VERDE < umbral · AMARILLO ≥ umbral · ROJO ≥ 2× umbral.
+    """
+    umbral = float(getattr(config, "KAISER_MATRIZ_UMBRAL_PCT", 0.25) or 0.25)
+    filas = list(snap.get("filas") or [])[: max(1, int(top_n))]
+    out: list[dict] = []
+    for row in filas:
+        pct = float(row.get("spread_pct") or 0)
+        if pct < umbral:
+            luz = "VERDE"
+        elif pct < umbral * 2:
+            luz = "AMARILLO"
+        else:
+            luz = "ROJO"
+        out.append({
+            "base": row.get("base") or row.get("activo") or "?",
+            "tipo": row.get("tipo", "spread"),
+            "spread_pct": round(pct, 4),
+            "luz": luz,
+            "umbral_pct": umbral,
+            "destinatario": "IGRIS" if row.get("tipo") == "lineal_vs_inverse" else "GREED",
+        })
     return out
 
 
@@ -440,6 +471,11 @@ def interpretar_tank(
     if desvios.get("filas"):
         top_desvio = float(desvios["filas"][0].get("desvio_pct") or 0)
 
+    matriz_luces = luces_matriz(matriz)
+    n_verde = sum(1 for x in matriz_luces if x.get("luz") == "VERDE")
+    n_amarillo = sum(1 for x in matriz_luces if x.get("luz") == "AMARILLO")
+    n_rojo = sum(1 for x in matriz_luces if x.get("luz") == "ROJO")
+
     capitan = getattr(tank.capitan_activo, "__name__", "?")
     lider = tank._obtener_lider_verde()
     semaforo = lider.estado_foco if lider else "ROJO"
@@ -458,6 +494,10 @@ def interpretar_tank(
             "avisos": n_aviso,
             "top_spread_pct": round(top_spread, 4),
             "top_desvio_pct": round(top_desvio, 4),
+            "matriz_luces": matriz_luces,
+            "matriz_verde": n_verde,
+            "matriz_amarillo": n_amarillo,
+            "matriz_rojo": n_rojo,
             "refs_binance": panorama.get("refs_binance", 0),
             "huerfanas_catalogo": panorama.get("bases_huerfanas", 0),
             "ancla_oportunidades": len(oportunidades_ancla),
@@ -466,7 +506,8 @@ def interpretar_tank(
         },
         "resumen": (
             f"{n_alerta} alertas, {n_aviso} avisos | "
-            f"Tank {semaforo} | top desvío {top_desvio:.2f}% | top spread {top_spread:.3f}%"
+            f"Tank {semaforo} | top desvío {top_desvio:.2f}% | top spread {top_spread:.3f}% | "
+            f"matriz V{n_verde}/A{n_amarillo}/R{n_rojo}"
         ),
         "perfiles": perfiles or {},
         "metaverso": metaverso or {},

@@ -9,7 +9,12 @@
 - Igris materializa y Greed disparan / equilibran con qty ya cuantizada.
 - Smokes: `validar_lote_bybit_smoke.py` · escalera · igris.
 
-## Jess — solo corre el script
+## Jess — sync en origin ✅
+
+Último ritual México en **master** (`349b375`, 2026-07-21): 684 linear · 26 inverse · 780 bases · BD + `data/jess_bybit_sync/`.  
+Rama `feature/motor-friccion-panel-jurisdiccion` apunta al mismo tip. Refresh futuro: mandato en `JESS_SINCRONIZAR_BYBIT.md`.
+
+## Jess — solo corre el script (refresh)
 
 Pegar en Cursor de Jess (Agent):
 

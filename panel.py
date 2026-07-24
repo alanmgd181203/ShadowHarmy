@@ -205,6 +205,35 @@ def main():
                 f"peces máx {plan.get('peces_max')} · tier {plan.get('tier_default')} · "
                 f"Greed {plan.get('greed_modo')} · reserva ${plan.get('reserva_usd', 0):.0f}"
             )
+        freq = igris.get("frecuencia_manto") or {}
+        ranking_f = freq.get("ranking") or []
+        if ranking_f:
+            st.markdown("**⏱️ Frecuencia manto** (fees · ½ · tablas · morado · pesos 50/40/10)")
+            top = ranking_f[:8]
+            st.caption(
+                " · ".join(
+                    f"{r.get('base')}: "
+                    f"score={r.get('score_paciencia') if r.get('score_paciencia') is not None else '—'} "
+                    f"→ {r.get('modo_sugerido', '?')}"
+                    for r in top
+                )
+            )
+            etas = freq.get("eta_por_marcha") or {}
+            for mid, titulo in (
+                ("tactico", "Táctico"),
+                ("marcha_forzada", "Forzada"),
+                ("asalto", "Asalto"),
+            ):
+                bloque = etas.get(mid) or {}
+                if not isinstance(bloque, dict) or not bloque:
+                    continue
+                bits = []
+                for b, e in list(bloque.items())[:4]:
+                    if not isinstance(e, dict) or not e.get("ok"):
+                        continue
+                    bits.append(f"{b} ~{e.get('eta_h')}h")
+                if bits:
+                    st.caption(f"ETA {titulo}: " + "; ".join(bits))
 
     # --- TRINIDAD (multiflota sentidos) ---
     tri = estado.get("trinidad", {})
@@ -324,6 +353,24 @@ def main():
                 hide_index=True,
             )
         st.caption("Kaiser traduce Tank — Beru/Greed/Igris consumirán digest; aún no disparan.")
+
+        freq_k = kaiser.get("frecuencia_manto") or {}
+        if freq_k.get("ranking"):
+            st.markdown("**Frecuencia manto L/S** (4 umbrales · anual 10%)")
+            import pandas as pd
+            filas_f = []
+            for r in (freq_k.get("ranking") or [])[:12]:
+                filas_f.append({
+                    "base": r.get("base"),
+                    "score": r.get("score_paciencia"),
+                    "modo": r.get("modo_sugerido"),
+                    "fees%": r.get("pct_fees"),
+                    "½fees%": r.get("pct_medio"),
+                    "tablas%": r.get("pct_tablas"),
+                    "morado%": r.get("pct_morado"),
+                })
+            if filas_f:
+                st.dataframe(pd.DataFrame(filas_f), use_container_width=True, hide_index=True)
 
         perfiles = kaiser.get("perfiles") or {}
         if perfiles:
@@ -528,27 +575,137 @@ def main():
     else:
         st.info("Sin posiciones abiertas todavía.")
 
-    # --- LEGIÓN DE BERU ---
-    st.subheader("⚔️ Legión de Beru")
-
-    legion = estado.get("legion", [])
-    if legion:
+    # --- LEGIÓN / SUB-SANTUARIO BERU ---
+    st.subheader("⚔️ Beru — flota por moneda")
+    flota_b = estado.get("beru_flota") or {}
+    activos_b = flota_b.get("activos") or []
+    if activos_b:
         import pandas as pd
-        filas_l = []
-        for b in legion:
-            filas_l.append({
-                "UID": b["uid"][:16],
-                "Estado": b["estado"],
-                "Dir": b["direccion"],
-                "Centro": f"{b['centro']:.2f}",
-                "Masa": f"{b['masa']:.4f}",
-                "Ganancia máx": f"{b['max_favor']*100:.2f}%",
-                "Gen": b["generacion"],
-                "Super": "⭐" if b["es_super"] else "",
+        st.caption(
+            f"Semilla {flota_b.get('semilla', '?')} · "
+            f"{flota_b.get('n_barcos_total', 0)} barcos en {flota_b.get('n_activos', 0)} activos"
+        )
+        filas_f = []
+        for a in activos_b:
+            comp = a.get("composicion") or {}
+            filas_f.append({
+                "Activo": a.get("activo"),
+                "Semilla": "★" if a.get("es_semilla") else "",
+                "Barcos": a.get("n_barcos"),
+                "Caza": a.get("n_caza"),
+                "Negociando": a.get("n_negociando"),
+                "Acechando": a.get("n_acechando"),
+                "Mega": a.get("n_mega"),
+                "Masa $": a.get("masa_total_usd"),
+                "PnL est $": a.get("pnl_est_usd"),
+                "Centro 0": a.get("centro_0"),
+                "Red engorde %": a.get("red_engorde_pct"),
+                "Rails": ",".join(a.get("rails_vivos") or []) or "—",
+                "% caza": comp.get("pct_caza"),
+                "% neg": comp.get("pct_negociando"),
             })
-        st.dataframe(pd.DataFrame(filas_l), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(filas_f), use_container_width=True, hide_index=True)
+
+        details = estado.get("beru_asset_details") or {}
+        for a in activos_b:
+            act = a.get("activo")
+            if not act:
+                continue
+            det = details.get(act) or {}
+            n = int(a.get("n_barcos") or 0)
+            label = f"{act} · {a.get('n_caza', 0)} caza / {a.get('n_negociando', 0)} neg"
+            with st.expander(label, expanded=bool(a.get("es_semilla") and n > 0)):
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Masa", f"${float(a.get('masa_total_usd') or 0):.2f}")
+                c2.metric("PnL est", f"${float(a.get('pnl_est_usd') or 0):.2f}")
+                c3.metric("Centro 0", f"{float(a.get('centro_0') or 0):.4f}")
+                re = det.get("red_engorde") or {}
+                c4.metric(
+                    "Red engorde",
+                    f"{re.get('pct_vs_centro')}%" if re.get("pct_vs_centro") is not None else "—",
+                )
+                if re:
+                    st.caption(
+                        f"Red frontera @ {re.get('precio')} "
+                        f"({re.get('pct_vs_centro')}% vs 0) · barco {str(re.get('uid') or '')[:18]} — "
+                        f"{re.get('nota', '')}"
+                    )
+                # Barrita composición
+                pct_c = float((a.get("composicion") or {}).get("pct_caza") or 0) / 100.0
+                st.progress(min(1.0, max(0.0, pct_c)))
+                st.caption(
+                    f"Composición: caza {a.get('n_caza')} · neg {a.get('n_negociando')} · "
+                    f"acechando {a.get('n_acechando')} · mega {a.get('n_mega')}"
+                )
+                rails = det.get("rails_disponibles") or []
+                if rails:
+                    st.caption(
+                        "Rails spot: "
+                        + ", ".join(f"{r.get('quote')}" for r in rails if r.get("quote"))
+                    )
+                barcos = det.get("barcos") or []
+                if barcos:
+                    st.dataframe(
+                        [
+                            {
+                                "UID": str(b.get("uid") or "")[:18],
+                                "Modo": b.get("modo"),
+                                "Estado": b.get("estado"),
+                                "Masa": b.get("masa"),
+                                "Oz %": b.get("oz_vs_centro_pct"),
+                                "Red %": b.get("red_vs_centro_pct"),
+                                "Rail": b.get("rail_quote") or "—",
+                                "Mega": "⭐" if b.get("es_super") else "",
+                                "PnL est": b.get("pnl_est_usd"),
+                            }
+                            for b in barcos
+                        ],
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+                # Mini gráfica niveles (ASCII / métricas)
+                graf = det.get("grafica") or {}
+                niveles = graf.get("niveles") or []
+                if niveles:
+                    st.caption("Niveles (precio / % vs centro 0)")
+                    st.dataframe(
+                        [
+                            {
+                                "Rol": n.get("rol"),
+                                "Precio": n.get("precio"),
+                                "% vs 0": n.get("pct"),
+                            }
+                            for n in niveles
+                            if n.get("rol") in ("centro", "red_engorde", "oz", "red")
+                        ][:16],
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+                cron = det.get("cronica") or []
+                if cron:
+                    st.caption("Crónica de ciclos (últimos)")
+                    st.dataframe(cron[-12:], use_container_width=True, hide_index=True)
+                if det.get("nota_pnl"):
+                    st.caption(det["nota_pnl"])
     else:
-        st.info("Legión vacía — esperando primera semilla.")
+        legion = estado.get("legion", [])
+        if legion:
+            import pandas as pd
+            filas_l = []
+            for b in legion:
+                filas_l.append({
+                    "UID": str(b.get("uid", ""))[:16],
+                    "Estado": b.get("estado"),
+                    "Dir": b.get("direccion"),
+                    "Centro": b.get("centro") or b.get("centro_0"),
+                    "Masa": b.get("masa"),
+                    "Modo": b.get("modo"),
+                    "Gen": b.get("generacion"),
+                    "Super": "⭐" if b.get("es_super") else "",
+                })
+            st.dataframe(pd.DataFrame(filas_l), use_container_width=True, hide_index=True)
+        else:
+            st.info("Legión vacía — esperando primera semilla.")
 
     # --- LOG RECIENTE ---
     st.subheader("📜 Crónica de Bellion (últimas acciones)")

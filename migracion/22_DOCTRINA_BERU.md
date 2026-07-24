@@ -175,6 +175,19 @@ Pentiverso operativo (LTC/BTC) puede convivir; la semilla doctrinal para crecer 
 
 ---
 
+## Sub-Santuario Beru (Pergamino + panel)
+
+**Estado:** vivo 2026-07-24  
+**Código:** `core/beru_asset_detail.py` · Bellion `beru_flota` / `beru_asset_details` · `ui/BeruPanel.jsx` · `ui/BeruAssetDetail.jsx` · sección flota en `panel.py`
+
+Por moneda (semilla y flota): barrita **caza vs negociando**, **red que permite engordar** (solo frontera), rails USDT/USDC, mapa de niveles (centro 0 / oz / red), PnL estimado vs entrada, **crónica** de ciclos (`data/beru/cronicas/{ACTIVO}.jsonl` — cosecha, vuelta caza/neg, Mega reset, fusión).
+
+Abrir: portal **Beru** en la Cascada (mismo gesto que Igris). Fees ledger aún hueco preparado.
+
+**Validación:** `python scripts/validar_beru_asset_detail_smoke.py`
+
+---
+
 ## App / cuestionario (futuro)
 
 Variables por usuario: activo semilla, tier (auto por equity), vacíos, modo combate, `BERU_PNL_OBJETIVO_POR_1PCT_USD`, catálogo `ACTIVOS_BERU_FLOTA`. Ver escalera completa en [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md).
@@ -185,4 +198,4 @@ Variables por usuario: activo semilla, tier (auto por equity), vacíos, modo com
 
 ## Validación
 
-`python scripts/validar_beru_capital_smoke.py`
+`python scripts/validar_beru_capital_smoke.py` · `python scripts/validar_beru_asset_detail_smoke.py`

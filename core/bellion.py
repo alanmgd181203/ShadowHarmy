@@ -128,17 +128,51 @@ class BellionAuditor:
         eq = float(tusk.masa_bruta_real or tusk.masa_bruta or 0)
         igris_resumen["plan_crecimiento"] = pc.resumen_plan(eq)
         igris_resumen["ventana_manto"] = mv.resumen_barco(peso_l, peso_s)
+        try:
+            from core import manto_frecuencia as mf
+
+            if getattr(config, "MANTO_FREQ_ACTIVA", True):
+                igris_resumen["frecuencia_manto"] = mf.snapshot_ranking(equity_usd=eq)
+        except Exception as e:
+            igris_resumen["frecuencia_manto"] = {"error": str(e)}
         progresion = bc.telemetria_progresion(eq)
 
-        legion_resumen = []
-        for b in (beru_legion or []):
-            legion_resumen.append({
-                "uid": b.uid, "estado": b.estado, "direccion": b.direccion,
-                "centro": b.centro_local, "masa": b.masa,
-                "max_favor": getattr(b, "max_favor", 0.0),
-                "es_super": getattr(b, "es_super_beru", False),
-                "generacion": b.generacion,
-            })
+        beru_flota: dict = {"activos": []}
+        beru_details: dict = {}
+        legion_resumen: list = []
+        try:
+            from core import beru_asset_detail as bad
+            from core import beru_rail as br
+
+            sem = br.activo_semilla()
+            legion_resumen = bad.enriquecer_legion_resumen(beru_legion or [], sem)
+            beru_flota = bad.flota_resumen(beru_legion or [], semilla=sem)
+            precios_mark: dict[str, float] = {}
+            if tank and hasattr(tank, "_obtener_lider_verde"):
+                lider = tank._obtener_lider_verde()
+                if lider and hasattr(lider, "precios_con_reflejo"):
+                    px = lider.precios_con_reflejo() or {}
+                    for row in beru_flota.get("activos") or []:
+                        a = str(row.get("activo") or "")
+                        for q in ("USDT", "USDC"):
+                            p = float(px.get(f"{a}{q}_SPOT") or 0)
+                            if p > 0:
+                                precios_mark[a] = p
+                                break
+            beru_details = bad.mapa_asset_details(
+                beru_legion or [], precios=precios_mark, semilla=sem,
+            )
+        except Exception as e:
+            beru_flota = {"error": str(e), "activos": []}
+            beru_details = {}
+            for b in (beru_legion or []):
+                legion_resumen.append({
+                    "uid": b.uid, "estado": b.estado, "direccion": b.direccion,
+                    "centro": b.centro_local, "masa": b.masa,
+                    "max_favor": getattr(b, "max_favor", 0.0),
+                    "es_super": getattr(b, "es_super_beru", False),
+                    "generacion": b.generacion,
+                })
 
         snapshot = {
             "ts": time.time(),
@@ -185,6 +219,7 @@ class BellionAuditor:
             "pesos_por_frente": {f: dict(p) for f, p in tusk.pesos.items()},
             "pentiverso": tank.snapshot_pentiverso() if tank else {},
             "legion": legion_resumen,
+            "beru_flota": beru_flota,
             "ciclos_consumados": tusk.total_ciclos_consumados,
         }
 
@@ -193,6 +228,8 @@ class BellionAuditor:
             snapshot["igris_asset_details"] = iad.mapa_asset_details(snapshot)
         except Exception:
             snapshot["igris_asset_details"] = {}
+
+        snapshot["beru_asset_details"] = beru_details
 
         try:
             with open("data/estado_vivo.json", "w", encoding="utf-8") as f:
