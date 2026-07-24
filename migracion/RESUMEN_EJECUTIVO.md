@@ -35,6 +35,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ```powershell
 python scripts/validar_checklist.py
+python scripts/validar_beru_asset_detail_smoke.py
 python scripts/validar_manto_frecuencia_smoke.py
 python scripts/validar_semaforos_meta_smoke.py
 python scripts/validar_igris_smoke.py
