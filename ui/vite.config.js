@@ -69,6 +69,8 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    // Celular / túnel HTTPS (trycloudflare) no deben ser bloqueados por Vite
+    allowedHosts: true,
     fs: {
       allow: [path.resolve(__dirname, "..")],
     },

@@ -22,7 +22,11 @@ class BellionAuditor:
         self.ruta_historial = f"data/historial_{config.FASE_ACTUAL.lower()}.jsonl"
         self.ruta_historial_cola = "data/historial_cola.jsonl"
         self._cola_max_lineas = 150
-        self._lock = asyncio.Lock() 
+        self._lock = asyncio.Lock()
+        from core.bellion_oido import OidoRing
+        self._oido = OidoRing(
+            max_n=int(getattr(config, "BELLION_OIDO_ANILLO", 80) or 80),
+        )
 
         if not os.path.exists("data"):
             os.makedirs("data")
@@ -56,15 +60,29 @@ class BellionAuditor:
 
     async def anotar(self, general: str, accion: str, detalle: str):
         """Registra el evento en el cristal histórico y lo proyecta al Monarca."""
+        from core.bellion_oido import clasificar
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
         registro = f"[{timestamp}] [{general}] {accion}: {detalle}\n"
-        
+        nivel = clasificar(general, accion, detalle)
+
         async with self._lock:
             with open(self.ruta_historial, "a", encoding="utf-8") as f:
                 f.write(registro)
             self._actualizar_cola(registro)
-        
+            self._oido.push(
+                general=general, accion=accion, detalle=detalle, nivel=nivel,
+            )
+
         print(registro.strip())
+        if nivel == "critico":
+            print(f"[BELLION OIDO · CRITICO] {general} {accion}")
+
+    def snapshot_oido(self) -> dict:
+        """Susurro para Pergamino / estado_vivo (sin ruido)."""
+        return self._oido.snapshot(
+            limit=int(getattr(config, "BELLION_OIDO_LIMIT", 40) or 40),
+            incluir_ruido=bool(getattr(config, "BELLION_OIDO_INCLUIR_RUIDO", False)),
+        )
 
     async def guardar_estado(self, datos: dict):
         """Sella la fotografía del Multiverso con seguridad piezoeléctrica."""
@@ -230,6 +248,10 @@ class BellionAuditor:
             snapshot["igris_asset_details"] = {}
 
         snapshot["beru_asset_details"] = beru_details
+        try:
+            snapshot["bellion_oido"] = self.snapshot_oido()
+        except Exception as e:
+            snapshot["bellion_oido"] = {"error": str(e), "recientes": [], "por_nivel": {}}
 
         try:
             with open("data/estado_vivo.json", "w", encoding="utf-8") as f:

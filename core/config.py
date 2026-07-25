@@ -28,6 +28,10 @@ MODO_ENFOQUE_IGRIS = os.getenv("MODO_ENFOQUE_IGRIS", "True").lower() in ("1", "t
 # Fase 4 — ops Monarca (opcional en .env)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+# Oído Bellion 4.1.2 — susurro Pergamino (sin LLM / sin Telegram)
+BELLION_OIDO_ANILLO = int(os.getenv("BELLION_OIDO_ANILLO", "80"))
+BELLION_OIDO_LIMIT = int(os.getenv("BELLION_OIDO_LIMIT", "40"))
+BELLION_OIDO_INCLUIR_RUIDO = os.getenv("BELLION_OIDO_INCLUIR_RUIDO", "false").lower() == "true"
 
 # Activo principal: Beru acecho + manos testnet (referencia operativa)
 TICKER_BASE = os.getenv("TICKER_BASE", "BTC").upper()

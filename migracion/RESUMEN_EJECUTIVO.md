@@ -1,6 +1,6 @@
 # Resumen ejecutivo — Migración Shadow Army
 
-**Actualizado:** 2026-07-24 (frecuencia manto 4 umbrales · Jess sync 21 jul)
+**Actualizado:** 2026-07-24 (oído Bellion 4.1.2 · frecuencia manto · Sub-Santuario Beru)
 
 ## Código canónico
 
@@ -9,7 +9,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ## Veredicto en una frase
 
-**Fases 0–2 cerradas · Fase 3 ~93%.** Lives ✅. Jess sync Bybit **21 jul** en master. Reloj invertido con **4 umbrales** de oportunidad + ETA por marcha. **Sub-Santuario Beru** en Cascada (flota · red engorde · crónica). **Greed en pausa** hasta mainnet. **Siguiente:** oído Pergamino (**4.1.2**) · mitad engorde.
+**Fases 0–2 cerradas · Fase 3 ~93%.** Lives ✅. **Oído Bellion** en Cascada (tabla evento→nivel, sin LLM). Reloj manto 4 umbrales. Sub-Santuario Beru. **Greed en pausa.** **Siguiente:** oído fino (**4.1.3–4.1.5**) · mitad engorde.
 
 ## Progreso checklist (16)
 
@@ -35,6 +35,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ```powershell
 python scripts/validar_checklist.py
+python scripts/validar_bellion_oido_smoke.py
 python scripts/validar_beru_asset_detail_smoke.py
 python scripts/validar_manto_frecuencia_smoke.py
 python scripts/validar_semaforos_meta_smoke.py
@@ -44,6 +45,7 @@ python scripts/validar_lote_bybit_smoke.py
 
 ## Hechos recientes
 
+- **Oído Bellion 4.1.2 (2026-07-24):** susurro crítico/ejecución/salud en Cascada · ruido filtrado · sin LLM.
 - **Frecuencia manto 3.5.8b2 (2026-07-24):** 4 umbrales (fees · ½ · tablas · morado) × plazos 50/40/10 · ETA por marcha · alimenta el reloj de paciencia de Igris.
 - **Jess sync Bybit (2026-07-21):** en master — 780 bases, mínimos/qtyStep frescos; lotes de Igris ya leen esa BD.
 - **Meta engorde pase (2026-07-20):** Igris engorda solo el Δ del paso foco; no empuja 95% si director on.
@@ -52,7 +54,7 @@ python scripts/validar_lote_bybit_smoke.py
 
 ## Qué falta (corto)
 
-1. **4.1.2+** Eventos críticos en Pergamino  
+1. **4.1.3–4.1.5** Oído fino (críticos plantilla · fills · salud diaria)  
 2. Mitad engorde / manto-completo fino Igris  
 3. Greed mainnet · Convert **3.7.P2** · aliado **3.7.P3**  
 

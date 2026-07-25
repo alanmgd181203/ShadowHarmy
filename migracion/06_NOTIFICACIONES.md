@@ -74,21 +74,31 @@ Manual: **Telegram preferido** (bots API madura, privacidad razonable con bot de
 
 ## Integración con Bellion
 
-- Bellion decide **qué** notificar; no cada `anotar` va a Telegram.
-- Mapeo evento → nivel en config YAML/JSON.
+- Bellion decide **qué** notificar; no cada `anotar` va al oído del Pergamino.
+- Mapeo evento → nivel: `core/bellion_oido.py` (crítico / ejecución / salud / ruido).
+- Susurro vivo: `estado_vivo.bellion_oido` · portal Cascada `ui/BellionPanel.jsx`.
+- Telegram sigue **legado** (opcional); el camino es el Pergamino.
+
+**Validación:** `python scripts/validar_bellion_oido_smoke.py`
 
 ---
 
 ## Estado prototipo ShadowHarmy
 
-**Telegram no implementado** — P1 tras P0 órdenes reales.
+**Oído 4.1.2 (reglas):** ✅ tabla + anillo + Cascada/panel.  
+**Telegram:** no implementado — legado.  
+**LLM / chat abierto:** congelado (`15_IDEAS_FUTURO`).
 
 ---
 
 ## Checklist implementación
 
-- [ ] Bot token + chat_id en `.env`
-- [ ] Wrapper con retry
-- [ ] Tabla evento → nivel
+- [x] Tabla evento → nivel (`bellion_oido`)
+- [x] Susurro en Pergamino (portal Bellion)
+- [ ] 4.1.3 Criticos explícitos (crash / API / desconexión larga) — plantillas finas
+- [ ] 4.1.4 Fill sin ruido (solo orden completa)
+- [ ] 4.1.5 Resumen salud 1×/día
+- [ ] Bot token + chat_id en `.env` *(Telegram legado)*
+- [ ] Wrapper Telegram con retry *(legado)*
 - [ ] Test manual de crítica vs fill
 - [ ] Documentar en dashboard consola lo no enviado

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import IgrisPanel from "./IgrisPanel.jsx";
 import BeruPanel from "./BeruPanel.jsx";
+import BellionPanel from "./BellionPanel.jsx";
 import TuskAscension, { TuskOrbButton } from "./TuskAscension.jsx";
 
 import imgTusk from "../assets/portales/tusk.png";
@@ -11,7 +12,7 @@ import imgGreed from "../assets/portales/greed.png";
 import imgIgris from "../assets/portales/igris.png";
 
 /**
- * Cascada + umbral Igris/Beru + Orbe de Ascensión (Tusk).
+ * Cascada + umbral Igris/Beru/Bellion + Orbe de Ascensión (Tusk).
  * Cosas apagadas: ui/featuresApagadas.js
  */
 const PORTALS = [
@@ -23,7 +24,13 @@ const PORTALS = [
   { id: "igris", src: imgIgris, label: "Igris", style: { top: "74%", right: "-16%", width: "68%", zIndex: 3 } },
 ];
 
-const UMBRAL_IDS = new Set(["igris", "beru"]);
+const UMBRAL_IDS = new Set(["igris", "beru", "bellion"]);
+
+const ARIA = {
+  igris: "Abrir Manto · Igris",
+  beru: "Abrir flota · Beru",
+  bellion: "Abrir oído · Bellion",
+};
 
 export default function App() {
   const [activeGeneral, setActiveGeneral] = useState(null);
@@ -31,7 +38,10 @@ export default function App() {
   const [ascensionOpen, setAscensionOpen] = useState(false);
 
   const umbralActivo =
-    isTransitioning && (activeGeneral === "igris" || activeGeneral === "beru");
+    isTransitioning &&
+    (activeGeneral === "igris" ||
+      activeGeneral === "beru" ||
+      activeGeneral === "bellion");
   const vanguardiaOculta = umbralActivo || ascensionOpen;
 
   function openGeneral(id) {
@@ -81,9 +91,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => openGeneral(p.id)}
-                  aria-label={
-                    p.id === "igris" ? "Abrir Manto · Igris" : "Abrir flota · Beru"
-                  }
+                  aria-label={ARIA[p.id] || `Abrir ${p.label}`}
                   className="block w-full p-0 m-0 bg-transparent border-0 cursor-pointer pointer-events-auto active:scale-[0.98]"
                 >
                   <img
@@ -116,6 +124,10 @@ export default function App() {
 
       {activeGeneral === "beru" && (
         <BeruPanel onClose={closeGeneral} />
+      )}
+
+      {activeGeneral === "bellion" && (
+        <BellionPanel onClose={closeGeneral} />
       )}
 
       {ascensionOpen && (

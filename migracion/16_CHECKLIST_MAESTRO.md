@@ -246,7 +246,7 @@
 
 ### 4.1 Notificaciones *(oído = Pergamino)*
 - [~] **4.1.1** `core/telegram.py` — stub ✅; **legado** (no prioridad de camino)
-- [ ] **4.1.2** Tabla evento → nivel en **Pergamino/Bellion** (`06_NOTIFICACIONES.md` v2); Telegram opcional
+- [~] **4.1.2** Tabla evento → nivel en **Pergamino/Bellion** — ✅ `bellion_oido` + `estado_vivo.bellion_oido` + portal Cascada `BellionPanel` · smokes ✅ · falta pulir plantillas 4.1.3–4.1.5
 - [ ] **4.1.3** Crítico en app: crash, API error, desconexión prolongada
 - [ ] **4.1.4** Fill en app: sin ruido
 - [ ] **4.1.5** Resumen salud 1×/día en Pergamino
@@ -360,7 +360,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · **Sub-Santuario Beru** (flota por moneda · caza/neg · red engorde · crónica · `beru_asset_detail` + panel Streamlit + portal Cascada) · Ascensión Aspirante→Chamán (estrella · techos pase · **progreso vivo** `plan_crecimiento`) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit↔Pergamino pendiente
+- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · **Sub-Santuario Beru** · **oído Bellion** (portal susurro 4.1.2) · Ascensión Aspirante→Chamán (estrella · techos pase · **progreso vivo** `plan_crecimiento`) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit↔Pergamino pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑
@@ -394,12 +394,13 @@ TOTAL checklist:  125 / 184  [x]  →  ~68%
 Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-07-20 (meta engorde pase · luces matriz 3.7.P1 · P3→Greed pausa)  
-**Próximo ítem recomendado:** **4.1.2** eventos Pergamino · mitad/manto-completo Igris · **3.7.P2** con Greed mainnet  
+**Última actualización checklist:** 2026-07-24 (oído Bellion 4.1.2 · Sub-Santuario Beru · frecuencia manto)  
+**Próximo ítem recomendado:** **4.1.3–4.1.5** oído fino · mitad/manto-completo Igris · **3.7.P2** con Greed mainnet  
  
-**Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py`  
+**Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
-**Smokes plan:** `validar_plan_crecimiento_smoke.py` · `validar_pase_director_smoke.py` · `validar_semaforos_meta_smoke.py`  
+**Smokes Bellion:** `validar_bellion_oido_smoke.py`  
+**Smokes plan:** `validar_plan_crecimiento_smoke.py` · `validar_pase_director_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_manto_frecuencia_smoke.py`  
 **Runbook testnet:** `18_ARRANQUE_TESTNET.md`  
 **Validar estado:** `python scripts/validar_checklist.py`  
 **Validar sentidos Tank:** `python scripts/validar_panorama_tank.py --segundos 35`
@@ -413,8 +414,8 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 4.1.2 eventos Pergamino · mitad engorde Igris · Greed mainnet (P2/P3).
-Validar: scripts/validar_*_smoke.py + validar_semaforos_meta_smoke.py + validar_pase_director_smoke.py
+Siguiente: 4.1.3–4.1.5 oído fino · mitad engorde Igris · Greed mainnet (P2/P3).
+Validar: scripts/validar_*_smoke.py + validar_bellion_oido_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).
 ```

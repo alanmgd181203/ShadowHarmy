@@ -710,8 +710,42 @@ def main():
     # --- LOG RECIENTE ---
     st.subheader("📜 Crónica de Bellion (últimas acciones)")
 
+    oido = estado.get("bellion_oido") or {}
+    if oido and not oido.get("error"):
+        st.caption("Oído 4.1.2 — crítico / ejecución / salud (sin ruido)")
+        counts = oido.get("counts") or {}
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Crítico", int(counts.get("critico") or 0))
+        c2.metric("Ejecución", int(counts.get("ejecucion") or 0))
+        c3.metric("Salud", int(counts.get("salud") or 0))
+        por = oido.get("por_nivel") or {}
+        for nivel, titulo in (
+            ("critico", "Crítico"),
+            ("ejecucion", "Ejecución"),
+            ("salud", "Salud"),
+        ):
+            filas = por.get(nivel) or []
+            if not filas:
+                continue
+            with st.expander(f"{titulo} ({len(filas)})", expanded=(nivel == "critico")):
+                st.dataframe(
+                    [
+                        {
+                            "General": e.get("general"),
+                            "Acción": e.get("accion"),
+                            "Detalle": e.get("detalle"),
+                        }
+                        for e in filas
+                    ],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+        if oido.get("nota"):
+            st.caption(oido["nota"])
+
     logs = cargar_ultimos_logs(15)
     if logs:
+        st.caption("Cola cruda (incluye ruido)")
         log_text = "".join(logs)
         st.code(log_text, language="text")
     else:

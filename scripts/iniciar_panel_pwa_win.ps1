@@ -1,7 +1,7 @@
-# Shadow Army — Panel con túnel HTTPS (PWA real en Android)
+# Shadow Army — Panel con tunel HTTPS (PWA real en Android)
 #
-# Por qué: en Android, http://192.168.x.x NO instala app standalone.
-# El icono solo abre Chrome CON barra URL. Hace falta HTTPS público (túnel).
+# Por que: en Android, http://192.168.x.x NO instala app standalone.
+# El icono solo abre Chrome CON barra URL. Hace falta HTTPS publico (tunel).
 #
 # Uso:
 #   .\scripts\iniciar_panel_pwa_win.ps1
@@ -88,19 +88,27 @@ $httpProc = Start-Process -FilePath $Py -ArgumentList "scripts/panel_http_server
 Set-Content -Path (Join-Path $Root "data\panel_http.pid") -Value $httpProc.Id
 Start-Sleep -Seconds 1
 
-$tunnelLog = Join-Path $LogDir "cloudflared_pwa.log"
-if (Test-Path $tunnelLog) { Remove-Item $tunnelLog -Force }
+$tunnelOut = Join-Path $LogDir "cloudflared_pwa_out.log"
+$tunnelErr = Join-Path $LogDir "cloudflared_pwa_err.log"
+foreach ($f in @($tunnelOut, $tunnelErr)) {
+    if (Test-Path $f) { Remove-Item $f -Force }
+}
 Write-Host "Abriendo tunel Cloudflare (HTTPS) ..."
 $tunnelProc = Start-Process -FilePath $cf -ArgumentList "tunnel","--url","http://127.0.0.1:$Puerto" `
     -WorkingDirectory $Root -WindowStyle Hidden -PassThru `
-    -RedirectStandardOutput $tunnelLog -RedirectStandardError $tunnelLog
+    -RedirectStandardOutput $tunnelOut -RedirectStandardError $tunnelErr
 Set-Content -Path (Join-Path $Root "data\panel_tunnel.pid") -Value $tunnelProc.Id
 
 $httpsUrl = $null
 for ($i = 0; $i -lt 40; $i++) {
     Start-Sleep -Milliseconds 500
-    if (-not (Test-Path $tunnelLog)) { continue }
-    $txt = Get-Content $tunnelLog -Raw -ErrorAction SilentlyContinue
+    $txt = ""
+    if (Test-Path $tunnelErr) {
+        $txt += (Get-Content $tunnelErr -Raw -ErrorAction SilentlyContinue)
+    }
+    if (Test-Path $tunnelOut) {
+        $txt += (Get-Content $tunnelOut -Raw -ErrorAction SilentlyContinue)
+    }
     if ($txt -match 'https://[a-zA-Z0-9.-]+\.trycloudflare\.com') {
         $httpsUrl = $Matches[0]
         break
@@ -115,15 +123,15 @@ if ($httpsUrl) {
     Write-Host ""
     Write-Host "En Android Chrome:"
     Write-Host "  1) Abre la URL https de arriba"
-    Write-Host "  2) Menu ⋮ → Instalar app (o Añadir a pantalla de inicio)"
+    Write-Host "  2) Menu -> Instalar app (o Anadir a pantalla de inicio)"
     Write-Host "  3) Borra el icono VIEJO (el de la IP http)"
-    Write-Host "  4) Abre el icono NUEVO — ahi sí sin barra URL"
+    Write-Host "  4) Abre el icono NUEVO — ahi si sin barra URL"
     Write-Host ""
     try { Set-Clipboard -Value $dash } catch {}
     Write-Host "(URL copiada al portapapeles si se pudo)"
 } else {
     Write-Host "Tunel arranco pero no lei la URL a tiempo." -ForegroundColor Yellow
-    Write-Host ("Revisa el log: {0}" -f $tunnelLog)
+    Write-Host ("Revisa los logs: {0} / {1}" -f $tunnelOut, $tunnelErr)
 }
 
 Write-Host ("  panel_http PID {0}" -f $httpProc.Id)
