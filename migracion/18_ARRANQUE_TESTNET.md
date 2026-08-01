@@ -43,7 +43,31 @@ python scripts/validar_checklist.py --all   # refresca m2 si stale
 
 ---
 
-## 3. Arrancar el ejército
+## 3. Ritual de ojos primero (recomendado con capital real / mainnet-ojos)
+
+Antes del ejército completo: Tusk ve la bóveda, Tank abre mares, Kaiser actualiza indicadores. **Sin órdenes** (Igris/Greed/Beru no disparan).
+
+```powershell
+# .env: claves Bybit (mainnet o testnet) + TUSK_TESORERIA_ACTIVA=true
+# El ritual fuerza MODO_SIMULACION=true salvo ARISE_OJOS_PERMITIR_MANOS=true
+python scripts/arise_ojos_tusk.py
+# o corte corto:
+python scripts/arise_ojos_tusk.py --segundos 90
+```
+
+Qué mirar en consola / panel (`estado_vivo`):
+
+- `tusk_tesoreria`: equity, disponible, MNT, hedges, **oxígeno de guerra**, estado
+- digest Kaiser (perfiles / frecuencia manto)
+- matriz Tank
+
+Cuando el oxígeno cuadre con Bybit → siguiente paso doctrinal: Igris en sim (manto), luego live; Beru solo tras manto del paso.
+
+Smoke estático: `python scripts/validar_arise_ojos_smoke.py`
+
+---
+
+## 3b. Arrancar el ejército completo
 
 ```powershell
 python arise.py

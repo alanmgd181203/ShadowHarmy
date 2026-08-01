@@ -244,6 +244,12 @@
 
 *Criterio fase:* el Monarca ve lo crítico en **Pergamino**; Telegram es legado.
 
+### 4.0 Despliegue por capas (ojos → manto → Beru)
+- [x] **4.0.1** Ritual ojos — `scripts/arise_ojos_tusk.py` (Tusk tesorería + Tank + Kaiser; sin Igris/Greed/Beru) · runbook `18` · smoke `validar_arise_ojos_smoke.py`
+- [ ] **4.0.2** Igris sim/dry-run con oxígeno de guerra real (sin Beru)
+- [ ] **4.0.3** Igris live hasta manto 100% del paso (meta engorde)
+- [ ] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)
+
 ### 4.1 Notificaciones *(oído = Pergamino)*
 - [~] **4.1.1** `core/telegram.py` — stub ✅; **legado** (no prioridad de camino)
 - [~] **4.1.2** Tabla evento → nivel en **Pergamino/Bellion** — ✅ `bellion_oido` + `estado_vivo.bellion_oido` + portal Cascada `BellionPanel` · smokes ✅ · falta pulir plantillas 4.1.3–4.1.5

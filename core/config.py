@@ -412,6 +412,9 @@ TUSK_RESERVA_MONARCA_EXTRA_PCT = float(os.getenv("TUSK_RESERVA_MONARCA_EXTRA_PCT
 # Tesorería UTA: oxígeno de guerra desde disponible real (MNT hedge visible)
 TUSK_TESORERIA_ACTIVA = os.getenv("TUSK_TESORERIA_ACTIVA", "true").lower() == "true"
 TUSK_TESORERIA_FETCH_POS = os.getenv("TUSK_TESORERIA_FETCH_POS", "true").lower() == "true"
+# Ritual ojos: scripts/arise_ojos_tusk.py (Tusk+Tank+Kaiser; sin Igris/Greed/Beru)
+ARISE_OJOS_TUSK = os.getenv("ARISE_OJOS_TUSK", "false").lower() == "true"
+ARISE_OJOS_SEGUNDOS = float(os.getenv("ARISE_OJOS_SEGUNDOS", "0") or 0)
 MONARCA_CONCENTRACION_MAX_PCT = float(os.getenv("MONARCA_CONCENTRACION_MAX_PCT", "0.20"))
 MONARCA_MARGEN_OBJETIVO_PCT = float(os.getenv("MONARCA_MARGEN_OBJETIVO_PCT", "93.0"))
 MONARCA_TIER_AUTO_DIAS = int(os.getenv("MONARCA_TIER_AUTO_DIAS", "3"))
