@@ -406,7 +406,12 @@ BERU_RAIL_FEE_USDC_PCT = float(os.getenv("BERU_RAIL_FEE_USDC_PCT", "0.10"))
 
 # Plan crecimiento Monarca (doctrina 23)
 # Plan crecimiento Monarca — doctrina 23 v1 (2026-07-06)
+# Colchón doctrinal 5% + extra Monarca (apertura / paranoia) sobre disponible UTA
 MONARCA_RESERVA_PCT = float(os.getenv("MONARCA_RESERVA_PCT", "0.05"))
+TUSK_RESERVA_MONARCA_EXTRA_PCT = float(os.getenv("TUSK_RESERVA_MONARCA_EXTRA_PCT", "0.0"))
+# Tesorería UTA: oxígeno de guerra desde disponible real (MNT hedge visible)
+TUSK_TESORERIA_ACTIVA = os.getenv("TUSK_TESORERIA_ACTIVA", "true").lower() == "true"
+TUSK_TESORERIA_FETCH_POS = os.getenv("TUSK_TESORERIA_FETCH_POS", "true").lower() == "true"
 MONARCA_CONCENTRACION_MAX_PCT = float(os.getenv("MONARCA_CONCENTRACION_MAX_PCT", "0.20"))
 MONARCA_MARGEN_OBJETIVO_PCT = float(os.getenv("MONARCA_MARGEN_OBJETIVO_PCT", "93.0"))
 MONARCA_TIER_AUTO_DIAS = int(os.getenv("MONARCA_TIER_AUTO_DIAS", "3"))

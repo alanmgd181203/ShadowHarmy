@@ -142,8 +142,27 @@ Ver [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md).
 - `anotar(general, evento, mensaje)` — log estructurado.
 - Clasificar activos (éficientes vs parásitos); reportes horarios (manual).
 - "Informe de Guerra" cada N batallas (pendiente).
+- Oído Pergamino: `core/bellion_oido.py` → `estado_vivo.bellion_oido`.
 
-**Prototipo:** `ShadowHarmy/core/bellion.py` — logging básico.
+**Prototipo:** `ShadowHarmy/core/bellion.py` — logging + oído + estado_vivo.
+
+---
+
+## Tusk — Tesorería UTA (2026-08-01)
+
+**Visión real de la bóveda:** `core/tusk_tesoreria.py` + NAV Bridge.
+
+| Campo | Significado |
+|-------|-------------|
+| `equity_usd` | totalEquity UTA |
+| `disponible_usd` | totalAvailableBalance (Bybit ya restó IM del hedge) |
+| `mnt_usd` / coins | Desglose spot (MNT para fees, stables…) |
+| `hedge_shorts` | Shorts MNT (notional, IM, lev, liq) |
+| `oxigeno_guerra_usd` | disponible × (1 − reserva Monarca) → **masa_autorizada** |
+| `estado` | sana / justa / ahogada |
+
+Config: `TUSK_TESORERIA_ACTIVA` · `TUSK_RESERVA_MONARCA_EXTRA_PCT` · `MONARCA_RESERVA_PCT`.  
+Smoke: `python scripts/validar_tusk_tesoreria_smoke.py`
 
 ---
 

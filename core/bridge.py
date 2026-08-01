@@ -474,18 +474,45 @@ class BybitBridge:
                 response = self.session.get_wallet_balance(accountType="UNIFIED")
                 if response["retCode"] == 0:
                     data = response["result"]["list"][0]
-                    nav_total = float(data.get("totalEquity", 0.0))
-                    disponible = float(data.get("totalAvailableBalance", 0.0))
-                    margen_ocupado = ((nav_total - disponible) / nav_total * 100) if nav_total > 0 else 0.0
+                    nav_total = float(data.get("totalEquity", 0.0) or 0.0)
+                    disponible = float(data.get("totalAvailableBalance", 0.0) or 0.0)
+                    margen_ocupado = (
+                        ((nav_total - disponible) / nav_total * 100) if nav_total > 0 else 0.0
+                    )
                     maint_raw = data.get("totalMaintenanceMargin", "")
                     mm_rate_raw = data.get("accountMMRate", "")
                     total_maint = float(maint_raw) if maint_raw not in ("", None) else None
                     account_mm_rate = float(mm_rate_raw) if mm_rate_raw not in ("", None) else None
+
+                    posiciones = None
+                    if getattr(config, "TUSK_TESORERIA_ACTIVA", True) and getattr(
+                        config, "TUSK_TESORERIA_FETCH_POS", True
+                    ):
+                        posiciones = []
+                        try:
+                            for category, settle in (("linear", "USDT"), ("inverse", None)):
+                                kwargs = {"category": category}
+                                if settle:
+                                    kwargs["settleCoin"] = settle
+                                resp = self.session.get_positions(**kwargs)
+                                if resp.get("retCode") == 0:
+                                    for row in resp.get("result", {}).get("list", []) or []:
+                                        row = dict(row)
+                                        row["_category"] = category
+                                        posiciones.append(row)
+                        except Exception as e:
+                            await self.bel.anotar(
+                                "TUSK", "TESORERIA_POS_ERR", str(e)[:160],
+                            )
+
                     await self.tusk.actualizar_nav_real(
                         nav_total,
                         margen_ocupado,
                         total_maintenance_margin=total_maint,
                         account_mm_rate=account_mm_rate,
+                        disponible_uta=disponible,
+                        wallet_account=data,
+                        posiciones=posiciones,
                     )
                     self._nav_errores_consecutivos = 0
                 else:

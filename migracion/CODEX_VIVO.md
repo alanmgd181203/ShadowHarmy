@@ -63,6 +63,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **M2.14 Igris §E v2 + panel:** `igris_despliegue` · jurisdicción · Pergamino — 2026-07-11→12
 - **3.10.7b Igris live:** PASS México 2026-07-12
 - **3.9.9 Beru live:** PASS México 2026-07-16 (Jess · `61d7c2e` · flota 22 USDT)
+- **Tusk tesorería UTA (2026-08-01):** MNT/hedge/disponible → oxígeno de guerra · `tusk_tesoreria` · masa_autorizada real
 - **Oído Bellion 4.1.2 (2026-07-24):** tabla evento→nivel · `bellion_oido` · portal Cascada · sin LLM/Telegram
 - **Pergamino React (local):** Cascada → Manto Igris · Beru Sub-Santuario · **Bellion susurro** · Ascensión Tusk
 - **Sub-Santuario Beru (2026-07-24):** `beru_asset_detail` · flota caza/neg · red engorde frontera · crónica `data/beru/cronicas/` · Bellion `beru_flota` / `beru_asset_details` · panel Streamlit
@@ -83,7 +84,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Kaiser memoria barcos (2026-07-19):** Tank horario → `data/kaiser/memoria/` · digest vivo · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 - **Oído Monarca:** **Pergamino** (app) + susurro Bellion; Telegram = legado (`06_NOTIFICACIONES.md` v2)
 - **Próximo ítem checklist:** **4.1.3–4.1.5** oído fino · mitad engorde Igris · Greed mainnet (P2/P3)
-- **Validar:** `validar_bellion_oido_smoke.py` · `validar_beru_asset_detail_smoke.py` · `validar_manto_frecuencia_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_lote_bybit_smoke.py` · `validar_pase_director_smoke.py` · `validar_igris_smoke.py`
+- **Validar:** `validar_tusk_tesoreria_smoke.py` · `validar_bellion_oido_smoke.py` · `validar_beru_asset_detail_smoke.py` · `validar_manto_frecuencia_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_lote_bybit_smoke.py` · `validar_pase_director_smoke.py` · `validar_igris_smoke.py`
 - **Tono obligatorio:** `17_GUIA_MONARCA.md`
 
 ---

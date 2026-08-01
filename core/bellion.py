@@ -220,6 +220,7 @@ class BellionAuditor:
             "masa_autorizada": tusk.masa_autorizada,
             "masa_bruta": masa_bruta,
             "masa_bruta_real": float(getattr(tusk, "masa_bruta_real", 0) or 0),
+            "tusk_tesoreria": tusk.snapshot_tesoreria() if hasattr(tusk, "snapshot_tesoreria") else {},
             "peso_long": peso_l,
             "peso_short": peso_s,
             "delta_ratio": (peso_l / masa_bruta) if masa_bruta > 0 else 0.5,

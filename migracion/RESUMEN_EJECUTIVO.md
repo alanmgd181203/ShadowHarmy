@@ -1,6 +1,6 @@
 # Resumen ejecutivo — Migración Shadow Army
 
-**Actualizado:** 2026-07-24 (oído Bellion 4.1.2 · frecuencia manto · Sub-Santuario Beru)
+**Actualizado:** 2026-08-01 (Tusk tesorería UTA · oído Bellion · Sub-Santuario Beru)
 
 ## Código canónico
 
@@ -9,7 +9,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ## Veredicto en una frase
 
-**Fases 0–2 cerradas · Fase 3 ~93%.** Lives ✅. **Oído Bellion** en Cascada (tabla evento→nivel, sin LLM). Reloj manto 4 umbrales. Sub-Santuario Beru. **Greed en pausa.** **Siguiente:** oído fino (**4.1.3–4.1.5**) · mitad engorde.
+**Fases 0–2 cerradas · Fase 3 ~93%.** **Tusk ve la bóveda real** (MNT/hedge/oxígeno de guerra). Oído Bellion · Sub-Santuario Beru · frecuencia manto. **Greed en pausa.** **Siguiente:** oído fino · mitad engorde · mainnet cuando el Monarca diga.
 
 ## Progreso checklist (16)
 

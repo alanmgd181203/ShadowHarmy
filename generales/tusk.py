@@ -31,6 +31,8 @@ class TuskBoveda:
         self.total_maintenance_margin_usd = None  # Lectura cruda wallet UNIFIED (Bybit)
         self.account_mm_rate = None               # accountMMRate crudo (Bybit)
         self.telemetria_posiciones_manto: dict | None = None  # Panel — posiciones Long/Short
+        self.tesoreria: dict | None = None        # Visión UTA: MNT/hedge/oxígeno de guerra
+        self.disponible_uta_usd: float | None = None
         
         self.masa_reservada_ltc = 0.0   # Masa en tránsito (no confirmada aún)
         self.referencia_escalon = 0.0   # Nivel de potencia actual
@@ -95,13 +97,15 @@ class TuskBoveda:
         *,
         total_maintenance_margin: float | None = None,
         account_mm_rate: float | None = None,
+        disponible_uta: float | None = None,
+        wallet_account: dict | None = None,
+        posiciones: list | None = None,
     ):
         """
-        Inyecta el balance real desde Bybit. 
-        Actualiza la masa bruta y recalcula el oxígeno disponible.
+        Inyecta el balance real desde Bybit.
+        Con TUSK_TESORERIA_ACTIVA: masa_autorizada = oxígeno de guerra (disponible − colchón).
         """
         async with self._lock:
-            # 1. Seteamos la realidad: lo que dice Bybit que tenemos
             self.masa_bruta = balance_total
             self.masa_bruta_real = balance_total
             self.margen_ocupado = margen_real
@@ -109,22 +113,80 @@ class TuskBoveda:
                 self.total_maintenance_margin_usd = total_maintenance_margin
             if account_mm_rate is not None:
                 self.account_mm_rate = account_mm_rate
-            
-            # 2. Recalculamos la potencia de disparo basada en el capital real
+            if disponible_uta is not None:
+                self.disponible_uta_usd = float(disponible_uta)
+
             base = config.ESCALON_POTENCIA_BASE
             factor_seguro = max(config.FACTOR_MASA_AUTORIZADA, 0.001)
-
             self.referencia_escalon = (balance_total // base) * base
-            self.masa_autorizada = self.referencia_escalon / factor_seguro
+            masa_escalon = self.referencia_escalon / factor_seguro
+
+            tesoreria_on = bool(getattr(config, "TUSK_TESORERIA_ACTIVA", True))
+            if tesoreria_on and wallet_account is not None:
+                from core import tusk_tesoreria as tt
+                self.tesoreria = tt.construir_tesoreria(
+                    wallet_account, posiciones=posiciones,
+                )
+                # Oxígeno de guerra manda (disponible UTA − colchón); no el escalón /10
+                self.masa_autorizada = max(
+                    0.0, float(self.tesoreria.get("oxigeno_guerra_usd") or 0.0),
+                )
+            elif tesoreria_on and disponible_uta is not None:
+                from core import tusk_tesoreria as tt
+                res = tt.reserva_monarca_pct()
+                ox = max(0.0, float(disponible_uta) * (1.0 - res))
+                self.masa_autorizada = ox
+                self.tesoreria = {
+                    "ts": time.time(),
+                    "fuente": "disponible_solo",
+                    "equity_usd": round(balance_total, 4),
+                    "disponible_usd": round(float(disponible_uta), 4),
+                    "oxigeno_guerra_usd": round(ox, 4),
+                    "reserva_monarca_pct": res,
+                    "masa_escalon_ref": round(masa_escalon, 4),
+                    "estado": tt.estado_tesoreria(
+                        equity=balance_total,
+                        disponible=float(disponible_uta),
+                        mm_rate=account_mm_rate,
+                    ),
+                }
+            else:
+                self.masa_autorizada = masa_escalon
+            if self.tesoreria is not None and "masa_escalon_ref" not in self.tesoreria:
+                self.tesoreria["masa_escalon_ref"] = round(masa_escalon, 4)
 
             from core import plan_crecimiento as pc
             plan = pc.nivel_por_equity(balance_total)
             self.nivel_monarca = plan["nivel"]
             self.tier_beru_aplicado = plan["tier_aplicado"]
-            
-            # 3. Registro en Bellion para auditoría (solo cada 50 eventos para no saturar)
+
             if self.total_ciclos_consumados % 50 == 0:
-                await self.bel.anotar("TUSK", "NAV_SYNC", f"Capital: {balance_total:.2f} | Masa auth: {self.masa_autorizada:.2f} | Margen: {margen_real:.2f}%")
+                ox_txt = ""
+                if self.tesoreria:
+                    ox_txt = (
+                        f" | O2 guerra: {self.tesoreria.get('oxigeno_guerra_usd')} "
+                        f"({self.tesoreria.get('estado')})"
+                    )
+                await self.bel.anotar(
+                    "TUSK", "NAV_SYNC",
+                    f"Capital: {balance_total:.2f} | Masa auth: {self.masa_autorizada:.2f} "
+                    f"| Margen: {margen_real:.2f}%{ox_txt}",
+                )
+
+    def snapshot_tesoreria(self) -> dict:
+        """Bloque para estado_vivo / panel."""
+        if self.tesoreria:
+            return dict(self.tesoreria)
+        return {
+            "ts": time.time(),
+            "fuente": "cero",
+            "equity_usd": float(self.masa_bruta_real or self.masa_bruta or 0),
+            "disponible_usd": self.disponible_uta_usd,
+            "oxigeno_guerra_usd": float(self.masa_autorizada or 0),
+            "masa_autorizada": float(self.masa_autorizada or 0),
+            "estado": "justa",
+            "nota": "Sin snapshot UTA aún — esperando NAV.",
+        }
 
     async def auditar_escalones_universales(self, margen_real: float):
         """Ajuste rápido de potencia si el margen fluctúa sin cambio de balance total."""

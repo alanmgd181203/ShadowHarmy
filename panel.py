@@ -68,13 +68,27 @@ def main():
     col1.metric("Margen usado", f"{margen:.1f}%")
 
     masa_aut = estado.get("masa_autorizada", 0)
-    col2.metric("Masa autorizada", f"{masa_aut:.4f} LTC")
+    col2.metric("Oxígeno guerra", f"${float(masa_aut):.2f}")
 
-    masa_bruta = estado.get("masa_bruta", 0)
-    col3.metric("Masa bruta", f"{masa_bruta:.4f} LTC")
+    masa_bruta = estado.get("masa_bruta_real") or estado.get("masa_bruta", 0)
+    col3.metric("Equity UTA", f"${float(masa_bruta):.2f}")
 
     ciclos = estado.get("ciclos_consumados", 0)
     col4.metric("Ciclos completados", ciclos)
+
+    tes = estado.get("tusk_tesoreria") or {}
+    if tes and tes.get("fuente") not in (None, "cero"):
+        st.caption(
+            f"Tusk tesorería · {tes.get('estado', '?')} · "
+            f"disponible ${float(tes.get('disponible_usd') or 0):.2f} · "
+            f"MNT ${float(tes.get('mnt_usd') or 0):.2f} · "
+            f"hedge IM ${float(tes.get('im_hedge_usd') or 0):.2f} · "
+            f"match {'OK' if tes.get('hedge_match_ok') else '—'} · "
+            f"reserva {float(tes.get('reserva_monarca_pct') or 0)*100:.0f}%"
+        )
+        if tes.get("hedge_shorts"):
+            with st.expander("Hedge shorts (MNT)", expanded=False):
+                st.dataframe(tes["hedge_shorts"], use_container_width=True, hide_index=True)
 
     bc = estado.get("beru_capital", {})
     if bc:
