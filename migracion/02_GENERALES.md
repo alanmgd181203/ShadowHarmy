@@ -158,7 +158,7 @@ Ver [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md).
 | `disponible_usd` | totalAvailableBalance (Bybit ya restó IM del hedge) |
 | `mnt_usd` / coins | Desglose spot (MNT para fees, stables…) |
 | `hedge_shorts` | Shorts MNT (notional, IM, lev, liq) |
-| `oxigeno_guerra_usd` | disponible × (1 − reserva Monarca) → **masa_autorizada** |
+| `oxigeno_guerra_usd` | `min(disponible, equity×(1−reserva))` — IM hedge **dentro** del colchón |
 | `estado` | sana / justa / ahogada |
 
 Config: `TUSK_TESORERIA_ACTIVA` · `TUSK_RESERVA_MONARCA_EXTRA_PCT` · `MONARCA_RESERVA_PCT`.  

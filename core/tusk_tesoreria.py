@@ -34,6 +34,38 @@ def reserva_monarca_pct() -> float:
     return max(0.0, min(0.50, base + extra))
 
 
+def oxigeno_guerra_usd(
+    equity: float,
+    disponible: float,
+    *,
+    reserva_pct: float | None = None,
+) -> dict[str, float]:
+    """Oxígeno de guerra: el IM del hedge cuenta *dentro* del colchón.
+
+    colchón_objetivo = reserva × equity
+    ya_reservado ≈ equity − disponible  (IM hedge + resto en UTA)
+    Si ya_reservado < colchón → solo falta el resto del colchón.
+    Si ya_reservado ≥ colchón → no se resta extra (el hedge ya comió el colchón o más).
+
+    Equivale a: min(disponible, equity × (1 − reserva)).
+    """
+    eq = max(0.0, float(equity))
+    disp = max(0.0, float(disponible))
+    res = reserva_monarca_pct() if reserva_pct is None else max(0.0, min(0.50, float(reserva_pct)))
+    colchon_obj = round(eq * res, 6)
+    ya_reservado = round(max(0.0, eq - disp), 6)
+    extra_colchon = round(max(0.0, colchon_obj - ya_reservado), 6)
+    ox = round(max(0.0, disp - extra_colchon), 4)
+    return {
+        "reserva_pct": res,
+        "colchon_objetivo_usd": round(colchon_obj, 4),
+        "ya_reservado_usd": round(ya_reservado, 4),
+        "extra_colchon_usd": round(extra_colchon, 4),
+        "oxigeno_bruto_usd": round(disp, 4),
+        "oxigeno_guerra_usd": ox,
+    }
+
+
 def parse_coins(account: dict[str, Any] | None) -> list[dict[str, Any]]:
     """Desglose por moneda del UNIFIED account."""
     out: list[dict[str, Any]] = []
@@ -153,9 +185,7 @@ def construir_tesoreria(
     notional_hedge = round(sum(h["notional_usd"] for h in hedges), 4)
 
     res = reserva_monarca_pct() if reserva_pct is None else max(0.0, min(0.50, float(reserva_pct)))
-    # Bybit ya descuenta IM del short en available; aplicamos colchón Monarca encima
-    oxigeno_bruto = max(0.0, disponible)
-    oxigeno_guerra = round(oxigeno_bruto * (1.0 - res), 4)
+    o2 = oxigeno_guerra_usd(equity, disponible, reserva_pct=res)
 
     # “Como dólares”: equity marcada; hedge visible
     hedge_ok = False
@@ -184,12 +214,15 @@ def construir_tesoreria(
         "notional_hedge_usd": notional_hedge,
         "hedge_match_ok": hedge_ok,
         "reserva_monarca_pct": round(res, 4),
-        "oxigeno_bruto_usd": round(oxigeno_bruto, 4),
-        "oxigeno_guerra_usd": oxigeno_guerra,
+        "colchon_objetivo_usd": o2["colchon_objetivo_usd"],
+        "ya_reservado_usd": o2["ya_reservado_usd"],
+        "extra_colchon_usd": o2["extra_colchon_usd"],
+        "oxigeno_bruto_usd": o2["oxigeno_bruto_usd"],
+        "oxigeno_guerra_usd": o2["oxigeno_guerra_usd"],
         "estado": estado,
         "nota": (
-            "Oxígeno de guerra = disponible UTA × (1 − reserva Monarca). "
-            "El IM del hedge ya va dentro del disponible de Bybit."
+            "Oxígeno = min(disponible, equity×(1−reserva)). "
+            "El IM del hedge cuenta dentro del colchón Monarca, no encima."
         ),
     }
 

@@ -133,21 +133,27 @@ class TuskBoveda:
                 )
             elif tesoreria_on and disponible_uta is not None:
                 from core import tusk_tesoreria as tt
-                res = tt.reserva_monarca_pct()
-                ox = max(0.0, float(disponible_uta) * (1.0 - res))
-                self.masa_autorizada = ox
+                o2 = tt.oxigeno_guerra_usd(balance_total, float(disponible_uta))
+                self.masa_autorizada = float(o2["oxigeno_guerra_usd"])
                 self.tesoreria = {
                     "ts": time.time(),
                     "fuente": "disponible_solo",
                     "equity_usd": round(balance_total, 4),
                     "disponible_usd": round(float(disponible_uta), 4),
-                    "oxigeno_guerra_usd": round(ox, 4),
-                    "reserva_monarca_pct": res,
+                    "oxigeno_guerra_usd": o2["oxigeno_guerra_usd"],
+                    "colchon_objetivo_usd": o2["colchon_objetivo_usd"],
+                    "ya_reservado_usd": o2["ya_reservado_usd"],
+                    "extra_colchon_usd": o2["extra_colchon_usd"],
+                    "reserva_monarca_pct": o2["reserva_pct"],
                     "masa_escalon_ref": round(masa_escalon, 4),
                     "estado": tt.estado_tesoreria(
                         equity=balance_total,
                         disponible=float(disponible_uta),
                         mm_rate=account_mm_rate,
+                    ),
+                    "nota": (
+                        "Oxígeno = min(disponible, equity×(1−reserva)). "
+                        "IM hedge dentro del colchón."
                     ),
                 }
             else:
