@@ -127,6 +127,8 @@ def parse_hedge_shorts(
             "position_im_usd": round(_f(p.get("positionIM")), 4),
             "leverage": _f(p.get("leverage")) or None,
             "liq_price": _f(p.get("liqPrice")) or None,
+            "avg_price": _f(p.get("avgPrice")) or None,
+            "mark_price": _f(p.get("markPrice")) or None,
             "u_pnl": round(_f(p.get("unrealisedPnl")), 4),
             "category": str(p.get("category") or p.get("_category") or ""),
         })
@@ -197,7 +199,7 @@ def construir_tesoreria(
         equity=equity, disponible=disponible, mm_rate=mm_rate_v, im_rate=im_rate_v,
     )
 
-    return {
+    out: dict[str, Any] = {
         "ts": time.time(),
         "fuente": "uta",
         "equity_usd": round(equity, 4),
@@ -225,6 +227,28 @@ def construir_tesoreria(
             "El IM del hedge cuenta dentro del colchón Monarca, no encima."
         ),
     }
+
+    # Checkpoint bóveda MNT — solo cálculo; manos OFF
+    if getattr(config, "TUSK_BOVEDA_MNT_DOCTRINA", True):
+        try:
+            from core import tusk_boveda_mnt as bm
+
+            spot_mark = None
+            if mnt and _f(mnt.get("equity")) > 0 and mnt_usd > 0:
+                # usd/qty aprox si wallet_balance ≈ qty
+                qty = _f(mnt.get("wallet_balance") or mnt.get("equity"))
+                if qty > 0:
+                    spot_mark = mnt_usd / qty
+            out["boveda_mnt"] = bm.construir_bloque_boveda_mnt(
+                mnt_usd=mnt_usd,
+                hedges=hedges,
+                spot_mark=spot_mark,
+                equity_vivo=equity,
+            )
+        except Exception as e:
+            out["boveda_mnt"] = {"error": str(e)[:160], "manos_permitidas": False}
+
+    return out
 
 
 def tesoreria_simulada(

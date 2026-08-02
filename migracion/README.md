@@ -67,7 +67,9 @@
 
 27. [`MEGA_COLISEO_PLAN.md`](MEGA_COLISEO_PLAN.md) — campaña legión + tiers + malla  
 28. [`INFORME_COLISEO_MONARCA.md`](INFORME_COLISEO_MONARCA.md) — cómo leer el teatro Fantasma  
-29. [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) — ritual bóveda (si aplica)  
+29. [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) — ritual bóveda (si aplica)
+30. [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md) — Tusk bóveda MNT (ideal · capital_mando · manos OFF)
+31. [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md) — índice Bybit absoluto · sesgo estructural Kaiser  
 30. [`JESS_SINCRONIZAR_BYBIT.md`](JESS_SINCRONIZAR_BYBIT.md) — sync lev/mínimos México  
 31. [`CHECKPOINT_2026-07-19.md`](CHECKPOINT_2026-07-19.md) — sello cuartel pase + purge  
 

@@ -13,10 +13,16 @@ def _pct_diff(a: float, b: float) -> float:
     return abs(a - b) / min(a, b)
 
 
-def _spot_vs_index(spot: float, index_px: float) -> float | None:
-    if spot <= 0 or index_px <= 0:
+def _pct_vs_index(precio: float, index_px: float) -> float | None:
+    """(precio − índice) / índice — positivo = instrumento caro vs índice."""
+    if precio <= 0 or index_px <= 0:
         return None
-    return (index_px - spot) / spot
+    return (precio - index_px) / index_px
+
+
+def _spot_vs_index(spot: float, index_px: float) -> float | None:
+    """Legacy nombre — misma convención que perp: positivo = spot caro vs índice."""
+    return _pct_vs_index(spot, index_px)
 
 
 def _entrada(tipo: str, base: str, spread_pct: float, **extra) -> dict:
@@ -91,7 +97,7 @@ def calcular_matriz_spreads(
 
         idx = index_prices.get(f_lin, 0.0)
         if p_spot > 0 and idx > 0:
-            raw = _spot_vs_index(p_spot, idx)
+            raw = _pct_vs_index(p_spot, idx)
             if raw is not None:
                 filas.append(_entrada(
                     "spot_vs_index", base, abs(raw),
@@ -100,12 +106,22 @@ def calcular_matriz_spreads(
                 ))
 
         if p_lin > 0 and idx > 0:
-            raw_p = (p_lin - idx) / idx
-            filas.append(_entrada(
-                "perp_vs_index", base, abs(raw_p),
-                precio_perp=p_lin, index_price=idx,
-                desvio_signed_pct=round(raw_p * 100, 4),
-            ))
+            raw_p = _pct_vs_index(p_lin, idx)
+            if raw_p is not None:
+                filas.append(_entrada(
+                    "perp_vs_index", base, abs(raw_p),
+                    precio_perp=p_lin, index_price=idx,
+                    desvio_signed_pct=round(raw_p * 100, 4),
+                ))
+
+        if p_inv > 0 and idx > 0:
+            raw_i = _pct_vs_index(p_inv, idx)
+            if raw_i is not None:
+                filas.append(_entrada(
+                    "inverse_vs_index", base, abs(raw_i),
+                    precio_inverse=p_inv, index_price=idx,
+                    desvio_signed_pct=round(raw_i * 100, 4),
+                ))
 
     # Basis: futuros dated vs perp (solo trinidad / pentiverso conocidos)
     perp_sym = {p["symbol"]: p for p in getattr(config, "LINEAR_PERP_PARES", []) if p.get("symbol")}

@@ -6,20 +6,19 @@ Cada General = **un módulo Python** con un hilo async y contratos claros hacia 
 
 ## Tusk — Tesorero de Hierro
 
-**Rol:** Capital, NAV, reservas de masa, persistencia, escalones de potencia.
+**Rol:** Capital, NAV, reservas de masa, persistencia; **escriba/preparador de bóveda** (MNT+hedge — checkpoint).
 
-**Debe hacer:**
-- Sincronizar balance/margen real desde Bybit → `masa_bruta`, `margen_ocupado`, `masa_autorizada`.
+**Debe hacer (hoy en código):**
+- Sincronizar balance/margen real desde Bybit → `masa_bruta`, `margen_ocupado`, `masa_autorizada` / oxígeno.
 - `solicitar_reserva` / `liberar_reserva` para cada sombra activa.
 - Persistir legión en `data/tusk_data.json` (escritura atómica .tmp).
-- Calcular `referencia_escalon` con `ESCALON_POTENCIA_BASE` y `FACTOR_MASA_AUTORIZADA`.
+- Publicar `boveda_mnt` (capital de mando, equilibrio, foto) — **sin manos**.
 
-**Manual adicional:**
-- Gap **2.5×** al precio de entrada del siguiente ciclo tras pérdida (Códice v2.3.0ti).
-- Auditoría latidos/amputaciones → `Ratio_Eficiencia` por activo.
-- "Velo del Carnicero" — caos simulado indistinguible de real (guerra infinita).
+**Debe hacer (doctrina, manos aún OFF):** preparar Funding→UTA→lotes MNT spot + short inverso; reponer spot por fees. Ver [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md).
 
-**Prototipo ShadowHarmy (Fase B):** `C:\Users\alans\Desktop\ShadowHarmy` — ver `13_ANALISIS_SHADOWHARMY.md`
+**Manual adicional (legacy / no centro hoy):**
+- Gap **2.5×**, Velo del Carnicero, mundos paralelos → posible **Iron** futuro.
+- Escalones de potencia: secundarios frente a O2 / capital_mando.
 
 ---
 
@@ -167,6 +166,12 @@ Smoke: `python scripts/validar_tusk_tesoreria_smoke.py`
 **Ritual de ojos (sin disparos):** `python scripts/arise_ojos_tusk.py`  
 Despierta Tusk (bóveda/oxígeno) + Tank (mares) + Kaiser (indicadores). Igris/Greed/Beru hibernados.  
 Corte opcional: `--segundos 120`. Ver también `18_ARRANQUE_TESTNET.md` § ritual ojos.
+
+**Bóveda MNT (checkpoint 2026-08-01):** capital_mando = short×entrada → potencia del pase (frío).  
+Camino: Convert solo si conviene; si no, spot (crypto→USDT/USDC→MNT).  
+**Manos OFF** — no fundir ritual al 100% aún; siguiente = casos especiales.  
+Doctrina: [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md) · `core/tusk_boveda_mnt.py`.  
+Smoke: `python scripts/validar_tusk_boveda_mnt_smoke.py`
 
 ---
 

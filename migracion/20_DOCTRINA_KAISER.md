@@ -73,6 +73,11 @@ Capitanes → táctica Beru pentiverso — no reemplazados por Kaiser
 
 Precio de **referencia multi-exchange** que Bybit calcula promediando spot en varios exchanges. No es el last del perp ni necesariamente el spot USDT de Bybit. Sirve para medir si el **perp está caro o barato vs el consenso del mercado**.
 
+### Checkpoint Monarca 2026-08-02 — índice absoluto + sesgo estructural
+
+**Dirección firmada (doctrina):** el índice Bybit es la **referencia absoluta** del pentiverso. Kaiser etiqueta el **sesgo histórico** de cada mar vs índice (`sesgo_estructural` en digest — 3.8.P5).  
+Detalle: [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md). Smoke: `python scripts/validar_kaiser_sesgo_smoke.py`.
+
 ### Quién usa qué ancla
 
 | General | Ancla principal | Global (Binance / multi) |

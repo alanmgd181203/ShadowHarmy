@@ -1,6 +1,6 @@
 # Resumen ejecutivo — Migración Shadow Army
 
-**Actualizado:** 2026-08-01 (ritual ojos Tusk+Tank+Kaiser · tesorería UTA · oído Bellion)
+**Actualizado:** 2026-08-02 (Kaiser índice+sesgo · bóveda MNT)
 
 ## Código canónico
 
@@ -9,7 +9,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ## Veredicto en una frase
 
-**Fases 0–2 cerradas · Fase 3 ~93%.** **Tusk ve la bóveda real.** Ritual de ojos listo (Tank+Kaiser sin disparos). **Greed en pausa.** **Siguiente:** verificar oxígeno en vivo → Igris sim (4.0.2) → manto live → Beru.
+**Norte de precios:** índice Bybit. Kaiser etiquetará sesgos históricos de cada mar vs ese índice ([`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md)). Bóveda MNT sigue en frío / manos OFF. **Siguiente:** casos especiales bóveda o cablear tag 3.8.P5 cuando digas.
 
 ## Progreso checklist (16)
 

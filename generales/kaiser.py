@@ -62,7 +62,10 @@ class KaiserVocero:
         return out[: getattr(config, "KAISER_PERFIL_MAX_BASES", 40)]
 
     def _recalcular_perfiles(self) -> None:
-        edges = ["perp_vs_index", "spot_vs_perp", "usdt_vs_usdc", "lineal_vs_inverse"]
+        edges = [
+            "perp_vs_index", "spot_vs_index", "inverse_vs_index",
+            "spot_vs_perp", "usdt_vs_usdc", "lineal_vs_inverse",
+        ]
         nuevos: dict = {}
         for base in self._bases_perfil():
             nuevos[base] = {}
@@ -128,6 +131,17 @@ class KaiserVocero:
                 self.ultimo_digest["frecuencia_manto"] = mf.snapshot_ranking()
         except Exception as e:
             self.ultimo_digest["frecuencia_manto"] = {"error": str(e)}
+
+        # Sesgo estructural vs índice Bybit (3.8.P5)
+        try:
+            if getattr(config, "KAISER_SESGO_INDEX_ACTIVO", True):
+                from core import kaiser_sesgo_index as ksi
+
+                self.ultimo_digest["sesgo_estructural"] = ksi.snapshot_sesgo_estructural(
+                    self.tank, bases=self._bases_perfil()[:15],
+                )
+        except Exception as e:
+            self.ultimo_digest["sesgo_estructural"] = {"error": str(e)[:160]}
 
         self._ultimo_calc_ms = (_time.time() - t0) * 1000.0
         self._ultimo_refresh = _time.time()
@@ -205,9 +219,15 @@ class KaiserVocero:
             loop = asyncio.get_running_loop()
             resultados = await loop.run_in_executor(None, backfill_bases)
             ok = sum(1 for r in resultados if r.get("ok"))
+            n_mares = 0
+            for r in resultados:
+                for m in (r.get("mares") or {}).values():
+                    if m.get("ok"):
+                        n_mares += 1
             await self.bel.anotar(
                 "KAISER", "BACKFILL",
-                f"Histórico kline: {ok}/{len(resultados)} bases.",
+                f"Histórico vs índice: {ok}/{len(resultados)} bases · "
+                f"{n_mares} mares (lineal/spot/inverso) OK.",
             )
         except Exception as exc:
             await self.bel.anotar("KAISER", "BACKFILL", f"Omitido: {repr(exc)[:120]}")

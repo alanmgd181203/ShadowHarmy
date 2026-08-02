@@ -73,7 +73,7 @@ def muestrear_desde_tank(tank) -> int:
         tipo = row.get("tipo", "")
         if not base or tipo not in (
             "spot_vs_perp", "lineal_vs_inverse", "usdt_vs_usdc",
-            "perp_vs_index", "spot_vs_index",
+            "perp_vs_index", "spot_vs_index", "inverse_vs_index",
         ):
             continue
         # lineal_vs_inverse: flota manto completa (frecuencia 4 umbrales)

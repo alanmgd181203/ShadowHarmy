@@ -65,6 +65,8 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **3.9.9 Beru live:** PASS México 2026-07-16 (Jess · `61d7c2e` · flota 22 USDT)
 - **Tusk tesorería UTA (2026-08-01):** MNT/hedge/disponible → oxígeno de guerra · `tusk_tesoreria` · masa_autorizada real
 - **Ritual ojos 4.0.1 (2026-08-01):** `arise_ojos_tusk.py` — Tusk+Tank+Kaiser sin disparos · Igris/Greed/Beru hibernados
+- **Bóveda MNT 4.0.1b (2026-08-01):** doctrina ideal + Convert vs spot · capital_mando · potencia_pase frío · **no fundir manos aún** · next=casos especiales · [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md)
+- **Kaiser índice+sesgo 3.8.P4/P5 (2026-08-02):** índice absoluto · digest `sesgo_estructural` · backfill 3 mares (LTC/BTC/…+MNT) · metaverso pairs después · [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md)
 - **Oído Bellion 4.1.2 (2026-07-24):** tabla evento→nivel · `bellion_oido` · portal Cascada · sin LLM/Telegram
 - **Pergamino React (local):** Cascada → Manto Igris · Beru Sub-Santuario · **Bellion susurro** · Ascensión Tusk
 - **Sub-Santuario Beru (2026-07-24):** `beru_asset_detail` · flota caza/neg · red engorde frontera · crónica `data/beru/cronicas/` · Bellion `beru_flota` / `beru_asset_details` · panel Streamlit
@@ -84,8 +86,8 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Frecuencia manto 3.5.8b2 (2026-07-24):** 4 umbrales (fees/½/tablas/morado) · plazos 50/40/10 · ETA por marcha · `manto_frecuencia.py` → tau Igris + panel
 - **Kaiser memoria barcos (2026-07-19):** Tank horario → `data/kaiser/memoria/` · digest vivo · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 - **Oído Monarca:** **Pergamino** (app) + susurro Bellion; Telegram = legado (`06_NOTIFICACIONES.md` v2)
-- **Próximo ítem checklist:** **4.0.2** Igris sim con oxígeno real · luego 4.0.3 live manto · 4.1.3–4.1.5 oído fino
-- **Validar:** `validar_arise_ojos_smoke.py` · `validar_tusk_tesoreria_smoke.py` · `validar_bellion_oido_smoke.py` · `validar_beru_asset_detail_smoke.py` · `validar_manto_frecuencia_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_lote_bybit_smoke.py` · `validar_pase_director_smoke.py` · `validar_igris_smoke.py`
+- **Próximo ítem checklist:** **4.0.1c** casos especiales bóveda · panel sesgos (opc) · **no** manos bóveda
+- **Validar:** `validar_tusk_boveda_mnt_smoke.py` · `validar_arise_ojos_smoke.py` · `validar_tusk_tesoreria_smoke.py` · `validar_bellion_oido_smoke.py` · `validar_beru_asset_detail_smoke.py` · `validar_manto_frecuencia_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_lote_bybit_smoke.py` · `validar_pase_director_smoke.py` · `validar_igris_smoke.py`
 - **Tono obligatorio:** `17_GUIA_MONARCA.md`
 
 ---

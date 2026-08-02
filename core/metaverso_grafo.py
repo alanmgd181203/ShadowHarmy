@@ -12,6 +12,7 @@ ARISTAS_TIPO = (
     "lineal_vs_inverse",
     "usdt_vs_usdc",
     "spot_vs_index",
+    "inverse_vs_index",
     "basis_fut_vs_perp",
 )
 

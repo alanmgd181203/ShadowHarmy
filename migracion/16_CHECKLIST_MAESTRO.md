@@ -204,6 +204,8 @@
 - [x] **3.8.P1** Greed consume Kaiser + sizing 1% (`validar_greed_sizing_smoke.py`)
 - [x] **3.8.P2** VIP / Mega VIP micro-órdenes (`validar_greed_vip_smoke.py`)
 - [ ] **3.8.P3** Karmish (mundo externo) — pausa doctrinal
+- [x] **3.8.P4** Checkpoint índice absoluto + sesgo estructural — doctrina Monarca 2026-08-02 · [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md)
+- [x] **3.8.P5** Tag `sesgo_estructural` + backfill lineal/spot/inverso vs index (bases necesarias + MNT) · `kaiser_sesgo_index` · `kaiser_backfill` · smokes · **sin metaverso completo aún**
 
 ### 3.9 Beru — doctrina cirugía final *(2026-07-09 → 07-12 — COMPLETA en smokes)*
 
@@ -246,6 +248,10 @@
 
 ### 4.0 Despliegue por capas (ojos → manto → Beru)
 - [x] **4.0.1** Ritual ojos — `scripts/arise_ojos_tusk.py` (Tusk tesorería + Tank + Kaiser; sin Igris/Greed/Beru) · runbook `18` · smoke `validar_arise_ojos_smoke.py`
+- [x] **4.0.1b** Checkpoint bóveda MNT — doctrina + capital_mando / foto / potencia_pase frío · Convert≠ley · **manos OFF** · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · smoke `validar_tusk_boveda_mnt_smoke.py`
+- [ ] **4.0.1c** Casos especiales (pergamino) + PnL bóveda · no fundir manos aún
+- [ ] **4.0.1c2** (opc) capital_mando → `masa_autorizada` Igris con gate Monarca
+- [ ] **4.0.1d** Manos ritual bóveda — solo `TUSK_BOVEDA_MANOS` + orden Monarca + México/testnet
 - [ ] **4.0.2** Igris sim/dry-run con oxígeno de guerra real (sin Beru)
 - [ ] **4.0.3** Igris live hasta manto 100% del paso (meta engorde)
 - [ ] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)

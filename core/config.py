@@ -171,6 +171,10 @@ KAISER_RUTAS_TOP_N = int(os.getenv("KAISER_RUTAS_TOP_N", "5"))
 KAISER_BACKFILL_ON_START = os.getenv("KAISER_BACKFILL_ON_START", "True").lower() == "true"
 KAISER_BACKFILL_DIAS = int(os.getenv("KAISER_BACKFILL_DIAS", "365"))
 KAISER_BACKFILL_MAX_BASES = int(os.getenv("KAISER_BACKFILL_MAX_BASES", "12"))
+# Sesgo estructural vs índice (3.8.P5) — digest sesgo_estructural; sin manos
+KAISER_SESGO_INDEX_ACTIVO = os.getenv("KAISER_SESGO_INDEX_ACTIVO", "true").lower() == "true"
+KAISER_SESGO_MIN_MUESTRAS = int(os.getenv("KAISER_SESGO_MIN_MUESTRAS", "15"))
+KAISER_SESGO_CLIMA_EPS_PCT = float(os.getenv("KAISER_SESGO_CLIMA_EPS_PCT", "0.05"))
 
 # Memoria de barcos — diario horario Tank → data/kaiser/memoria/{BASE}.jsonl
 KAISER_MEMORIA_INTERVAL_S = float(os.getenv("KAISER_MEMORIA_INTERVAL_S", "3600"))
@@ -412,6 +416,10 @@ TUSK_RESERVA_MONARCA_EXTRA_PCT = float(os.getenv("TUSK_RESERVA_MONARCA_EXTRA_PCT
 # Tesorería UTA: oxígeno de guerra desde disponible real (MNT hedge visible)
 TUSK_TESORERIA_ACTIVA = os.getenv("TUSK_TESORERIA_ACTIVA", "true").lower() == "true"
 TUSK_TESORERIA_FETCH_POS = os.getenv("TUSK_TESORERIA_FETCH_POS", "true").lower() == "true"
+# Bóveda MNT (checkpoint): cálculo capital_mando / foto; MANOS default false
+TUSK_BOVEDA_MNT_DOCTRINA = os.getenv("TUSK_BOVEDA_MNT_DOCTRINA", "true").lower() == "true"
+TUSK_BOVEDA_MANOS = os.getenv("TUSK_BOVEDA_MANOS", "false").lower() == "true"
+TUSK_BOVEDA_EQUILIBRIO_TOL_PCT = float(os.getenv("TUSK_BOVEDA_EQUILIBRIO_TOL_PCT", "0.03") or 0.03)
 # Ritual ojos: scripts/arise_ojos_tusk.py (Tusk+Tank+Kaiser; sin Igris/Greed/Beru)
 ARISE_OJOS_TUSK = os.getenv("ARISE_OJOS_TUSK", "false").lower() == "true"
 ARISE_OJOS_SEGUNDOS = float(os.getenv("ARISE_OJOS_SEGUNDOS", "0") or 0)
