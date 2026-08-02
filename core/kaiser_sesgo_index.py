@@ -206,6 +206,72 @@ def clima_vs_cero(vivo_pct: float | None, cero_pct: float | None) -> dict[str, A
     }
 
 
+def cero_estructural_manto(base: str) -> dict[str, Any]:
+    """Cero del spread lineal↔inverso para frecuencia/ETA/puerta Igris.
+
+    Preferencia: cero_lineal − cero_inverso (ambos vs índice).
+    Fallback: mediana histórica de muestras `lineal_vs_inverse`.
+    """
+    bu = (base or "").upper()
+    out: dict[str, Any] = {
+        "base": bu,
+        "cero_pct": None,
+        "fuente": None,
+        "cero_lineal_pct": None,
+        "cero_inverso_pct": None,
+        "ok": False,
+    }
+    if not bu:
+        return out
+
+    pl = perfil_sesgo_edge(bu, MARES_EDGE["lineal"])
+    pi = perfil_sesgo_edge(bu, MARES_EDGE["inverso"])
+    cl = pl.get("cero_estructural_pct")
+    ci = pi.get("cero_estructural_pct")
+    out["cero_lineal_pct"] = cl
+    out["cero_inverso_pct"] = ci
+    if cl is not None and ci is not None:
+        out["cero_pct"] = round(float(cl) - float(ci), 6)
+        out["fuente"] = "index_lineal_menos_inverso"
+        out["ok"] = True
+        return out
+
+    # Fallback: historia directa del edge de manto
+    ahora = time.time()
+    samples = load_samples(bu, "lineal_vs_inverse", since_ts=ahora - PLAZOS_SESGO["mediano"])
+    if len(samples) < _min_muestras():
+        samples = load_samples(bu, "lineal_vs_inverse", since_ts=ahora - PLAZOS_SESGO["corto"])
+    m = metricas_sesgo(samples)
+    if m.get("mediana_pct") is not None and int(m.get("n") or 0) >= 3:
+        out["cero_pct"] = float(m["mediana_pct"])
+        out["fuente"] = "mediana_lineal_vs_inverse"
+        out["ok"] = True
+        out["n"] = m.get("n")
+    return out
+
+
+def usar_cero_en_manto() -> bool:
+    return bool(getattr(config, "MANTO_CERO_ESTRUCTURAL", True))
+
+
+def umbral_manto_con_cero(umbral_fees_pct: float, cero_pct: float | None) -> float:
+    """Umbral efectivo: fees (o marcha) + cero estructural.
+
+    Si el gap eterno es +0.08% y fees 0.11%, hace falta ~0.19% de spread vivo.
+    """
+    u = max(0.0, float(umbral_fees_pct or 0.0))
+    if not usar_cero_en_manto() or cero_pct is None:
+        return u
+    return round(u + float(cero_pct), 6)
+
+
+def exceso_vs_cero(signed_or_spread_pct: float, cero_pct: float | None) -> float:
+    """Cuánto se aleja el spread vivo del clima normal (puede ser negativo)."""
+    if cero_pct is None or not usar_cero_en_manto():
+        return float(signed_or_spread_pct)
+    return float(signed_or_spread_pct) - float(cero_pct)
+
+
 def snapshot_sesgo_estructural(tank, bases: list[str] | None = None) -> dict[str, Any]:
     """Bloque para digest Kaiser — sin disparos."""
     if bases is None:

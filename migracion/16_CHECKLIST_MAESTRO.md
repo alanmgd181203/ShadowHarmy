@@ -207,6 +207,8 @@
 - [x] **3.8.P4** Checkpoint índice absoluto + sesgo estructural — doctrina Monarca 2026-08-02 · [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md)
 - [x] **3.8.P5** Tag `sesgo_estructural` + backfill lineal/spot/inverso vs index (bases necesarias + MNT) · `kaiser_sesgo_index` · `kaiser_backfill` · smokes · **sin metaverso completo aún**
 - [x] **3.8.P5b** Sesgo vivo con Tank ROJO → nodo más fresco (`_lider_para_sesgo`) · Jess `a1f2e7e` · ritual ojos México OK
+- [x] **3.8.P6** Manto vs cero estructural — frecuencia/ETA + puerta Igris (`MANTO_CERO_ESTRUCTURAL`) · informe Monarca `informe_sesgo_monarca.py` · smoke filtra gap eterno
+- [ ] **3.8.P6b** Correr informe números vivos en Jess + pegar tabla en `INFORME_SESGO_ESTRUCTURAL.md`
 
 ### 3.9 Beru — doctrina cirugía final *(2026-07-09 → 07-12 — COMPLETA en smokes)*
 
@@ -407,8 +409,8 @@ TOTAL checklist:  125 / 184  [x]  →  ~68%
 Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-08-02 (ojos México · sesgo vivo anti-ROJO Jess · ley bóveda reset)  
-**Próximo ítem recomendado:** **4.0.2** Igris sim/dry-run con oxígeno real · (opc) **4.0.1c2** sello capital · **no** reabrir rarezas 4.0.1c  
+**Última actualización checklist:** 2026-08-02 (manto vs cero estructural · informe sesgo)  
+**Próximo ítem recomendado:** **3.8.P6b** tabla números Jess · elegir marcha con ETA · **4.0.2** Igris sim  
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
@@ -427,7 +429,7 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 4.0.2 Igris sim (oxígeno real, sin Beru) · 4.0.1c2 opc · manos bóveda después.
+Siguiente: 3.8.P6b informe números Jess · marcha+ETA · 4.0.2 Igris sim.
 Validar: scripts/validar_*_smoke.py + validar_bellion_oido_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).

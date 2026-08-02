@@ -362,6 +362,21 @@ def evaluar_puerta_se(
         )
         umbral = urg["umbral_pct"]
 
+    # Cero estructural: no abrir el manto solo por el gap eterno
+    from core import kaiser_sesgo_index as ksi
+    cero_info = ksi.cero_estructural_manto(base)
+    cero = cero_info.get("cero_pct") if cero_info.get("ok") else None
+    umbral_fees = float(umbral)
+    umbral = ksi.umbral_manto_con_cero(umbral_fees, cero)
+    urg = {
+        **urg,
+        "umbral_fees_pct": round(umbral_fees, 6),
+        "cero_estructural_pct": cero,
+        "cero_fuente": cero_info.get("fuente"),
+        "umbral_pct": round(umbral, 6),
+        "exceso_vs_cero_pct": round(ksi.exceso_vs_cero(spread, cero), 6),
+    }
+
     if spread < umbral:
         return {
             "ok": False,

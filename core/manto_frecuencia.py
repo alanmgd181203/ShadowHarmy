@@ -1,10 +1,13 @@
 """Frecuencia de oportunidades del manto — 4 umbrales × 3 plazos (anual ~10%).
 
 Contadores en paralelo (misma historia `lineal_vs_inverse`):
-  - fees        → spread ≥ break-even completo (Táctico)
-  - medio_fees  → spread ≥ ½ fees (Marcha Forzada)
-  - tablas      → spread ≥ epsilon (~0 edge; Asalto / salir tablas)
-  - morado      → spread ≥ max(fees_be, umbral OPORTUNIDAD_MANTO)
+  - fees        → exceso vs cero ≥ break-even completo (Táctico)
+  - medio_fees  → exceso vs cero ≥ ½ fees (Marcha Forzada)
+  - tablas      → exceso vs cero ≥ epsilon (~0 edge; Asalto / salir tablas)
+  - morado      → exceso vs cero ≥ max(fees_be, umbral OPORTUNIDAD_MANTO)
+
+Cero estructural (MANTO_CERO_ESTRUCTURAL): no cuenta el gap eterno lineal↔inverso;
+oportunidad = alejarse del clima normal (cero_lineal − cero_inverso vs índice).
 
 Pesos de fusión (Monarca 2026-07-24): corto 50% · mediano 40% · anual 10%.
 Alta frecuencia → más paciencia (tau grande). Baja → empujar (Asalto / tablas).
@@ -17,6 +20,7 @@ from typing import Any
 import core.config as config
 from core import igris_despliegue as ides
 from core import igris_manto as im
+from core import kaiser_sesgo_index as ksi
 from core.kaiser_samples import load_samples
 
 EDGE_MANTO = "lineal_vs_inverse"
@@ -66,12 +70,31 @@ def umbrales_pct(base: str, fees_be: float | None = None) -> dict[str, float]:
     }
 
 
-def _pct_sobre(samples: list[dict], umbral: float) -> dict[str, Any]:
+def _pct_sobre(
+    samples: list[dict],
+    umbral: float,
+    *,
+    cero_pct: float | None = None,
+) -> dict[str, Any]:
+    """% de muestras cuya *exceso vs cero* (o abs_pct legado) supera el umbral de marcha."""
     n = len(samples)
     if n <= 0:
-        return {"n": 0, "n_sobre": 0, "pct": None}
-    above = sum(1 for s in samples if float(s.get("abs_pct") or 0) + 1e-15 >= umbral)
-    return {"n": n, "n_sobre": above, "pct": round(above / n, 4)}
+        return {"n": 0, "n_sobre": 0, "pct": None, "cero_pct": cero_pct}
+    above = 0
+    for s in samples:
+        if ksi.usar_cero_en_manto() and cero_pct is not None:
+            signed = float(s.get("signed_pct") if s.get("signed_pct") is not None else s.get("abs_pct") or 0)
+            exceso = abs(ksi.exceso_vs_cero(signed, cero_pct))
+        else:
+            exceso = float(s.get("abs_pct") or 0)
+        if exceso + 1e-15 >= umbral:
+            above += 1
+    return {
+        "n": n,
+        "n_sobre": above,
+        "pct": round(above / n, 4),
+        "cero_pct": cero_pct,
+    }
 
 
 def _blend(plazos_pct: dict[str, float | None]) -> float | None:
@@ -97,6 +120,8 @@ def frecuencia_activo(base: str, *, ahora: float | None = None) -> dict[str, Any
     fees = fees_be_activo(bu)
     umbs = umbrales_pct(bu, fees)
     min_n = int(getattr(config, "MANTO_FREQ_MIN_MUESTRAS", 20) or 20)
+    cero_info = ksi.cero_estructural_manto(bu)
+    cero = cero_info.get("cero_pct") if cero_info.get("ok") else None
 
     por_umbral: dict[str, Any] = {}
     for uk in UMBRAL_KEYS:
@@ -104,7 +129,7 @@ def frecuencia_activo(base: str, *, ahora: float | None = None) -> dict[str, Any
         plazos_pct: dict[str, float | None] = {}
         for pn, segs in PLAZOS_S.items():
             samples = load_samples(bu, EDGE_MANTO, since_ts=ahora - segs)
-            met = _pct_sobre(samples, umbs[uk])
+            met = _pct_sobre(samples, umbs[uk], cero_pct=cero)
             ok = int(met["n"]) >= min_n
             plazos_out[pn] = {
                 "ventana_dias": round(segs / 86400, 1),
@@ -132,11 +157,16 @@ def frecuencia_activo(base: str, *, ahora: float | None = None) -> dict[str, Any
         "edge": EDGE_MANTO,
         "fees_be_pct": round(fees, 6),
         "umbrales": umbs,
+        "cero_estructural": cero_info,
         "pesos_plazos": _pesos(),
         "contadores": por_umbral,
         "score_paciencia": score,
         "modo_sugerido": modo,
         "ok": score is not None,
+        "nota": (
+            "Oportunidad = |spread − cero estructural| ≥ umbral marcha. "
+            "Sin cero → legado abs_pct."
+        ),
     }
 
 
@@ -185,7 +215,7 @@ def tau_desde_score(score: float | None) -> dict[str, Any]:
 
 
 def oportunidades_por_hora(base: str, umbral_key: str = "medio_fees", *, ahora: float | None = None) -> float | None:
-    """Tasa horaria estimada (plazo corto) de cruces sobre umbral."""
+    """Tasa horaria estimada (plazo corto) de cruces sobre umbral (vs cero estructural)."""
     bu = (base or "").upper()
     ahora = ahora if ahora is not None else time.time()
     umbs = umbrales_pct(bu)
@@ -194,7 +224,9 @@ def oportunidades_por_hora(base: str, umbral_key: str = "medio_fees", *, ahora: 
     samples = load_samples(bu, EDGE_MANTO, since_ts=ahora - segs)
     if len(samples) < int(getattr(config, "MANTO_FREQ_MIN_MUESTRAS", 20) or 20):
         return None
-    met = _pct_sobre(samples, umbs[uk])
+    cero_info = ksi.cero_estructural_manto(bu)
+    cero = cero_info.get("cero_pct") if cero_info.get("ok") else None
+    met = _pct_sobre(samples, umbs[uk], cero_pct=cero)
     horas = segs / 3600.0
     if horas <= 0:
         return None
@@ -211,6 +243,7 @@ def eta_despliegue_horas(
 ) -> dict[str, Any]:
     """
     ETA aproximado: meta / (mordida × oportunidades/h del umbral de la marcha).
+    Oportunidades cuentan exceso vs cero estructural (no gap eterno).
     Rango: base / optimista (×1.5 rate) / pesimista (×0.5 rate).
     """
     from core.pase_director import MARCHAS, normalizar_marcha
@@ -232,6 +265,7 @@ def eta_despliegue_horas(
     mordida = max(float(mordida_usd), 1.0)
     meta = max(float(meta_usd), 0.0)
     bocados = meta / mordida if meta > 0 else 0.0
+    cero_info = ksi.cero_estructural_manto(base)
 
     out: dict[str, Any] = {
         "base": (base or "").upper(),
@@ -241,6 +275,7 @@ def eta_despliegue_horas(
         "mordida_usd": round(mordida, 4),
         "bocados_est": round(bocados, 2),
         "ops_por_hora": rate,
+        "cero_estructural": cero_info,
         "eta_h": None,
         "eta_h_opt": None,
         "eta_h_pes": None,

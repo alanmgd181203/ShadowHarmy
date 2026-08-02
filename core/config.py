@@ -324,6 +324,8 @@ MANTO_FREQ_SCORE_TACTICO = float(os.getenv("MANTO_FREQ_SCORE_TACTICO", "0.25"))
 MANTO_FREQ_SCORE_FORZADA = float(os.getenv("MANTO_FREQ_SCORE_FORZADA", "0.08"))
 MANTO_FREQ_MORDIDA_USD = float(os.getenv("MANTO_FREQ_MORDIDA_USD", "5"))
 MANTO_FREQ_META_DEFAULT_USD = float(os.getenv("MANTO_FREQ_META_DEFAULT_USD", "100"))
+# Contar oportunidad / puerta manto vs cero estructural (no gap eterno)
+MANTO_CERO_ESTRUCTURAL = os.getenv("MANTO_CERO_ESTRUCTURAL", "true").lower() in ("1", "true", "yes", "on")
 IGRIS_ESPERA_LOG_S = float(os.getenv("IGRIS_ESPERA_LOG_S", "60"))
 IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))
 # Disparo dual §E: timeout fill inicial + salvavidas Market si una pierna queda huérfana

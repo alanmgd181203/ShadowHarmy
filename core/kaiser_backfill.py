@@ -17,8 +17,11 @@ from core.kaiser_samples import bulk_append_samples, load_samples
 
 
 def _session():
+    """Klines de mercado son públicos — mainnet evita bloqueos testnet/geo en lectura."""
     from pybit.unified_trading import HTTP
-    return HTTP(testnet=config.TESTNET)
+    # No usar TESTNET aquí: el índice/histórico es el mismo mapa de precios;
+    # testnet a menudo 403 desde USA o rate-limit distinto.
+    return HTTP(testnet=False)
 
 
 def _huerfanas() -> set[str]:

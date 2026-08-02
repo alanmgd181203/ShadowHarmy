@@ -84,6 +84,13 @@ def main() -> int:
     _assert(snap["bases"]["LTC"]["mares"]["spot"]["vivo"]["ok"], snap)
     _assert(snap["bases"]["LTC"]["mares"]["spot"]["cero_estructural_pct"] is not None, snap)
 
+    cm = ksi.cero_estructural_manto("LTC")
+    _assert(cm.get("ok"), cm)
+    # lineal 0.01 − inverso (−0.10) ≈ +0.11
+    _assert(abs(float(cm["cero_pct"]) - 0.11) < 0.03, cm)
+    _assert(ksi.umbral_manto_con_cero(0.10, 0.08) == 0.18, "umbral+cero")
+    _assert(abs(ksi.exceso_vs_cero(0.20, 0.08) - 0.12) < 1e-9, "exceso")
+
     print("PASS kaiser_sesgo_index smoke")
     return 0
 

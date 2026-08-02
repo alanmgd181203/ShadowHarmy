@@ -49,8 +49,9 @@ Con índice + sesgo Kaiser: cada general mide contra el **norte** y contra su **
 | B | Plazos + muestras + **backfill** lineal/spot/inverso | ✅ |
 | B2 | Sesgo vivo con Tank ROJO → nodo más fresco | ✅ Jess `a1f2e7e` |
 | C | Panel Cascada mostrar índice + sesgos | pendiente |
-| D | Tusk/Igris/Greed consumen cero al juzgar/sellar | pendiente |
-| E | Backfill metaverso / Spot All | después |
+| D | Frecuencia/ETA + puerta Igris usan cero estructural | ✅ 2026-08-02 (`MANTO_CERO_ESTRUCTURAL`) |
+| E | Informe Monarca números vivos | script ✅ · tabla completa = correr en Jess |
+| F | Backfill metaverso / Spot All | después |
 
 **Manos / trading:** este checkpoint **no** autoriza órdenes.
 

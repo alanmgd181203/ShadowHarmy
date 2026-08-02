@@ -85,6 +85,45 @@ def test_eta():
         path.unlink()
 
 
+def test_cero_estructural_filtra_gap_eterno():
+    """Si el spread vive pegado al cero, NO cuenta como oportunidad (anti-Asalto falso)."""
+    base = "SMKCERO"
+    ahora = time.time()
+    for edge in ("perp_vs_index", "inverse_vs_index", mf.EDGE_MANTO):
+        p = SAMPLES_DIR / f"{base}_{edge}.jsonl"
+        if p.exists():
+            p.unlink()
+    # Cero manto = lineal(+0.05) − inverso(−0.05) = +0.10
+    for i in range(40):
+        ts = ahora - i * 3600
+        append_sample(base, "perp_vs_index", signed_pct=0.05, ts=ts)
+        append_sample(base, "inverse_vs_index", signed_pct=-0.05, ts=ts)
+        # Spread eterno ~0.10 — igual al cero → exceso ~0
+        append_sample(base, mf.EDGE_MANTO, signed_pct=0.10, abs_pct=0.10, ts=ts)
+
+    from core import kaiser_sesgo_index as ksi
+
+    cm = ksi.cero_estructural_manto(base)
+    assert cm.get("ok") and abs(float(cm["cero_pct"]) - 0.10) < 0.02, cm
+    samples = __import__("core.kaiser_samples", fromlist=["load_samples"]).load_samples(
+        base, mf.EDGE_MANTO, since_ts=ahora - 3 * 86400
+    )
+    met_legacy_style = sum(1 for s in samples if float(s.get("abs_pct") or 0) >= 0.05)
+    met = mf._pct_sobre(samples, 0.05, cero_pct=cm["cero_pct"])
+    assert met_legacy_style == len(samples), "legado vería casi todo como opp"
+    assert met["n_sobre"] < len(samples) * 0.2, met
+    print(
+        "  cero filtra gap eterno OK",
+        f"legado_sobre={met_legacy_style}/{len(samples)}",
+        f"con_cero={met['n_sobre']}/{met['n']}",
+        f"cero={cm['cero_pct']}",
+    )
+    for edge in ("perp_vs_index", "inverse_vs_index", mf.EDGE_MANTO):
+        p = SAMPLES_DIR / f"{base}_{edge}.jsonl"
+        if p.exists():
+            p.unlink()
+
+
 def test_snapshot():
     snap = mf.snapshot_ranking(bases=["BTC", "ETH"], equity_usd=200.0)
     assert "ranking" in snap
@@ -99,6 +138,7 @@ def main() -> int:
     test_cuatro_umbrales()
     test_tau_invertido()
     test_eta()
+    test_cero_estructural_filtra_gap_eterno()
     test_snapshot()
     print("[OK] manto_frecuencia smoke completo")
     return 0
