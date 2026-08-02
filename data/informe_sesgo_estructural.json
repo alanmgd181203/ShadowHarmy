@@ -1,0 +1,650 @@
+{
+  "ts": 1785711288.8394299,
+  "doctrina": "CHECKPOINT_KAISER_INDICE_SESGO",
+  "convencion": "signed_pct=(precio-index)/index*100",
+  "bases": [
+    {
+      "base": "LTC",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.0668,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1511,
+          "n_corto": 215,
+          "media_mediano": -0.068036
+        },
+        "spot": {
+          "cero_pct": 0.0,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1437,
+          "n_corto": 141,
+          "media_mediano": -9e-05
+        },
+        "inverso": {
+          "cero_pct": -0.221386,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_FUERTE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1465,
+          "n_corto": 169,
+          "media_mediano": -0.213913
+        }
+      }
+    },
+    {
+      "base": "BTC",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.044538,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1511,
+          "n_corto": 215,
+          "media_mediano": -0.044064
+        },
+        "spot": {
+          "cero_pct": -0.000319,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1437,
+          "n_corto": 141,
+          "media_mediano": -8e-05
+        },
+        "inverso": {
+          "cero_pct": -0.129695,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1437,
+          "n_corto": 141,
+          "media_mediano": -0.129977
+        }
+      }
+    },
+    {
+      "base": "AAVE",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.076411,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1511,
+          "n_corto": 215,
+          "media_mediano": -0.07674
+        },
+        "spot": {
+          "cero_pct": 0.0,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1437,
+          "n_corto": 141,
+          "media_mediano": 0.00282
+        },
+        "inverso": {
+          "cero_pct": -0.228038,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_FUERTE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1440,
+          "n_corto": 144,
+          "media_mediano": -0.207782
+        }
+      }
+    },
+    {
+      "base": "ADA",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.060132,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1511,
+          "n_corto": 215,
+          "media_mediano": -0.058906
+        },
+        "spot": {
+          "cero_pct": 0.0,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1437,
+          "n_corto": 141,
+          "media_mediano": -0.000633
+        },
+        "inverso": {
+          "cero_pct": -0.159067,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_FUERTE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1461,
+          "n_corto": 165,
+          "media_mediano": -0.159815
+        }
+      }
+    },
+    {
+      "base": "APT",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.064123,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1511,
+          "n_corto": 215,
+          "media_mediano": -0.061963
+        },
+        "spot": {
+          "cero_pct": 0.0,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1437,
+          "n_corto": 141,
+          "media_mediano": 0.004586
+        },
+        "inverso": {
+          "cero_pct": -0.203507,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_FUERTE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1475,
+          "n_corto": 179,
+          "media_mediano": -0.255242
+        }
+      }
+    },
+    {
+      "base": "AVAX",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.060948,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1512,
+          "n_corto": 216,
+          "media_mediano": -0.0628
+        },
+        "spot": {
+          "cero_pct": 0.0,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1433,
+          "n_corto": 137,
+          "media_mediano": -0.000492
+        },
+        "inverso": {
+          "cero_pct": -0.13465,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1476,
+          "n_corto": 180,
+          "media_mediano": -0.149186
+        }
+      }
+    },
+    {
+      "base": "BCH",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.085718,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1512,
+          "n_corto": 216,
+          "media_mediano": -0.084762
+        },
+        "spot": {
+          "cero_pct": -0.008474,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1433,
+          "n_corto": 137,
+          "media_mediano": -0.008993
+        },
+        "inverso": {
+          "cero_pct": -0.32846,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_FUERTE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1435,
+          "n_corto": 139,
+          "media_mediano": -0.286856
+        }
+      }
+    },
+    {
+      "base": "DOGE",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.054949,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1512,
+          "n_corto": 216,
+          "media_mediano": -0.053824
+        },
+        "spot": {
+          "cero_pct": 0.0,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1433,
+          "n_corto": 137,
+          "media_mediano": 0.000638
+        },
+        "inverso": {
+          "cero_pct": -0.099573,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1433,
+          "n_corto": 137,
+          "media_mediano": -0.108154
+        }
+      }
+    },
+    {
+      "base": "DOT",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.071166,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1512,
+          "n_corto": 216,
+          "media_mediano": -0.068516
+        },
+        "spot": {
+          "cero_pct": 0.0,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1433,
+          "n_corto": 137,
+          "media_mediano": 0.001855
+        },
+        "inverso": {
+          "cero_pct": -0.138161,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1466,
+          "n_corto": 170,
+          "media_mediano": -0.147787
+        }
+      }
+    },
+    {
+      "base": "ETC",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.059952,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1512,
+          "n_corto": 216,
+          "media_mediano": -0.063337
+        },
+        "spot": {
+          "cero_pct": 0.028527,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_CARO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1433,
+          "n_corto": 137,
+          "media_mediano": 0.023487
+        },
+        "inverso": {
+          "cero_pct": -0.156028,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_FUERTE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1433,
+          "n_corto": 137,
+          "media_mediano": -0.158836
+        }
+      }
+    },
+    {
+      "base": "ETH",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.046498,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1512,
+          "n_corto": 216,
+          "media_mediano": -0.046313
+        },
+        "spot": {
+          "cero_pct": 0.0,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1433,
+          "n_corto": 137,
+          "media_mediano": -3.3e-05
+        },
+        "inverso": {
+          "cero_pct": -0.150194,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_FUERTE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1458,
+          "n_corto": 162,
+          "media_mediano": -0.137209
+        }
+      }
+    },
+    {
+      "base": "FIL",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.069377,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 88,
+          "n_corto": 88,
+          "media_mediano": -0.074727
+        },
+        "spot": {
+          "cero_pct": null,
+          "fuente": null,
+          "etiquetas": [
+            "DATOS_INSUFICIENTES"
+          ],
+          "n_mediano": 0,
+          "n_corto": 0,
+          "media_mediano": null
+        },
+        "inverso": {
+          "cero_pct": -0.4856,
+          "fuente": "mediano",
+          "etiquetas": [
+            "DATOS_INSUFICIENTES"
+          ],
+          "n_mediano": 8,
+          "n_corto": 8,
+          "media_mediano": -0.4856
+        }
+      }
+    },
+    {
+      "base": "HYPE",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.049707,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 88,
+          "n_corto": 88,
+          "media_mediano": -0.050206
+        },
+        "spot": {
+          "cero_pct": null,
+          "fuente": null,
+          "etiquetas": [
+            "DATOS_INSUFICIENTES"
+          ],
+          "n_mediano": 0,
+          "n_corto": 0,
+          "media_mediano": null
+        },
+        "inverso": {
+          "cero_pct": 0.5793,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_CARO_VS_INDEX",
+            "SESGO_FUERTE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 15,
+          "n_corto": 15,
+          "media_mediano": 0.464713
+        }
+      }
+    },
+    {
+      "base": "LINK",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.035976,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 88,
+          "n_corto": 88,
+          "media_mediano": -0.046027
+        },
+        "spot": {
+          "cero_pct": null,
+          "fuente": null,
+          "etiquetas": [
+            "DATOS_INSUFICIENTES"
+          ],
+          "n_mediano": 0,
+          "n_corto": 0,
+          "media_mediano": null
+        },
+        "inverso": {
+          "cero_pct": -0.4677,
+          "fuente": "mediano",
+          "etiquetas": [
+            "DATOS_INSUFICIENTES"
+          ],
+          "n_mediano": 10,
+          "n_corto": 10,
+          "media_mediano": -0.4689
+        }
+      }
+    },
+    {
+      "base": "MNT",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.07532,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1511,
+          "n_corto": 215,
+          "media_mediano": -0.07536
+        },
+        "spot": {
+          "cero_pct": 0.0,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_PEGADO_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1437,
+          "n_corto": 141,
+          "media_mediano": -0.000221
+        },
+        "inverso": {
+          "cero_pct": -0.163666,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_FUERTE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 1437,
+          "n_corto": 141,
+          "media_mediano": -0.176764
+        }
+      }
+    },
+    {
+      "base": "NEAR",
+      "mares": {
+        "lineal": {
+          "cero_pct": -0.041157,
+          "fuente": "mediano",
+          "etiquetas": [
+            "SUELE_BARATO_VS_INDEX",
+            "SESGO_LEVE",
+            "CERO_ESTRUCTURAL"
+          ],
+          "n_mediano": 88,
+          "n_corto": 88,
+          "media_mediano": -0.04872
+        },
+        "spot": {
+          "cero_pct": null,
+          "fuente": null,
+          "etiquetas": [
+            "DATOS_INSUFICIENTES"
+          ],
+          "n_mediano": 0,
+          "n_corto": 0,
+          "media_mediano": null
+        },
+        "inverso": {
+          "cero_pct": 0.0059,
+          "fuente": "mediano",
+          "etiquetas": [
+            "DATOS_INSUFICIENTES"
+          ],
+          "n_mediano": 6,
+          "n_corto": 6,
+          "media_mediano": -0.148067
+        }
+      }
+    }
+  ],
+  "nota_monarca": "Cero estructural = mediana hist\u00f3rica vs \u00edndice. Oportunidad de manto = salir de ese cero, no el gap eterno."
+}
