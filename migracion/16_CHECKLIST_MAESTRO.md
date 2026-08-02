@@ -244,6 +244,13 @@
 - [x] **3.11.2** Colaboradora `Jessica-Reyes06` (write) + sync desde `shadow-army`
 - [x] **3.11.3** Checkpoint tag `checkpoint-mexico-2026-07-09` + `master` al día con feature
 
+### 3.12 Cuartel VPS (casa fija) *(decisión Monarca 2026-08-02)*
+- [ ] **3.12.1** Comprar VPS Ubuntu (Tokio/Singapur · 1–2 GB) · runbook [`24_CUARTEL_VPS.md`](24_CUARTEL_VPS.md)
+- [ ] **3.12.2** SSH + usuario no-root + firewall · clone repo + venv + `.env` ojos (manos OFF)
+- [ ] **3.12.3** Ritual ojos 24/7 (`arise_ojos_tusk` + tmux/systemd) · memoria Kaiser en el VPS
+- [ ] **3.12.4** Cursor Remote SSH = campamento oficial · Jess Mac = respaldo
+- [ ] **3.12.5** Informes sesgo/ETA desde VPS cuando haya muestras `lineal_vs_inverse`
+
 ---
 
 ## FASE 4 — 🟡 M3: Operaciones Monarca (vivir con el bot)
@@ -410,8 +417,8 @@ TOTAL checklist:  125 / 184  [x]  →  ~68%
 Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-08-02 (manto vs cero estructural · informe sesgo)  
-**Próximo ítem recomendado:** **3.8.P6b** tabla números Jess · elegir marcha con ETA · **4.0.2** Igris sim  
+**Última actualización checklist:** 2026-08-02 (cuartel VPS decisión Monarca · ETA parcial Jess)  
+**Próximo ítem recomendado:** **3.12.1** comprar VPS · runbook `24_CUARTEL_VPS.md` · luego ojos 24/7 · Igris sim en el mismo cuartel  
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
@@ -430,7 +437,7 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 3.8.P6b informe números Jess · marcha+ETA · 4.0.2 Igris sim.
+Siguiente: 3.12.1 VPS cuartel (24_CUARTEL_VPS.md) · ojos 24/7 · luego 4.0.2 Igris sim.
 Validar: scripts/validar_*_smoke.py + validar_bellion_oido_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).

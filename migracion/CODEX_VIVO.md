@@ -89,8 +89,9 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Frecuencia manto 3.5.8b2 (2026-07-24):** 4 umbrales (fees/½/tablas/morado) · plazos 50/40/10 · ETA por marcha · `manto_frecuencia.py` → tau Igris + panel
 - **Kaiser memoria barcos (2026-07-19):** Tank horario → `data/kaiser/memoria/` · digest vivo · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 - **Oído Monarca:** **Pergamino** (app) + susurro Bellion; Telegram = legado (`06_NOTIFICACIONES.md` v2)
-- **Próximo ítem checklist:** Jess corre **ETA 3 marchas** (`informe_eta_marchas.py --equity 1525`) · runbook [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md) · luego elegir marcha · **4.0.2** Igris sim
-- **Jess runbook informe:** [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md) · sesgo + ETA
+- **Cuartel VPS (decisión 2026-08-02):** casa fija ojos 24/7 fuera USA · runbook [`24_CUARTEL_VPS.md`](24_CUARTEL_VPS.md) · Jess Mac = respaldo · next=**3.12.1** comprar VPS
+- **Próximo ítem checklist:** **3.12.1** VPS · luego ojos 24/7 · Igris sim (**4.0.2**) en el mismo cuartel
+- **Jess runbook informe:** [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md) · sesgo + ETA (mejor desde VPS cuando viva)
 - **Validar:** `validar_tusk_boveda_mnt_smoke.py` · `validar_arise_ojos_smoke.py` · `validar_tusk_tesoreria_smoke.py` · `validar_bellion_oido_smoke.py` · `validar_beru_asset_detail_smoke.py` · `validar_manto_frecuencia_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_lote_bybit_smoke.py` · `validar_pase_director_smoke.py` · `validar_igris_smoke.py`
 - **Tono obligatorio:** `17_GUIA_MONARCA.md`
 
