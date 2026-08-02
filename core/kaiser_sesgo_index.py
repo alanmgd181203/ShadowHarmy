@@ -131,8 +131,25 @@ def perfil_sesgo_edge(base: str, edge: str) -> dict[str, Any]:
     }
 
 
+def _lider_para_sesgo(tank):
+    """Mismo criterio que Tank.vision_especulativa: verde/amarillo, si no el nodo más fresco.
+
+    El digest de sesgo es lectura (sin disparos). Si el semáforo está ROJO por latencia
+    pero aún hay precios/index en memoria, el clima vivo debe seguir publicándose.
+    """
+    if not tank:
+        return None
+    lider = tank._obtener_lider_verde()
+    if lider:
+        return lider
+    nodos = getattr(tank, "nodos", None) or []
+    if not nodos:
+        return None
+    return max(nodos, key=lambda n: getattr(n, "ultima_actualizacion", 0.0) or 0.0)
+
+
 def _precio_e_index(tank, base: str, mar: str) -> tuple[float | None, float | None]:
-    lider = tank._obtener_lider_verde() if tank else None
+    lider = _lider_para_sesgo(tank)
     if not lider:
         return None, None
     px = lider.precios_con_reflejo() if hasattr(lider, "precios_con_reflejo") else (lider.precios or {})
