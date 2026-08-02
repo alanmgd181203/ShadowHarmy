@@ -1,22 +1,26 @@
 {
-  "ts": 1785711288.8394299,
+  "ts": 1785711757.5120509,
+  "version": "detallado_residencia_volteos_v1",
   "doctrina": "CHECKPOINT_KAISER_INDICE_SESGO",
   "convencion": "signed_pct=(precio-index)/index*100",
+  "ventana_analisis": "mediano",
   "bases": [
     {
       "base": "LTC",
       "mares": {
         "lineal": {
-          "cero_pct": -0.0668,
+          "cero_pct": -0.066756,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1511,
-          "n_corto": 215,
-          "media_mediano": -0.068036
+          "n_mediano": 1509,
+          "n_corto": 213,
+          "media_mediano": -0.068037,
+          "p10_mediano": -0.089027,
+          "p90_mediano": -0.044228
         },
         "spot": {
           "cero_pct": 0.0,
@@ -26,9 +30,11 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1437,
-          "n_corto": 141,
-          "media_mediano": -9e-05
+          "n_mediano": 1435,
+          "n_corto": 139,
+          "media_mediano": -9e-05,
+          "p10_mediano": -0.022457,
+          "p90_mediano": 0.022416
         },
         "inverso": {
           "cero_pct": -0.221386,
@@ -38,26 +44,63 @@
             "SESGO_FUERTE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1465,
-          "n_corto": 169,
-          "media_mediano": -0.213913
+          "n_mediano": 1463,
+          "n_corto": 167,
+          "media_mediano": -0.2139,
+          "p10_mediano": -0.300429,
+          "p90_mediano": -0.104954
         }
+      },
+      "analisis_manto": {
+        "base": "LTC",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 22,
+        "fuente_serie": "lineal_vs_inverse",
+        "cero_gap_pct": 0.15463,
+        "cero_info": {
+          "base": "LTC",
+          "cero_pct": 0.15463,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.066756,
+          "cero_inverso_pct": -0.221386,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.57015,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.0,
+        "pct_tiempo_en_desfase": 1.0,
+        "pct_tiempo_volteado": 0.0,
+        "pct_tiempo_contra_sesgo": 0.0,
+        "pct_tiempo_favor_extra": 1.0,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 0,
+          "duracion_media_h": null,
+          "exceso_medio_pct": null,
+          "episodios_muestra": [],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~100% del tiempo en el desfase estructural (abrumador). Volteos: 0 episodios (~0.0% del tiempo)."
       }
     },
     {
       "base": "BTC",
       "mares": {
         "lineal": {
-          "cero_pct": -0.044538,
+          "cero_pct": -0.044568,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1511,
-          "n_corto": 215,
-          "media_mediano": -0.044064
+          "n_mediano": 1509,
+          "n_corto": 213,
+          "media_mediano": -0.04407,
+          "p10_mediano": -0.052862,
+          "p90_mediano": -0.03496
         },
         "spot": {
           "cero_pct": -0.000319,
@@ -67,22 +110,59 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1437,
-          "n_corto": 141,
-          "media_mediano": -8e-05
+          "n_mediano": 1435,
+          "n_corto": 139,
+          "media_mediano": -8.1e-05,
+          "p10_mediano": -0.006705,
+          "p90_mediano": 0.006227
         },
         "inverso": {
-          "cero_pct": -0.129695,
+          "cero_pct": -0.129627,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1437,
-          "n_corto": 141,
-          "media_mediano": -0.129977
+          "n_mediano": 1435,
+          "n_corto": 139,
+          "media_mediano": -0.12996,
+          "p10_mediano": -0.155998,
+          "p90_mediano": -0.104989
         }
+      },
+      "analisis_manto": {
+        "base": "BTC",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 1507,
+        "fuente_serie": "lineal_menos_inverso_index",
+        "cero_gap_pct": 0.085059,
+        "cero_info": {
+          "base": "BTC",
+          "cero_pct": 0.085059,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.044568,
+          "cero_inverso_pct": -0.129627,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.087869,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.9761,
+        "pct_tiempo_en_desfase": 0.992,
+        "pct_tiempo_volteado": 0.0,
+        "pct_tiempo_contra_sesgo": 0.008,
+        "pct_tiempo_favor_extra": 0.0159,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 0,
+          "duracion_media_h": null,
+          "exceso_medio_pct": null,
+          "episodios_muestra": [],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~99% del tiempo en el desfase estructural (abrumador). Volteos: 0 episodios (~0.0% del tiempo)."
       }
     },
     {
@@ -96,9 +176,11 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1511,
-          "n_corto": 215,
-          "media_mediano": -0.07674
+          "n_mediano": 1509,
+          "n_corto": 213,
+          "media_mediano": -0.076751,
+          "p10_mediano": -0.097255,
+          "p90_mediano": -0.055772
         },
         "spot": {
           "cero_pct": 0.0,
@@ -108,22 +190,168 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1437,
-          "n_corto": 141,
-          "media_mediano": 0.00282
+          "n_mediano": 1435,
+          "n_corto": 139,
+          "media_mediano": 0.002777,
+          "p10_mediano": -0.021492,
+          "p90_mediano": 0.030027
         },
         "inverso": {
-          "cero_pct": -0.228038,
+          "cero_pct": -0.22779,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_FUERTE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1440,
-          "n_corto": 144,
-          "media_mediano": -0.207782
+          "n_mediano": 1438,
+          "n_corto": 142,
+          "media_mediano": -0.207737,
+          "p10_mediano": -0.281045,
+          "p90_mediano": -0.098494
         }
+      },
+      "analisis_manto": {
+        "base": "AAVE",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 1509,
+        "fuente_serie": "lineal_menos_inverso_index",
+        "cero_gap_pct": 0.151379,
+        "cero_info": {
+          "base": "AAVE",
+          "cero_pct": 0.151379,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.076411,
+          "cero_inverso_pct": -0.22779,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.151614,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.6097,
+        "pct_tiempo_en_desfase": 0.7389,
+        "pct_tiempo_volteado": 0.0716,
+        "pct_tiempo_contra_sesgo": 0.2611,
+        "pct_tiempo_favor_extra": 0.1292,
+        "veredicto_residencia": "dominante",
+        "volteos": {
+          "n_episodios": 44,
+          "duracion_media_h": 0.1,
+          "exceso_medio_pct": 0.190165,
+          "episodios_muestra": [
+            {
+              "ts_inicio": 1783220400.0,
+              "ts_fin": 1783220400.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.034266,
+              "exceso_medio_pct": 0.185645,
+              "exceso_max_pct": 0.185645
+            },
+            {
+              "ts_inicio": 1783245600.0,
+              "ts_fin": 1783245600.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.011314,
+              "exceso_medio_pct": 0.162693,
+              "exceso_max_pct": 0.162693
+            },
+            {
+              "ts_inicio": 1783274400.0,
+              "ts_fin": 1783278000.0,
+              "n_muestras": 4,
+              "duracion_h": 1.0,
+              "gap_medio_pct": 0.0,
+              "exceso_medio_pct": 0.151379,
+              "exceso_max_pct": 0.151379
+            },
+            {
+              "ts_inicio": 1783339200.0,
+              "ts_fin": 1783339200.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.033033,
+              "exceso_medio_pct": 0.184412,
+              "exceso_max_pct": 0.184412
+            },
+            {
+              "ts_inicio": 1783350000.0,
+              "ts_fin": 1783350000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.010369,
+              "exceso_medio_pct": 0.161748,
+              "exceso_max_pct": 0.161748
+            },
+            {
+              "ts_inicio": 1783386000.0,
+              "ts_fin": 1783386000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": 0.0,
+              "exceso_medio_pct": 0.151379,
+              "exceso_max_pct": 0.151379
+            },
+            {
+              "ts_inicio": 1783400400.0,
+              "ts_fin": 1783404000.0,
+              "n_muestras": 4,
+              "duracion_h": 1.0,
+              "gap_medio_pct": -0.021619,
+              "exceso_medio_pct": 0.172998,
+              "exceso_max_pct": 0.183773
+            },
+            {
+              "ts_inicio": 1783533600.0,
+              "ts_fin": 1783533600.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": 0.0,
+              "exceso_medio_pct": 0.151379,
+              "exceso_max_pct": 0.151379
+            },
+            {
+              "ts_inicio": 1783580400.0,
+              "ts_fin": 1783580400.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.033875,
+              "exceso_medio_pct": 0.185254,
+              "exceso_max_pct": 0.185254
+            },
+            {
+              "ts_inicio": 1783645200.0,
+              "ts_fin": 1783645200.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.032362,
+              "exceso_medio_pct": 0.183741,
+              "exceso_max_pct": 0.183741
+            },
+            {
+              "ts_inicio": 1783796400.0,
+              "ts_fin": 1783796400.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.009822,
+              "exceso_medio_pct": 0.161201,
+              "exceso_max_pct": 0.161201
+            },
+            {
+              "ts_inicio": 1783810800.0,
+              "ts_fin": 1783810800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.020385,
+              "exceso_medio_pct": 0.171764,
+              "exceso_max_pct": 0.171764
+            }
+          ],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~74% del tiempo en el desfase estructural (dominante). Volteos: 44 episodios (~7.2% del tiempo)."
       }
     },
     {
@@ -137,9 +365,11 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1511,
-          "n_corto": 215,
-          "media_mediano": -0.058906
+          "n_mediano": 1509,
+          "n_corto": 213,
+          "media_mediano": -0.05891,
+          "p10_mediano": -0.119048,
+          "p90_mediano": 0.0
         },
         "spot": {
           "cero_pct": 0.0,
@@ -149,38 +379,77 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1437,
-          "n_corto": 141,
-          "media_mediano": -0.000633
+          "n_mediano": 1435,
+          "n_corto": 139,
+          "media_mediano": -0.000634,
+          "p10_mediano": -0.060533,
+          "p90_mediano": 0.058858
         },
         "inverso": {
-          "cero_pct": -0.159067,
+          "cero_pct": -0.158898,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_FUERTE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1461,
-          "n_corto": 165,
-          "media_mediano": -0.159815
+          "n_mediano": 1459,
+          "n_corto": 163,
+          "media_mediano": -0.159806,
+          "p10_mediano": -0.192802,
+          "p90_mediano": -0.108814
         }
+      },
+      "analisis_manto": {
+        "base": "ADA",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 29,
+        "fuente_serie": "lineal_vs_inverse",
+        "cero_gap_pct": 0.098766,
+        "cero_info": {
+          "base": "ADA",
+          "cero_pct": 0.098766,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.060132,
+          "cero_inverso_pct": -0.158898,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.9605,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.0,
+        "pct_tiempo_en_desfase": 1.0,
+        "pct_tiempo_volteado": 0.0,
+        "pct_tiempo_contra_sesgo": 0.0,
+        "pct_tiempo_favor_extra": 1.0,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 0,
+          "duracion_media_h": null,
+          "exceso_medio_pct": null,
+          "episodios_muestra": [],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~100% del tiempo en el desfase estructural (abrumador). Volteos: 0 episodios (~0.0% del tiempo)."
       }
     },
     {
       "base": "APT",
       "mares": {
         "lineal": {
-          "cero_pct": -0.064123,
+          "cero_pct": -0.064082,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1511,
-          "n_corto": 215,
-          "media_mediano": -0.061963
+          "n_mediano": 1509,
+          "n_corto": 213,
+          "media_mediano": -0.061941,
+          "p10_mediano": -0.113287,
+          "p90_mediano": 0.0
         },
         "spot": {
           "cero_pct": 0.0,
@@ -190,9 +459,11 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1437,
-          "n_corto": 141,
-          "media_mediano": 0.004586
+          "n_mediano": 1435,
+          "n_corto": 139,
+          "media_mediano": 0.004614,
+          "p10_mediano": -0.053706,
+          "p90_mediano": 0.065552
         },
         "inverso": {
           "cero_pct": -0.203507,
@@ -202,10 +473,45 @@
             "SESGO_FUERTE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1475,
-          "n_corto": 179,
-          "media_mediano": -0.255242
+          "n_mediano": 1473,
+          "n_corto": 177,
+          "media_mediano": -0.255226,
+          "p10_mediano": -0.538827,
+          "p90_mediano": -0.068213
         }
+      },
+      "analisis_manto": {
+        "base": "APT",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 48,
+        "fuente_serie": "lineal_vs_inverse",
+        "cero_gap_pct": 0.139425,
+        "cero_info": {
+          "base": "APT",
+          "cero_pct": 0.139425,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.064082,
+          "cero_inverso_pct": -0.203507,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.9431,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.0,
+        "pct_tiempo_en_desfase": 1.0,
+        "pct_tiempo_volteado": 0.0,
+        "pct_tiempo_contra_sesgo": 0.0,
+        "pct_tiempo_favor_extra": 1.0,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 0,
+          "duracion_media_h": null,
+          "exceso_medio_pct": null,
+          "episodios_muestra": [],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~100% del tiempo en el desfase estructural (abrumador). Volteos: 0 episodios (~0.0% del tiempo)."
       }
     },
     {
@@ -219,9 +525,11 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1512,
-          "n_corto": 216,
-          "media_mediano": -0.0628
+          "n_mediano": 1510,
+          "n_corto": 214,
+          "media_mediano": -0.062787,
+          "p10_mediano": -0.088425,
+          "p90_mediano": -0.044484
         },
         "spot": {
           "cero_pct": 0.0,
@@ -231,38 +539,77 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1433,
-          "n_corto": 137,
-          "media_mediano": -0.000492
+          "n_mediano": 1431,
+          "n_corto": 135,
+          "media_mediano": -0.000472,
+          "p10_mediano": -0.016067,
+          "p90_mediano": 0.028498
         },
         "inverso": {
-          "cero_pct": -0.13465,
+          "cero_pct": -0.13466,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1476,
-          "n_corto": 180,
-          "media_mediano": -0.149186
+          "n_mediano": 1474,
+          "n_corto": 178,
+          "media_mediano": -0.149232,
+          "p10_mediano": -0.195696,
+          "p90_mediano": -0.060459
         }
+      },
+      "analisis_manto": {
+        "base": "AVAX",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 50,
+        "fuente_serie": "lineal_vs_inverse",
+        "cero_gap_pct": 0.073712,
+        "cero_info": {
+          "base": "AVAX",
+          "cero_pct": 0.073712,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.060948,
+          "cero_inverso_pct": -0.13466,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.87405,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.0,
+        "pct_tiempo_en_desfase": 1.0,
+        "pct_tiempo_volteado": 0.0,
+        "pct_tiempo_contra_sesgo": 0.0,
+        "pct_tiempo_favor_extra": 1.0,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 0,
+          "duracion_media_h": null,
+          "exceso_medio_pct": null,
+          "episodios_muestra": [],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~100% del tiempo en el desfase estructural (abrumador). Volteos: 0 episodios (~0.0% del tiempo)."
       }
     },
     {
       "base": "BCH",
       "mares": {
         "lineal": {
-          "cero_pct": -0.085718,
+          "cero_pct": -0.085641,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1512,
-          "n_corto": 216,
-          "media_mediano": -0.084762
+          "n_mediano": 1510,
+          "n_corto": 214,
+          "media_mediano": -0.084753,
+          "p10_mediano": -0.117421,
+          "p90_mediano": -0.050629
         },
         "spot": {
           "cero_pct": -0.008474,
@@ -272,38 +619,186 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1433,
-          "n_corto": 137,
-          "media_mediano": -0.008993
+          "n_mediano": 1431,
+          "n_corto": 135,
+          "media_mediano": -0.009011,
+          "p10_mediano": -0.05706,
+          "p90_mediano": 0.037362
         },
         "inverso": {
-          "cero_pct": -0.32846,
+          "cero_pct": -0.328784,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_FUERTE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1435,
-          "n_corto": 139,
-          "media_mediano": -0.286856
+          "n_mediano": 1433,
+          "n_corto": 137,
+          "media_mediano": -0.287019,
+          "p10_mediano": -0.386792,
+          "p90_mediano": -0.093407
         }
+      },
+      "analisis_manto": {
+        "base": "BCH",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 1508,
+        "fuente_serie": "lineal_menos_inverso_index",
+        "cero_gap_pct": 0.243143,
+        "cero_info": {
+          "base": "BCH",
+          "cero_pct": 0.243143,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.085641,
+          "cero_inverso_pct": -0.328784,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.240505,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.5053,
+        "pct_tiempo_en_desfase": 0.6512,
+        "pct_tiempo_volteado": 0.1963,
+        "pct_tiempo_contra_sesgo": 0.3488,
+        "pct_tiempo_favor_extra": 0.1459,
+        "veredicto_residencia": "dominante",
+        "volteos": {
+          "n_episodios": 100,
+          "duracion_media_h": 0.42,
+          "exceso_medio_pct": 0.224924,
+          "episodios_muestra": [
+            {
+              "ts_inicio": 1783123200.0,
+              "ts_fin": 1783123200.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": 0.048281,
+              "exceso_medio_pct": 0.194862,
+              "exceso_max_pct": 0.194862
+            },
+            {
+              "ts_inicio": 1783144800.0,
+              "ts_fin": 1783152000.0,
+              "n_muestras": 6,
+              "duracion_h": 2.0,
+              "gap_medio_pct": 0.026466,
+              "exceso_medio_pct": 0.216677,
+              "exceso_max_pct": 0.238715
+            },
+            {
+              "ts_inicio": 1783180800.0,
+              "ts_fin": 1783191600.0,
+              "n_muestras": 8,
+              "duracion_h": 3.0,
+              "gap_medio_pct": 0.023674,
+              "exceso_medio_pct": 0.219469,
+              "exceso_max_pct": 0.255964
+            },
+            {
+              "ts_inicio": 1783198800.0,
+              "ts_fin": 1783198800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": 0.042675,
+              "exceso_medio_pct": 0.200468,
+              "exceso_max_pct": 0.200468
+            },
+            {
+              "ts_inicio": 1783206000.0,
+              "ts_fin": 1783206000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": 0.016934,
+              "exceso_medio_pct": 0.226209,
+              "exceso_max_pct": 0.226209
+            },
+            {
+              "ts_inicio": 1783220400.0,
+              "ts_fin": 1783224000.0,
+              "n_muestras": 4,
+              "duracion_h": 1.0,
+              "gap_medio_pct": 0.067135,
+              "exceso_medio_pct": 0.176008,
+              "exceso_max_pct": 0.192401
+            },
+            {
+              "ts_inicio": 1783231200.0,
+              "ts_fin": 1783238400.0,
+              "n_muestras": 6,
+              "duracion_h": 2.0,
+              "gap_medio_pct": 0.063808,
+              "exceso_medio_pct": 0.179335,
+              "exceso_max_pct": 0.201463
+            },
+            {
+              "ts_inicio": 1783249200.0,
+              "ts_fin": 1783249200.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": 0.038008,
+              "exceso_medio_pct": 0.205135,
+              "exceso_max_pct": 0.205135
+            },
+            {
+              "ts_inicio": 1783278000.0,
+              "ts_fin": 1783281600.0,
+              "n_muestras": 4,
+              "duracion_h": 1.0,
+              "gap_medio_pct": -0.004118,
+              "exceso_medio_pct": 0.247261,
+              "exceso_max_pct": 0.255408
+            },
+            {
+              "ts_inicio": 1783288800.0,
+              "ts_fin": 1783288800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": 0.03286,
+              "exceso_medio_pct": 0.210283,
+              "exceso_max_pct": 0.210283
+            },
+            {
+              "ts_inicio": 1783314000.0,
+              "ts_fin": 1783314000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": 0.049634,
+              "exceso_medio_pct": 0.193509,
+              "exceso_max_pct": 0.193509
+            },
+            {
+              "ts_inicio": 1783328400.0,
+              "ts_fin": 1783328400.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": 0.08415,
+              "exceso_medio_pct": 0.158993,
+              "exceso_max_pct": 0.158993
+            }
+          ],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~65% del tiempo en el desfase estructural (dominante). Volteos: 100 episodios (~19.6% del tiempo)."
       }
     },
     {
       "base": "DOGE",
       "mares": {
         "lineal": {
-          "cero_pct": -0.054949,
+          "cero_pct": -0.054953,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1512,
-          "n_corto": 216,
-          "media_mediano": -0.053824
+          "n_mediano": 1510,
+          "n_corto": 214,
+          "media_mediano": -0.053827,
+          "p10_mediano": -0.069347,
+          "p90_mediano": -0.040827
         },
         "spot": {
           "cero_pct": 0.0,
@@ -313,9 +808,11 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1433,
-          "n_corto": 137,
-          "media_mediano": 0.000638
+          "n_mediano": 1431,
+          "n_corto": 135,
+          "media_mediano": 0.000639,
+          "p10_mediano": -0.014457,
+          "p90_mediano": 0.02558
         },
         "inverso": {
           "cero_pct": -0.099573,
@@ -325,26 +822,82 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1433,
-          "n_corto": 137,
-          "media_mediano": -0.108154
+          "n_mediano": 1431,
+          "n_corto": 135,
+          "media_mediano": -0.108071,
+          "p10_mediano": -0.179533,
+          "p90_mediano": -0.05515
         }
+      },
+      "analisis_manto": {
+        "base": "DOGE",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 1508,
+        "fuente_serie": "lineal_menos_inverso_index",
+        "cero_gap_pct": 0.04462,
+        "cero_info": {
+          "base": "DOGE",
+          "cero_pct": 0.04462,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.054953,
+          "cero_inverso_pct": -0.099573,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.042499,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.6817,
+        "pct_tiempo_en_desfase": 0.9271,
+        "pct_tiempo_volteado": 0.0106,
+        "pct_tiempo_contra_sesgo": 0.0729,
+        "pct_tiempo_favor_extra": 0.2454,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 2,
+          "duracion_media_h": 3.0,
+          "exceso_medio_pct": 0.311677,
+          "episodios_muestra": [
+            {
+              "ts_inicio": 1785603600.0,
+              "ts_fin": 1785621600.0,
+              "n_muestras": 12,
+              "duracion_h": 5.0,
+              "gap_medio_pct": -0.411702,
+              "exceso_medio_pct": 0.456322,
+              "exceso_max_pct": 0.599122
+            },
+            {
+              "ts_inicio": 1785628800.0,
+              "ts_fin": 1785632400.0,
+              "n_muestras": 4,
+              "duracion_h": 1.0,
+              "gap_medio_pct": -0.122413,
+              "exceso_medio_pct": 0.167033,
+              "exceso_max_pct": 0.173838
+            }
+          ],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~93% del tiempo en el desfase estructural (abrumador). Volteos: 2 episodios (~1.1% del tiempo)."
       }
     },
     {
       "base": "DOT",
       "mares": {
         "lineal": {
-          "cero_pct": -0.071166,
+          "cero_pct": -0.071179,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1512,
-          "n_corto": 216,
-          "media_mediano": -0.068516
+          "n_mediano": 1510,
+          "n_corto": 214,
+          "media_mediano": -0.068516,
+          "p10_mediano": -0.104159,
+          "p90_mediano": -0.026361
         },
         "spot": {
           "cero_pct": 0.0,
@@ -354,38 +907,77 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1433,
-          "n_corto": 137,
-          "media_mediano": 0.001855
+          "n_mediano": 1431,
+          "n_corto": 135,
+          "media_mediano": 0.001873,
+          "p10_mediano": -0.036372,
+          "p90_mediano": 0.036896
         },
         "inverso": {
-          "cero_pct": -0.138161,
+          "cero_pct": -0.138265,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1466,
-          "n_corto": 170,
-          "media_mediano": -0.147787
+          "n_mediano": 1464,
+          "n_corto": 168,
+          "media_mediano": -0.14785,
+          "p10_mediano": -0.211472,
+          "p90_mediano": -0.073851
         }
+      },
+      "analisis_manto": {
+        "base": "DOT",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 30,
+        "fuente_serie": "lineal_vs_inverse",
+        "cero_gap_pct": 0.067086,
+        "cero_info": {
+          "base": "DOT",
+          "cero_pct": 0.067086,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.071179,
+          "cero_inverso_pct": -0.138265,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.5281,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.0,
+        "pct_tiempo_en_desfase": 1.0,
+        "pct_tiempo_volteado": 0.0,
+        "pct_tiempo_contra_sesgo": 0.0,
+        "pct_tiempo_favor_extra": 1.0,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 0,
+          "duracion_media_h": null,
+          "exceso_medio_pct": null,
+          "episodios_muestra": [],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~100% del tiempo en el desfase estructural (abrumador). Volteos: 0 episodios (~0.0% del tiempo)."
       }
     },
     {
       "base": "ETC",
       "mares": {
         "lineal": {
-          "cero_pct": -0.059952,
+          "cero_pct": -0.05997,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1512,
-          "n_corto": 216,
-          "media_mediano": -0.063337
+          "n_mediano": 1510,
+          "n_corto": 214,
+          "media_mediano": -0.063348,
+          "p10_mediano": -0.108681,
+          "p90_mediano": -0.014961
         },
         "spot": {
           "cero_pct": 0.028527,
@@ -395,38 +987,186 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1433,
-          "n_corto": 137,
-          "media_mediano": 0.023487
+          "n_mediano": 1431,
+          "n_corto": 135,
+          "media_mediano": 0.023404,
+          "p10_mediano": -0.043234,
+          "p90_mediano": 0.08668
         },
         "inverso": {
-          "cero_pct": -0.156028,
+          "cero_pct": -0.155587,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_FUERTE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1433,
-          "n_corto": 137,
-          "media_mediano": -0.158836
+          "n_mediano": 1431,
+          "n_corto": 135,
+          "media_mediano": -0.158807,
+          "p10_mediano": -0.296067,
+          "p90_mediano": -0.029533
         }
+      },
+      "analisis_manto": {
+        "base": "ETC",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 1508,
+        "fuente_serie": "lineal_menos_inverso_index",
+        "cero_gap_pct": 0.095617,
+        "cero_info": {
+          "base": "ETC",
+          "cero_pct": 0.095617,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.05997,
+          "cero_inverso_pct": -0.155587,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.088287,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.3342,
+        "pct_tiempo_en_desfase": 0.6393,
+        "pct_tiempo_volteado": 0.0603,
+        "pct_tiempo_contra_sesgo": 0.3607,
+        "pct_tiempo_favor_extra": 0.305,
+        "veredicto_residencia": "mitad_mitad",
+        "volteos": {
+          "n_episodios": 41,
+          "duracion_media_h": 0.08,
+          "exceso_medio_pct": 0.187433,
+          "episodios_muestra": [
+            {
+              "ts_inicio": 1783134000.0,
+              "ts_fin": 1783134000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.097615,
+              "exceso_medio_pct": 0.193232,
+              "exceso_max_pct": 0.193232
+            },
+            {
+              "ts_inicio": 1783224000.0,
+              "ts_fin": 1783224000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.140036,
+              "exceso_medio_pct": 0.235653,
+              "exceso_max_pct": 0.235653
+            },
+            {
+              "ts_inicio": 1783335600.0,
+              "ts_fin": 1783335600.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.112819,
+              "exceso_medio_pct": 0.208436,
+              "exceso_max_pct": 0.208436
+            },
+            {
+              "ts_inicio": 1783375200.0,
+              "ts_fin": 1783375200.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.056093,
+              "exceso_medio_pct": 0.15171,
+              "exceso_max_pct": 0.15171
+            },
+            {
+              "ts_inicio": 1783440000.0,
+              "ts_fin": 1783440000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.127606,
+              "exceso_medio_pct": 0.223223,
+              "exceso_max_pct": 0.223223
+            },
+            {
+              "ts_inicio": 1783450800.0,
+              "ts_fin": 1783450800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.057306,
+              "exceso_medio_pct": 0.152923,
+              "exceso_max_pct": 0.152923
+            },
+            {
+              "ts_inicio": 1783479600.0,
+              "ts_fin": 1783479600.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.101878,
+              "exceso_medio_pct": 0.197495,
+              "exceso_max_pct": 0.197495
+            },
+            {
+              "ts_inicio": 1783566000.0,
+              "ts_fin": 1783566000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.071922,
+              "exceso_medio_pct": 0.167539,
+              "exceso_max_pct": 0.167539
+            },
+            {
+              "ts_inicio": 1783584000.0,
+              "ts_fin": 1783584000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.071418,
+              "exceso_medio_pct": 0.167035,
+              "exceso_max_pct": 0.167035
+            },
+            {
+              "ts_inicio": 1783684800.0,
+              "ts_fin": 1783684800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.098744,
+              "exceso_medio_pct": 0.194361,
+              "exceso_max_pct": 0.194361
+            },
+            {
+              "ts_inicio": 1783702800.0,
+              "ts_fin": 1783702800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.070602,
+              "exceso_medio_pct": 0.166219,
+              "exceso_max_pct": 0.166219
+            },
+            {
+              "ts_inicio": 1783782000.0,
+              "ts_fin": 1783782000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.084484,
+              "exceso_medio_pct": 0.180101,
+              "exceso_max_pct": 0.180101
+            }
+          ],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~64% del tiempo en el desfase estructural (mitad_mitad). Volteos: 41 episodios (~6.0% del tiempo)."
       }
     },
     {
       "base": "ETH",
       "mares": {
         "lineal": {
-          "cero_pct": -0.046498,
+          "cero_pct": -0.046513,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1512,
-          "n_corto": 216,
-          "media_mediano": -0.046313
+          "n_mediano": 1510,
+          "n_corto": 214,
+          "media_mediano": -0.046314,
+          "p10_mediano": -0.055087,
+          "p90_mediano": -0.037161
         },
         "spot": {
           "cero_pct": 0.0,
@@ -436,22 +1176,59 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1433,
-          "n_corto": 137,
-          "media_mediano": -3.3e-05
+          "n_mediano": 1431,
+          "n_corto": 135,
+          "media_mediano": -3.8e-05,
+          "p10_mediano": -0.00696,
+          "p90_mediano": 0.006979
         },
         "inverso": {
-          "cero_pct": -0.150194,
+          "cero_pct": -0.150217,
           "fuente": "mediano",
           "etiquetas": [
             "SUELE_BARATO_VS_INDEX",
             "SESGO_FUERTE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1458,
-          "n_corto": 162,
-          "media_mediano": -0.137209
+          "n_mediano": 1456,
+          "n_corto": 160,
+          "media_mediano": -0.137191,
+          "p10_mediano": -0.174228,
+          "p90_mediano": -0.121988
         }
+      },
+      "analisis_manto": {
+        "base": "ETH",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 39,
+        "fuente_serie": "lineal_vs_inverse",
+        "cero_gap_pct": 0.103704,
+        "cero_info": {
+          "base": "ETH",
+          "cero_pct": 0.103704,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.046513,
+          "cero_inverso_pct": -0.150217,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.6091,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.0,
+        "pct_tiempo_en_desfase": 1.0,
+        "pct_tiempo_volteado": 0.0,
+        "pct_tiempo_contra_sesgo": 0.0,
+        "pct_tiempo_favor_extra": 1.0,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 0,
+          "duracion_media_h": null,
+          "exceso_medio_pct": null,
+          "episodios_muestra": [],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~100% del tiempo en el desfase estructural (abrumador). Volteos: 0 episodios (~0.0% del tiempo)."
       }
     },
     {
@@ -467,7 +1244,9 @@
           ],
           "n_mediano": 88,
           "n_corto": 88,
-          "media_mediano": -0.074727
+          "media_mediano": -0.074727,
+          "p10_mediano": -0.09706,
+          "p90_mediano": -0.068177
         },
         "spot": {
           "cero_pct": null,
@@ -477,7 +1256,9 @@
           ],
           "n_mediano": 0,
           "n_corto": 0,
-          "media_mediano": null
+          "media_mediano": null,
+          "p10_mediano": null,
+          "p90_mediano": null
         },
         "inverso": {
           "cero_pct": -0.4856,
@@ -487,8 +1268,43 @@
           ],
           "n_mediano": 8,
           "n_corto": 8,
-          "media_mediano": -0.4856
+          "media_mediano": -0.4856,
+          "p10_mediano": null,
+          "p90_mediano": null
         }
+      },
+      "analisis_manto": {
+        "base": "FIL",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 36,
+        "fuente_serie": "lineal_menos_inverso_index",
+        "cero_gap_pct": 0.416223,
+        "cero_info": {
+          "base": "FIL",
+          "cero_pct": 0.416223,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.069377,
+          "cero_inverso_pct": -0.4856,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.416223,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 1.0,
+        "pct_tiempo_en_desfase": 1.0,
+        "pct_tiempo_volteado": 0.0,
+        "pct_tiempo_contra_sesgo": 0.0,
+        "pct_tiempo_favor_extra": 0.0,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 0,
+          "duracion_media_h": null,
+          "exceso_medio_pct": null,
+          "episodios_muestra": [],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~100% del tiempo en el desfase estructural (abrumador). Volteos: 0 episodios (~0.0% del tiempo)."
       }
     },
     {
@@ -504,7 +1320,9 @@
           ],
           "n_mediano": 88,
           "n_corto": 88,
-          "media_mediano": -0.050206
+          "media_mediano": -0.050206,
+          "p10_mediano": -0.05614,
+          "p90_mediano": -0.049707
         },
         "spot": {
           "cero_pct": null,
@@ -514,7 +1332,9 @@
           ],
           "n_mediano": 0,
           "n_corto": 0,
-          "media_mediano": null
+          "media_mediano": null,
+          "p10_mediano": null,
+          "p90_mediano": null
         },
         "inverso": {
           "cero_pct": 0.5793,
@@ -526,8 +1346,53 @@
           ],
           "n_mediano": 15,
           "n_corto": 15,
-          "media_mediano": 0.464713
+          "media_mediano": 0.464713,
+          "p10_mediano": -0.6313,
+          "p90_mediano": 0.73338
         }
+      },
+      "analisis_manto": {
+        "base": "HYPE",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 21,
+        "fuente_serie": "lineal_vs_inverse",
+        "cero_gap_pct": -0.629007,
+        "cero_info": {
+          "base": "HYPE",
+          "cero_pct": -0.629007,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.049707,
+          "cero_inverso_pct": 0.5793,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.6905,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.0,
+        "pct_tiempo_en_desfase": 0.0,
+        "pct_tiempo_volteado": 1.0,
+        "pct_tiempo_contra_sesgo": 1.0,
+        "pct_tiempo_favor_extra": 0.0,
+        "veredicto_residencia": "inestable",
+        "volteos": {
+          "n_episodios": 1,
+          "duracion_media_h": 16.75,
+          "exceso_medio_pct": 1.344217,
+          "episodios_muestra": [
+            {
+              "ts_inicio": 1785647675.744213,
+              "ts_fin": 1785707976.274952,
+              "n_muestras": 21,
+              "duracion_h": 16.75,
+              "gap_medio_pct": 0.71521,
+              "exceso_medio_pct": 1.344217,
+              "exceso_max_pct": 1.941507
+            }
+          ],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~0% del tiempo en el desfase estructural (inestable). Volteos: 1 episodios (~100.0% del tiempo)."
       }
     },
     {
@@ -543,7 +1408,9 @@
           ],
           "n_mediano": 88,
           "n_corto": 88,
-          "media_mediano": -0.046027
+          "media_mediano": -0.046027,
+          "p10_mediano": -0.083692,
+          "p90_mediano": -0.035976
         },
         "spot": {
           "cero_pct": null,
@@ -553,7 +1420,9 @@
           ],
           "n_mediano": 0,
           "n_corto": 0,
-          "media_mediano": null
+          "media_mediano": null,
+          "p10_mediano": null,
+          "p90_mediano": null
         },
         "inverso": {
           "cero_pct": -0.4677,
@@ -563,8 +1432,43 @@
           ],
           "n_mediano": 10,
           "n_corto": 10,
-          "media_mediano": -0.4689
+          "media_mediano": -0.4689,
+          "p10_mediano": -0.4785,
+          "p90_mediano": -0.4677
         }
+      },
+      "analisis_manto": {
+        "base": "LINK",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 48,
+        "fuente_serie": "lineal_menos_inverso_index",
+        "cero_gap_pct": 0.431724,
+        "cero_info": {
+          "base": "LINK",
+          "cero_pct": 0.431724,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.035976,
+          "cero_inverso_pct": -0.4677,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.431724,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 1.0,
+        "pct_tiempo_en_desfase": 1.0,
+        "pct_tiempo_volteado": 0.0,
+        "pct_tiempo_contra_sesgo": 0.0,
+        "pct_tiempo_favor_extra": 0.0,
+        "veredicto_residencia": "abrumador",
+        "volteos": {
+          "n_episodios": 0,
+          "duracion_media_h": null,
+          "exceso_medio_pct": null,
+          "episodios_muestra": [],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~100% del tiempo en el desfase estructural (abrumador). Volteos: 0 episodios (~0.0% del tiempo)."
       }
     },
     {
@@ -578,9 +1482,11 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1511,
-          "n_corto": 215,
-          "media_mediano": -0.07536
+          "n_mediano": 1509,
+          "n_corto": 213,
+          "media_mediano": -0.075407,
+          "p10_mediano": -0.107813,
+          "p90_mediano": -0.046264
         },
         "spot": {
           "cero_pct": 0.0,
@@ -590,9 +1496,11 @@
             "SESGO_LEVE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1437,
-          "n_corto": 141,
-          "media_mediano": -0.000221
+          "n_mediano": 1435,
+          "n_corto": 139,
+          "media_mediano": -0.000228,
+          "p10_mediano": -0.007141,
+          "p90_mediano": 0.006937
         },
         "inverso": {
           "cero_pct": -0.163666,
@@ -602,10 +1510,154 @@
             "SESGO_FUERTE",
             "CERO_ESTRUCTURAL"
           ],
-          "n_mediano": 1437,
-          "n_corto": 141,
-          "media_mediano": -0.176764
+          "n_mediano": 1435,
+          "n_corto": 139,
+          "media_mediano": -0.176862,
+          "p10_mediano": -0.318284,
+          "p90_mediano": -0.074196
         }
+      },
+      "analisis_manto": {
+        "base": "MNT",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 1507,
+        "fuente_serie": "lineal_menos_inverso_index",
+        "cero_gap_pct": 0.088346,
+        "cero_info": {
+          "base": "MNT",
+          "cero_pct": 0.088346,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.07532,
+          "cero_inverso_pct": -0.163666,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.091598,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.4141,
+        "pct_tiempo_en_desfase": 0.7153,
+        "pct_tiempo_volteado": 0.0418,
+        "pct_tiempo_contra_sesgo": 0.2847,
+        "pct_tiempo_favor_extra": 0.3013,
+        "veredicto_residencia": "dominante",
+        "volteos": {
+          "n_episodios": 20,
+          "duracion_media_h": 0.32,
+          "exceso_medio_pct": 0.186792,
+          "episodios_muestra": [
+            {
+              "ts_inicio": 1784296800.0,
+              "ts_fin": 1784296800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.079693,
+              "exceso_medio_pct": 0.168039,
+              "exceso_max_pct": 0.168039
+            },
+            {
+              "ts_inicio": 1784818800.0,
+              "ts_fin": 1784818800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.097723,
+              "exceso_medio_pct": 0.186069,
+              "exceso_max_pct": 0.186069
+            },
+            {
+              "ts_inicio": 1784829600.0,
+              "ts_fin": 1784829600.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.073832,
+              "exceso_medio_pct": 0.162178,
+              "exceso_max_pct": 0.162178
+            },
+            {
+              "ts_inicio": 1784840400.0,
+              "ts_fin": 1784840400.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.095637,
+              "exceso_medio_pct": 0.183983,
+              "exceso_max_pct": 0.183983
+            },
+            {
+              "ts_inicio": 1785168000.0,
+              "ts_fin": 1785168000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.108137,
+              "exceso_medio_pct": 0.196483,
+              "exceso_max_pct": 0.196483
+            },
+            {
+              "ts_inicio": 1785178800.0,
+              "ts_fin": 1785178800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.07422,
+              "exceso_medio_pct": 0.162566,
+              "exceso_max_pct": 0.162566
+            },
+            {
+              "ts_inicio": 1785254400.0,
+              "ts_fin": 1785254400.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.1,
+              "exceso_medio_pct": 0.188346,
+              "exceso_max_pct": 0.188346
+            },
+            {
+              "ts_inicio": 1785286800.0,
+              "ts_fin": 1785286800.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.089881,
+              "exceso_medio_pct": 0.178227,
+              "exceso_max_pct": 0.178227
+            },
+            {
+              "ts_inicio": 1785294000.0,
+              "ts_fin": 1785294000.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.099699,
+              "exceso_medio_pct": 0.188045,
+              "exceso_max_pct": 0.188045
+            },
+            {
+              "ts_inicio": 1785409200.0,
+              "ts_fin": 1785409200.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.125777,
+              "exceso_medio_pct": 0.214123,
+              "exceso_max_pct": 0.214123
+            },
+            {
+              "ts_inicio": 1785416400.0,
+              "ts_fin": 1785416400.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.092965,
+              "exceso_medio_pct": 0.181311,
+              "exceso_max_pct": 0.181311
+            },
+            {
+              "ts_inicio": 1785488400.0,
+              "ts_fin": 1785488400.0,
+              "n_muestras": 2,
+              "duracion_h": 0.0,
+              "gap_medio_pct": -0.101495,
+              "exceso_medio_pct": 0.189841,
+              "exceso_max_pct": 0.189841
+            }
+          ],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~72% del tiempo en el desfase estructural (dominante). Volteos: 20 episodios (~4.2% del tiempo)."
       }
     },
     {
@@ -621,7 +1673,9 @@
           ],
           "n_mediano": 88,
           "n_corto": 88,
-          "media_mediano": -0.04872
+          "media_mediano": -0.04872,
+          "p10_mediano": -0.081804,
+          "p90_mediano": -0.041157
         },
         "spot": {
           "cero_pct": null,
@@ -631,7 +1685,9 @@
           ],
           "n_mediano": 0,
           "n_corto": 0,
-          "media_mediano": null
+          "media_mediano": null,
+          "p10_mediano": null,
+          "p90_mediano": null
         },
         "inverso": {
           "cero_pct": 0.0059,
@@ -641,10 +1697,55 @@
           ],
           "n_mediano": 6,
           "n_corto": 6,
-          "media_mediano": -0.148067
+          "media_mediano": -0.148067,
+          "p10_mediano": null,
+          "p90_mediano": null
         }
+      },
+      "analisis_manto": {
+        "base": "NEAR",
+        "ok": true,
+        "ventana": "mediano",
+        "ventana_dias": 30.0,
+        "n": 79,
+        "fuente_serie": "lineal_menos_inverso_index",
+        "cero_gap_pct": -0.047057,
+        "cero_info": {
+          "base": "NEAR",
+          "cero_pct": -0.047057,
+          "fuente": "index_lineal_menos_inverso",
+          "cero_lineal_pct": -0.041157,
+          "cero_inverso_pct": 0.0059,
+          "ok": true
+        },
+        "mediana_serie_pct": 0.440943,
+        "epsilon_pct": 0.05,
+        "pct_tiempo_clima_normal": 0.0,
+        "pct_tiempo_en_desfase": 0.4937,
+        "pct_tiempo_volteado": 0.5063,
+        "pct_tiempo_contra_sesgo": 0.5063,
+        "pct_tiempo_favor_extra": 0.4937,
+        "veredicto_residencia": "mitad_mitad",
+        "volteos": {
+          "n_episodios": 1,
+          "duracion_media_h": 2.08,
+          "exceso_medio_pct": 1.306167,
+          "episodios_muestra": [
+            {
+              "ts_inicio": 1785696980.334135,
+              "ts_fin": 1785704457.200394,
+              "n_muestras": 40,
+              "duracion_h": 2.08,
+              "gap_medio_pct": 1.259111,
+              "exceso_medio_pct": 1.306167,
+              "exceso_max_pct": 1.9109
+            }
+          ],
+          "nota": "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). Candidatos a planear/aprovechar; no son el gap eterno."
+        },
+        "lectura": "Vive ~49% del tiempo en el desfase estructural (mitad_mitad). Volteos: 1 episodios (~50.6% del tiempo)."
       }
     }
   ],
-  "nota_monarca": "Cero estructural = mediana hist\u00f3rica vs \u00edndice. Oportunidad de manto = salir de ese cero, no el gap eterno."
+  "nota_monarca": "Cero = mediana vs indice. % en desfase = cuanto tiempo vive el gap en ese clima. Volteos = lado opuesto del cero (planear/aprovechar)."
 }
