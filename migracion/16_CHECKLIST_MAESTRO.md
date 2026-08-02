@@ -206,6 +206,7 @@
 - [ ] **3.8.P3** Karmish (mundo externo) — pausa doctrinal
 - [x] **3.8.P4** Checkpoint índice absoluto + sesgo estructural — doctrina Monarca 2026-08-02 · [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md)
 - [x] **3.8.P5** Tag `sesgo_estructural` + backfill lineal/spot/inverso vs index (bases necesarias + MNT) · `kaiser_sesgo_index` · `kaiser_backfill` · smokes · **sin metaverso completo aún**
+- [x] **3.8.P5b** Sesgo vivo con Tank ROJO → nodo más fresco (`_lider_para_sesgo`) · Jess `a1f2e7e` · ritual ojos México OK
 
 ### 3.9 Beru — doctrina cirugía final *(2026-07-09 → 07-12 — COMPLETA en smokes)*
 
@@ -249,9 +250,9 @@
 ### 4.0 Despliegue por capas (ojos → manto → Beru)
 - [x] **4.0.1** Ritual ojos — `scripts/arise_ojos_tusk.py` (Tusk tesorería + Tank + Kaiser; sin Igris/Greed/Beru) · runbook `18` · smoke `validar_arise_ojos_smoke.py`
 - [x] **4.0.1b** Checkpoint bóveda MNT — doctrina + capital_mando / foto / potencia_pase frío · Convert≠ley · **manos OFF** · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · smoke `validar_tusk_boveda_mnt_smoke.py`
-- [ ] **4.0.1c** Casos especiales (pergamino) + PnL bóveda · no fundir manos aún
-- [ ] **4.0.1c2** (opc) capital_mando → `masa_autorizada` Igris con gate Monarca
-- [ ] **4.0.1d** Manos ritual bóveda — solo `TUSK_BOVEDA_MANOS` + orden Monarca + México/testnet
+- [x] **4.0.1c** Ley bóveda: estado sucio → **reset a cero** → ritual ideal (peaje OK; no catalogar rarezas ahora) · firmada 2026-08-02 · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · manos aún OFF
+- [ ] **4.0.1c2** (opc) capital_mando → `masa_autorizada` Igris + sello duro vs clima Kaiser
+- [ ] **4.0.1d** Manos ritual bóveda (reset + ideal) — solo `TUSK_BOVEDA_MANOS` + orden Monarca + México/testnet
 - [ ] **4.0.2** Igris sim/dry-run con oxígeno de guerra real (sin Beru)
 - [ ] **4.0.3** Igris live hasta manto 100% del paso (meta engorde)
 - [ ] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)
@@ -406,8 +407,8 @@ TOTAL checklist:  125 / 184  [x]  →  ~68%
 Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-07-24 (oído Bellion 4.1.2 · Sub-Santuario Beru · frecuencia manto)  
-**Próximo ítem recomendado:** **4.1.3–4.1.5** oído fino · mitad/manto-completo Igris · **3.7.P2** con Greed mainnet  
+**Última actualización checklist:** 2026-08-02 (ojos México · sesgo vivo anti-ROJO Jess · ley bóveda reset)  
+**Próximo ítem recomendado:** **4.0.2** Igris sim/dry-run con oxígeno real · (opc) **4.0.1c2** sello capital · **no** reabrir rarezas 4.0.1c  
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
@@ -426,7 +427,7 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 4.1.3–4.1.5 oído fino · mitad engorde Igris · Greed mainnet (P2/P3).
+Siguiente: 4.0.2 Igris sim (oxígeno real, sin Beru) · 4.0.1c2 opc · manos bóveda después.
 Validar: scripts/validar_*_smoke.py + validar_bellion_oido_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).

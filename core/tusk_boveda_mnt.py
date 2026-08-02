@@ -34,6 +34,14 @@ def plan_ritual_ideal() -> dict[str, Any]:
         "escenario": "ideal_cuenta_nueva_o_capital_suelto",
         "manos": "OFF_por_default",
         "fases": [
+            {
+                "n": 0,
+                "id": "reset_si_sucio",
+                "desc": (
+                    "Si bóveda sucia/heredada: sanear capa bóveda a cero "
+                    "(peaje OK) y luego ritual ideal — ley Monarca 2026-08-02"
+                ),
+            },
             {"n": 1, "id": "funding_a_uta", "desc": "Mover capital de Funding a Trading unificado"},
             {"n": 2, "id": "activar_descuento_mnt", "desc": "Activar descuento tarifa MNT / colateral"},
             {
@@ -63,6 +71,10 @@ def plan_ritual_ideal() -> dict[str, Any]:
         "manos_ley": (
             "Convert solo si buena oportunidad; si no, todo por spot "
             "(crypto→USDT|USDC→MNT). Manos OFF hasta orden Monarca."
+        ),
+        "ley_reset_sucio": (
+            "Estado sucio/heredado → sanear bóveda a cero (fees=peaje) → ritual ideal. "
+            "No catalogar todas las rarezas ahora. Excepción solo con orden Monarca."
         ),
         "no_fundir_manos_aun": True,
     }

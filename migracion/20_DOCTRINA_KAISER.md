@@ -76,6 +76,7 @@ Precio de **referencia multi-exchange** que Bybit calcula promediando spot en va
 ### Checkpoint Monarca 2026-08-02 — índice absoluto + sesgo estructural
 
 **Dirección firmada (doctrina):** el índice Bybit es la **referencia absoluta** del pentiverso. Kaiser etiqueta el **sesgo histórico** de cada mar vs índice (`sesgo_estructural` en digest — 3.8.P5).  
+**Sesgo vivo (Jess 2026-08-02):** si Tank está ROJO por latencia, el clima vivo sigue leyendo del nodo más fresco — no apagar el indicador solo por semáforo.  
 Detalle: [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md). Smoke: `python scripts/validar_kaiser_sesgo_smoke.py`.
 
 ### Quién usa qué ancla

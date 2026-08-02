@@ -24,9 +24,11 @@ def main() -> int:
 
     plan = bm.plan_ritual_ideal()
     _assert(len(plan["fases"]) >= 9, "fases ritual")
-    _assert(plan["fases"][0]["id"] == "funding_a_uta", "fase1")
-    _assert(plan["fases"][2]["id"] == "mejor_camino", "fase3 camino")
-    _assert("Convert" in plan["fases"][2]["desc"] and "spot" in plan["fases"][2]["desc"], "ley convert/spot")
+    _assert(plan["fases"][0]["id"] == "reset_si_sucio", "fase0 reset")
+    _assert(plan.get("ley_reset_sucio"), "falta ley_reset_sucio")
+    _assert(plan["fases"][1]["id"] == "funding_a_uta", "fase1")
+    _assert(plan["fases"][3]["id"] == "mejor_camino", "fase3 camino")
+    _assert("Convert" in plan["fases"][3]["desc"] and "spot" in plan["fases"][3]["desc"], "ley convert/spot")
     _assert(plan.get("no_fundir_manos_aun") is True, "no manos aun")
 
     pot100 = bm.potencia_pase_desde_mando(100.0)

@@ -4,6 +4,8 @@
 **Relaciona:** [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md) §1 · [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md)  
 **Código hoy:** Tank inyecta `indexPrice`; matriz `spot/perp/inverse_vs_index`; digest `sesgo_estructural`; **backfill** al arranque de Kaiser: lineal+spot+inverso vs índice (bases pentiverso/trinidad + MNT). Smoke: `validar_kaiser_sesgo_smoke.py` · `validar_kaiser_backfill_sesgo_smoke.py`.
 
+**Refuerzo Jess (`a1f2e7e`):** sesgo **vivo** ya no exige solo líder VERDE — si el semáforo está ROJO por latencia, lee del **nodo más fresco** (mismo espíritu que la visión de Tank). Validado en ritual ojos México: bases × 3 mares con clima vivo tras calentamiento.
+
 Más pares metaverso: **después**.
 
 ---
@@ -45,6 +47,7 @@ Con índice + sesgo Kaiser: cada general mide contra el **norte** y contra su **
 |------|-----|--------|
 | A | Tag `sesgo_estructural` en digest | ✅ 3.8.P5 |
 | B | Plazos + muestras + **backfill** lineal/spot/inverso | ✅ |
+| B2 | Sesgo vivo con Tank ROJO → nodo más fresco | ✅ Jess `a1f2e7e` |
 | C | Panel Cascada mostrar índice + sesgos | pendiente |
 | D | Tusk/Igris/Greed consumen cero al juzgar/sellar | pendiente |
 | E | Backfill metaverso / Spot All | después |

@@ -167,10 +167,10 @@ Smoke: `python scripts/validar_tusk_tesoreria_smoke.py`
 Despierta Tusk (bóveda/oxígeno) + Tank (mares) + Kaiser (indicadores). Igris/Greed/Beru hibernados.  
 Corte opcional: `--segundos 120`. Ver también `18_ARRANQUE_TESTNET.md` § ritual ojos.
 
-**Bóveda MNT (checkpoint 2026-08-01):** capital_mando = short×entrada → potencia del pase (frío).  
-Camino: Convert solo si conviene; si no, spot (crypto→USDT/USDC→MNT).  
-**Manos OFF** — no fundir ritual al 100% aún; siguiente = casos especiales.  
-Doctrina: [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md) · `core/tusk_boveda_mnt.py`.  
+**Bóveda MNT (checkpoint):** capital_mando = short×entrada → potencia del pase (frío).  
+Camino: Convert solo si conviene; si no, spot.  
+**Ley 2026-08-02:** bóveda sucia/heredada → **reset a cero** (fees=peaje) → ritual ideal. No catalogar todas las rarezas ahora.  
+**Manos OFF.** Doctrina: [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md).  
 Smoke: `python scripts/validar_tusk_boveda_mnt_smoke.py`
 
 ---
