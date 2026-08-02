@@ -209,6 +209,7 @@
 - [x] **3.8.P5b** Sesgo vivo con Tank ROJO → nodo más fresco (`_lider_para_sesgo`) · Jess `a1f2e7e` · ritual ojos México OK
 - [x] **3.8.P6** Manto vs cero estructural — frecuencia/ETA + puerta Igris (`MANTO_CERO_ESTRUCTURAL`) · informe Monarca `informe_sesgo_monarca.py` · smoke filtra gap eterno
 - [ ] **3.8.P6b** Informe detallado residencia+%/volteos — Jess corre `python scripts/informe_sesgo_monarca.py` y sube MD+JSON
+- [ ] **3.8.P6c** Informe ETA 3 marchas (cero estructural) — Jess: `python scripts/informe_eta_marchas.py --equity 1525` · runbook `JESS_INFORME_SESGO.md`
 
 ### 3.9 Beru — doctrina cirugía final *(2026-07-09 → 07-12 — COMPLETA en smokes)*
 

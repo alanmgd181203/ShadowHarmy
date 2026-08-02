@@ -1,15 +1,19 @@
-# Jess — regenerar informe sesgo detallado
+# Jess — informes sesgo + ETA marchas
 
 ```bash
 cd ~/Desktop/btc/jubilacion/ShadowHarmy   # o tu ruta
 git pull
-python scripts/informe_sesgo_monarca.py
-# opcional ventana corta:
-# python scripts/informe_sesgo_monarca.py --ventana corto
 
-git add migracion/INFORME_SESGO_ESTRUCTURAL.md data/informe_sesgo_estructural.json
-git commit -m "Informe sesgo detallado: residencia + volteos."
+# 1) Sesgo detallado (residencia + volteos)
+python scripts/informe_sesgo_monarca.py
+
+# 2) ETA manto en las 3 marchas (cero estructural)
+python scripts/informe_eta_marchas.py --equity 1525
+
+git add migracion/INFORME_SESGO_ESTRUCTURAL.md data/informe_sesgo_estructural.json \
+        migracion/INFORME_ETA_MARCHAS.md data/informe_eta_marchas.json
+git commit -m "Informes Monarca: sesgo detallado + ETA 3 marchas."
 git push
 ```
 
-El Monarca necesita: % tiempo en desfase (abrumador?) + episodios cuando se voltea el spread.
+El Monarca usa ETA para elegir Tactico / Marcha Forzada / Asalto con tiempos honestos.
