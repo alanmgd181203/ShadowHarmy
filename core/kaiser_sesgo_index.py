@@ -272,6 +272,185 @@ def exceso_vs_cero(signed_or_spread_pct: float, cero_pct: float | None) -> float
     return float(signed_or_spread_pct) - float(cero_pct)
 
 
+def _serie_gap_lineal_inverso(base: str, *, ventana_s: float) -> list[dict[str, Any]]:
+    """Serie gap ≈ signed_lineal − signed_inverso alineada por timestamp (~1h).
+
+    Prefiere muestras `lineal_vs_inverse` si hay suficientes; si no, empareja vs índice.
+    """
+    bu = (base or "").upper()
+    ahora = time.time()
+    since = ahora - ventana_s
+    direct = load_samples(bu, "lineal_vs_inverse", since_ts=since)
+    if len(direct) >= _min_muestras():
+        out = []
+        for s in sorted(direct, key=lambda r: _f(r.get("ts"))):
+            out.append({
+                "ts": _f(s.get("ts")),
+                "gap_pct": _f(s.get("signed_pct")),
+                "fuente": "lineal_vs_inverse",
+            })
+        return out
+
+    lin = load_samples(bu, MARES_EDGE["lineal"], since_ts=since)
+    inv = load_samples(bu, MARES_EDGE["inverso"], since_ts=since)
+    if not lin or not inv:
+        return []
+    inv_sorted = sorted(inv, key=lambda r: _f(r.get("ts")))
+    out = []
+    j = 0
+    tol = 3600.0  # 1h
+    for s in sorted(lin, key=lambda r: _f(r.get("ts"))):
+        ts = _f(s.get("ts"))
+        while j + 1 < len(inv_sorted) and abs(_f(inv_sorted[j + 1].get("ts")) - ts) <= abs(
+            _f(inv_sorted[j].get("ts")) - ts
+        ):
+            j += 1
+        ts_i = _f(inv_sorted[j].get("ts"))
+        if abs(ts_i - ts) > tol:
+            continue
+        gap = _f(s.get("signed_pct")) - _f(inv_sorted[j].get("signed_pct"))
+        out.append({"ts": ts, "gap_pct": gap, "fuente": "lineal_menos_inverso_index"})
+    return out
+
+
+def analisis_residencia_y_volteos(
+    base: str,
+    *,
+    ventana: str = "mediano",
+) -> dict[str, Any]:
+    """% del tiempo en el desfase estructural + episodios cuando se voltea.
+
+    - residencia: cerca del cero (clima normal) y mismo lado del sesgo.
+    - volteo: el gap cruza al lado opuesto del cero más allá de epsilon
+      (momentos raros — candidatos a planear / aprovechar).
+    """
+    bu = (base or "").upper()
+    segs = float(PLAZOS_SESGO.get(ventana) or PLAZOS_SESGO["mediano"])
+    eps = _epsilon_clima_pct()
+    cero_info = cero_estructural_manto(bu)
+    cero = cero_info.get("cero_pct") if cero_info.get("ok") else None
+    serie = _serie_gap_lineal_inverso(bu, ventana_s=segs)
+
+    vacio: dict[str, Any] = {
+        "base": bu,
+        "ok": False,
+        "ventana": ventana,
+        "ventana_dias": round(segs / 86400, 1),
+        "n": 0,
+        "cero_gap_pct": cero,
+        "epsilon_pct": eps,
+        "motivo": "sin_serie" if not serie else "sin_cero",
+    }
+    if not serie or cero is None:
+        return vacio
+
+    gaps = [float(p["gap_pct"]) for p in serie]
+    n = len(gaps)
+    med_serie = statistics.median(gaps) if n > 1 else gaps[0]
+
+    # Estados por muestra respecto al cero estructural
+    estados: list[str] = []
+    for g in gaps:
+        d = g - float(cero)
+        if abs(d) <= eps:
+            estados.append("normal")
+        elif (float(cero) >= 0 and d < -eps) or (float(cero) < 0 and d > eps):
+            # hacia / a través del lado opuesto del sesgo
+            estados.append("tenso_contra" if abs(d) <= eps * 3 else "volteo")
+        else:
+            estados.append("tenso_favor" if abs(d) <= eps * 3 else "anomalia_favor")
+
+    n_normal = sum(1 for e in estados if e == "normal")
+    n_volteo = sum(1 for e in estados if e == "volteo")
+    n_contra = sum(1 for e in estados if e in ("volteo", "tenso_contra"))
+    n_favor = sum(1 for e in estados if e in ("tenso_favor", "anomalia_favor"))
+    pct_normal = n_normal / n
+    pct_volteo = n_volteo / n
+    pct_contra = n_contra / n
+    pct_favor = n_favor / n
+    # Vive en el desfase ≈ clima normal + mismo lado a favor
+    pct_en_desfase = (n_normal + n_favor) / n
+
+    # Episodios de volteo (rachas)
+    episodios: list[dict[str, Any]] = []
+    i = 0
+    while i < len(serie):
+        if estados[i] != "volteo":
+            i += 1
+            continue
+        j = i
+        while j < len(serie) and estados[j] == "volteo":
+            j += 1
+        chunk = serie[i:j]
+        gaps_e = [float(p["gap_pct"]) for p in chunk]
+        dur_h = max(0.0, (_f(chunk[-1]["ts"]) - _f(chunk[0]["ts"])) / 3600.0)
+        if len(chunk) == 1:
+            dur_h = max(dur_h, 1.0)
+        excesos = [abs(g - float(cero)) for g in gaps_e]
+        episodios.append({
+            "ts_inicio": _f(chunk[0]["ts"]),
+            "ts_fin": _f(chunk[-1]["ts"]),
+            "n_muestras": len(chunk),
+            "duracion_h": round(dur_h, 2),
+            "gap_medio_pct": round(statistics.mean(gaps_e), 6),
+            "exceso_medio_pct": round(statistics.mean(excesos), 6),
+            "exceso_max_pct": round(max(excesos), 6),
+        })
+        i = j
+
+    dur_media = (
+        round(statistics.mean([e["duracion_h"] for e in episodios]), 2)
+        if episodios else None
+    )
+    exceso_medio_vol = (
+        round(statistics.mean([e["exceso_medio_pct"] for e in episodios]), 6)
+        if episodios else None
+    )
+
+    if pct_en_desfase >= 0.85:
+        veredicto = "abrumador"
+    elif pct_en_desfase >= 0.65:
+        veredicto = "dominante"
+    elif pct_en_desfase >= 0.45:
+        veredicto = "mitad_mitad"
+    else:
+        veredicto = "inestable"
+
+    return {
+        "base": bu,
+        "ok": True,
+        "ventana": ventana,
+        "ventana_dias": round(segs / 86400, 1),
+        "n": n,
+        "fuente_serie": serie[0].get("fuente") if serie else None,
+        "cero_gap_pct": round(float(cero), 6),
+        "cero_info": cero_info,
+        "mediana_serie_pct": round(float(med_serie), 6),
+        "epsilon_pct": eps,
+        "pct_tiempo_clima_normal": round(pct_normal, 4),
+        "pct_tiempo_en_desfase": round(pct_en_desfase, 4),
+        "pct_tiempo_volteado": round(pct_volteo, 4),
+        "pct_tiempo_contra_sesgo": round(pct_contra, 4),
+        "pct_tiempo_favor_extra": round(pct_favor, 4),
+        "veredicto_residencia": veredicto,
+        "volteos": {
+            "n_episodios": len(episodios),
+            "duracion_media_h": dur_media,
+            "exceso_medio_pct": exceso_medio_vol,
+            "episodios_muestra": episodios[:12],
+            "nota": (
+                "Volteo = gap al lado opuesto del cero estructural (mas alla de epsilon). "
+                "Candidatos a planear/aprovechar; no son el gap eterno."
+            ),
+        },
+        "lectura": (
+            f"Vive ~{pct_en_desfase*100:.0f}% del tiempo en el desfase estructural "
+            f"({veredicto}). Volteos: {len(episodios)} episodios "
+            f"(~{pct_volteo*100:.1f}% del tiempo)."
+        ),
+    }
+
+
 def snapshot_sesgo_estructural(tank, bases: list[str] | None = None) -> dict[str, Any]:
     """Bloque para digest Kaiser — sin disparos."""
     if bases is None:

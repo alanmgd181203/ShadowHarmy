@@ -208,7 +208,7 @@
 - [x] **3.8.P5** Tag `sesgo_estructural` + backfill lineal/spot/inverso vs index (bases necesarias + MNT) · `kaiser_sesgo_index` · `kaiser_backfill` · smokes · **sin metaverso completo aún**
 - [x] **3.8.P5b** Sesgo vivo con Tank ROJO → nodo más fresco (`_lider_para_sesgo`) · Jess `a1f2e7e` · ritual ojos México OK
 - [x] **3.8.P6** Manto vs cero estructural — frecuencia/ETA + puerta Igris (`MANTO_CERO_ESTRUCTURAL`) · informe Monarca `informe_sesgo_monarca.py` · smoke filtra gap eterno
-- [ ] **3.8.P6b** Correr informe números vivos en Jess + pegar tabla en `INFORME_SESGO_ESTRUCTURAL.md`
+- [ ] **3.8.P6b** Informe detallado residencia+%/volteos — Jess corre `python scripts/informe_sesgo_monarca.py` y sube MD+JSON
 
 ### 3.9 Beru — doctrina cirugía final *(2026-07-09 → 07-12 — COMPLETA en smokes)*
 

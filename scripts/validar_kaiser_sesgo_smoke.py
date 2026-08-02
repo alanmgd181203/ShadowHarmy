@@ -91,6 +91,33 @@ def main() -> int:
     _assert(ksi.umbral_manto_con_cero(0.10, 0.08) == 0.18, "umbral+cero")
     _assert(abs(ksi.exceso_vs_cero(0.20, 0.08) - 0.12) < 1e-9, "exceso")
 
+    # Residencia + volteos (base aislada)
+    base_r = "SMKRES"
+    ahora = time.time()
+    for edge in ("perp_vs_index", "inverse_vs_index", "lineal_vs_inverse"):
+        p = Path(ROOT) / "data" / "kaiser" / "samples" / f"{base_r}_{edge}.jsonl"
+        if p.exists():
+            p.unlink()
+    # Cero manto ≈ 0.10; 35 muestras en clima, 5 volteos fuertes
+    for i in range(40):
+        ts = ahora - i * 3600
+        if i < 5:
+            gap = -0.15  # volteo (cero +0.10)
+        else:
+            gap = 0.10
+        append_sample(base_r, "perp_vs_index", signed_pct=0.05, ts=ts)
+        append_sample(base_r, "inverse_vs_index", signed_pct=-0.05, ts=ts)
+        append_sample(base_r, "lineal_vs_inverse", signed_pct=gap, abs_pct=abs(gap), ts=ts)
+    an = ksi.analisis_residencia_y_volteos(base_r, ventana="corto")
+    _assert(an.get("ok"), an)
+    _assert(an["pct_tiempo_en_desfase"] >= 0.7, an)
+    _assert(an["volteos"]["n_episodios"] >= 1, an)
+    print("  residencia/volteos OK", an["veredicto_residencia"], an["volteos"]["n_episodios"])
+    for edge in ("perp_vs_index", "inverse_vs_index", "lineal_vs_inverse"):
+        p = Path(ROOT) / "data" / "kaiser" / "samples" / f"{base_r}_{edge}.jsonl"
+        if p.exists():
+            p.unlink()
+
     print("PASS kaiser_sesgo_index smoke")
     return 0
 
