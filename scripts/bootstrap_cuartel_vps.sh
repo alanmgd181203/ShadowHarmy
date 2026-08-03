@@ -7,7 +7,8 @@
 set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/alanmgd181203/ShadowHarmy.git}"
-APP_DIR="${APP_DIR:-/root/ShadowHarmy}"
+# Casa del monarca (evita /root 700 bloqueando al usuario monarca)
+APP_DIR="${APP_DIR:-/home/monarca/ShadowHarmy}"
 USER_NAME="${USER_NAME:-monarca}"
 
 echo "[1/6] apt update + paquetes base"
@@ -19,10 +20,11 @@ echo "[2/6] usuario ${USER_NAME} (si no existe)"
 if ! id -u "$USER_NAME" >/dev/null 2>&1; then
   adduser --disabled-password --gecos "Shadow Monarca" "$USER_NAME" || true
   usermod -aG sudo "$USER_NAME" || true
-  # sudo sin password en bootstrap (cambiar luego si quieres)
   echo "${USER_NAME} ALL=(ALL) NOPASSWD:ALL" >"/etc/sudoers.d/${USER_NAME}"
   chmod 440 "/etc/sudoers.d/${USER_NAME}"
 fi
+# Homedir usable
+chmod 755 "/home/${USER_NAME}" 2>/dev/null || true
 
 echo "[3/6] firewall SSH"
 ufw allow OpenSSH || true
@@ -30,11 +32,11 @@ ufw --force enable || true
 
 echo "[4/6] clone repo → ${APP_DIR}"
 if [[ ! -d "${APP_DIR}/.git" ]]; then
-  git clone "$REPO_URL" "$APP_DIR"
+  sudo -u "$USER_NAME" git clone "$REPO_URL" "$APP_DIR"
 else
-  git -C "$APP_DIR" pull --ff-only || true
+  sudo -u "$USER_NAME" git -C "$APP_DIR" pull --ff-only || true
 fi
-chown -R "${USER_NAME}:${USER_NAME}" "$APP_DIR" 2>/dev/null || true
+chown -R "${USER_NAME}:${USER_NAME}" "$APP_DIR"
 
 echo "[5/6] venv + pip"
 sudo -u "$USER_NAME" bash -lc "
