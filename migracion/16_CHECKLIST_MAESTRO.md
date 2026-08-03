@@ -245,8 +245,8 @@
 - [x] **3.11.3** Checkpoint tag `checkpoint-mexico-2026-07-09` + `master` al día con feature
 
 ### 3.12 Cuartel VPS (casa fija) *(decisión Monarca 2026-08-02)*
-- [ ] **3.12.1** Comprar VPS Ubuntu (Tokio/Singapur · 1–2 GB) · runbook [`24_CUARTEL_VPS.md`](24_CUARTEL_VPS.md)
-- [ ] **3.12.2** SSH + usuario no-root + firewall · clone repo + venv + `.env` ojos (manos OFF)
+- [~] **3.12.1** Comprar VPS Ubuntu (Singapur Vultr · 1 GB) · `EjércitoSombra` · IP `45.77.34.52` · runbook [`24_CUARTEL_VPS.md`](24_CUARTEL_VPS.md)
+- [ ] **3.12.2** SSH + usuario no-root + firewall · clone repo + venv + `.env` ojos (manos OFF) · `scripts/bootstrap_cuartel_vps.sh`
 - [ ] **3.12.3** Ritual ojos 24/7 (`arise_ojos_tusk` + tmux/systemd) · memoria Kaiser en el VPS
 - [ ] **3.12.4** Cursor Remote SSH = campamento oficial · Jess Mac = respaldo
 - [ ] **3.12.5** Informes sesgo/ETA desde VPS cuando haya muestras `lineal_vs_inverse`

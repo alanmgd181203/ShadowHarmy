@@ -19,19 +19,37 @@ No hace falta IA pesada: 1 vCPU + 1–2 GB RAM (~USD 4–6/mes) basta.
 
 ## Paso 0 — Tú (Monarca) hoy: comprar el servidor
 
-1. Elige proveedor (cualquiera de estos está bien):
-   - **Vultr**, **DigitalOcean**, **Hetzner**, **Linode**.
-2. Región recomendada para Bybit: **Tokio (Japan)** o **Singapur**. Europa (Frankfurt) también suele servir.
-3. Sistema: **Ubuntu 22.04 o 24.04 LTS**.
-4. Tamaño: **1 vCPU · 1 GB RAM** mínimo; **2 GB** si puedes (más holgado).
-5. Anota:
-   - IP pública (ej. `159.x.x.x`)
-   - Usuario (a menudo `root` al inicio)
-   - Contraseña root **o** mejor: sube tu **llave SSH** al crear la droplet
+✅ **Hecho (2026-08-02):** Vultr · Singapur · `EjércitoSombra` · IP **`45.77.34.52`** · ~1 GB RAM · Ubuntu.
 
-Cuando tengas la IP, vuelve al chat (Agent) y digamos: **“ya tengo VPS: IP …”** — seguimos juntos el resto.
+Siguiente: bootstrap en el VPS (ver § Paso 2b abajo o `scripts/bootstrap_cuartel_vps.sh`).
+
+<details><summary>Si creas otro VPS (referencia)</summary>
+
+1. Proveedor: Vultr / DigitalOcean / Hetzner.
+2. Región: Tokio o Singapur.
+3. Ubuntu LTS · 1–2 GB RAM.
+4. Anotar IP y acceso root/llave.
+</details>
 
 ---
+
+## Paso 2b — Bootstrap automático (recomendado)
+
+En el VPS como **root** (Cursor Remote ya conectado):
+
+```bash
+# Sin repo aún — una sola línea:
+curl -fsSL https://raw.githubusercontent.com/alanmgd181203/ShadowHarmy/master/scripts/bootstrap_cuartel_vps.sh -o /tmp/boot.sh
+bash /tmp/boot.sh
+```
+
+O, si ya clonaste:
+
+```bash
+cd /root/ShadowHarmy && git pull && bash scripts/bootstrap_cuartel_vps.sh
+```
+
+Luego: copiar `.env` (llaves Bybit, `MODO_SIMULACION=True`, `TUSK_BOVEDA_MANOS=false`) y probar ojos 90 s.
 
 ## Paso 1 — Primera conexión (Windows)
 
