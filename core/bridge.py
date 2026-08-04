@@ -47,6 +47,21 @@ def _feeds_sharded(url: str, tuples: list[tuple[str, str]], label_prefix: str, s
     return feeds
 
 
+def _base_de_symbol(sym: str) -> str:
+    s = str(sym or "").upper()
+    for suf in ("USDT", "USDC", "USD"):
+        if s.endswith(suf) and len(s) > len(suf):
+            return s[: -len(suf)]
+    return s
+
+
+def _filtrar_tuples_por_bases(tuples: list[tuple[str, str]], bases: list[str]) -> list[tuple[str, str]]:
+    if not bases:
+        return tuples
+    allow = {str(b).upper() for b in bases if b}
+    return [(sym, frente) for sym, frente in tuples if _base_de_symbol(sym) in allow]
+
+
 def _feeds_completos():
     """Ojos mainnet: spot + perps + futuros dated Bybit (sharded)."""
     spot_tuples = _pares_a_tuples(getattr(config, "SPOT_ALL_PARES", []))
@@ -56,6 +71,12 @@ def _feeds_completos():
     inverse_tuples = _pares_a_tuples(
         getattr(config, "INVERSE_PERP_PARES", []) + getattr(config, "INVERSE_FUTURES_PARES", [])
     )
+
+    bases = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
+    if bases:
+        spot_tuples = _filtrar_tuples_por_bases(spot_tuples, bases)
+        linear_tuples = _filtrar_tuples_por_bases(linear_tuples, bases)
+        inverse_tuples = _filtrar_tuples_por_bases(inverse_tuples, bases)
 
     spot_shard = getattr(config, "SPOT_WS_SHARD_SIZE", 150)
     deriv_shard = getattr(config, "DERIV_WS_SHARD_SIZE", 150)
@@ -111,16 +132,32 @@ class BybitBridge:
         await trinidad.refrescar_si_stale()
         trinidad.inicializar_config(config)
         self.feeds = _feeds_completos()
-        self.tank.expandir_frentes(config.FRENTES_TANK)
+        bases = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
+        books_on = bool(getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", True))
+        # Expandir solo frentes que vamos a escuchar (menos RAM en Tank).
+        if bases:
+            frentes = [
+                f for f in (getattr(config, "FRENTES_TANK", None) or [])
+                if any(f.startswith(f"{b}USD") or f.startswith(f"{b}USDT") or f.startswith(f"{b}USDC") for b in bases)
+            ]
+            if not frentes:
+                frentes = list(getattr(config, "FRENTES_TANK", None) or [])
+        else:
+            frentes = list(getattr(config, "FRENTES_TANK", None) or [])
+        self.tank.expandir_frentes(frentes)
         nspot = len(getattr(config, "FRENTES_SPOT_ALL", []))
         nlin = len(getattr(config, "FRENTES_LINEAR_PERP", []))
         nlinf = len(getattr(config, "FRENTES_LINEAR_FUTURES", []))
         ninv = len(getattr(config, "FRENTES_INVERSE_PERP", []))
         ninvf = len(getattr(config, "FRENTES_INVERSE_FUTURES", []))
         nshards = sum(1 for f in self.feeds if f.get("label"))
+        n_tick = sum(len(f.get("tickers") or []) for f in self.feeds)
+        modo = "estrecho" if bases or not books_on else "completo"
         await self.bel.anotar(
             "BRIDGE", "TRINIDAD",
-            f"Sentidos: {nlin} perp + {nlinf} fut linear | {ninv}+{ninvf} inv | {nspot} spot ({nshards} WS)",
+            f"Sentidos[{modo}]: catalog {nlin}+{nlinf} lin | {ninv}+{ninvf} inv | {nspot} spot · "
+            f"WS {nshards} shards · tickers={n_tick} · books={'ON' if books_on else 'OFF'}"
+            + (f" · bases={','.join(bases)}" if bases else ""),
         )
 
         # Arranque escalonado: con VIP/túnel, abrir 11 WS a la vez agota el handshake.
@@ -141,18 +178,27 @@ class BybitBridge:
         args = []
         for sym, _ in feed.get("tickers", []):
             args.append(f"tickers.{sym}")
-        for sym, _ in feed.get("books", []):
-            args.append(f"orderbook.50.{sym}")
+        # Muros orderbook: pesados en RAM/red. Ritiales estrechos (Igris sim / lap) pueden apagarlos.
+        if getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", True):
+            for sym, _ in feed.get("books", []):
+                args.append(f"orderbook.50.{sym}")
 
         open_timeout = float(getattr(config, "BRIDGE_WS_OPEN_TIMEOUT_S", 45) or 45)
 
         while True:
             try:
-                async with websockets.connect(
-                    feed["url"],
+                connect_kwargs = dict(
                     ssl=ssl_context,
                     ping_interval=20,
                     open_timeout=open_timeout,
+                )
+                # Preferir IPv4: en algunas redes/laps el handshake IPv6 a CloudFront muere.
+                if getattr(config, "BRIDGE_WS_FORCE_IPV4", True):
+                    import socket
+                    connect_kwargs["family"] = socket.AF_INET
+                async with websockets.connect(
+                    feed["url"],
+                    **connect_kwargs,
                 ) as websocket:
                     for i in range(0, len(args), 10):
                         lote = args[i : i + 10]
@@ -483,9 +529,16 @@ class BybitBridge:
 
         while True:
             try:
-                response = self.session.get_wallet_balance(accountType="UNIFIED")
-                if response["retCode"] == 0:
-                    data = response["result"]["list"][0]
+                # HTTP sync de pybit NO debe correr en el event loop: bloquea handshakes WS (ojos CONGELADOS).
+                pack = await asyncio.to_thread(self._fetch_nav_pack_sync)
+                if pack.get("error"):
+                    self._nav_errores_consecutivos += 1
+                    await self.bel.anotar(
+                        "BRIDGE", "NAV_EXCEPCIÓN",
+                        f"Error #{self._nav_errores_consecutivos}: {pack['error']}",
+                    )
+                elif pack.get("retCode") == 0:
+                    data = pack["account"]
                     nav_total = float(data.get("totalEquity", 0.0) or 0.0)
                     disponible = float(data.get("totalAvailableBalance", 0.0) or 0.0)
                     margen_ocupado = (
@@ -496,26 +549,10 @@ class BybitBridge:
                     total_maint = float(maint_raw) if maint_raw not in ("", None) else None
                     account_mm_rate = float(mm_rate_raw) if mm_rate_raw not in ("", None) else None
 
-                    posiciones = None
-                    if getattr(config, "TUSK_TESORERIA_ACTIVA", True) and getattr(
-                        config, "TUSK_TESORERIA_FETCH_POS", True
-                    ):
-                        posiciones = []
-                        try:
-                            for category, settle in (("linear", "USDT"), ("inverse", None)):
-                                kwargs = {"category": category}
-                                if settle:
-                                    kwargs["settleCoin"] = settle
-                                resp = self.session.get_positions(**kwargs)
-                                if resp.get("retCode") == 0:
-                                    for row in resp.get("result", {}).get("list", []) or []:
-                                        row = dict(row)
-                                        row["_category"] = category
-                                        posiciones.append(row)
-                        except Exception as e:
-                            await self.bel.anotar(
-                                "TUSK", "TESORERIA_POS_ERR", str(e)[:160],
-                            )
+                    if pack.get("pos_err"):
+                        await self.bel.anotar(
+                            "TUSK", "TESORERIA_POS_ERR", str(pack["pos_err"])[:160],
+                        )
 
                     await self.tusk.actualizar_nav_real(
                         nav_total,
@@ -524,20 +561,61 @@ class BybitBridge:
                         account_mm_rate=account_mm_rate,
                         disponible_uta=disponible,
                         wallet_account=data,
-                        posiciones=posiciones,
+                        posiciones=pack.get("posiciones"),
                     )
                     self._nav_errores_consecutivos = 0
                 else:
-                    await self.bel.anotar("BRIDGE", "NAV_ERROR_API", response.get("retMsg", "?"))
+                    await self.bel.anotar("BRIDGE", "NAV_ERROR_API", pack.get("retMsg", "?"))
                     self._nav_errores_consecutivos += 1
             except Exception as e:
                 self._nav_errores_consecutivos += 1
-                await self.bel.anotar("BRIDGE", "NAV_EXCEPCIÓN", f"Error #{self._nav_errores_consecutivos}: {str(e)}")
+                await self.bel.anotar(
+                    "BRIDGE", "NAV_EXCEPCIÓN",
+                    f"Error #{self._nav_errores_consecutivos}: {str(e)}",
+                )
 
             espera = min(30 * (2 ** self._nav_errores_consecutivos), self._NAV_BACKOFF_MAX)
             if self._nav_errores_consecutivos == 0:
                 espera = 30
             await asyncio.sleep(espera)
+
+    def _fetch_nav_pack_sync(self) -> dict:
+        """Solo hilo worker: wallet + posiciones. No tocar Tank/Bellion aquí."""
+        try:
+            response = self.session.get_wallet_balance(accountType="UNIFIED")
+        except Exception as e:
+            return {"error": str(e)}
+        if response.get("retCode") != 0:
+            return {
+                "retCode": response.get("retCode"),
+                "retMsg": response.get("retMsg", "?"),
+            }
+        data = response["result"]["list"][0]
+        posiciones = None
+        pos_err = None
+        if getattr(config, "TUSK_TESORERIA_ACTIVA", True) and getattr(
+            config, "TUSK_TESORERIA_FETCH_POS", True
+        ):
+            posiciones = []
+            try:
+                for category, settle in (("linear", "USDT"), ("inverse", None)):
+                    kwargs = {"category": category}
+                    if settle:
+                        kwargs["settleCoin"] = settle
+                    resp = self.session.get_positions(**kwargs)
+                    if resp.get("retCode") == 0:
+                        for row in resp.get("result", {}).get("list", []) or []:
+                            row = dict(row)
+                            row["_category"] = category
+                            posiciones.append(row)
+            except Exception as e:
+                pos_err = str(e)[:160]
+        return {
+            "retCode": 0,
+            "account": data,
+            "posiciones": posiciones,
+            "pos_err": pos_err,
+        }
 
     async def hilo_sentidos_extra(self):
         """Ojos REST: spread producto, alpha, convert — complemento al WS principal."""

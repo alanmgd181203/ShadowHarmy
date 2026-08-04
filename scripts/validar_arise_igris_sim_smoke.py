@@ -26,8 +26,14 @@ def main() -> int:
     assert "Beru" not in src or "hibern" in src.lower()
     assert "vigilancia_oportunidades" not in src
     assert "KaiserVocero" in src and "TankCluster" in src and "TuskBoveda" in src
+    assert "_aplicar_ojos_estrechos" in src
+    assert "BRIDGE_WS_SUBSCRIBE_BOOKS" in src
     import core.config as config
     assert hasattr(config, "ARISE_IGRIS_SIM")
+    assert hasattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS")
+    assert hasattr(config, "BRIDGE_WS_BASES")
+    from core import bridge as br
+    assert hasattr(br.BybitBridge, "_fetch_nav_pack_sync")
     print("PASS arise_igris_sim smoke (estático)")
     return 0
 

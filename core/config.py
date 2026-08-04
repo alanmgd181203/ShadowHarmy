@@ -478,6 +478,17 @@ FACTOR_MASA_AUTORIZADA = 10.0
 # Bridge WS vía VIP/túnel: timeout de handshake y stagger entre shards
 BRIDGE_WS_OPEN_TIMEOUT_S = float(os.getenv("BRIDGE_WS_OPEN_TIMEOUT_S", "45") or 45)
 BRIDGE_WS_STAGGER_S = float(os.getenv("BRIDGE_WS_STAGGER_S", "0.45") or 0.45)
+# Preferir IPv4 en WS (evita handshakes muertos por IPv6 flaky en laps/hogar).
+BRIDGE_WS_FORCE_IPV4 = os.getenv("BRIDGE_WS_FORCE_IPV4", "true").lower() == "true"
+# orderbook.50 = muros (RAM/CPU altos). False = solo tickers (ojos estrechos / lap débil).
+BRIDGE_WS_SUBSCRIBE_BOOKS = os.getenv("BRIDGE_WS_SUBSCRIBE_BOOKS", "true").lower() == "true"
+# Si no vacío: solo esas bases (ETH,LTC,…) — CSV o lista mutada en runtime.
+_BRIDGE_WS_BASES_RAW = os.getenv("BRIDGE_WS_BASES", "").strip()
+BRIDGE_WS_BASES: list[str] = (
+    [b.strip().upper() for b in _BRIDGE_WS_BASES_RAW.split(",") if b.strip()]
+    if _BRIDGE_WS_BASES_RAW
+    else []
+)
 
 UMBRAL_VERDE_MS = 400.0
 UMBRAL_AMARILLO_MS = 800.0

@@ -40,6 +40,11 @@ os.environ["MODO_SIMULACION"] = "true"  # manos reales atadas
 os.environ.setdefault("TUSK_BOVEDA_MANOS", "false")
 # Sin arena forzada: usamos doctrina completa + fills por MODO_SIMULACION
 os.environ.setdefault("ARENA_IGRIS_ACTIVA", "false")
+# Lap débil / internet justita: sin muros orderbook + sin backfill pesado al arranque
+os.environ.setdefault("BRIDGE_WS_SUBSCRIBE_BOOKS", "false")
+os.environ.setdefault("KAISER_BACKFILL_ON_START", "false")
+os.environ.setdefault("BRIDGE_WS_STAGGER_S", "0.7")
+os.environ.setdefault("BINANCE_REF_ENABLED", "false")
 
 import core.config as config  # noqa: E402
 
@@ -47,6 +52,11 @@ config.MODO_SIMULACION = True
 config.ARISE_IGRIS_SIM = True
 if hasattr(config, "TUSK_BOVEDA_MANOS"):
     config.TUSK_BOVEDA_MANOS = False
+config.BRIDGE_WS_SUBSCRIBE_BOOKS = False
+config.KAISER_BACKFILL_ON_START = False
+config.BRIDGE_WS_STAGGER_S = float(os.getenv("BRIDGE_WS_STAGGER_S", "0.7") or 0.7)
+if hasattr(config, "BINANCE_REF_ENABLED"):
+    config.BINANCE_REF_ENABLED = False
 
 from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402
@@ -59,6 +69,41 @@ from generales.tusk import TuskBoveda  # noqa: E402
 
 def _report_path() -> Path:
     return ROOT / "data" / "arise_igris_sim_report.json"
+
+
+def _aplicar_ojos_estrechos(tusk) -> list[str]:
+    """Solo bases del lote que la potencia permite + pentiverso/ticker. Sin muros."""
+    from core import pase_director as pd
+
+    eq = float(
+        getattr(tusk, "masa_bruta_real", 0)
+        or getattr(tusk, "masa_bruta", 0)
+        or ((getattr(tusk, "tesoreria", None) or {}).get("equity_usd") or 0)
+        or 0
+    )
+    bases: list[str] = []
+    if eq > 0:
+        plan = pd.plan_lote(eq)
+        bases.extend(str(a).upper() for a in (plan.get("activos_trabajo") or []))
+        if plan.get("foco") and plan["foco"].get("activo"):
+            bases.append(str(plan["foco"]["activo"]).upper())
+    for b in list(getattr(config, "ACTIVOS_PENTIVERSO", None) or [])[:4]:
+        bases.append(str(b).upper())
+    for b in (getattr(config, "TICKER_BASE", None), "ETH", "BTC", "LTC", "MNT"):
+        if b:
+            bases.append(str(b).upper())
+    # únicos, orden estable
+    seen = set()
+    out = []
+    for b in bases:
+        if b and b not in seen:
+            seen.add(b)
+            out.append(b)
+    config.BRIDGE_WS_BASES = out
+    config.BRIDGE_WS_SUBSCRIBE_BOOKS = False
+    print(f"[OJOS] Modo estrecho: {len(out)} bases · books=OFF · backfill Kaiser OFF")
+    print(f"[OJOS] Bases: {', '.join(out)}")
+    return out
 
 
 def _snapshot_cierre(tusk, igris) -> dict:
@@ -252,6 +297,8 @@ async def ritual_igris_sim(segundos: float = 0.0):
             tusk.restaurar_desde_bellion(estado_prev.get("boveda", {}))
             print("[BELLION] Recovery: bóveda restaurada (pesos/sim heredados).")
 
+        _aplicar_ojos_estrechos(tusk)
+
         kaiser = KaiserVocero(tank, bellion)
         igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge, kaiser=kaiser)
 
@@ -275,16 +322,12 @@ async def ritual_igris_sim(segundos: float = 0.0):
             running.append(t)
             return t
 
-        # 1) Ojos + bóveda primero
+        # 1) Ojos + bóveda primero (sin Kaiser/sentidos: no saturar CPU/red del calentamiento)
         _spawn(tusk.latido_persistencia([]))
         _spawn(tusk.hilo_reconciliacion(bridge))
         _spawn(tank.vigilar_aguas())
         _spawn(bridge.conectar())
-        _spawn(bridge.hilo_sentidos_extra())
         _spawn(bridge.hilo_sincronizacion_nav())
-        _spawn(kaiser.vigilar_indicadores())
-        if binance_ref:
-            _spawn(binance_ref.conectar())
         _spawn(_refrescar_panel(panel))
         _spawn(_publicar_estado(bellion, tusk, igris, tank, kaiser))
         _spawn(_cronica(tusk))
@@ -298,6 +341,12 @@ async def ritual_igris_sim(segundos: float = 0.0):
                 t.cancel()
             await asyncio.gather(*running, return_exceptions=True)
             return
+
+        # Tras ojos: Kaiser / sentidos / Binance (ya no pelean el handshake WS)
+        _spawn(kaiser.vigilar_indicadores())
+        _spawn(bridge.hilo_sentidos_extra())
+        if binance_ref:
+            _spawn(binance_ref.conectar())
 
         # Reloj de Igris (no cuenta el calentamiento)
         if segundos > 0:
