@@ -264,7 +264,7 @@
 - [x] **4.0.1c** Ley bóveda: estado sucio → **reset a cero** → ritual ideal (peaje OK; no catalogar rarezas ahora) · firmada 2026-08-02 · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · manos aún OFF
 - [ ] **4.0.1c2** (opc) capital_mando → `masa_autorizada` Igris + sello duro vs clima Kaiser
 - [ ] **4.0.1d** Manos ritual bóveda (reset + ideal) — solo `TUSK_BOVEDA_MANOS` + orden Monarca + México/testnet
-- [ ] **4.0.2** Igris sim/dry-run con oxígeno de guerra real (sin Beru)
+- [ ] **4.0.2** Igris sim/dry-run — `scripts/arise_igris_sim.py` · manos atadas + fills ilusorios · sin Beru/Greed · [`CHECKPOINT_IGRIS_SIM_4_0_2.md`](CHECKPOINT_IGRIS_SIM_4_0_2.md) · smoke `validar_arise_igris_sim_smoke.py` *(ritual listo; falta corrida viva Monarca)*
 - [ ] **4.0.3** Igris live hasta manto 100% del paso (meta engorde)
 - [ ] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)
 
@@ -419,7 +419,7 @@ Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
 **Última actualización checklist:** 2026-08-02 (cuartel VPS decisión Monarca · ETA parcial Jess)  
-**Próximo ítem recomendado:** **4.0.2** Igris sim (después de ojos vivos + marcha elegida) · túnel VIP **3.12.3** si aún falta  
+**Próximo ítem recomendado:** corrida viva **4.0.2** (`arise_igris_sim.py --segundos 90`) · luego **4.0.3** live  
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
@@ -438,7 +438,7 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 4.0.2 Igris sim · mega-pre-Igris sellado (`CHECKPOINT_MEGA_PRE_IGRIS`) · túnel VIP si falta.
+Siguiente: corrida viva 4.0.2 arise_igris_sim · luego 4.0.3 Igris live.
 Validar: scripts/validar_*_smoke.py + validar_bellion_oido_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).

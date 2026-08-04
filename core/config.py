@@ -425,6 +425,9 @@ TUSK_BOVEDA_EQUILIBRIO_TOL_PCT = float(os.getenv("TUSK_BOVEDA_EQUILIBRIO_TOL_PCT
 # Ritual ojos: scripts/arise_ojos_tusk.py (Tusk+Tank+Kaiser; sin Igris/Greed/Beru)
 ARISE_OJOS_TUSK = os.getenv("ARISE_OJOS_TUSK", "false").lower() == "true"
 ARISE_OJOS_SEGUNDOS = float(os.getenv("ARISE_OJOS_SEGUNDOS", "0") or 0)
+# Ritual 4.0.2: Igris sim — manos reales OFF, fills ilusorios ON
+ARISE_IGRIS_SIM = os.getenv("ARISE_IGRIS_SIM", "false").lower() == "true"
+ARISE_IGRIS_SIM_SEGUNDOS = float(os.getenv("ARISE_IGRIS_SIM_SEGUNDOS", "0") or 0)
 MONARCA_CONCENTRACION_MAX_PCT = float(os.getenv("MONARCA_CONCENTRACION_MAX_PCT", "0.20"))
 MONARCA_MARGEN_OBJETIVO_PCT = float(os.getenv("MONARCA_MARGEN_OBJETIVO_PCT", "93.0"))
 MONARCA_TIER_AUTO_DIAS = int(os.getenv("MONARCA_TIER_AUTO_DIAS", "3"))

@@ -91,9 +91,10 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Kaiser memoria barcos (2026-07-19):** Tank horario → `data/kaiser/memoria/` · digest vivo · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 - **Oído Monarca:** **Pergamino** (app) + susurro Bellion; Telegram = legado (`06_NOTIFICACIONES.md` v2)
 - **Cuartel VPS (2026-08-02→03):** droplet SG · pivot **túnel VIP WireGuard** · [`27_VPS_TUNEL_WIREGUARD.md`](27_VPS_TUNEL_WIREGUARD.md)
-- **Próximo:** **4.0.2** Igris sim (ojos vivos + marcha) · túnel VIP si falta
+- **Próximo:** corrida viva **4.0.2** `arise_igris_sim.py` (VIP OK) → luego **4.0.3** live
 - **Jess runbook informe:** [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md)
-- **Validar:** `validar_pase_director_smoke.py` · `validar_marcha_duracion_smoke.py` · `validar_marcha_ritmo_lote_smoke.py` · `validar_tusk_libros_smoke.py` · `validar_manto_ventana_smoke.py` · (+ smokes previos)
+- **Validar:** `validar_arise_igris_sim_smoke.py` · `validar_pase_director_smoke.py` · `validar_marcha_duracion_smoke.py` · `validar_marcha_ritmo_lote_smoke.py` · `validar_tusk_libros_smoke.py` · `validar_manto_ventana_smoke.py` · (+ smokes previos)
+- **Igris sim 4.0.2:** [`CHECKPOINT_IGRIS_SIM_4_0_2.md`](CHECKPOINT_IGRIS_SIM_4_0_2.md) · manos atadas / ilusorias
 - **Tono obligatorio:** `17_GUIA_MONARCA.md`
 
 ---
