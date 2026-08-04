@@ -132,7 +132,8 @@
 - [x] **3.5.8a** Igris §E v1 — bootstrap inverse L + lineal S + promedios pierna *(2026-07-05)*
 - [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
 - [x] **3.5.8b2** Frecuencia manto 4 umbrales (fees · ½ · tablas · morado) × plazos 50/40/10 · ETA por marcha · `core/manto_frecuencia.py` *(2026-07-24)*
-- [~] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · dual+salvavidas ✅ · **meta engorde = `delta_usd` del pase** ✅ MVP 2026-07-20 · mitad/manto-completo fino aún abiertos
+- [x] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · dual+salvavidas ✅ · **meta engorde = `delta_usd` del pase** ✅ MVP 2026-07-20 · **mega-pre-Igris** ✅ fill 100% · reserva 1 · personalizado · ritmo lote · libros Tusk · USD@entrada (`CHECKPOINT_MEGA_PRE_IGRIS.md`) · mitad/manto-completo fino aún abiertos
+- [x] **3.5.8d** Sello mega-pre-Igris — 4 marchas · `marcha_duracion` · `marcha_ritmo_lote` · `tusk_libros` · altar hidrata desde JSON · smokes frío *(2026-08-03)*
 
 - [x] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v2 + `plan_crecimiento.py` + [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) *(Aspirante→Chamán; candado + **director pase** `pase_director.py` · 3 marchas 2026-07-19; botín runtime y mérito aún pendiente)*
 
@@ -418,7 +419,7 @@ Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
 **Última actualización checklist:** 2026-08-02 (cuartel VPS decisión Monarca · ETA parcial Jess)  
-**Próximo ítem recomendado:** **3.12.3** túnel VIP WireGuard (`27` + orden VPS) · ojos en lap · luego Igris sim **4.0.2**  
+**Próximo ítem recomendado:** **4.0.2** Igris sim (después de ojos vivos + marcha elegida) · túnel VIP **3.12.3** si aún falta  
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
@@ -437,7 +438,7 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 3.12.3 túnel VIP WireGuard (27 + ORDEN_CURSOR_VPS_TUNEL) · ojos en lap · luego 4.0.2 Igris sim.
+Siguiente: 4.0.2 Igris sim · mega-pre-Igris sellado (`CHECKPOINT_MEGA_PRE_IGRIS`) · túnel VIP si falta.
 Validar: scripts/validar_*_smoke.py + validar_bellion_oido_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).

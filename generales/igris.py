@@ -257,27 +257,48 @@ class IgrisEscudo:
         if en_cooldown:
             return
 
-        # Rebalanceo + engorde (ventana 48–52 / long-primero). El 95% NO aborta la puerta.
+        # Rebalanceo + engorde (ventana 48–52 / long-primero @ USD entrada).
         if masa_bruta > 0 and not rebalanceo_en_pausa_por_greed(self.tusk):
-            ratio_l = peso_l_total / masa_bruta
+            from core import manto_ventana as mv
+
+            usd_l, usd_s = mv.usd_piernas_desde_pesos(self.tusk.pesos)
+            if usd_l + usd_s <= 0:
+                usd_l, usd_s = float(peso_l_total), float(peso_s_total)
+            ratio_l = mv.ratio_long_usd(usd_l, usd_s)
             banda_min, banda_max = self.calcular_banda_delta()
             if ratio_l > banda_max:
                 await self.bel.anotar(
                     "IGRIS", "REBALANCEO",
-                    f"Delta long {ratio_l*100:.1f}% > techo {banda_max*100:.0f}% (ventana 48-52)",
+                    f"Delta long {ratio_l*100:.1f}% > techo {banda_max*100:.0f}% (ventana 48-52 USD)",
                 )
                 await self._ejecutar_maniobra("REBALANCEO_IGRIS", "SHORT", self.tusk.masa_autorizada)
                 return
             if ratio_l < banda_min:
                 await self.bel.anotar(
                     "IGRIS", "REBALANCEO",
-                    f"Delta long {ratio_l*100:.1f}% < piso {banda_min*100:.0f}% (ventana 48-52)",
+                    f"Delta long {ratio_l*100:.1f}% < piso {banda_min*100:.0f}% (ventana 48-52 USD)",
                 )
                 await self._ejecutar_maniobra("REBALANCEO_IGRIS", "LONG", self.tusk.masa_autorizada)
                 return
 
         from core import manto_ventana as mv
-        dir_engorde = mv.direccion_engorde_preferida(peso_l_total, peso_s_total)
+        from core import pase_director as pd
+
+        usd_l, usd_s = mv.usd_piernas_desde_pesos(self.tusk.pesos)
+        if usd_l + usd_s <= 0:
+            usd_l, usd_s = float(peso_l_total), float(peso_s_total)
+
+        # Meta llena → no engordar (sí rebalanceo/ventana ya pasó)
+        if pd.director_activo():
+            try:
+                eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0)
+                meta = pd.meta_engorde_usd(eq, self._activo_despliegue(), tusk=self.tusk)
+                if float(meta.get("restante_usd") or 0) <= 0:
+                    return
+            except Exception:
+                pass
+
+        dir_engorde = mv.direccion_engorde_preferida(usd_l, usd_s)
         ok_engorde = await self._ejecutar_maniobra_engorde(dir_engorde)
 
         # Ley Marcial: poda el exceso en ciclos posteriores si ya estamos sobre el horizonte

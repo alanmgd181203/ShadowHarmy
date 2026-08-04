@@ -274,6 +274,99 @@ def backfill_base_sesgo_index(
         return {"base": bu, "ok": False, "error": str(exc)[:200], "mares": {}}
 
 
+def _rows_lineal_vs_inverse(
+    *,
+    base: str,
+    mark_lin: list,
+    mark_inv: list,
+) -> list[dict]:
+    """Edge manto: signed = (mark_lin − mark_inv) / mark_inv × 100 (alineado por ts)."""
+    huerf = _huerfanas()
+    inv_by_ts: dict[str, float] = {}
+    for row in mark_inv:
+        if len(row) < 5:
+            continue
+        try:
+            inv_by_ts[str(row[0])] = float(row[4])
+        except (TypeError, ValueError, IndexError):
+            continue
+    rows: list[dict] = []
+    seen: set[int] = set()
+    for row in mark_lin:
+        if len(row) < 5:
+            continue
+        try:
+            ts_ms = row[0]
+            px_l = float(row[4])
+            px_i = inv_by_ts.get(str(ts_ms))
+        except (TypeError, ValueError, IndexError):
+            continue
+        if not px_i or px_i <= 0 or px_l <= 0:
+            continue
+        ts_i = int(int(ts_ms) / 1000)
+        if ts_i in seen:
+            continue
+        seen.add(ts_i)
+        signed = (px_l - px_i) / px_i * 100.0
+        rows.append({
+            "ts": ts_i,
+            "base": base.upper(),
+            "edge": "lineal_vs_inverse",
+            "signed_pct": round(signed, 6),
+            "abs_pct": round(abs(signed), 6),
+            "huerfana": base.upper() in huerf,
+            "ref_tipo": "mark_lin_vs_inv",
+            "source": "backfill",
+        })
+    return rows
+
+
+def backfill_base_lineal_inverse(
+    base: str,
+    *,
+    dias: int | None = None,
+    interval: str = "60",
+) -> dict[str, Any]:
+    """Backfill edge manto lineal_vs_inverse (mark lineal vs mark inverso)."""
+    bu = (base or "").upper()
+    if dias is None:
+        dias = int(getattr(config, "KAISER_BACKFILL_DIAS", 30) or 30)
+    symbol_lin = f"{bu}USDT"
+    symbol_inv = f"{bu}USD"
+    session = _session()
+    end_ms = int(time.time() * 1000)
+    start_ms = end_ms - int(dias) * 86400000
+    try:
+        mark_lin = _paged_kline(
+            session,
+            getter_name="get_mark_price_kline",
+            category="linear",
+            symbol=symbol_lin,
+            interval=interval,
+            start_ms=start_ms,
+            end_ms=end_ms,
+        )
+        mark_inv = _paged_kline(
+            session,
+            getter_name="get_mark_price_kline",
+            category="inverse",
+            symbol=symbol_inv,
+            interval=interval,
+            start_ms=start_ms,
+            end_ms=end_ms,
+        )
+        rows = _rows_lineal_vs_inverse(base=bu, mark_lin=mark_lin, mark_inv=mark_inv)
+        persisted = _persist_edge(bu, "lineal_vs_inverse", rows)
+        return {"base": bu, **persisted}
+    except Exception as exc:
+        return {"base": bu, "edge": "lineal_vs_inverse", "ok": False, "error": str(exc)[:200]}
+
+
+def backfill_bases_lineal_inverse(bases: list[str] | None = None) -> list[dict]:
+    bases = bases or bases_backfill_necesarias()
+    return [backfill_base_lineal_inverse(b) for b in bases]
+
+
 def backfill_bases(bases: list[str] | None = None) -> list[dict]:
     """Backfill sesgo completo (3 mares) para bases necesarias."""
     bases = bases or bases_backfill_necesarias()

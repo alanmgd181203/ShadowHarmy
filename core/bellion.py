@@ -143,9 +143,13 @@ class BellionAuditor:
         from core import plan_crecimiento as pc
         from core import beru_capital as bc
         from core import manto_ventana as mv
+        from core import tusk_libros as tl
         eq = float(tusk.masa_bruta_real or tusk.masa_bruta or 0)
         igris_resumen["plan_crecimiento"] = pc.resumen_plan(eq)
-        igris_resumen["ventana_manto"] = mv.resumen_barco(peso_l, peso_s)
+        usd_l, usd_s = mv.usd_piernas_desde_pesos(tusk.pesos)
+        if usd_l + usd_s <= 0:
+            usd_l, usd_s = float(peso_l), float(peso_s)
+        igris_resumen["ventana_manto"] = mv.resumen_barco(usd_l, usd_s)
         try:
             from core import manto_frecuencia as mf
 
@@ -153,6 +157,7 @@ class BellionAuditor:
                 igris_resumen["frecuencia_manto"] = mf.snapshot_ranking(equity_usd=eq)
         except Exception as e:
             igris_resumen["frecuencia_manto"] = {"error": str(e)}
+        tusk_libros_snap = tl.snapshot_libros(tusk)
         progresion = bc.telemetria_progresion(eq)
 
         beru_flota: dict = {"activos": []}
@@ -223,10 +228,11 @@ class BellionAuditor:
             "tusk_tesoreria": tusk.snapshot_tesoreria() if hasattr(tusk, "snapshot_tesoreria") else {},
             "peso_long": peso_l,
             "peso_short": peso_s,
-            "delta_ratio": (peso_l / masa_bruta) if masa_bruta > 0 else 0.5,
+            "delta_ratio": (usd_l / (usd_l + usd_s)) if (usd_l + usd_s) > 0 else 0.5,
             "banda_min": banda_min,
             "banda_max": banda_max,
             "igris": igris_resumen,
+            "tusk_libros": tusk_libros_snap,
             "greed_basis_abiertos": list(getattr(tusk, "greed_basis_abiertos", None) or []),
             "beru_capital": resumen_capital(),
             # Motor dinámico — Árbol de Evolución / panel

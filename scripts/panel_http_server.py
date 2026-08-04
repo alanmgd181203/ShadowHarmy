@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""HTTP del Pergamino — sirve el repo + POST seguro de marcha_despliegue.json.
+"""HTTP del Pergamino — sirve el repo + POST marcha vía pase_director.guardar_marcha.
 
 Sustituye `python -m http.server` para que el altar pueda guardar el ritmo
-sin Vite. Solo escribe data/marcha_despliegue.json.
+sin Vite. Solo escribe data/marcha_despliegue.json (vía motor).
 """
 from __future__ import annotations
 
@@ -15,8 +15,12 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from core import pase_director as pd  # noqa: E402
+
 MARCHA_REL = Path("data") / "marcha_despliegue.json"
-MARCHAS_OK = frozenset({"tactico", "marcha_forzada", "asalto"})
+MARCHAS_OK = frozenset(pd.MARCHAS.keys())
 
 
 class PanelHandler(SimpleHTTPRequestHandler):
@@ -39,15 +43,25 @@ class PanelHandler(SimpleHTTPRequestHandler):
         if mid not in MARCHAS_OK:
             self.send_error(400, "marcha_id invalida")
             return
-        data["marcha_id"] = mid
-        out = ROOT / MARCHA_REL
-        out.parent.mkdir(parents=True, exist_ok=True)
-        tmp = out.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(data, indent=2), encoding="utf-8")
-        if out.exists():
-            out.unlink()
-        tmp.rename(out)
-        body = json.dumps({"ok": True, **data}).encode("utf-8")
+        dias = data.get("duracion_dias")
+        if dias is None:
+            dias = data.get("duracionDias")
+        equity = data.get("equity_usd")
+        if equity is None:
+            equity = data.get("equity")
+        try:
+            payload = pd.guardar_marcha(
+                mid,
+                duracion_dias=float(dias) if dias is not None else None,
+                equity_usd=float(equity) if equity is not None else None,
+            )
+        except ValueError as e:
+            self.send_error(400, str(e))
+            return
+        except Exception as e:
+            self.send_error(500, str(e)[:200])
+            return
+        body = json.dumps({"ok": True, **payload}).encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Cache-Control", "no-store")

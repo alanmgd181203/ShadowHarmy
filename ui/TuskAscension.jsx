@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AspiranteStar from "./AspiranteStar.jsx";
 import DeploymentAltar from "./DeploymentAltar.jsx";
-import { loadMarchId, marchById, persistMarchaBackend, saveMarchId } from "./deploymentMarches.js";
+import { loadMarchId, marchById, persistMarchaBackend, saveMarchId, hydrateMarchFromBackend } from "./deploymentMarches.js";
 import { featureEncendida } from "./featuresApagadas.js";
 import {
   DEMO_PROGRESS,
@@ -18,8 +18,8 @@ import {
 
 /**
  * Camino de Ascensión — Aspirante→Aprendiz→Brujo→Chamán (pase 13 Santos).
- * Altar 3 marchas: featuresApagadas → altarTresMarchas.
- * Progreso vivo: /data/estado_vivo.json → igris.plan_crecimiento.
+ * Altar 4 marchas: featuresApagadas → altarTresMarchas (nombre legado).
+ * Fuente marcha: data/marcha_despliegue.json (hidratar Ascensión).
  */
 const ALTAR_TRES_MARCHAS_ON = featureEncendida("altarTresMarchas");
 const MARCHA_DEFAULT = "marcha_forzada";
@@ -396,6 +396,7 @@ export default function TuskAscension({ onClose }) {
     if (saved) return saved;
     return ALTAR_TRES_MARCHAS_ON ? null : MARCHA_DEFAULT;
   });
+  const [duracionDias, setDuracionDias] = useState(null);
   const [collapsing, setCollapsing] = useState(false);
   const [showTrack, setShowTrack] = useState(() => {
     if (!ALTAR_TRES_MARCHAS_ON) return true;
@@ -405,6 +406,7 @@ export default function TuskAscension({ onClose }) {
   const [progress, setProgress] = useState(() => ({ ...DEMO_PROGRESS }));
   const [liveMode, setLiveMode] = useState(false);
   const [forgingId, setForgingId] = useState(null);
+  const [freqManto, setFreqManto] = useState(null);
   const forgeTimer = useRef(null);
 
   const march = marchById(marchId) || (!ALTAR_TRES_MARCHAS_ON ? marchById(MARCHA_DEFAULT) : null);
@@ -415,10 +417,19 @@ export default function TuskAscension({ onClose }) {
     forgeTimer.current = window.setTimeout(() => setForgingId(null), 1100);
   }
 
-  function handleChoose(m) {
+  function handleChoose(m, opts = {}) {
+    if (m.requiereDuracion) {
+      const d = Number(opts.duracionDias);
+      if (!(d > 0)) return;
+      setDuracionDias(d);
+    } else {
+      setDuracionDias(null);
+    }
     setCollapsing(true);
     saveMarchId(m.id);
-    persistMarchaBackend(m.id);
+    persistMarchaBackend(m.id, {
+      duracionDias: opts.duracionDias,
+    });
     setMarchId(m.id);
     window.setTimeout(() => {
       setCollapsing(false);
@@ -438,6 +449,7 @@ export default function TuskAscension({ onClose }) {
     if (!ALTAR_TRES_MARCHAS_ON) return;
     saveMarchId(null);
     setMarchId(null);
+    setDuracionDias(null);
     setShowTrack(false);
     setLit(false);
     setForgingId(null);
@@ -445,11 +457,21 @@ export default function TuskAscension({ onClose }) {
     setProgress({ ...DEMO_PROGRESS });
   }
 
+  // Hidratar desde JSON de marcha (altar solo si no hay marcha en disco)
   useEffect(() => {
-    if (!marchId) return undefined;
-    persistMarchaBackend(marchId);
-    return undefined;
-  }, [marchId]);
+    let cancelled = false;
+    (async () => {
+      const h = await hydrateMarchFromBackend();
+      if (cancelled || !h) return;
+      saveMarchId(h.id);
+      setMarchId(h.id);
+      if (h.duracionDias != null) setDuracionDias(h.duracionDias);
+      setShowTrack(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Pulso vivo: equity Tusk → nodos del pase (si hay plan en estado_vivo)
   useEffect(() => {
@@ -463,6 +485,7 @@ export default function TuskAscension({ onClose }) {
         if (!res.ok || cancelled) return;
         const data = await res.json();
         const plan = data?.igris?.plan_crecimiento || data?.plan_crecimiento;
+        if (data?.igris?.frecuencia_manto) setFreqManto(data.igris.frecuencia_manto);
         const next = progressFromPlan(plan);
         if (!next || cancelled) return;
         setLiveMode(true);
@@ -522,7 +545,12 @@ export default function TuskAscension({ onClose }) {
   return (
     <>
       {ALTAR_TRES_MARCHAS_ON && !showTrack && (
-        <DeploymentAltar onChoose={handleChoose} collapsing={collapsing} onClose={onClose} />
+        <DeploymentAltar
+          onChoose={handleChoose}
+          collapsing={collapsing}
+          onClose={onClose}
+          frecuenciaManto={freqManto}
+        />
       )}
       {showTrack && (
         <AscensionTrack

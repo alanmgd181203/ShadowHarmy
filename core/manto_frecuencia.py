@@ -240,26 +240,39 @@ def eta_despliegue_horas(
     marcha_id: str = "marcha_forzada",
     mordida_usd: float | None = None,
     ahora: float | None = None,
+    umbral_pct_override: float | None = None,
 ) -> dict[str, Any]:
     """
     ETA aproximado: meta / (mordida × oportunidades/h del umbral de la marcha).
     Oportunidades cuentan exceso vs cero estructural (no gap eterno).
-    Rango: base / optimista (×1.5 rate) / pesimista (×0.5 rate).
+    personalizado: usa umbral custom (marcha_duracion) o override.
     """
     from core.pase_director import MARCHAS, normalizar_marcha
+    from core import marcha_duracion as mdur
 
     mid = normalizar_marcha(marcha_id)
     perfil = MARCHAS[mid]
     mult = float(perfil.get("umbral_fees_mult", 0.5))
-    if mid == "asalto" or mult <= 0:
+
+    umbral_custom = None
+    if umbral_pct_override is not None:
+        umbral_custom = float(umbral_pct_override)
+        uk = "custom"
+    elif mid == "personalizado":
+        ua = mdur.umbral_activo(base, reajustar=False)
+        umbral_custom = float(ua.get("umbral_pct") or 0.0)
+        uk = "custom"
+    elif mid == "asalto" or mult <= 0:
         uk = "tablas"
     elif mult < 0.99:
         uk = "medio_fees"
     else:
         uk = "fees"
 
-    rate = oportunidades_por_hora(base, uk, ahora=ahora)
-    # Mordida: piso manto / mínimo orden ~$5 o override
+    if umbral_custom is not None:
+        rate = mdur.ops_por_hora_umbral(base, umbral_custom, ahora=ahora)
+    else:
+        rate = oportunidades_por_hora(base, uk, ahora=ahora)
     if mordida_usd is None:
         mordida_usd = float(getattr(config, "MANTO_FREQ_MORDIDA_USD", 5.0) or 5.0)
     mordida = max(float(mordida_usd), 1.0)
@@ -271,6 +284,7 @@ def eta_despliegue_horas(
         "base": (base or "").upper(),
         "marcha_id": mid,
         "umbral_key": uk,
+        "umbral_pct": umbral_custom,
         "meta_usd": round(meta, 4),
         "mordida_usd": round(mordida, 4),
         "bocados_est": round(bocados, 2),
@@ -293,7 +307,6 @@ def eta_despliegue_horas(
         out["eta_h_pes"] = 0.0
         return out
 
-    # Cada oportunidad ≈ 1 bocado (simplificación doctrinal)
     eta = bocados / rate
     out["eta_h"] = round(eta, 2)
     out["eta_h_opt"] = round(bocados / (rate * 1.5), 2)
@@ -330,11 +343,23 @@ def snapshot_ranking(
         bases = _bases_ranking()
     ranking = ranking_frecuencia(bases, ahora=ahora)
     etas: dict[str, Any] = {}
+    eta_lote: dict[str, Any] = {}
     try:
         from core import pase_director as pd
+        from core import marcha_duracion as mdur
 
-        for mid in ("tactico", "marcha_forzada", "asalto"):
+        marchas = ["tactico", "marcha_forzada", "asalto"]
+        store = mdur.cargar_umbrales()
+        if store.get("duracion_dias") or store.get("por_base"):
+            marchas.append("personalizado")
+        payload = pd.cargar_marcha_payload() or {}
+        if payload.get("marcha_id") == "personalizado" and "personalizado" not in marchas:
+            marchas.append("personalizado")
+
+        for mid in marchas:
             etas_m: dict[str, Any] = {}
+            max_eta = None
+            ok_lote = False
             for row in ranking[:8]:
                 b = row["base"]
                 meta = 0.0
@@ -343,10 +368,21 @@ def snapshot_ranking(
                     meta = float(me.get("need_fill_usd") or me.get("need_usd") or 0)
                 if meta <= 0:
                     meta = float(getattr(config, "MANTO_FREQ_META_DEFAULT_USD", 100.0) or 100.0)
-                etas_m[b] = eta_despliegue_horas(b, meta, marcha_id=mid, ahora=ahora)
+                et = eta_despliegue_horas(b, meta, marcha_id=mid, ahora=ahora)
+                etas_m[b] = et
+                if et.get("ok") and et.get("eta_h") is not None:
+                    ok_lote = True
+                    eh = float(et["eta_h"])
+                    max_eta = eh if max_eta is None else max(max_eta, eh)
             etas[mid] = etas_m
+            eta_lote[mid] = {
+                "eta_h": round(max_eta, 2) if max_eta is not None else None,
+                "ok": ok_lote and max_eta is not None,
+                "n_pares": len(etas_m),
+            }
     except Exception as e:
         etas = {"error": str(e)}
+        eta_lote = {"error": str(e)}
 
     return {
         "ts": ahora if ahora is not None else time.time(),
@@ -367,6 +403,7 @@ def snapshot_ranking(
             for r in ranking
         ],
         "eta_por_marcha": etas,
+        "eta_lote_por_marcha": eta_lote,
     }
 
 

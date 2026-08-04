@@ -36,7 +36,19 @@ def main() -> int:
 
     r = mv.resumen_barco(52, 48)
     assert r["ok"] and r["ley"] == "ventana_48_52_long_primero"
-    print("OK manto_ventana (ventana 48-52 / long-primero)")
+    assert r.get("base_ratio") == "desplegado_actual_usd_entrada"
+
+    # Ratio sobre desplegado @ entrada (10 vs 11 → 10/21)
+    pesos = {
+        "ETHUSD": {"long": 1.0, "short": 0.0, "precio_medio_long": 10.0, "precio_medio_short": 0.0},
+        "ETHUSDT": {"long": 0.0, "short": 1.0, "precio_medio_long": 0.0, "precio_medio_short": 11.0},
+    }
+    ul, us = mv.usd_piernas_desde_pesos(pesos)
+    assert abs(ul - 10.0) < 1e-9
+    assert abs(us - 11.0) < 1e-9
+    assert abs(mv.ratio_long_usd(ul, us) - 10.0 / 21.0) < 1e-9
+
+    print("OK manto_ventana (ventana 48-52 / long-primero / USD entrada)")
     return 0
 
 

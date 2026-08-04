@@ -1,10 +1,10 @@
 """Director del pase de batalla — potencia, lote por marcha, umbral Igris.
 
-Doctrina Monarca 2026-07-19:
-- Equity → pasos en potencia (techo teórico).
-- Lote = potencia − reserva(marcha); cola fina = últimos pasos uno a uno.
-- Marcha fija spread mínimo del manto: fees / ½ fees / asalto (market).
-- Beru caza cuando el manto del paso está logrado.
+Sello mega-pre-Igris:
+- Engorde 100% del delta (fill_ratio=1.0).
+- Reserva = 1 en todas las marchas (lote hasta potencia−1).
+- Marcha personalizado por duración T (calibración por par).
+- Meta llena (restante≤0) → no engordar más ese foco.
 """
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from typing import Any, Literal
 
 import core.config as config
 
-MarchaId = Literal["tactico", "marcha_forzada", "asalto"]
+MarchaId = Literal["tactico", "marcha_forzada", "asalto", "personalizado"]
 GradoPase = Literal["SOLDADO", "CAPITAN", "GENERAL", "MARISCAL"]
 
 # Caballero del pergamino = CAPITAN en motor Beru
@@ -83,34 +83,56 @@ PASE_PASOS: tuple[dict[str, Any], ...] = (
 )
 
 # Reserva de pasos (no abrir todo el techo de golpe) + umbral fees
+# Sello mega-pre-Igris: reserva=1 · fill=1.0 en todas
 MARCHAS: dict[str, dict[str, Any]] = {
     "tactico": {
         "titulo": "Despliegue Tactico",
-        "reserva_pasos": 3,
+        "reserva_pasos": 1,
         "umbral_fees_mult": 1.0,
         "permite_urgencia": False,
         "force_market": False,
-        "fill_ratio": 0.90,
+        "fill_ratio": 1.0,
     },
     "marcha_forzada": {
         "titulo": "Marcha Forzada",
-        "reserva_pasos": 2,
+        "reserva_pasos": 1,
         "umbral_fees_mult": 0.5,
         "permite_urgencia": True,
         "force_market": False,
-        "fill_ratio": 0.85,
+        "fill_ratio": 1.0,
     },
     "asalto": {
         "titulo": "Asalto Inmediato",
-        "reserva_pasos": 0,
+        "reserva_pasos": 1,
         "umbral_fees_mult": 0.0,
         "permite_urgencia": False,
         "force_market": True,
-        "fill_ratio": 0.75,
+        "fill_ratio": 1.0,
+    },
+    "personalizado": {
+        "titulo": "Marcha Personalizada",
+        "reserva_pasos": 1,
+        "umbral_fees_mult": -1.0,
+        "permite_urgencia": False,
+        "force_market": False,
+        "fill_ratio": 1.0,
     },
 }
 
 MARCHA_DEFAULT: MarchaId = "marcha_forzada"
+
+_MARCHA_ALIASES: dict[str, str] = {
+    "táctico": "tactico",
+    "tactico": "tactico",
+    "forzada": "marcha_forzada",
+    "marcha_forzada": "marcha_forzada",
+    "asalto": "asalto",
+    "inmediato": "asalto",
+    "personalizado": "personalizado",
+    "custom": "personalizado",
+    "duracion": "personalizado",
+    "duración": "personalizado",
+}
 
 
 def director_activo() -> bool:
@@ -130,10 +152,12 @@ def _ruta_progreso() -> str:
 
 
 def normalizar_marcha(mid: str | None) -> MarchaId:
-    m = (mid or "").strip().lower()
+    raw = (mid or "").strip().lower()
+    m = _MARCHA_ALIASES.get(raw, raw)
     if m in MARCHAS:
         return m  # type: ignore[return-value]
     env = str(getattr(config, "MARCHA_DESPLIEGUE", MARCHA_DEFAULT) or MARCHA_DEFAULT).lower()
+    env = _MARCHA_ALIASES.get(env, env)
     if env in MARCHAS:
         return env  # type: ignore[return-value]
     return MARCHA_DEFAULT
@@ -145,32 +169,109 @@ def perfil_marcha(mid: str | None = None) -> dict[str, Any]:
     return {"id": m, **MARCHAS[m]}
 
 
-def cargar_marcha() -> MarchaId:
+def equity_desde_estado(estado: dict | None = None) -> float:
+    """Lee equity vivo de estado_vivo (bóveda) o dict pasado."""
+    data = estado
+    if data is None:
+        ruta = os.path.join(_ruta_base(), "data", "estado_vivo.json")
+        if os.path.exists(ruta):
+            try:
+                with open(ruta, encoding="utf-8") as f:
+                    data = json.load(f)
+            except (json.JSONDecodeError, OSError, TypeError):
+                data = {}
+        else:
+            data = {}
+    if not isinstance(data, dict):
+        return 0.0
+    boveda = data.get("boveda") if isinstance(data.get("boveda"), dict) else {}
+    for src in (boveda, data):
+        for k in ("masa_bruta_real", "masa_bruta", "equity_usd", "equity"):
+            try:
+                v = float(src.get(k) or 0)
+            except (TypeError, ValueError, AttributeError):
+                v = 0.0
+            if v > 0:
+                return v
+    return 0.0
+
+
+def cargar_marcha_payload() -> dict[str, Any] | None:
+    """Payload completo de data/marcha_despliegue.json (o None)."""
     ruta = _ruta_marcha()
-    if os.path.exists(ruta):
-        try:
-            with open(ruta, encoding="utf-8") as f:
-                data = json.load(f)
-            got = str(data.get("marcha_id") or data.get("id") or "").strip().lower()
-            if got in MARCHAS:
-                return got  # type: ignore[return-value]
-        except (json.JSONDecodeError, OSError, TypeError):
-            pass
+    if not os.path.exists(ruta):
+        return None
+    try:
+        with open(ruta, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else None
+    except (json.JSONDecodeError, OSError, TypeError):
+        return None
+
+
+def cargar_marcha() -> MarchaId:
+    data = cargar_marcha_payload()
+    if data:
+        got = str(data.get("marcha_id") or data.get("id") or "").strip().lower()
+        got = _MARCHA_ALIASES.get(got, got)
+        if got in MARCHAS:
+            return got  # type: ignore[return-value]
     return normalizar_marcha(None)
 
 
-def guardar_marcha(marcha_id: str) -> dict[str, Any]:
+def guardar_marcha(
+    marcha_id: str,
+    *,
+    duracion_dias: float | None = None,
+    equity_usd: float | None = None,
+) -> dict[str, Any]:
+    """
+    Persiste marcha activa. personalizado exige duracion_dias > 0
+    y calibra umbrales vía marcha_duracion.calibrar_lote.
+    """
     mid = normalizar_marcha(marcha_id)
+    perfil = MARCHAS[mid]
     ruta = _ruta_marcha()
     os.makedirs(os.path.dirname(ruta), exist_ok=True)
-    payload = {
+
+    eq = float(equity_usd) if equity_usd is not None else equity_desde_estado()
+    if eq <= 0:
+        eq = float(getattr(config, "EQUITY_FALLBACK_USD", 1500) or 1500)
+
+    payload: dict[str, Any] = {
         "marcha_id": mid,
-        "titulo": MARCHAS[mid]["titulo"],
+        "titulo": perfil["titulo"],
         "ts": time.time(),
-        **{k: MARCHAS[mid][k] for k in (
-            "reserva_pasos", "umbral_fees_mult", "force_market", "permite_urgencia",
-        )},
+        "reserva_pasos": int(perfil["reserva_pasos"]),
+        "umbral_fees_mult": float(perfil["umbral_fees_mult"]),
+        "force_market": bool(perfil["force_market"]),
+        "permite_urgencia": bool(perfil["permite_urgencia"]),
+        "fill_ratio": float(perfil["fill_ratio"]),
+        "equity_usd": round(eq, 4),
     }
+
+    if mid == "personalizado":
+        dias = float(duracion_dias) if duracion_dias is not None else 0.0
+        if dias <= 0:
+            raise ValueError("personalizado exige duracion_dias > 0")
+        payload["duracion_dias"] = dias
+        # Metas del lote abierto para calibrar
+        plan = plan_lote(eq, marcha_id=mid, pasos_logrados=cargar_progreso()["pasos_logrados"])
+        metas: dict[str, float] = {}
+        for p in list(plan.get("trabajo") or []) or list(plan.get("lote") or []):
+            act = str(p["activo"]).upper()
+            metas[act] = metas.get(act, 0.0) + float(p.get("delta_usd") or 0)
+        if not metas and plan.get("foco"):
+            f = plan["foco"]
+            metas[str(f["activo"]).upper()] = float(f.get("delta_usd") or 0)
+        from core import marcha_duracion as mdur
+
+        cal = mdur.calibrar_lote(metas, dias, eq)
+        payload["umbrales_calibrados"] = bool(cal.get("por_base"))
+        payload["calibrado_ts"] = cal.get("calibrado_ts")
+    elif duracion_dias is not None:
+        payload["duracion_dias"] = float(duracion_dias)
+
     tmp = ruta + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
@@ -345,10 +446,9 @@ def meta_engorde_usd(
     pasos_logrados: list[int] | None = None,
 ) -> dict[str, Any]:
     """
-    Meta de engorde del paso en trabajo (delta_usd × fill_ratio).
-    restante_usd = need_fill − notional L+S desplegado.
+    Meta de engorde del paso en trabajo: need = 100% del delta_usd (fill=1.0).
+    restante_usd = need − notional L+S desplegado.
     Si restante ≤ 0 → Igris no engorda más ese foco (solo ventana/corrección).
-    mitad_alcanzada = have ≥ need_fill / 2 (para corrección dura más adelante).
     """
     plan = plan_lote(equity_usd, marcha_id=marcha_id, pasos_logrados=pasos_logrados)
     trabajo = list(plan.get("trabajo") or [])
@@ -385,7 +485,6 @@ def meta_engorde_usd(
             }
         paso = candidatos[0]
     else:
-        # Mismo criterio que activo_manto_foco
         if tusk is not None and len(trabajo) > 1:
             act = activo_manto_foco(
                 equity_usd, marcha_id=marcha_id, pasos_logrados=pasos_logrados, tusk=tusk,
@@ -397,7 +496,7 @@ def meta_engorde_usd(
 
     fill = float(plan.get("fill_ratio") or 1.0)
     need = float(paso["delta_usd"])
-    need_fill = need * fill
+    need_fill = need * fill  # sello: fill=1 → 100% del delta
     have = notional_manto_usd(tusk, act) if tusk is not None else 0.0
     restante = max(0.0, need_fill - have)
     return {
@@ -413,6 +512,7 @@ def meta_engorde_usd(
         "mitad_alcanzada": have + 1e-9 >= need_fill * 0.5,
         "fill_ratio": fill,
         "marcha_id": plan.get("marcha_id"),
+        "meta_llena": restante <= 1e-9,
     }
 
 
@@ -436,17 +536,34 @@ def umbral_por_marcha(
     base: str | None = None,
 ) -> dict[str, Any]:
     """
-    Táctico: umbral = fees (sin degradar).
-    Forzada: piso = ½ fees; urgencia Kaiser puede bajar hasta ese piso.
-    Asalto: umbral = 0 (entra ya / market).
+    Táctico/forzada (+base): ritmo de lote si hay base.
+    Personalizado: umbral_activo de marcha_duracion.
+    Asalto: umbral 0 + market.
+    Forzada sin base: urgencia Kaiser sin bajar del piso ½ fees.
     """
     mid = cargar_marcha() if marcha_id is None else normalizar_marcha(marcha_id)
     perfil = MARCHAS[mid]
     fees = max(0.0, float(fees_be_pct))
     mult = float(perfil["umbral_fees_mult"])
-    piso = fees * mult
 
-    if mid == "asalto" or mult <= 0:
+    if mid == "personalizado":
+        from core import marcha_duracion as mdur
+
+        ua = mdur.umbral_activo(base or "", reajustar=True) if base else {
+            "umbral_pct": 0.0, "ok": False, "modo": "personalizado",
+        }
+        return {
+            "umbral_pct": round(float(ua.get("umbral_pct") or 0.0), 6),
+            "fees_be_pct": round(fees, 6),
+            "factor": 0.0,
+            "modo_paciencia": "marcha_personalizado",
+            "marcha_id": mid,
+            "force_market": False,
+            "piso_fees_mult": mult,
+            "duracion_dias": ua.get("duracion_dias"),
+        }
+
+    if mid == "asalto" or (mult <= 0 and mid != "personalizado"):
         return {
             "umbral_pct": 0.0,
             "fees_be_pct": round(fees, 6),
@@ -457,6 +574,38 @@ def umbral_por_marcha(
             "piso_fees_mult": mult,
         }
 
+    # Ritmo de lote (táctico / forzada) cuando hay base
+    if base and mid in ("tactico", "marcha_forzada"):
+        try:
+            from core import marcha_ritmo_lote as mrl
+
+            stored = mrl.umbral_activo(base, mid)
+            if stored and stored.get("umbral_pct") is not None:
+                return {
+                    "umbral_pct": round(float(stored["umbral_pct"]), 6),
+                    "fees_be_pct": round(fees, 6),
+                    "factor": 0.0,
+                    "modo_paciencia": str(stored.get("modo_paciencia") or f"ritmo_lote_{mid}"),
+                    "marcha_id": mid,
+                    "force_market": False,
+                    "piso_fees_mult": mult,
+                    "reloj_eta_h": stored.get("reloj_eta_h"),
+                }
+            # Sin store: umbral piso + marca ritmo
+            piso = fees * mult
+            return {
+                "umbral_pct": round(piso, 6),
+                "fees_be_pct": round(fees, 6),
+                "factor": 0.0,
+                "modo_paciencia": f"ritmo_lote_{mid}",
+                "marcha_id": mid,
+                "force_market": False,
+                "piso_fees_mult": mult,
+            }
+        except Exception:
+            pass
+
+    piso = fees * mult
     if not perfil["permite_urgencia"] or t0_paciencia is None:
         return {
             "umbral_pct": round(piso, 6),
@@ -468,14 +617,12 @@ def umbral_por_marcha(
             "piso_fees_mult": mult,
         }
 
-    # Urgencia: parte de fees y baja hacia el piso (½ fees), no por debajo
     from core import igris_despliegue as ides
     urg = ides.umbral_urgencia_pct(
         fees, float(t0_paciencia), perfil_edge=perfil_edge, ahora=ahora, base=base,
     )
     umbral_dyn = float(urg.get("umbral_pct") or fees)
     umbral = max(piso, umbral_dyn) if piso > 0 else umbral_dyn
-    # Si el reloj ya bajó bajo el piso, respetar piso; si empieza en fees, ok
     if umbral_dyn > fees:
         umbral = max(piso, fees)
     return {

@@ -1,7 +1,8 @@
 # 21 — Doctrina Igris (escudo del manto)
 
-**Estado:** §A + §C (parcial) + §E **v2** + **3.5.8c motor v1** (ventana 48–52) + **meta engorde pase MVP** — mitad/manto-completo fino pendiente  
-**Código:** `generales/igris.py`, `core/igris_estado.py`, `core/igris_despliegue.py`, `core/manto_ventana.py`, `core/manto_jurisdiccion.py`, `core/manto_touch.py`, `core/telemetria_igris.py`, `core/igris_asset_detail.py`  
+**Estado:** §A + §C (parcial) + §E **v2** + **3.5.8c motor** + **mega-pre-Igris** (fill 100% · reserva 1 · personalizado · ritmo lote · USD@entrada · stop engorde en meta)  
+**Código:** `generales/igris.py`, `core/manto_ventana.py`, `core/pase_director.py`, `core/marcha_duracion.py`, `core/marcha_ritmo_lote.py`, `core/tusk_libros.py`  
+**Sello:** [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md)
 **Actualizado:** 2026-07-17
 
 ---

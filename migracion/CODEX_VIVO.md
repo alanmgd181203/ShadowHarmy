@@ -80,19 +80,20 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Jess sync Bybit (2026-07-21):** lev+mínimos+piso manto vivos · 780 bases · origin sync México
 - **Pase batalla 13 Santos (2026-07-19):** vacío 1,6 % · rangos Aspirante→Chamán · [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md)
 - **Candado rango (2026-07-19):** `MONARCA_RANK_GATE` → Igris auditoría/despliegue + Beru casa (no live) + Ascensión viva desde `estado_vivo`
-- **Director pase (2026-07-19):** `pase_director` — potencia/lote/reserva · 3 marchas (fees / ½ fees / asalto) · Beru tras manto · altar UI on · `panel_http_server` guarda marcha · Táctico=Limit
+- **Director pase (2026-07-19→08-03):** `pase_director` — potencia/lote · **4 marchas** · **fill 100% · reserva 1** · ritmo de lote · personalizado por T · altar hidrata JSON · `set_marcha_cli` · sello [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md)
+- **Libros Tusk / duración / ritmo:** `tusk_libros` · `marcha_duracion` · `marcha_ritmo_lote`
 - **Disparo dual Igris (2026-07-19):** L+S a la vez + salvavidas Market si una pierna huérfana (`IGRIS_DUAL_*`)
 - **Escalera precios (2026-07-20):** micro-bocados Limit Igris+Greed · cancel no llenos · equilibrar Market · `core/escalera_precios.py`
 - **Lotes Bybit qtyStep (2026-07-20):** `core/lote_bybit.py` lee BD Jess · peldaños/órdenes en múltiplos reales · [`CHECKPOINT_LOTES_BYBIT_2026-07-20.md`](CHECKPOINT_LOTES_BYBIT_2026-07-20.md)
-- **Meta engorde pase (2026-07-20):** `pase_director.meta_engorde_usd` → Igris bloque = Δ del paso · sin Doctrina B 95% si director on · 3.5.8c MVP
+- **Meta engorde pase (2026-07-20→08-03):** `meta_engorde_usd` = **100% delta** · Igris no engorda si `restante≤0` (solo ventana) · ratio USD@entrada
 - **Semáforos matriz 3.7.P1 (2026-07-20):** `matriz_luces` V/A/R en digest Kaiser · sin órdenes · **3.7.P3** reclasificado a Greed (pausa)
-- **Frecuencia manto 3.5.8b2 (2026-07-24):** 4 umbrales (fees/½/tablas/morado) · plazos 50/40/10 · ETA por marcha · `manto_frecuencia.py` → tau Igris + panel
+- **Frecuencia manto 3.5.8b2 (2026-07-24):** 4 umbrales · ETA por marcha + `eta_lote_por_marcha` · rama personalizado
 - **Kaiser memoria barcos (2026-07-19):** Tank horario → `data/kaiser/memoria/` · digest vivo · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 - **Oído Monarca:** **Pergamino** (app) + susurro Bellion; Telegram = legado (`06_NOTIFICACIONES.md` v2)
-- **Cuartel VPS (2026-08-02→03):** droplet SG · pivot **túnel VIP WireGuard** (lap = forja/ojos) · [`27_VPS_TUNEL_WIREGUARD.md`](27_VPS_TUNEL_WIREGUARD.md) · orden [`ORDEN_CURSOR_VPS_TUNEL.md`](ORDEN_CURSOR_VPS_TUNEL.md)
-- **Próximo:** VPS monta WG → Monarca importa `shadow-vip.conf` → ojos en lap
-- **Jess runbook informe:** [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md) · sesgo + ETA (mejor desde lap con túnel VIP)
-- **Validar:** `validar_tusk_boveda_mnt_smoke.py` · `validar_arise_ojos_smoke.py` · `validar_tusk_tesoreria_smoke.py` · `validar_bellion_oido_smoke.py` · `validar_beru_asset_detail_smoke.py` · `validar_manto_frecuencia_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_lote_bybit_smoke.py` · `validar_pase_director_smoke.py` · `validar_igris_smoke.py`
+- **Cuartel VPS (2026-08-02→03):** droplet SG · pivot **túnel VIP WireGuard** · [`27_VPS_TUNEL_WIREGUARD.md`](27_VPS_TUNEL_WIREGUARD.md)
+- **Próximo:** **4.0.2** Igris sim (ojos vivos + marcha) · túnel VIP si falta
+- **Jess runbook informe:** [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md)
+- **Validar:** `validar_pase_director_smoke.py` · `validar_marcha_duracion_smoke.py` · `validar_marcha_ritmo_lote_smoke.py` · `validar_tusk_libros_smoke.py` · `validar_manto_ventana_smoke.py` · (+ smokes previos)
 - **Tono obligatorio:** `17_GUIA_MONARCA.md`
 
 ---

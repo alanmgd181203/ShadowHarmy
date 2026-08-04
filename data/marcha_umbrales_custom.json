@@ -1,0 +1,23 @@
+{
+  "duracion_dias": 2.0,
+  "equity_usd": 500.0,
+  "calibrado_ts": 1785812540.4708722,
+  "eta_h_target": 48.0,
+  "por_base": {
+    "ETH": {
+      "umbral_pct": 0.055,
+      "eta_h_est": null,
+      "eta_h_target": 48.0,
+      "meta_usd": 14.0,
+      "ok": false
+    },
+    "SOL": {
+      "umbral_pct": 0.055,
+      "eta_h_est": null,
+      "eta_h_target": 48.0,
+      "meta_usd": 18.0,
+      "ok": false
+    }
+  },
+  "ts": 1785812540.4755602
+}

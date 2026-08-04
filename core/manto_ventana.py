@@ -56,6 +56,27 @@ def usd_lineal_desde_qty(qty: float, precio_entrada: float) -> float:
     return float(qty) * float(precio_entrada)
 
 
+def usd_piernas_desde_pesos(pesos: dict | None) -> tuple[float, float]:
+    """
+    USD long/short ya desplegados @ precio medio de entrada (no mark vivo).
+    Si no hay precio_medio, asume masa ya en USD (fallback inverso/legacy).
+    """
+    usd_l = 0.0
+    usd_s = 0.0
+    for _frente, p in (pesos or {}).items():
+        if not isinstance(p, dict):
+            continue
+        ml = float(p.get("long") or 0)
+        ms = float(p.get("short") or 0)
+        px_l = float(p.get("precio_medio_long") or 0)
+        px_s = float(p.get("precio_medio_short") or 0)
+        if ml > 0:
+            usd_l += usd_lineal_desde_qty(ml, px_l) if px_l > 0 else ml
+        if ms > 0:
+            usd_s += usd_lineal_desde_qty(ms, px_s) if px_s > 0 else ms
+    return usd_l, usd_s
+
+
 def clasificar_ratio(ratio: float) -> str:
     """OK | LONG_EXCEDIDO | SHORT_EXCEDIDO | FUERA_HARD."""
     r = float(ratio)
@@ -158,5 +179,6 @@ def resumen_barco(usd_long: float, usd_short: float) -> dict[str, Any]:
         "ok": dentro_ventana(r),
         "usd_long": round(float(usd_long), 4),
         "usd_short": round(float(usd_short), 4),
+        "base_ratio": "desplegado_actual_usd_entrada",
         "ley": "ventana_48_52_long_primero",
     }

@@ -3,9 +3,12 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import { spawnSync } from "child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, "../data");
+const rootDir = path.resolve(__dirname, "..");
+const cli = path.join(rootDir, "scripts", "set_marcha_cli.py");
 
 function serveDataPlugin() {
   return {
@@ -21,7 +24,7 @@ function serveDataPlugin() {
           return;
         }
 
-        // Escritura segura: solo marcha_despliegue.json (ritmo del ejército)
+        // POST marcha → CLI calibrada (no escritura cruda)
         if (req.method === "POST" && rel === "marcha_despliegue.json") {
           const chunks = [];
           req.on("data", (c) => chunks.push(c));
@@ -34,10 +37,29 @@ function serveDataPlugin() {
                 res.end("marcha_id required");
                 return;
               }
-              fs.mkdirSync(dataDir, { recursive: true });
-              fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
+              const args = [cli, "--id", data.marcha_id, "--json-out"];
+              const dias = data.duracion_dias ?? data.duracionDias;
+              if (dias != null && Number(dias) > 0) {
+                args.push("--dias", String(dias));
+              }
+              const eq = data.equity_usd ?? data.equity;
+              if (eq != null && Number(eq) > 0) {
+                args.push("--equity", String(eq));
+              }
+              const r = spawnSync("python", args, { cwd: rootDir, encoding: "utf8" });
+              if (r.status !== 0) {
+                res.statusCode = 400;
+                res.end((r.stderr || r.stdout || "set_marcha_cli failed").trim());
+                return;
+              }
+              let payload;
+              try {
+                payload = JSON.parse(r.stdout || "{}");
+              } catch {
+                payload = { ok: true, raw: r.stdout };
+              }
               res.setHeader("Content-Type", "application/json; charset=utf-8");
-              res.end(JSON.stringify({ ok: true, ...data }));
+              res.end(JSON.stringify({ ok: true, ...payload }));
             } catch (e) {
               res.statusCode = 400;
               res.end(String(e?.message || e));
@@ -69,7 +91,6 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    // Celular / túnel HTTPS (trycloudflare) no deben ser bloqueados por Vite
     allowedHosts: true,
     fs: {
       allow: [path.resolve(__dirname, "..")],
