@@ -13,6 +13,7 @@ No es “VPN Vultr de catálogo”: es **nuestro** WireGuard sobre el droplet (c
 
 ## Lado lap (Monarca / este Cursor)
 
+0. Si el Cursor del VPS debe **subir** a git: créale la llave (`TOKEN_GITHUB_VPS_MONARCA.md`) y pégala en la orden (`PEGAR_TOKEN_AQUI`). El token **nunca** va en un commit.
 1. Instalar [WireGuard para Windows](https://www.wireguard.com/install/).
 2. Esperar el archivo `shadow-vip.conf` que genere el Cursor del VPS (o pegarlo).
 3. WireGuard → **Add Tunnel** → Importar `shadow-vip.conf` → **Activate**.

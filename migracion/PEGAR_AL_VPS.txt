@@ -1,5 +1,8 @@
-# ORDEN corta — pegar al Cursor VPS
+# PEGAR al Cursor VPS (rellena el token)
 
-Lee y ejecuta: `migracion/ORDEN_CURSOR_VPS_TUNEL.md` (tras `git pull`).
+1) Monarca: crea token en `migracion/TOKEN_GITHUB_VPS_MONARCA.md`
+2) Abre `migracion/ORDEN_CURSOR_VPS_TUNEL.md`, copia TODO
+3) Sustituye `PEGAR_TOKEN_AQUI` por tu token
+4) Pega el mensaje al Agent del VPS
 
-Objetivo: WireGuard exit en `45.77.34.52`; **apagar** el ejército en este VPS; entregar `/root/shadow-vip.conf` al Monarca. La lap usará esa IP como pase VIP; las pruebas siguen en Windows.
+Sin token → solo puede montar WireGuard; **no** podrá `git push` de los cambios del VPS.
