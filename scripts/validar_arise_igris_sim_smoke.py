@@ -17,9 +17,10 @@ def main() -> int:
     src = SCRIPT.read_text(encoding="utf-8")
     tree = ast.parse(src)
     names = {n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
-    for req in ("ritual_igris_sim", "main", "_snapshot_cierre", "_apagado"):
+    for req in ("ritual_igris_sim", "main", "_snapshot_cierre", "_apagado", "_senales", "_esperar_ojos_verdes"):
         assert req in names, f"falta {req}"
     assert "vigilar_manto_operativo" in src, "debe despertar Igris"
+    assert "_esperar_ojos_verdes" in src, "debe calentar ojos antes de Igris"
     assert "MODO_SIMULACION" in src and "true" in src.lower()
     assert "GreedFrancotirador" not in src, "no despertar Greed"
     assert "Beru" not in src or "hibern" in src.lower()

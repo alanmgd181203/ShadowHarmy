@@ -123,10 +123,17 @@ class BybitBridge:
             f"Sentidos: {nlin} perp + {nlinf} fut linear | {ninv}+{ninvf} inv | {nspot} spot ({nshards} WS)",
         )
 
-        tareas = [self._loop_feed(feed) for feed in self.feeds]
+        # Arranque escalonado: con VIP/túnel, abrir 11 WS a la vez agota el handshake.
+        stagger = float(getattr(config, "BRIDGE_WS_STAGGER_S", 0.45) or 0.0)
+        tareas = [
+            self._loop_feed(feed, delay_s=i * stagger)
+            for i, feed in enumerate(self.feeds)
+        ]
         await asyncio.gather(*tareas)
 
-    async def _loop_feed(self, feed):
+    async def _loop_feed(self, feed, *, delay_s: float = 0.0):
+        if delay_s > 0:
+            await asyncio.sleep(delay_s)
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
@@ -137,10 +144,15 @@ class BybitBridge:
         for sym, _ in feed.get("books", []):
             args.append(f"orderbook.50.{sym}")
 
+        open_timeout = float(getattr(config, "BRIDGE_WS_OPEN_TIMEOUT_S", 45) or 45)
+
         while True:
             try:
                 async with websockets.connect(
-                    feed["url"], ssl=ssl_context, ping_interval=20, open_timeout=15
+                    feed["url"],
+                    ssl=ssl_context,
+                    ping_interval=20,
+                    open_timeout=open_timeout,
                 ) as websocket:
                     for i in range(0, len(args), 10):
                         lote = args[i : i + 10]

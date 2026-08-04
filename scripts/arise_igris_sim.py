@@ -132,7 +132,44 @@ async def _cronica(tusk, intervalo_s: float = 20.0):
         await asyncio.sleep(intervalo_s)
 
 
-async def _apagado(shutdown_event, bellion, tusk, igris, started: float):
+async def _esperar_ojos_verdes(
+    tank,
+    *,
+    timeout_s: float = 90.0,
+    shutdown_event: asyncio.Event | None = None,
+) -> bool:
+    """Calentamiento: no soltar Igris hasta Tank VERDE con precio lineal vivo."""
+    base = str(getattr(config, "TICKER_BASE", "ETH") or "ETH").upper()
+    keys = (f"{base}USDT_LINEAL", f"{base}USD_INVERSE", "ETHUSDT_LINEAL", "ETHUSD_INVERSE")
+    t0 = time.time()
+    print(f"[OJOS] Calentamiento — esperando Tank VERDE (hasta {timeout_s:.0f}s)…")
+    while time.time() - t0 < timeout_s:
+        if shutdown_event is not None and shutdown_event.is_set():
+            print("[OJOS] Calentamiento abortado (apagado).")
+            return False
+        try:
+            tank._auditar_semaforos()
+        except Exception:
+            pass
+        lider = None
+        try:
+            lider = tank._obtener_lider_verde()
+        except Exception:
+            lider = None
+        if lider and getattr(lider, "estado_foco", "") == "VERDE":
+            px = lider.precios_con_reflejo() or {}
+            if any(float(px.get(k) or 0) > 0 for k in keys):
+                print(
+                    f"[OJOS] VERDE lat={lider.latencia_ms:.0f}ms · "
+                    f"ETH_lin={px.get('ETHUSDT_LINEAL')} · listo para Igris"
+                )
+                return True
+        await asyncio.sleep(1.0)
+    print("[OJOS] Timeout calentamiento — Igris arranca igual (ojos flojos).")
+    return False
+
+
+async def _apagado(shutdown_event, bellion, tusk, igris, started: float, tasks: list):
     await shutdown_event.wait()
     snap = _snapshot_cierre(tusk, igris)
     snap["duracion_s"] = round(time.time() - started, 1)
@@ -143,7 +180,8 @@ async def _apagado(shutdown_event, bellion, tusk, igris, started: float):
         print(
             f"[SIM] marcha={snap.get('marcha_id')} | meta_restante="
             f"{(snap.get('meta_engorde') or {}).get('restante_usd')} | "
-            f"ventana={(snap.get('ventana_manto') or {}).get('estado')}"
+            f"ventana={(snap.get('ventana_manto') or {}).get('estado')} | "
+            f"have={(snap.get('meta_engorde') or {}).get('have_usd')}"
         )
     except OSError as e:
         print(f"[SIM] No se pudo escribir reporte: {e}")
@@ -152,6 +190,17 @@ async def _apagado(shutdown_event, bellion, tusk, igris, started: float):
         "BELLION", "SUCESION",
         "Ritual Igris SIM sellado — manos reales nunca se soltaron.",
     )
+    for t in tasks:
+        if not t.done():
+            t.cancel()
+
+
+async def _corte_tiempo(shutdown_event, segundos: float):
+    if segundos <= 0:
+        return
+    await asyncio.sleep(segundos)
+    print(f"\n[SIM] Corte por tiempo ({segundos:.0f}s) — sellando…")
+    shutdown_event.set()
 
 
 def _senales(loop, shutdown_event):
@@ -161,14 +210,6 @@ def _senales(loop, shutdown_event):
     signal.signal(signal.SIGINT, _handler)
     if hasattr(signal, "SIGTERM"):
         signal.signal(signal.SIGTERM, _handler)
-
-
-async def _corte_tiempo(shutdown_event, segundos: float):
-    if segundos <= 0:
-        return
-    await asyncio.sleep(segundos)
-    print(f"\n[SIM] Corte por tiempo ({segundos:.0f}s) — sellando…")
-    shutdown_event.set()
 
 
 async def ritual_igris_sim(segundos: float = 0.0):
@@ -191,6 +232,7 @@ async def ritual_igris_sim(segundos: float = 0.0):
     shutdown_event = asyncio.Event()
     _senales(asyncio.get_running_loop(), shutdown_event)
     started = time.time()
+    running: list[asyncio.Task] = []
 
     try:
         api_key = getattr(config, "API_KEY", None)
@@ -212,7 +254,6 @@ async def ritual_igris_sim(segundos: float = 0.0):
 
         kaiser = KaiserVocero(tank, bellion)
         igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge, kaiser=kaiser)
-        # Sin Greed: no asignar igris.greed
 
         from core.validacion import advertir_gates
         advertir_gates()
@@ -220,8 +261,7 @@ async def ritual_igris_sim(segundos: float = 0.0):
         panel = PanelDeControl(tusk, igris, tank)
 
         print("\n[TUSK] Oxígeno de guerra real → masa_autorizada (manos bóveda OFF).")
-        print("[TANK/KAISER] Ojos vivos (VIP OK).")
-        print("[IGRIS] vigilar_manto_operativo — engorde/ventana con fills ilusorios.")
+        print("[TANK/KAISER] Ojos primero (calentamiento).")
         print("[GREED/BERU] Hibernados.")
         print("Ctrl+C para sellar.\n")
 
@@ -230,29 +270,52 @@ async def ritual_igris_sim(segundos: float = 0.0):
             f"4.0.2 arranque · marcha={mid} · SIM=True · sin Greed/Beru",
         )
 
-        tareas = [
-            tusk.latido_persistencia([]),
-            tusk.hilo_reconciliacion(bridge),
-            tank.vigilar_aguas(),
-            bridge.conectar(),
-            bridge.hilo_sentidos_extra(),
-            bridge.hilo_sincronizacion_nav(),
-            kaiser.vigilar_indicadores(),
-            igris.vigilar_manto_operativo(),
-            _refrescar_panel(panel),
-            _publicar_estado(bellion, tusk, igris, tank, kaiser),
-            _cronica(tusk),
-            _apagado(shutdown_event, bellion, tusk, igris, started),
-            _corte_tiempo(shutdown_event, segundos),
-        ]
-        if binance_ref:
-            tareas.append(binance_ref.conectar())
+        def _spawn(coro):
+            t = asyncio.create_task(coro)
+            running.append(t)
+            return t
 
-        await asyncio.gather(*tareas)
+        # 1) Ojos + bóveda primero
+        _spawn(tusk.latido_persistencia([]))
+        _spawn(tusk.hilo_reconciliacion(bridge))
+        _spawn(tank.vigilar_aguas())
+        _spawn(bridge.conectar())
+        _spawn(bridge.hilo_sentidos_extra())
+        _spawn(bridge.hilo_sincronizacion_nav())
+        _spawn(kaiser.vigilar_indicadores())
+        if binance_ref:
+            _spawn(binance_ref.conectar())
+        _spawn(_refrescar_panel(panel))
+        _spawn(_publicar_estado(bellion, tusk, igris, tank, kaiser))
+        _spawn(_cronica(tusk))
+        _spawn(_apagado(shutdown_event, bellion, tusk, igris, started, running))
+
+        ojos_ok = await _esperar_ojos_verdes(
+            tank, timeout_s=90.0, shutdown_event=shutdown_event,
+        )
+        if shutdown_event.is_set():
+            for t in running:
+                t.cancel()
+            await asyncio.gather(*running, return_exceptions=True)
+            return
+
+        # Reloj de Igris (no cuenta el calentamiento)
+        if segundos > 0:
+            _spawn(_corte_tiempo(shutdown_event, segundos))
+
+        # 2) Igris solo tras ojos (o timeout)
+        print("[IGRIS] vigilar_manto_operativo — engorde/ventana con fills ilusorios.")
+        if not ojos_ok:
+            await bellion.anotar("TANK", "OJOS_DEBILES", "Igris arranca sin VERDE estable.")
+        _spawn(igris.vigilar_manto_operativo())
+
+        await asyncio.gather(*running, return_exceptions=True)
 
     except Exception:
         print("\n[!] ERROR EN RITUAL IGRIS SIM:")
         traceback.print_exc()
+        for t in running:
+            t.cancel()
         raise
 
 
@@ -262,7 +325,7 @@ def main():
         "--segundos",
         type=float,
         default=float(os.getenv("ARISE_IGRIS_SIM_SEGUNDOS", "0") or 0),
-        help="Si >0, corta tras N segundos.",
+        help="Si >0, corta tras N segundos de Igris activo (calentamiento aparte).",
     )
     args = ap.parse_args()
     asyncio.run(ritual_igris_sim(segundos=args.segundos))
