@@ -1,0 +1,5 @@
+# ORDEN corta — pegar al Cursor VPS
+
+Lee y ejecuta: `migracion/ORDEN_CURSOR_VPS_TUNEL.md` (tras `git pull`).
+
+Objetivo: WireGuard exit en `45.77.34.52`; **apagar** el ejército en este VPS; entregar `/root/shadow-vip.conf` al Monarca. La lap usará esa IP como pase VIP; las pruebas siguen en Windows.

@@ -247,9 +247,9 @@
 ### 3.12 Cuartel VPS (casa fija) *(decisión Monarca 2026-08-02)*
 - [~] **3.12.1** Comprar VPS Ubuntu (Singapur Vultr · 1 GB) · `EjércitoSombra` · IP `45.77.34.52` · runbook [`24_CUARTEL_VPS.md`](24_CUARTEL_VPS.md)
 - [~] **3.12.2** Bootstrap VPS OK (Singapur) · venv+repo · `.env` existe · path actual `/root/ShadowHarmy` (711) · ideal mover a `/home/monarca/ShadowHarmy`
-- [ ] **3.12.3** Ritual ojos 24/7 (`arise_ojos_tusk` + tmux/systemd) · memoria Kaiser en el VPS
-- [ ] **3.12.4** Cursor Remote SSH = campamento oficial · Jess Mac = respaldo
-- [ ] **3.12.5** Informes sesgo/ETA desde VPS cuando haya muestras `lineal_vs_inverse`
+- [ ] **3.12.3** Ritual ojos (preferible en **lap** vía túnel VIP · VPS solo WireGuard) · ver [`27_VPS_TUNEL_WIREGUARD.md`](27_VPS_TUNEL_WIREGUARD.md) · orden VPS [`ORDEN_CURSOR_VPS_TUNEL.md`](ORDEN_CURSOR_VPS_TUNEL.md)
+- [ ] **3.12.4** Cursor principal = lap + túnel · Jess/VPS Remote = mantenimiento ligero
+- [ ] **3.12.5** Informes sesgo/ETA desde lap (con túnel) cuando haya muestras
 
 ---
 
@@ -418,7 +418,7 @@ Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
 **Última actualización checklist:** 2026-08-02 (cuartel VPS decisión Monarca · ETA parcial Jess)  
-**Próximo ítem recomendado:** **3.12.1** comprar VPS · runbook `24_CUARTEL_VPS.md` · luego ojos 24/7 · Igris sim en el mismo cuartel  
+**Próximo ítem recomendado:** **3.12.3** túnel VIP WireGuard (`27` + orden VPS) · ojos en lap · luego Igris sim **4.0.2**  
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
@@ -437,7 +437,7 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 3.12.1 VPS cuartel (24_CUARTEL_VPS.md) · ojos 24/7 · luego 4.0.2 Igris sim.
+Siguiente: 3.12.3 túnel VIP WireGuard (27 + ORDEN_CURSOR_VPS_TUNEL) · ojos en lap · luego 4.0.2 Igris sim.
 Validar: scripts/validar_*_smoke.py + validar_bellion_oido_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).
