@@ -14,6 +14,74 @@ from core import ancla
 from core import greed_sizing as sizing
 
 
+def _ticker_puerta_habilitada() -> bool:
+    raw = str(getattr(config, "IGRIS_TICKER_PUERTA_SI_SIN_LIBRO", "auto") or "auto").strip().lower()
+    if raw in ("0", "false", "off", "no"):
+        return False
+    if raw in ("1", "true", "on", "yes"):
+        return True
+    # auto
+    if getattr(config, "MODO_SIMULACION", False) or getattr(config, "ARISE_IGRIS_SIM", False):
+        return True
+    if not bool(getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", True)):
+        return True
+    return False
+
+
+def precio_ticker_frente(tank, frente: str) -> float:
+    """Last price del frente desde Tank (lider o nodos), con reflejo si existe."""
+    frentes: dict = {}
+    lider = None
+    if hasattr(tank, "_obtener_lider_verde"):
+        try:
+            lider = tank._obtener_lider_verde()
+        except Exception:
+            lider = None
+    if lider is None and hasattr(tank, "nodos"):
+        try:
+            nodos = list(getattr(tank, "nodos") or [])
+            nodos.sort(key=lambda n: getattr(n, "ultima_actualizacion", 0), reverse=True)
+            lider = nodos[0] if nodos else None
+        except Exception:
+            lider = None
+    if lider is not None:
+        if hasattr(lider, "precios_con_reflejo"):
+            try:
+                frentes = dict(lider.precios_con_reflejo() or {})
+            except Exception:
+                frentes = dict(getattr(lider, "precios", {}) or {})
+        else:
+            frentes = dict(getattr(lider, "precios", {}) or {})
+    if not frentes and hasattr(tank, "precios"):
+        frentes = dict(getattr(tank, "precios") or {})
+    return float(frentes.get(frente) or 0.0)
+
+
+def libro_sintetico_ticker(
+    precio: float,
+    restante_usd: float,
+    *,
+    frente: str = "",
+) -> tuple[list, list]:
+    """
+    Libro sintético 1-nivel desde ticker (ojos sin muros / sim).
+    Inverse: qty = USD de contrato. Lineal/spot: qty = base.
+    """
+    px = float(precio or 0)
+    if px <= 0:
+        return [], []
+    half = float(getattr(config, "IGRIS_TICKER_HALF_SPREAD_PCT", 0.02) or 0.02) / 100.0
+    ask = px * (1.0 + half)
+    bid = px * (1.0 - half)
+    need = max(float(restante_usd or 0), float(getattr(config, "ANCLA_MIN_NOTIONAL_USD", 10) or 10), 25.0) * 4.0
+    fu = (frente or "").upper()
+    if "INVERSE" in fu:
+        qty = need  # Bybit inverse: size en USD
+    else:
+        qty = need / px
+    return [[bid, qty]], [[ask, qty]]
+
+
 def libro_tank(tank, frente: str) -> tuple[list, list]:
     """Libros del nodo líder Tank; fallback a tank.libros (smokes / mocks)."""
     libros: dict = {}
@@ -312,6 +380,24 @@ def evaluar_puerta_se(
     bids_s, asks_s = libro_tank(tank, frente_short)
     ask_l = best_ask(asks_l)
     bid_s = best_bid(bids_s)
+    fuente_libro = "orderbook"
+    sin_libro_real = ask_l <= 0 or bid_s <= 0
+
+    if sin_libro_real and _ticker_puerta_habilitada():
+        px_l = precio_ticker_frente(tank, frente_long)
+        px_s = precio_ticker_frente(tank, frente_short)
+        if px_l <= 0:
+            px_l = px_s
+        if px_s <= 0:
+            px_s = px_l
+        if px_l > 0 and px_s > 0:
+            # Ask del LONG (inverse) y Bid del SHORT (lineal) desde tickers
+            bids_l, asks_l = libro_sintetico_ticker(px_l, restante_usd, frente=frente_long)
+            bids_s, asks_s = libro_sintetico_ticker(px_s, restante_usd, frente=frente_short)
+            ask_l = best_ask(asks_l)
+            bid_s = best_bid(bids_s)
+            fuente_libro = "ticker_sim"
+            sin_libro_real = False
 
     if ask_l <= 0 or bid_s <= 0:
         return {
@@ -319,6 +405,7 @@ def evaluar_puerta_se(
             "motivo": "sin_ask_bid_libro",
             "ask_long": ask_l,
             "bid_short": bid_s,
+            "fuente_libro": fuente_libro,
         }
 
     base = (activo or "").upper()
@@ -368,6 +455,9 @@ def evaluar_puerta_se(
     cero = cero_info.get("cero_pct") if cero_info.get("ok") else None
     umbral_fees = float(umbral)
     umbral = ksi.umbral_manto_con_cero(umbral_fees, cero)
+    # Ojos sin muros: el ticker no mide edge real — no esperar spread vivo
+    if fuente_libro == "ticker_sim":
+        umbral = 0.0
     urg = {
         **urg,
         "umbral_fees_pct": round(umbral_fees, 6),
@@ -375,6 +465,7 @@ def evaluar_puerta_se(
         "cero_fuente": cero_info.get("fuente"),
         "umbral_pct": round(umbral, 6),
         "exceso_vs_cero_pct": round(ksi.exceso_vs_cero(spread, cero), 6),
+        "fuente_libro": fuente_libro,
     }
 
     if spread < umbral:
@@ -428,6 +519,11 @@ def evaluar_puerta_se(
     else:
         mordida = round(float(techo_info["techo_usd"]) * fraccion, 4)
     min_par = float(techo_info["min_par_usd"])
+    # Si la fracción queda bajo minBybit pero el techo alcanza → subir a min_par
+    if mordida + 1e-9 < min_par:
+        techo = float(techo_info["techo_usd"] or 0)
+        if techo + 1e-9 >= min_par:
+            mordida = round(min(techo, float(restante_usd), min_par), 4)
     if mordida + 1e-9 < min_par:
         return {
             "ok": False,
@@ -456,7 +552,7 @@ def evaluar_puerta_se(
 
     return {
         "ok": True,
-        "motivo": "OK",
+        "motivo": "OK" if fuente_libro == "orderbook" else "OK_ticker_sim",
         "ask_long": ask_l,
         "bid_short": bid_s,
         "precio_ref": precio_ref,

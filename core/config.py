@@ -490,6 +490,14 @@ BRIDGE_WS_BASES: list[str] = (
     else []
 )
 
+# Bybit HTTP: recv_window (ms). Skew ~5s del Mac→10002; 60s da colchón.
+BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))
+
+# Igris sim / ojos sin muros: puerta §E puede usar ticker si no hay libro.
+# true|false|auto — auto = ON si MODO_SIMULACION o ARISE_IGRIS_SIM o books OFF.
+_IGRIS_TICKER_PUERTA_RAW = os.getenv("IGRIS_TICKER_PUERTA_SI_SIN_LIBRO", "auto").strip().lower()
+IGRIS_TICKER_PUERTA_SI_SIN_LIBRO = _IGRIS_TICKER_PUERTA_RAW  # "auto"|"true"|"false"
+
 UMBRAL_VERDE_MS = 400.0
 UMBRAL_AMARILLO_MS = 800.0
 TOLERANCIA_GLITCH = 0.002

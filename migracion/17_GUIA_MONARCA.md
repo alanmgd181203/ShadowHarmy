@@ -116,6 +116,7 @@ Ampliar según haga falta en sesión; no hace falta memorizar todo de golpe.
 - Implementar contra `08` o `03` sin avisar y sin «Override codex».
 - Usar solo inglés técnico cuando existe equivalente en el glosario.
 - **Respuestas “devops crudas”** (solo SHAs, ramas, `git push`, tablas de archivos) **sin traducir** al lenguaje del Ejército — eso fue una deriva reciente y **está prohibida**.
+- **AskQuestion / cards «Questions» (A/B/Other, placeholders): prohibidas por defecto.** El Monarca lo ordenó: son fastidiosas. **Nunca** cards de relleno ni menús de 4 opciones «por si acaso». **Solo** si el trabajo está **bloqueado** sin su decisión (live/manos reales, destrucción, Override codex, ambigüedad que cambia el camino). Si no: asumir checklist `16` y el siguiente paso en prosa. Cuando haga falta preguntar: **una línea en el chat**, no card.
 
 ---
 
@@ -129,6 +130,7 @@ El Monarca avisó: **últimamente el agente abandonó esta guía** (sync git, re
 2. Si el trabajo fue git/remoto: decir *qué soldado del mapa cambió* y *qué ítem del checklist* toca — no solo el hash.
 3. Cerrar con **qué sigue** del `16` (un ítem concreto).
 4. Si solo se sincronizó el cuartel: una frase de doctrina + estado del camino, no un dump de commits.
+5. **No AskQuestion** salvo bloqueo real (ver «Qué no hacer»).
 
 ---
 

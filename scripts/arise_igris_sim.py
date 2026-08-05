@@ -41,10 +41,14 @@ os.environ.setdefault("TUSK_BOVEDA_MANOS", "false")
 # Sin arena forzada: usamos doctrina completa + fills por MODO_SIMULACION
 os.environ.setdefault("ARENA_IGRIS_ACTIVA", "false")
 # Lap débil / internet justita: sin muros orderbook + sin backfill pesado al arranque
+# (la puerta §E usa ticker sintético si no hay libro — IGRIS_TICKER_PUERTA_SI_SIN_LIBRO=auto)
 os.environ.setdefault("BRIDGE_WS_SUBSCRIBE_BOOKS", "false")
 os.environ.setdefault("KAISER_BACKFILL_ON_START", "false")
 os.environ.setdefault("BRIDGE_WS_STAGGER_S", "0.7")
 os.environ.setdefault("BINANCE_REF_ENABLED", "false")
+os.environ.setdefault("BYBIT_RECV_WINDOW_MS", "60000")
+os.environ.setdefault("IGRIS_TICKER_PUERTA_SI_SIN_LIBRO", "auto")
+os.environ.setdefault("BRIDGE_WS_FORCE_IPV4", "true")
 
 import core.config as config  # noqa: E402
 
@@ -57,6 +61,10 @@ config.KAISER_BACKFILL_ON_START = False
 config.BRIDGE_WS_STAGGER_S = float(os.getenv("BRIDGE_WS_STAGGER_S", "0.7") or 0.7)
 if hasattr(config, "BINANCE_REF_ENABLED"):
     config.BINANCE_REF_ENABLED = False
+config.BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))
+config.IGRIS_TICKER_PUERTA_SI_SIN_LIBRO = os.getenv("IGRIS_TICKER_PUERTA_SI_SIN_LIBRO", "auto")
+if hasattr(config, "BRIDGE_WS_FORCE_IPV4"):
+    config.BRIDGE_WS_FORCE_IPV4 = True
 
 from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402

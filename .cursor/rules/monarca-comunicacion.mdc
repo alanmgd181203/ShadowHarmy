@@ -20,6 +20,8 @@ alwaysApply: true
 
 - Responder solo con SHAs, ramas, `git push` o tablas de archivos **sin** decir qué cambió en el ejército.
 - Hablar como ticket de devops/ingeniería cuando el Monarca pide estado del camino.
+- **AskQuestion / cards «Questions» (A/B/Other / placeholders): prohibido por defecto.** El Monarca lo rechazó explícitamente. **Nunca** abrir cuestionario de relleno, confirmación blanda, ni «elige 1 de 4» por costumbre. **Única excepción:** el trabajo está **bloqueado de verdad** sin su decisión (soltar manos/live, destruir fondos/datos, «Override codex», ambigüedad que cambie el camino de guerra). Si no estás bloqueado: **asume** checklist `16` + siguiente paso en prosa. Preferir una pregunta de una línea en el chat solo cuando esa excepción aplique — sin card.
+
 
 ## Sesión de código
 

@@ -692,10 +692,16 @@ def sincronizar_logrados_desde_tusk(
     *,
     marcha_id: str | None = None,
 ) -> dict[str, Any]:
-    """Marca pasos logrados si el manto del activo cubre el Δ acumulado del Santo (fill_ratio)."""
+    """Marca pasos logrados si el manto del activo cubre el Δ acumulado del Santo (fill_ratio).
+
+    Dentro del lote paralelo (≤ lote_techo): cada Santo se marca por su cobertura,
+    sin cola forzada 1→2→3. En la cola fina (pasos de reserva): sigue el orden.
+    """
     mid = normalizar_marcha(marcha_id or cargar_marcha())
     fill = float(MARCHAS[mid]["fill_ratio"])
     n_pot = potencia_n(equity_usd)
+    reserva = int(MARCHAS[mid]["reserva_pasos"])
+    n_lote_techo = max(0, n_pot - reserva) if n_pot > 0 else 0
     prog = cargar_progreso()
     logs = set(int(x) for x in (prog.get("pasos_logrados") or []))
     desplegado: dict[str, float] = {}
@@ -712,8 +718,8 @@ def sincronizar_logrados_desde_tusk(
         need_por_activo[act] = need_por_activo.get(act, 0.0) + float(p["delta_usd"])
         if pn in logs:
             continue
-        # Encadenado: paso anterior global logrado (o n==1)
-        if pn > 1 and (pn - 1) not in logs:
+        # Lote paralelo: sin cadena forzada. Cola fina: paso anterior obligatorio.
+        if pn > n_lote_techo and pn > 1 and (pn - 1) not in logs:
             continue
         if desplegado.get(act, 0.0) + 1e-6 >= need_por_activo[act] * fill:
             logs.add(pn)
@@ -730,15 +736,19 @@ def marcar_foco_si_bloque_completo(
     *,
     marcha_id: str | None = None,
 ) -> dict[str, Any] | None:
-    """Tras misión/bloque Igris: marca el foco actual si coincide el activo."""
+    """Tras misión/bloque Igris: marca el paso del lote que coincide con el Santo (paralelo)."""
     plan = plan_lote(equity_usd, marcha_id=marcha_id)
+    act_u = str(activo or "").upper()
+    # Primero cualquier paso incompleto del trabajo con ese activo (lote paralelo)
+    for p in plan.get("trabajo") or []:
+        if str(p["activo"]).upper() == act_u:
+            return marcar_paso_logrado(int(p["n"]))
     foco = plan.get("foco")
     if not foco:
         return None
-    if str(foco["activo"]).upper() != str(activo or "").upper():
+    if str(foco["activo"]).upper() != act_u:
         return None
     return marcar_paso_logrado(int(foco["n"]))
-
 
 def resumen_director(equity_usd: float) -> dict[str, Any]:
     mid = cargar_marcha()

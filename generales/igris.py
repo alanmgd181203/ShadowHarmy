@@ -36,6 +36,9 @@ class IgrisEscudo:
         self._bloque_objetivo_usd = 0.0
         self._bloque_inyectado_usd = 0.0
         self._mision_beru_completa = False
+        # Override temporal: engorde/bootstrap del lote en paralelo (varios Santos por latido)
+        self._override_activo: str | None = None
+        self._engorde_fail_until_por: dict[str, float] = {}
 
         self._capital_pre_vuelo = 0.0
         self._rango_progresion: str | None = None
@@ -140,9 +143,8 @@ class IgrisEscudo:
             f"(colchón oxígeno, rebase táctico permitido)."
         )
         while True:
-            _, estado = await self.tank.vision_especulativa()
-            if estado != "ROJO":
-                await self.auditar_manto_global()
+            # La auditoría ya candida visión/puerta; no hibernar el lote por glitch de nodos
+            await self.auditar_manto_global()
             await asyncio.sleep(1)
 
     def _tipos_evento_manto(self) -> frozenset[str]:
@@ -169,17 +171,8 @@ class IgrisEscudo:
         return bool(self._alertas_evento_para_activo(alertas, activo))
 
     def _consumir_kaiser_jurisdiccion(self) -> list:
-        """Alertas Kaiser solo del activo bajo mando del manto (§E lineal_vs_inverse)."""
-        if not self.kaiser:
-            return []
-        activo = self._activo_despliegue()
-        try:
-            raw = self.kaiser.consumir("IGRIS")
-        except Exception:
-            raw = []
-        filtradas = ides.filtrar_alertas_jurisdiccion(raw, activo)
-        self._alertas_kaiser_cache = filtradas
-        return filtradas
+        """Compat: jurisdicción del activo actual (preferir lote vía auditar_manto_global)."""
+        return self._consumir_kaiser_lote([self._activo_despliegue()])
 
     def _perfiles_kaiser(self) -> dict | None:
         if not self.kaiser:
@@ -203,7 +196,17 @@ class IgrisEscudo:
                 lider = None
         return getattr(lider, "estado_foco", None) or "VERDE"
 
+    def _marcar_fail_cooldown(self, activo: str | None = None) -> None:
+        wait = float(getattr(config, "IGRIS_ESPERA_COOLDOWN_S", 5.0))
+        until = time.time() + wait
+        act = (activo or self._override_activo or self._activo_despliegue() or "").upper()
+        if act:
+            self._engorde_fail_until_por[act] = until
+        # legado: no bloquear todo el lote; solo el Santo que falló
+        self._engorde_fail_until = until
+
     async def auditar_manto_global(self):
+        """Despliega el manto sobre TODO el lote en trabajo (paralelo), no de par en par."""
         if not await self._auditoria_pre_despliegue():
             return
 
@@ -212,53 +215,81 @@ class IgrisEscudo:
             self.tusk.manto_cedido_a_greed = False
 
         limpiar_toques_expirados(self.tusk)
-        alertas = self._consumir_kaiser_jurisdiccion()
         event_driven = getattr(config, "IGRIS_EVENT_DRIVEN", False)
+        activos = self._activos_lote_trabajo()
+        alertas = self._consumir_kaiser_lote(activos)
 
-        margen_actual = float(self.tusk.margen_ocupado)
         peso_l_total = sum(f["long"] for f in self.tusk.pesos.values())
         peso_s_total = sum(f["short"] for f in self.tusk.pesos.values())
         masa_bruta = peso_l_total + peso_s_total
-        en_cooldown = (time.time() - self.ultimo_movimiento) <= self.cooldown_maniobra_s
-        if time.time() < self._engorde_fail_until:
-            en_cooldown = True
+        # Polvo heredado de bóveda (p.ej. LTC 0.1/0.1): en sim no bloquea bootstrap del lote
+        masa_trabajo = masa_bruta
+        if getattr(config, "MODO_SIMULACION", False) and masa_bruta > 0:
+            from core import manto_ventana as mv
+            usd_l0, usd_s0 = mv.usd_piernas_desde_pesos(self.tusk.pesos)
+            if (usd_l0 + usd_s0) < float(getattr(config, "IGRIS_SIM_POLVO_USD_MAX", 2.0) or 2.0):
+                masa_trabajo = 0.0
+        ahora = time.time()
+        en_cooldown_rebalance = (ahora - self.ultimo_movimiento) <= self.cooldown_maniobra_s
 
-        activo = self._activo_despliegue()
-        eventos_activo = self._alertas_evento_para_activo(alertas, activo)
+        hay_eventos_lote = any(
+            self._alertas_evento_para_activo(alertas, a) for a in activos
+        )
 
-        # Bootstrap — vacío: en event-driven solo con señal Kaiser o primer arranque
-        if masa_bruta == 0:
+        # Bootstrap — vacío o polvo: sembrar puerta en cada Santo del lote (paralelo)
+        if masa_trabajo == 0:
+            bootstrap_ok = True
             if event_driven:
                 bootstrap_ok = (
-                    bool(eventos_activo)
+                    hay_eventos_lote
                     or (
                         getattr(config, "IGRIS_BOOTSTRAP_ON_START", True)
                         and not self._bootstrap_inicial_hecho
                     )
                 )
-                if bootstrap_ok:
-                    self._bootstrap_inicial_hecho = True
-                    await self._bootstrap_manto()
-                elif time.time() - self._ultimo_heartbeat_evento > float(
+            if not bootstrap_ok:
+                if ahora - self._ultimo_heartbeat_evento > float(
                     getattr(config, "IGRIS_EVENT_HEARTBEAT_S", 300)
                 ):
-                    self._ultimo_heartbeat_evento = time.time()
+                    self._ultimo_heartbeat_evento = ahora
                     await self.bel.anotar(
                         "IGRIS", "EVENT_IDLE",
-                        f"Sin oportunidad Kaiser para {activo} — escudo en espera.",
+                        f"Sin oportunidad Kaiser en lote ({len(activos)} Santos) — escudo en espera.",
                     )
-            else:
-                await self._bootstrap_manto()
+                return
+
+            self._bootstrap_inicial_hecho = True
+            sembrados = 0
+            for act in activos:
+                # Con señales: solo Santos con evento. Sin señales (arranque): todo el lote.
+                if event_driven and hay_eventos_lote:
+                    if not self._alertas_evento_para_activo(alertas, act):
+                        continue
+                if ahora < float(self._engorde_fail_until_por.get(act, 0.0)):
+                    continue
+                self._override_activo = act
+                self._reset_bloque_mision()
+                try:
+                    if await self._inyectar_dual_paciente(origen="BOOTSTRAP"):
+                        sembrados += 1
+                finally:
+                    self._override_activo = None
+            if sembrados:
+                await self.bel.anotar(
+                    "IGRIS", "BOOTSTRAP_LOTE",
+                    f"Semilla dual en {sembrados}/{len(activos)} Santos del lote paralelo.",
+                )
             return
 
-        if event_driven and not eventos_activo:
+        if event_driven and not hay_eventos_lote:
             return
 
-        if en_cooldown:
-            return
-
-        # Rebalanceo + engorde (ventana 48–52 / long-primero @ USD entrada).
-        if masa_bruta > 0 and not rebalanceo_en_pausa_por_greed(self.tusk):
+        # Rebalanceo global UNA vez (ventana del ejército, no por par)
+        if (
+            masa_bruta > 0
+            and not en_cooldown_rebalance
+            and not rebalanceo_en_pausa_por_greed(self.tusk)
+        ):
             from core import manto_ventana as mv
 
             usd_l, usd_s = mv.usd_piernas_desde_pesos(self.tusk.pesos)
@@ -287,22 +318,42 @@ class IgrisEscudo:
         usd_l, usd_s = mv.usd_piernas_desde_pesos(self.tusk.pesos)
         if usd_l + usd_s <= 0:
             usd_l, usd_s = float(peso_l_total), float(peso_s_total)
-
-        # Meta llena → no engordar (sí rebalanceo/ventana ya pasó)
-        if pd.director_activo():
-            try:
-                eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0)
-                meta = pd.meta_engorde_usd(eq, self._activo_despliegue(), tusk=self.tusk)
-                if float(meta.get("restante_usd") or 0) <= 0:
-                    return
-            except Exception:
-                pass
-
         dir_engorde = mv.direccion_engorde_preferida(usd_l, usd_s)
-        ok_engorde = await self._ejecutar_maniobra_engorde(dir_engorde)
 
-        # Ley Marcial: poda el exceso en ciclos posteriores si ya estamos sobre el horizonte
-        # y no acabamos de disparar una mordida (la puerta no se cierra al disparar).
+        ok_engorde = False
+        intentos = 0
+        for act in activos:
+            if ahora < float(self._engorde_fail_until_por.get(act, 0.0)):
+                continue
+            if event_driven and not self._alertas_evento_para_activo(alertas, act):
+                continue
+            if pd.director_activo():
+                try:
+                    eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0)
+                    meta = pd.meta_engorde_usd(eq, act, tusk=self.tusk)
+                    if float(meta.get("restante_usd") or 0) <= 0:
+                        continue
+                except Exception:
+                    pass
+
+            intentos += 1
+            self._override_activo = act
+            self._reset_bloque_mision()
+            try:
+                # Dual directo (sin reserva unilateral que abortaba por GLITCH)
+                if await self._inyectar_dual_paciente(origen="ENGORDE"):
+                    ok_engorde = True
+            finally:
+                self._override_activo = None
+
+        if intentos:
+            await self.bel.anotar(
+                "IGRIS", "ENGORDE_LOTE",
+                f"Latido paralelo · {intentos} Santos con puerta · "
+                f"{'mordida' if ok_engorde else 'sin fill'} · lote={len(activos)}",
+            )
+
+        # Ley Marcial: poda si estamos sobre el horizonte y no hubo mordida
         margen_post = float(self.tusk.margen_ocupado)
         if mj.sobre_muro(margen_post) and not ok_engorde:
             await self.bel.anotar(
@@ -311,7 +362,7 @@ class IgrisEscudo:
             )
             dir_poda = "LONG" if peso_l_total >= peso_s_total else "SHORT"
             await self._ejecutar_maniobra("PODAR_MANTO", dir_poda, max(masa_bruta * 0.15, 0.0))
-
+   
     async def _ejecutar_maniobra_engorde(self, direccion: str) -> bool:
         """Engorde dual; retorna True si materializó (para diferir poda)."""
         masa = self.masa_paso_engorde()
@@ -321,7 +372,13 @@ class IgrisEscudo:
         if not await self.tusk.solicitar_reserva(uid, masa, "IGRIS", direccion):
             return False
         ctx_map, estado = await self.tank.vision_especulativa()
-        if not ctx_map or estado in ("GLITCH_DETECTADO", "ROJO"):
+        if not ctx_map:
+            await self.tusk.liberar_reserva(uid)
+            return False
+        if estado == "ROJO":
+            await self.tusk.liberar_reserva(uid)
+            return False
+        if estado == "GLITCH_DETECTADO" and not getattr(config, "MODO_SIMULACION", False):
             await self.tusk.liberar_reserva(uid)
             return False
         ok = await self._engorde(uid, direccion, masa, ctx_map)
@@ -707,8 +764,72 @@ class IgrisEscudo:
                 return False
         return True
 
+    def _activos_lote_trabajo(self) -> list[str]:
+        """Todos los Santos/activos del lote abierto (paralelo), no un solo foco."""
+        from core import pase_director as pd
+
+        if not pd.director_activo():
+            return [self._activo_despliegue()]
+        eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
+        try:
+            pd.sincronizar_logrados_desde_tusk(self.tusk, eq)
+        except Exception:
+            pass
+        plan = pd.plan_lote(eq)
+        trabajo = list(plan.get("trabajo") or [])
+        if not trabajo:
+            return [self._activo_despliegue()]
+        # Orden: más atrasados primero (mismo criterio que activo_manto_foco)
+        scored: list[tuple[float, int, str]] = []
+        for i, p in enumerate(trabajo):
+            act = str(p["activo"]).upper()
+            need = max(float(p.get("delta_usd") or 0), 1.0)
+            have = pd.notional_manto_usd(self.tusk, act)
+            scored.append((have / need, i, act))
+        scored.sort()
+        # únicos preservando orden
+        out: list[str] = []
+        seen: set[str] = set()
+        for _, __, act in scored:
+            if act not in seen:
+                seen.add(act)
+                out.append(act)
+        return out
+
+    def _reset_bloque_mision(self) -> None:
+        self._bloque_objetivo_usd = 0.0
+        self._bloque_inyectado_usd = 0.0
+
+    def _consumir_kaiser_lote(self, activos: list[str]) -> list:
+        """Alertas Kaiser de todos los activos del lote en trabajo."""
+        if not self.kaiser:
+            self._alertas_kaiser_cache = []
+            return []
+        try:
+            raw = self.kaiser.consumir("IGRIS")
+        except Exception:
+            raw = []
+        from core import igris_despliegue as ides
+
+        filtradas: list = []
+        for act in activos:
+            filtradas.extend(ides.filtrar_alertas_jurisdiccion(raw, act))
+        # dedupe por id/mensaje
+        seen: set[str] = set()
+        out: list = []
+        for a in filtradas:
+            key = str(a.get("id") or a.get("mensaje") or id(a))
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(a)
+        self._alertas_kaiser_cache = out
+        return out
+
     def _activo_despliegue(self) -> str:
-        """Activo del manto: foco del director de pase, o legado ETH en grado Soldado."""
+        """Activo del manto en este micro-disparo (override de lote o foco legado)."""
+        if self._override_activo:
+            return str(self._override_activo).upper()
         from core import plan_crecimiento as pc
         from core import pase_director as pd
 
@@ -822,8 +943,14 @@ class IgrisEscudo:
                 return False
 
         ctx_map, estado = await self.tank.vision_especulativa()
-        if not ctx_map or estado in ("GLITCH_DETECTADO", "ROJO"):
+        if not ctx_map:
             return False
+        if estado == "ROJO":
+            return False
+        # Sim: glitch de consenso (nodos congelados/divergentes) no bloquea fill ilusorio
+        if estado == "GLITCH_DETECTADO" and not getattr(config, "MODO_SIMULACION", False):
+            return False
+
 
         ask_guess = ides.best_ask(ides.libro_tank(self.tank, frente_l)[1])
         bid_guess = ides.best_bid(ides.libro_tank(self.tank, frente_s)[0])
@@ -833,6 +960,11 @@ class IgrisEscudo:
         else:
             pl = im.precio_ctx(ctx_map, frente_l)
             ps = im.precio_ctx(ctx_map, frente_s)
+            precio_ref = (pl + ps) / 2.0 if pl > 0 and ps > 0 else max(pl, ps)
+        if precio_ref <= 0:
+            # Ojos estrechos: visión puede no traer todos los frentes del lote
+            pl = ides.precio_ticker_frente(self.tank, frente_l)
+            ps = ides.precio_ticker_frente(self.tank, frente_s)
             precio_ref = (pl + ps) / 2.0 if pl > 0 and ps > 0 else max(pl, ps)
         if precio_ref <= 0:
             return False
@@ -867,8 +999,7 @@ class IgrisEscudo:
                 "BOOTSTRAP_ESPERA_SPREAD" if origen == "BOOTSTRAP" else "ENGORDE_ESPERA_SPREAD",
                 puerta,
             )
-            wait = float(getattr(config, "IGRIS_ESPERA_COOLDOWN_S", 5.0))
-            self._engorde_fail_until = time.time() + wait
+            self._marcar_fail_cooldown(activo)
             return False
 
         masa = float(puerta["masa"])
@@ -921,7 +1052,7 @@ class IgrisEscudo:
                     if marked:
                         await self.bel.anotar(
                             "IGRIS", "PASE_PASO",
-                            f"Paso logrado · foco {activo} · logrados {marked.get('pasos_logrados')}",
+                            f"Paso logrado · {activo} · logrados {marked.get('pasos_logrados')}",
                         )
                 except Exception:
                     pass
@@ -1104,9 +1235,8 @@ class IgrisEscudo:
         if ok:
             return True
 
-        fail_cd = float(getattr(config, "IGRIS_ESPERA_COOLDOWN_S", 5.0))
         self.ultimo_movimiento = time.time()
-        self._engorde_fail_until = time.time() + fail_cd
+        self._marcar_fail_cooldown(activo)
         return False
 
     def _precio_ctx_o_reflejo(self, ctx_map, frente: str) -> float:

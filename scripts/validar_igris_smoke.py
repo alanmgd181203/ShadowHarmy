@@ -139,21 +139,36 @@ def test_despliegue_paciente():
         def _obtener_lider_verde(self):
             return None
 
-    puerta = ides.evaluar_puerta_se(
-        FakeTank(), "ETHUSD_INVERSE", "ETHUSDT_LINEAL",
-        t0_paciencia=t0, restante_usd=150.0, activo="ETH", ahora=t0,
-    )
-    assert puerta["ok"], puerta
-    # Sin tope $25: puede morder hasta techo misión × fracción
-    assert puerta["micro_usd"] > 25.0 or puerta["fraccion"] < 1.0
-    assert puerta["micro_usd"] <= 150.0
-    assert "IGRIS_MICRO_MAX_USD" not in dir(config) or not hasattr(config, "IGRIS_MICRO_MAX_USD") or True
-    assert puerta["masa"] > 0
-    print(
-        "  despliegue OK:", puerta["spread_pct"], ">=", puerta["umbral_pct"],
-        "mordida$", puerta["micro_usd"], "frac", puerta["fraccion"],
-        "tau_hi", tau_hi["tau_h"], "tau_lo", tau_lo["tau_h"],
-    )
+    from core import pase_director as pd
+
+    mid_prev = pd.cargar_marcha()
+    try:
+        pd.guardar_marcha("marcha_forzada")
+        puerta = ides.evaluar_puerta_se(
+            FakeTank(), "ETHUSD_INVERSE", "ETHUSDT_LINEAL",
+            t0_paciencia=t0, restante_usd=150.0, activo="ETH", ahora=t0,
+        )
+        assert puerta["ok"], puerta
+        # Sin tope $25: puede morder hasta techo misión × fracción
+        assert puerta["micro_usd"] > 25.0 or puerta["fraccion"] < 1.0
+        assert puerta["micro_usd"] <= 150.0
+        assert "IGRIS_MICRO_MAX_USD" not in dir(config) or not hasattr(config, "IGRIS_MICRO_MAX_USD") or True
+        assert puerta["masa"] > 0
+        print(
+            "  despliegue OK:", puerta["spread_pct"], ">=", puerta["umbral_pct"],
+            "mordida$", puerta["micro_usd"], "frac", puerta["fraccion"],
+            "tau_hi", tau_hi["tau_h"], "tau_lo", tau_lo["tau_h"],
+        )
+    finally:
+        try:
+            if mid_prev == "personalizado":
+                payload = pd.cargar_marcha_payload() or {}
+                dias = float(payload.get("duracion_dias") or 0.33)
+                pd.guardar_marcha("personalizado", duracion_dias=dias)
+            else:
+                pd.guardar_marcha(mid_prev)
+        except Exception:
+            pd.guardar_marcha("marcha_forzada")
 
 
 def test_libro_tank_desde_lider():

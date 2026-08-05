@@ -70,6 +70,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Kaiser sesgo vivo anti-ROJO (Jess `a1f2e7e`, 2026-08-02):** si Tank no tiene líder verde, el sesgo vivo lee del **nodo más fresco** (`_lider_para_sesgo`) — el clima no se apaga solo por latencia del semáforo
 - **Manto vs cero estructural (2026-08-02):** frecuencia/ETA + puerta Igris cuentan **exceso vs cero** (no gap eterno) · `MANTO_CERO_ESTRUCTURAL` · informe `scripts/informe_sesgo_monarca.py` · [`INFORME_SESGO_ESTRUCTURAL.md`](INFORME_SESGO_ESTRUCTURAL.md)
 - **Ritual ojos vivo México (Jess, 2026-08-02):** mainnet reiniciado · Tusk ~1525 sana · 15 bases × 3 mares con sesgo vivo tras calentamiento · Mac CPU alta al backfill (semáforo puede parpadear) · manos OFF
+- **Teatro de sombras Igris (lab, 2026-08-04):** 1 óptica + 4 marchas de papel · preparado, no soltado · no es 4.0.3 · [`TEATRO_SOMBRAS_IGRIS.md`](TEATRO_SOMBRAS_IGRIS.md)
 - **Oído Bellion 4.1.2 (2026-07-24):** tabla evento→nivel · `bellion_oido` · portal Cascada · sin LLM/Telegram
 - **Pergamino React (local):** Cascada → Manto Igris · Beru Sub-Santuario · **Bellion susurro** · Ascensión Tusk
 - **Sub-Santuario Beru (2026-07-24):** `beru_asset_detail` · flota caza/neg · red engorde frontera · crónica `data/beru/cronicas/` · Bellion `beru_flota` / `beru_asset_details` · panel Streamlit

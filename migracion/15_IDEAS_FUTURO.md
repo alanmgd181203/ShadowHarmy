@@ -39,6 +39,7 @@
 |------|--------|
 | Indicador de slippage real por frente (reemplazar `SLIPPAGE_FACTOR` manual) | Monarca sesión 2026-07-03 — **Ancla v1** en `core/ancla.py` (pentiverso/trinidad con libro) |
 | Reporte automático órdenes/hora | infraestructura_api |
+| Teatro de sombras Igris (1 Tank + 4 marchas papel) — lab preparado 2026-08-04; NO es 4.0.3 · soltar solo con GO · `migracion/TEATRO_SOMBRAS_IGRIS.md` | Sesión Monarca |
 | Simulador infierno / Maestro del Dolor | 01_capas, logica_tecnica |
 | Ojo del Oráculo v2.4 diagnóstico | 04_logica_tecnica |
 | Inquisidor / patrón MILAGRO | 03_arbitraje |

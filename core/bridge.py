@@ -115,11 +115,25 @@ class BybitBridge:
         self._NAV_BACKOFF_MAX = 300
 
         if api_key and api_secret:
-            self.session = HTTP(
-                testnet=config.TESTNET,
-                api_key=api_key,
-                api_secret=api_secret,
-            )
+            recv = int(getattr(config, "BYBIT_RECV_WINDOW_MS", 60000) or 60000)
+            try:
+                self.session = HTTP(
+                    testnet=config.TESTNET,
+                    api_key=api_key,
+                    api_secret=api_secret,
+                    recv_window=recv,
+                )
+            except TypeError:
+                # pybit antiguo sin recv_window en ctor
+                self.session = HTTP(
+                    testnet=config.TESTNET,
+                    api_key=api_key,
+                    api_secret=api_secret,
+                )
+                try:
+                    self.session.recv_window = recv
+                except Exception:
+                    pass
 
     # ================================================================
     # OJOS — WebSocket público (precios + muros mainnet)

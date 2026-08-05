@@ -1,11 +1,11 @@
 {
   "marcha_id": "marcha_forzada",
   "titulo": "Marcha Forzada",
+  "ts": 1785936841.960163,
   "reserva_pasos": 1,
   "umbral_fees_mult": 0.5,
   "force_market": false,
   "permite_urgencia": true,
   "fill_ratio": 1.0,
-  "equity_usd": 1500.0,
-  "ts": 0
+  "equity_usd": 1525.9511
 }
