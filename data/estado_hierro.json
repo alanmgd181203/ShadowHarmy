@@ -1,21 +1,111 @@
 {
-    "timestamp": 1783228708.8201697,
+    "timestamp": 1785999114.188849,
     "fase": "LILIT DE HIERRO V2.0.0",
     "boveda": {
         "pesos": {
             "LTCUSDT_LINEAL": {
-                "long": 0.1,
-                "short": 0.1
+                "long": 0.0,
+                "short": 0.0,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 0.0,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
+            },
+            "ETHUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "ETHUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "HYPEUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "HYPEUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "XRPUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "XRPUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "MNTUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "MNTUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "SOLUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "SOLUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "LINKUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "LINKUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "ADAUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "ADAUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "BCHUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "BCHUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "AVAXUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "AVAXUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "OPUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "OPUSDT_LINEAL": {
+                "long": 0.0,
+                "short": 0.0
+            },
+            "LTCUSD_INVERSE": {
+                "long": 0.0,
+                "short": 0.0
             }
         },
-        "margen_ocupado": 0.0,
-        "masa_autorizada": 42.0,
-        "masa_bruta": 100.0,
-        "masa_bruta_real": 100.0,
+        "margen_ocupado": 2.02598348159708,
+        "masa_autorizada": 1452.1532,
+        "masa_bruta": 1528.58231379,
+        "masa_bruta_real": 1528.58231379,
         "total_ciclos_consumados": 0,
-        "precio_perp": 0.0,
+        "precio_perp": 1912.7,
         "precio_spot": 0.0
     },
     "legion": [],
-    "metria_margen": 0.0
+    "metria_margen": 2.02598348159708
 }

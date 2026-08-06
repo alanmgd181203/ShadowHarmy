@@ -1,0 +1,92 @@
+{
+  "ts": 1785999114.186152,
+  "checklist": "4.0.3",
+  "sim": false,
+  "manos_reales": true,
+  "solo_ojos": false,
+  "books_on": true,
+  "libros_eth": {
+    "ok": true,
+    "frentes": {
+      "ETHUSDT_LINEAL": {
+        "bids": 50,
+        "asks": 50
+      },
+      "ETHUSD_INVERSE": {
+        "bids": 50,
+        "asks": 50
+      }
+    }
+  },
+  "testnet": false,
+  "marcha_id": "marcha_forzada",
+  "marcha_payload": {
+    "fill_ratio": 1.0,
+    "reserva_pasos": 1,
+    "titulo": "Marcha Forzada"
+  },
+  "equity_usd": 1528.5823,
+  "masa_autorizada": 1452.1532,
+  "plan": {
+    "potencia_n": 29,
+    "foco": {
+      "n": 1,
+      "activo": "ETH",
+      "grado": "SOLDADO",
+      "delta_usd": 14.0,
+      "acum_usd": 14.0,
+      "logrado": false,
+      "etiqueta": "ETH Soldado"
+    },
+    "activos_trabajo": [
+      "ADA",
+      "AVAX",
+      "BCH",
+      "ETH",
+      "FIL",
+      "HYPE",
+      "LINK",
+      "LTC",
+      "MNT",
+      "OP",
+      "SOL",
+      "XRP"
+    ],
+    "fill_ratio": 1.0,
+    "reserva_pasos": 1
+  },
+  "meta_engorde": {
+    "ok": true,
+    "motivo": "ok",
+    "activo": "ETH",
+    "need_usd": 14.0,
+    "need_fill_usd": 14.0,
+    "have_usd": 0.0,
+    "restante_usd": 14.0,
+    "paso_n": 1,
+    "grado": "SOLDADO",
+    "mitad_alcanzada": false,
+    "fill_ratio": 1.0,
+    "marcha_id": "marcha_forzada",
+    "meta_llena": false
+  },
+  "ventana_manto": {
+    "ratio_long": 0.5,
+    "pct_long": 50.0,
+    "pct_short": 50.0,
+    "banda_min": 0.49,
+    "banda_max": 0.52,
+    "estado": "OK",
+    "ok": true,
+    "usd_long": 0.0,
+    "usd_short": 0.0,
+    "base_ratio": "desplegado_actual_usd_entrada",
+    "ley": "ventana_48_52_long_primero"
+  },
+  "n_frentes_peso": 22,
+  "greed_hibernado": true,
+  "beru_hibernado": true,
+  "boveda_manos": false,
+  "duracion_s": 135.1,
+  "veredicto_calentamiento": "OJOS_Y_LIBROS_OK"
+}

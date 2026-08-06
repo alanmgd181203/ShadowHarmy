@@ -219,10 +219,14 @@ def check_safe_mode() -> CheckResult:
 
 def check_env_keys() -> CheckResult:
     ok = bool(config.API_KEY and config.API_SECRET)
+    if getattr(config, "TESTNET", False):
+        etiqueta = "BYBIT_TESTNET_API_KEY/SECRET"
+    else:
+        etiqueta = "BYBIT_API_KEY/SECRET (mainnet)"
     return CheckResult(
         "0.3", "0", ".env BYBIT keys",
         "pass" if ok else "fail",
-        "Keys presentes" if ok else "Faltan BYBIT_API_KEY/SECRET",
+        f"Keys presentes ({etiqueta})" if ok else f"Faltan {etiqueta}",
     )
 
 

@@ -144,14 +144,17 @@ def armar_peldaños_lote(
     if unidad == "usd":
         conv = lote.cuantizar_presupuesto_usd(float(tamaño), px, frente, mode="floor")
         if not conv.get("ok"):
+            # Subir al mínimo notional Bybit/Ancla si el presupuesto era polvo
+            min_u = lote.paso_minimo_usd(frente, px)
+            conv = lote.cuantizar_presupuesto_usd(min_u, px, frente, mode="ceil")
+        if not conv.get("ok"):
             return []
         qty_total = float(conv["qty"])
     else:
-        qty_total = lote.cuantizar_qty(
-            float(tamaño), min_qty=min_q, qty_step=step, mode="floor",
-        )
-        if qty_total <= 0:
+        aseg = lote.asegurar_qty_min_notional(float(tamaño), px, frente, mode="ceil")
+        if not aseg.get("ok"):
             return []
+        qty_total = float(aseg["qty"])
 
     min_rung = lote.cuantizar_qty(
         min_q if min_q > 0 else (step if step > 0 else qty_total),
@@ -161,6 +164,17 @@ def armar_peldaños_lote(
     )
     if min_rung <= 0:
         min_rung = step if step > 0 else 0.0
+    # Peldaño también en USD ≥ mínimo exchange (~5 USDT)
+    min_usd = lote.paso_minimo_usd(frente, px)
+    min_rung_usd_qty = 0.0
+    try:
+        conv_r = lote.cuantizar_presupuesto_usd(min_usd, px, frente, mode="ceil")
+        if conv_r.get("ok"):
+            min_rung_usd_qty = float(conv_r["qty"])
+    except Exception:
+        min_rung_usd_qty = 0.0
+    if min_rung_usd_qty > min_rung:
+        min_rung = min_rung_usd_qty
 
     raw = armar_peldaños(
         qty_total,
@@ -172,7 +186,8 @@ def armar_peldaños_lote(
         marcha_id=marcha_id,
     )
     if not raw:
-        return []
+        # Una sola mordida al total ya asegurado
+        return [{"tamaño": qty_total, "precio": px, "i": 0.0}] if qty_total > 0 else []
 
     tick_sz = filt.get("tickSize")
     out: list[dict[str, float]] = []
@@ -186,6 +201,9 @@ def armar_peldaños_lote(
                 float(p["tamaño"]), min_qty=min_q, qty_step=step, mode="floor",
             )
         if q <= 0:
+            continue
+        # Descartar peldaños bajo min notional (evita 110094)
+        if lote.qty_a_usd(q, float(p["precio"]) or px, filt) + 1e-9 < min_usd:
             continue
         used += q
         precio = float(p["precio"])
@@ -209,6 +227,9 @@ def armar_peldaños_lote(
                 qty_step=step,
                 mode="floor",
             )
+    # Si todos los peldaños cayeron por min USD → una sola orden del total
+    if not out and qty_total > 0:
+        return [{"tamaño": qty_total, "precio": px, "i": 0.0}]
     return out
 
 

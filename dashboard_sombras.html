@@ -651,6 +651,54 @@
       font-size: 0.72rem;
     }
 
+    .manto-frentes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+    }
+
+    @media (max-width: 720px) {
+      .manto-frentes { grid-template-columns: 1fr; }
+    }
+
+    .manto-card {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(8, 10, 14, 0.55);
+      padding: 0.5rem 0.55rem 0.55rem;
+      border-radius: 2px;
+    }
+
+    .manto-card.colateral {
+      border-color: rgba(251, 191, 36, 0.28);
+    }
+
+    .manto-card.manto_dual {
+      border-color: rgba(96, 165, 250, 0.35);
+    }
+
+    .manto-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.4rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .manto-card-rol {
+      font-size: 0.52rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+
+    .manto-card.colateral .manto-card-rol { color: #fbbf24; }
+    .manto-card.manto_dual .manto-card-rol { color: var(--glow-igris); }
+
+    .manto-card-par {
+      font-size: 0.72rem;
+      color: var(--ink);
+    }
+
     .manto-positions-grid {
       display: grid;
       grid-template-columns: 1.1fr 1fr 1fr;
@@ -1058,21 +1106,8 @@
           <div class="metric"><div class="metric-label">Margen Mant.</div><div class="metric-value" id="mMant">—</div></div>
         </div>
         <section class="manto-positions" id="mantoPositions" aria-label="Posiciones Igris">
-          <div class="manto-positions-title">Manto · Par <span id="posPar">—</span></div>
-          <div class="manto-positions-grid">
-            <div class="head"></div>
-            <div class="head long">Long</div>
-            <div class="head short">Short</div>
-            <div class="label">Precio entrada</div>
-            <div class="val" id="posLongPx">—</div>
-            <div class="val" id="posShortPx">—</div>
-            <div class="label">Margen usado</div>
-            <div class="val" id="posLongMm">—</div>
-            <div class="val" id="posShortMm">—</div>
-            <div class="label">P&amp;L / 1% mov.</div>
-            <div class="val" id="posLongPnl">—</div>
-            <div class="val" id="posShortPnl">—</div>
-          </div>
+          <div class="manto-positions-title">Espejo dual · frentes vivos</div>
+          <div class="manto-frentes" id="mantoFrentes"></div>
         </section>
         <div class="chronicle-stream" id="chronicleStream"></div>
       </div>
@@ -1243,17 +1278,90 @@
       return Number.isFinite(n) ? `$${n.toFixed(2)}` : "—";
     }
 
+    function tarjetaFrenteHtml(frente) {
+      const rol = frente.rol || "manto_dual";
+      const L = frente.long || {};
+      const S = frente.short || {};
+      const titulo = frente.titulo || frente.activo || "Frente";
+      const par = frente.par || "—";
+      return `<article class="manto-card ${rol}" data-activo="${frente.activo || ""}">
+        <div class="manto-card-head">
+          <span class="manto-card-rol">${titulo}</span>
+          <span class="manto-card-par">${par}</span>
+        </div>
+        <div class="manto-positions-grid">
+          <div class="head"></div>
+          <div class="head long">Long</div>
+          <div class="head short">Short</div>
+          <div class="label">Precio entrada</div>
+          <div class="val">${fmtNum(L.avg_price, 2)}</div>
+          <div class="val">${fmtNum(S.avg_price, 2)}</div>
+          <div class="label">Margen usado</div>
+          <div class="val">${fmtPct(L.margen_usado_pct)}</div>
+          <div class="val">${fmtPct(S.margen_usado_pct)}</div>
+          <div class="label">P&amp;L / 1% mov.</div>
+          <div class="val">${fmtUsd(L.impacto_1pct_usd)}</div>
+          <div class="val">${fmtUsd(S.impacto_1pct_usd)}</div>
+        </div>
+      </article>`;
+    }
+
+    function frentesDesdePos(pos) {
+      if (Array.isArray(pos.frentes) && pos.frentes.length) return pos.frentes;
+      const por = pos.por_activo || {};
+      const out = [];
+      const eth = por.ETH || { long: pos.long || {}, short: pos.short || {} };
+      out.push({
+        id: "manto_eth",
+        rol: "manto_dual",
+        activo: "ETH",
+        titulo: "Manto dual · ETH",
+        par: pos.par || "ETHUSDT/ETHUSD",
+        long: eth.long || {},
+        short: eth.short || {},
+      });
+      const mnt = por.MNT || { long: {}, short: {} };
+      out.push({
+        id: "colateral_mnt",
+        rol: "colateral",
+        activo: "MNT",
+        titulo: "Colateral · MNTUSD",
+        par: (mnt.short && mnt.short.symbol) || (mnt.long && mnt.long.symbol) || "MNTUSD",
+        long: mnt.long || {},
+        short: mnt.short || {},
+      });
+      return out;
+    }
+
     function renderPosiciones(pos) {
       if (!pos) return;
-      $("posPar").textContent = pos.par || "—";
-      const L = pos.long || {};
-      const S = pos.short || {};
-      $("posLongPx").textContent = fmtNum(L.avg_price, 2);
-      $("posShortPx").textContent = fmtNum(S.avg_price, 2);
-      $("posLongMm").textContent = fmtPct(L.margen_usado_pct);
-      $("posShortMm").textContent = fmtPct(S.margen_usado_pct);
-      $("posLongPnl").textContent = fmtUsd(L.impacto_1pct_usd);
-      $("posShortPnl").textContent = fmtUsd(S.impacto_1pct_usd);
+      const host = $("mantoFrentes");
+      if (!host) return;
+      const frentes = frentesDesdePos(pos);
+      host.innerHTML = frentes.map(tarjetaFrenteHtml).join("");
+      // Espejo suave para escena Igris (compat ids legacy)
+      const eth = frentes.find((f) => f.activo === "ETH") || frentes[0] || {};
+      const L = eth.long || {};
+      const S = eth.short || {};
+      const legacy = {
+        posPar: eth.par || pos.par || "—",
+        posLongPx: fmtNum(L.avg_price, 2),
+        posShortPx: fmtNum(S.avg_price, 2),
+        posLongMm: fmtPct(L.margen_usado_pct),
+        posShortMm: fmtPct(S.margen_usado_pct),
+        posLongPnl: fmtUsd(L.impacto_1pct_usd),
+        posShortPnl: fmtUsd(S.impacto_1pct_usd),
+      };
+      Object.entries(legacy).forEach(([id, val]) => {
+        let el = $(id);
+        if (!el) {
+          el = document.createElement("span");
+          el.id = id;
+          el.hidden = true;
+          document.body.appendChild(el);
+        }
+        el.textContent = val;
+      });
     }
 
     const LOG_RE = /^\[([^\]]+)\]\s+\[([^\]]+)\]\s+([^:]+):\s*(.*)$/;

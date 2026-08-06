@@ -408,6 +408,36 @@ def evaluar_puerta_se(
             "fuente_libro": fuente_libro,
         }
 
+    # Candado ojos: solo con orderbook real (no engaña ticker_sim de arena/sim)
+    if fuente_libro == "orderbook":
+        from core import igris_ojos as ojos
+
+        meta_l = ojos.meta_libro(tank, frente_long, ahora=ahora)
+        meta_s = ojos.meta_libro(tank, frente_short, ahora=ahora)
+        if meta_l.get("stale") or meta_s.get("stale"):
+            return {
+                "ok": False,
+                "motivo": "libro_stale",
+                "ask_long": ask_l,
+                "bid_short": bid_s,
+                "fuente_libro": fuente_libro,
+                "edad_libro_long_s": meta_l.get("edad_s"),
+                "edad_libro_short_s": meta_s.get("edad_s"),
+                "stale_lim_s": meta_l.get("stale_lim_s"),
+            }
+        for fr in (frente_long, frente_short):
+            div = ojos.divergencia_libro_vs_ticker(tank, fr)
+            if not div.get("ok") and div.get("motivo") == "divergencia_ticker":
+                return {
+                    "ok": False,
+                    "motivo": "libro_divergente_ticker",
+                    "ask_long": ask_l,
+                    "bid_short": bid_s,
+                    "fuente_libro": fuente_libro,
+                    "divergencia": div,
+                    "frente_div": fr,
+                }
+
     base = (activo or "").upper()
     if not base:
         base = frente_long.replace("USD_INVERSE", "").replace("USDT_LINEAL", "")
@@ -539,14 +569,40 @@ def evaluar_puerta_se(
         }
 
     precio_ref = (ask_l + bid_s) / 2.0
-    masa = masa_desde_usd(mordida, precio_ref)
-    if masa <= 0:
+    # Ley de la Masa: Alfa = Lineal; Inverso espeja USD; candado asimetría
+    from core import lote_bybit as lote
+
+    ley = lote.ley_de_la_masa_dual(
+        frente_long, frente_short, ask_l, bid_s, mordida,
+    )
+    if not ley.get("ok"):
+        return {
+            "ok": False,
+            "motivo": str(ley.get("motivo") or "ley_masa_fallida"),
+            "ask_long": ask_l,
+            "bid_short": bid_s,
+            "spread_pct": round(spread, 6),
+            "micro_usd": mordida,
+            "fraccion": fraccion,
+            "ley_masa": ley,
+            **urg,
+            **techo_info,
+            **{k: frac_info[k] for k in ("confianza", "calor") if k in frac_info},
+        }
+
+    usd_dual = float(ley["masa_absoluta_usd"])
+    masa_l = float(ley["qty_a"])
+    masa_s = float(ley["qty_b"])
+    # Compat: masa promedio en coin-eq solo para reservas Tusk/delta en USD usamos usd_dual
+    masa = masa_desde_usd(usd_dual, precio_ref) if precio_ref > 0 else 0.0
+    if masa_l <= 0 or masa_s <= 0:
         return {
             "ok": False,
             "motivo": "masa_micro_cero",
             "ask_long": ask_l,
             "bid_short": bid_s,
             "spread_pct": round(spread, 6),
+            "ley_masa": ley,
             **urg,
         }
 
@@ -557,8 +613,14 @@ def evaluar_puerta_se(
         "bid_short": bid_s,
         "precio_ref": precio_ref,
         "spread_pct": round(spread, 6),
-        "micro_usd": mordida,
+        "micro_usd": usd_dual,
         "masa": masa,
+        "masa_long": masa_l,
+        "masa_short": masa_s,
+        "usd_long": float(ley["usd_a"]),
+        "usd_short": float(ley["usd_b"]),
+        "alfa_usd": float(ley["alfa_usd"]),
+        "ley_masa": ley,
         "fraccion": fraccion,
         "confianza": frac_info.get("confianza"),
         "calor": frac_info.get("calor"),

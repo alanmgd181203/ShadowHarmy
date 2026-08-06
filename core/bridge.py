@@ -194,7 +194,22 @@ class BybitBridge:
             args.append(f"tickers.{sym}")
         # Muros orderbook: pesados en RAM/red. Ritiales estrechos (Igris sim / lap) pueden apagarlos.
         if getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", True):
+            book_bases = [
+                str(b).upper()
+                for b in (getattr(config, "BRIDGE_WS_BOOKS_BASES", None) or [])
+                if b
+            ]
             for sym, _ in feed.get("books", []):
+                if book_bases:
+                    # sym tipo ETHUSDT / ETHUSD — base = letras iniciales
+                    base = "".join(ch for ch in str(sym) if ch.isalpha())
+                    # quitar quote típico al final
+                    for q in ("USDT", "USDC", "USD"):
+                        if base.endswith(q) and len(base) > len(q):
+                            base = base[: -len(q)]
+                            break
+                    if base.upper() not in book_bases:
+                        continue
                 args.append(f"orderbook.50.{sym}")
 
         open_timeout = float(getattr(config, "BRIDGE_WS_OPEN_TIMEOUT_S", 45) or 45)
@@ -230,6 +245,20 @@ class BybitBridge:
             except Exception as e:
                 label = feed.get("label") or feed["url"]
                 await self.bel.anotar("BRIDGE", "RECONEXIÓN", f"{label}: {str(e)}")
+                # Ojos: tirar libros de las bases de este feed — no operar con foto zombi
+                try:
+                    bases_clear = list(getattr(config, "BRIDGE_WS_BOOKS_BASES", None) or [])
+                    if not bases_clear:
+                        bases_clear = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
+                    n = 0
+                    if hasattr(self.tank, "invalidar_libros"):
+                        n = int(self.tank.invalidar_libros(bases_clear or None) or 0)
+                    await self.bel.anotar(
+                        "BRIDGE", "LIBROS_INVALIDADOS",
+                        f"{label}: frentes≈{n} · esperando snapshot WS",
+                    )
+                except Exception as e2:
+                    await self.bel.anotar("BRIDGE", "LIBROS_INVALIDADOS", f"aviso: {e2}")
                 await asyncio.sleep(5)
 
     async def _procesar_mensaje(self, payload, feed):
@@ -291,6 +320,7 @@ class BybitBridge:
                     if not bids and not asks:
                         return
                     for nodo in self.tank.nodos:
+                        # Sin snapshot (ts=0 post-invalidar): Nodo ignora delta
                         nodo.aplicar_delta_libro(frente, bids, asks)
 
     def _symbol_a_frente(self, symbol, feed):

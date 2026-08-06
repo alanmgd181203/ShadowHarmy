@@ -108,6 +108,7 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 
 #### Redondeo / mínimos de exchange
 - Si una pierna no encaja por decimales/mínimos: **acoplar/recortar la pierna que cotiza en dólares** para no salir de 48–52.
+- **Ley de la Masa (Monarca, 2026-08-06):** el contrato **Inverso jamás pelea con su mínimo aislado**. Alfa = mínimo real del **Lineal** (`max` fracción-en-USD, p.ej. 0.01 ETH, y piso ~$5). Esa **Masa Absoluta** obliga al Inverso a espejar el mismo USD. Si \|USD_L − USD_S\| / ref > **5%** → disparo **prohibido** (`LEY_MASA_BLOQUEO`). Código: `lote_bybit.ley_de_la_masa_dual` · puerta §E · `_disparo_dual_simultaneo` · smoke `scripts/validar_ley_masa_smoke.py` · flag `IGRIS_MASA_ASIMETRIA_MAX_PCT`.
 
 #### Disparo dual
 - Ante oportunidad: **ambas órdenes a la vez** (limit/limit, market/market o mix — da igual).

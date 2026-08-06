@@ -16,9 +16,18 @@ def cargar_env():
 
 cargar_env()
 
-API_KEY = os.getenv("BYBIT_API_KEY")
-API_SECRET = os.getenv("BYBIT_API_SECRET")
+# Llaves duales: mainnet (batalla) vs testnet (entrenamiento). El puente usa un solo par.
+API_KEY_MAINNET = os.getenv("BYBIT_API_KEY")
+API_SECRET_MAINNET = os.getenv("BYBIT_API_SECRET")
+API_KEY_TESTNET = os.getenv("BYBIT_TESTNET_API_KEY") or os.getenv("BYBIT_API_KEY_TESTNET")
+API_SECRET_TESTNET = os.getenv("BYBIT_TESTNET_API_SECRET") or os.getenv("BYBIT_API_SECRET_TESTNET")
+
 TESTNET = os.getenv("MODO_TESTNET", "True").lower() == "true"
+# Con testnet: SOLO llaves de entrenamiento (nunca caer a mainnet por error).
+# Con mainnet oficial: SOLO BYBIT_API_KEY / BYBIT_API_SECRET.
+API_KEY = API_KEY_TESTNET if TESTNET else API_KEY_MAINNET
+API_SECRET = API_SECRET_TESTNET if TESTNET else API_SECRET_MAINNET
+
 MODO_SIMULACION = os.getenv("MODO_SIMULACION", "True").lower() == "true"
 SAFE_MODE = os.getenv("SAFE_MODE", "False").lower() == "true"
 
@@ -331,6 +340,8 @@ IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))
 # Disparo dual §E: timeout fill inicial + salvavidas Market si una pierna queda huérfana
 IGRIS_DUAL_FILL_TIMEOUT_S = float(os.getenv("IGRIS_DUAL_FILL_TIMEOUT_S", "20"))
 IGRIS_DUAL_SALVAVIDAS_MARKET = os.getenv("IGRIS_DUAL_SALVAVIDAS_MARKET", "true").lower() == "true"
+# Ley de la Masa: |USD_L − USD_S| / ref > este techo → disparo dual prohibido
+IGRIS_MASA_ASIMETRIA_MAX_PCT = float(os.getenv("IGRIS_MASA_ASIMETRIA_MAX_PCT", "0.05"))
 # Escalera de precios — micro-bocados Limit a distintos niveles (Igris/Greed)
 ESCALERA_PRECIOS_ACTIVA = os.getenv("ESCALERA_PRECIOS_ACTIVA", "true").lower() == "true"
 ESCALERA_IGRIS_ACTIVA = os.getenv("ESCALERA_IGRIS_ACTIVA", "true").lower() == "true"
@@ -433,6 +444,27 @@ MONARCA_MARGEN_OBJETIVO_PCT = float(os.getenv("MONARCA_MARGEN_OBJETIVO_PCT", "93
 MONARCA_TIER_AUTO_DIAS = int(os.getenv("MONARCA_TIER_AUTO_DIAS", "3"))
 MONARCA_MEGA_VIP_EQUITY_MIN = float(os.getenv("MONARCA_MEGA_VIP_EQUITY_MIN", "100"))
 MONARCA_NIVEL_AUTO = os.getenv("MONARCA_NIVEL_AUTO", "true").lower() == "true"
+# Canal paralelo Igris: CSV de activos exclusivos (ej. ETH). Vacío = lote del pase.
+_IGRIS_EXCL_RAW = os.getenv("IGRIS_ACTIVOS_EXCLUSIVOS", "").strip()
+IGRIS_ACTIVOS_EXCLUSIVOS: list[str] = (
+    [a.strip().upper() for a in _IGRIS_EXCL_RAW.split(",") if a.strip()]
+    if _IGRIS_EXCL_RAW
+    else []
+)
+# Colateral intocable (cleanup / lotes). Default MNT = MNTUSD hedge.
+_IGRIS_PROT_BASES = os.getenv("IGRIS_PROTEGER_BASES", "MNT").strip()
+IGRIS_PROTEGER_BASES: list[str] = (
+    [a.strip().upper() for a in _IGRIS_PROT_BASES.split(",") if a.strip()]
+    if _IGRIS_PROT_BASES
+    else ["MNT"]
+)
+_IGRIS_PROT_SYMS = os.getenv("IGRIS_PROTEGER_SYMBOLS", "MNTUSD").strip()
+IGRIS_PROTEGER_SYMBOLS: list[str] = (
+    [a.strip().upper() for a in _IGRIS_PROT_SYMS.split(",") if a.strip()]
+    if _IGRIS_PROT_SYMS
+    else ["MNTUSD"]
+)
+
 # Candado pase → Igris (activos por rango). Lives saltan con LIVE_IGRIS_TESTNET / ARENA SIN_RANGOS.
 MONARCA_RANK_GATE = os.getenv("MONARCA_RANK_GATE", "true").lower() == "true"
 # Director pase: lote/reserva + marcha (tactico | marcha_forzada | asalto)
@@ -497,6 +529,14 @@ BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 6
 # true|false|auto — auto = ON si MODO_SIMULACION o ARISE_IGRIS_SIM o books OFF.
 _IGRIS_TICKER_PUERTA_RAW = os.getenv("IGRIS_TICKER_PUERTA_SI_SIN_LIBRO", "auto").strip().lower()
 IGRIS_TICKER_PUERTA_SI_SIN_LIBRO = _IGRIS_TICKER_PUERTA_RAW  # "auto"|"true"|"false"
+
+# Ojos frescos: libro WS más viejo que esto = ciego (no manos).
+IGRIS_LIBRO_STALE_S = float(os.getenv("IGRIS_LIBRO_STALE_S", "12") or 12)
+# Muleta REST orderbook si WS stale / divergente.
+IGRIS_LIBRO_REST_FALLBACK = os.getenv("IGRIS_LIBRO_REST_FALLBACK", "true").lower() == "true"
+IGRIS_LIBRO_REST_COOLDOWN_S = float(os.getenv("IGRIS_LIBRO_REST_COOLDOWN_S", "15") or 15)
+# Si mid libro vs ticker divergen más que esto (%) → sospechoso.
+IGRIS_LIBRO_DIVERGENCIA_PCT = float(os.getenv("IGRIS_LIBRO_DIVERGENCIA_PCT", "0.35") or 0.35)
 
 UMBRAL_VERDE_MS = 400.0
 UMBRAL_AMARILLO_MS = 800.0

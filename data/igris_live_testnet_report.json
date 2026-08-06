@@ -1,0 +1,124 @@
+{
+  "checklist": "3.10.7b",
+  "ts": 1786049826.596308,
+  "veredicto": "PASS_LIVE",
+  "segundos_ojos": 30.0,
+  "segundos_barrido": 7.17,
+  "config": {
+    "testnet": true,
+    "modo_simulacion": false,
+    "arena_activa": true,
+    "fills_virtuales": false,
+    "forzar_disparo": true,
+    "libro_stale_s": 60.0,
+    "vision_manto": "forzado_umbral0",
+    "mordida_max_usd": 25.0,
+    "activos": [
+      "ETH"
+    ],
+    "require_kaiser": false,
+    "greed_hibernado": true
+  },
+  "kaiser_oportunidad_manto": 1,
+  "disparos_ok": 1,
+  "disparos_via_kaiser": 1,
+  "disparos_via_puerta": 0,
+  "esperas_o_fallos": 0,
+  "historial_resumen": {
+    "orden_enviada": 17,
+    "orden_fallida": 0,
+    "engorde_dual": 4,
+    "lineas": 400
+  },
+  "pesos_tusk": {
+    "ETHUSD_INVERSE": {
+      "long": 19.058,
+      "short": 0.0,
+      "precio_medio_long": 1904.37,
+      "precio_medio_short": 0.0,
+      "baseline_long": 1904.37,
+      "baseline_short": 0.0,
+      "fees_paid_long": 5.49e-06,
+      "fees_paid_short": 0.0
+    },
+    "ETHUSDT_LINEAL": {
+      "long": 0.0,
+      "short": 19.058,
+      "precio_medio_long": 0.0,
+      "precio_medio_short": 1933.27,
+      "baseline_long": 0.0,
+      "baseline_short": 1933.27,
+      "fees_paid_long": 0.0,
+      "fees_paid_short": 0.01063299
+    }
+  },
+  "posiciones_exchange": {
+    "ok": true,
+    "inverse": {
+      "abiertas": [
+        {
+          "symbol": "ETHUSD",
+          "side": "Buy",
+          "size": 19.0,
+          "avgPrice": 1904.37053037,
+          "positionValue": 0.00997652,
+          "unrealisedPnl": 5.2e-07,
+          "category": "inverse"
+        }
+      ],
+      "raw_n": 1
+    },
+    "linear": {
+      "abiertas": [
+        {
+          "symbol": "ETHUSDT",
+          "side": "Sell",
+          "size": 0.01,
+          "avgPrice": 1933.27,
+          "positionValue": 19.3325,
+          "unrealisedPnl": 0.0002,
+          "category": "linear"
+        }
+      ],
+      "raw_n": 1
+    },
+    "error": null
+  },
+  "ley_masa_impacto": {
+    "ok": true,
+    "usd_inverse": 19.0,
+    "usd_linear": 19.3325,
+    "qty_inverse": 19.0,
+    "qty_linear": 0.01,
+    "side_inverse": "Buy",
+    "side_linear": "Sell",
+    "avg_inverse": 1904.37053037,
+    "avg_linear": 1933.27,
+    "asim_pct": 1.7348,
+    "asim_max_pct": 5.0,
+    "espejo_alfa": true,
+    "nota": "Totales en cuenta (pueden incluir restos previos). Disparo de esta sesión: ver ENGORDE_DUAL / Alfa en log."
+  },
+  "oportunidad_manto_top": [
+    {
+      "base": "ETH",
+      "spread_pct": 0.095018,
+      "umbral_pct": 0.0,
+      "modo": "arena_micro"
+    }
+  ],
+  "resultados": [
+    {
+      "activo": "ETH",
+      "alertas_kaiser": 2,
+      "tiene_libro": true,
+      "puerta_ok": true,
+      "puerta_motivo": "OK",
+      "spread_pct": 0.095018,
+      "umbral_pct": 0.0,
+      "origen_candidato": "kaiser",
+      "disparo_ok": true
+    }
+  ],
+  "como_cerrar_checklist": "PASS_LIVE => marcar 3.10.7b [x] en migracion/16_CHECKLIST_MAESTRO.md y confirmar posiciones L inverse + S lineal en Bybit testnet UI."
+}

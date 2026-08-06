@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -132,8 +133,12 @@ def test_despliegue_paciente():
 
     class FakeTank:
         libros = {
-            "ETHUSD_INVERSE": {"bids": [[99.9, 10]], "asks": [[100.0, 80]]},
-            "ETHUSDT_LINEAL": {"bids": [[100.25, 80]], "asks": [[100.3, 10]]},
+            "ETHUSD_INVERSE": {"bids": [[99.9, 10]], "asks": [[100.0, 80]], "ts": time.time()},
+            "ETHUSDT_LINEAL": {"bids": [[100.25, 80]], "asks": [[100.3, 10]], "ts": time.time()},
+        }
+        precios = {
+            "ETHUSD_INVERSE": 100.0,
+            "ETHUSDT_LINEAL": 100.25,
         }
 
         def _obtener_lider_verde(self):
@@ -154,10 +159,18 @@ def test_despliegue_paciente():
         assert puerta["micro_usd"] <= 150.0
         assert "IGRIS_MICRO_MAX_USD" not in dir(config) or not hasattr(config, "IGRIS_MICRO_MAX_USD") or True
         assert puerta["masa"] > 0
+        assert float(puerta.get("masa_long") or 0) > 0
+        assert float(puerta.get("masa_short") or 0) > 0
+        asim = float((puerta.get("ley_masa") or {}).get("asim_pct") or 99)
+        assert asim <= 5.0 + 1e-6, puerta.get("ley_masa")
+        assert abs(float(puerta["usd_long"]) - float(puerta["usd_short"])) / max(
+            float(puerta["micro_usd"]), 1e-9
+        ) <= 0.05 + 1e-9
         print(
             "  despliegue OK:", puerta["spread_pct"], ">=", puerta["umbral_pct"],
             "mordida$", puerta["micro_usd"], "frac", puerta["fraccion"],
             "tau_hi", tau_hi["tau_h"], "tau_lo", tau_lo["tau_h"],
+            "Alfa$", puerta.get("alfa_usd"), "asim%", asim,
         )
     finally:
         try:
@@ -268,13 +281,16 @@ def test_disparo_dual_salvavidas_sim():
     config.MODO_SIMULACION = True
 
     async def run():
+        # Inverse qty en USD; lineal qty en ETH — Ley de la Masa (no misma cifra)
         ok = await igris._disparo_dual_simultaneo(
-            "L1", "S1", "ETHUSD_INVERSE", "ETHUSDT_LINEAL", 0.01, 100.0, 100.2,
+            "L1", "S1", "ETHUSD_INVERSE", "ETHUSDT_LINEAL",
+            19.0, 0.01, 1900.0, 1900.2,
+            usd_l=19.0, usd_s=19.02,
         )
         assert ok is True
         # Salvavidas: fuerza market path en sim también confirma
         r2 = await igris._salvavidas_market_pierna(
-            "S2", "ETHUSDT_LINEAL", "SHORT", 0.01, 100.2,
+            "S2", "ETHUSDT_LINEAL", "SHORT", 0.01, 1900.2,
         )
         assert r2.get("ok") is True
 

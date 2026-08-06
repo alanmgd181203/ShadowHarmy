@@ -189,38 +189,84 @@ def _por_activo_desde_posiciones(posiciones: list[dict], equity_usd: float) -> d
     return out
 
 
-def telemetria_desde_exchange(posiciones: list[dict], equity_usd: float) -> dict[str, Any]:
-    long_raw = _elegir_pierna(posiciones, "Buy")
-    short_raw = _elegir_pierna(posiciones, "Sell")
-    par = (
-        short_raw.get("symbol")
-        or long_raw.get("symbol")
-        or getattr(config, "SIMBOLO_LINEAR", "BTCUSDT")
-    )
+def _par_label(legs: dict[str, Any]) -> str:
+    L = legs.get("long") or {}
+    S = legs.get("short") or {}
+    sym_l = L.get("symbol")
+    sym_s = S.get("symbol")
+    if sym_l and sym_s and sym_l != sym_s:
+        return f"{sym_l}/{sym_s}"
+    return str(sym_s or sym_l or "")
+
+
+def _tarjeta_frente(
+    *,
+    id_: str,
+    rol: str,
+    activo: str,
+    titulo: str,
+    legs: dict[str, Any] | None,
+) -> dict[str, Any]:
+    legs = legs or {"long": _leg_vacia(), "short": _leg_vacia()}
+    L = legs.get("long") or _leg_vacia()
+    S = legs.get("short") or _leg_vacia()
+    par = _par_label({"long": L, "short": S})
+    if not par:
+        if activo == "ETH":
+            par = "ETHUSDT/ETHUSD"
+        elif activo == "MNT":
+            par = "MNTUSD"
+        else:
+            par = f"{activo}USDT"
     return {
+        "id": id_,
+        "rol": rol,
+        "activo": activo,
+        "titulo": titulo,
         "par": par,
+        "long": L,
+        "short": S,
+    }
+
+
+def _frentes_espejo_dual(por_activo: dict[str, Any]) -> list[dict[str, Any]]:
+    """Siempre dos tarjetas: manto ETH + colateral MNT (aunque una pierna vacía)."""
+    eth = por_activo.get("ETH") or {"long": _leg_vacia(), "short": _leg_vacia()}
+    mnt = por_activo.get("MNT") or {"long": _leg_vacia(), "short": _leg_vacia()}
+    return [
+        _tarjeta_frente(
+            id_="manto_eth",
+            rol="manto_dual",
+            activo="ETH",
+            titulo="Manto dual · ETH",
+            legs=eth,
+        ),
+        _tarjeta_frente(
+            id_="colateral_mnt",
+            rol="colateral",
+            activo="MNT",
+            titulo="Colateral · MNTUSD",
+            legs=mnt,
+        ),
+    ]
+
+
+def telemetria_desde_exchange(posiciones: list[dict], equity_usd: float) -> dict[str, Any]:
+    por_activo = _por_activo_desde_posiciones(posiciones, equity_usd)
+    # Asegurar buckets espejo aunque el exchange aún no tenga ETH abierto
+    if "ETH" not in por_activo:
+        por_activo["ETH"] = {"long": _leg_vacia(), "short": _leg_vacia()}
+    if "MNT" not in por_activo:
+        por_activo["MNT"] = {"long": _leg_vacia(), "short": _leg_vacia()}
+
+    eth = por_activo["ETH"]
+    return {
+        "par": _par_label(eth) or "ETHUSDT/ETHUSD",
         "fuente": "exchange",
-        "long": _construir_pierna(
-            long_raw.get("symbol"),
-            float(long_raw.get("size") or 0),
-            float(long_raw.get("avg_price") or 0),
-            long_raw.get("margen_usd"),
-            equity_usd,
-            mark_price=long_raw.get("mark_price"),
-            leverage=long_raw.get("leverage"),
-            frente=long_raw.get("frente"),
-        ),
-        "short": _construir_pierna(
-            short_raw.get("symbol"),
-            float(short_raw.get("size") or 0),
-            float(short_raw.get("avg_price") or 0),
-            short_raw.get("margen_usd"),
-            equity_usd,
-            mark_price=short_raw.get("mark_price"),
-            leverage=short_raw.get("leverage"),
-            frente=short_raw.get("frente"),
-        ),
-        "por_activo": _por_activo_desde_posiciones(posiciones, equity_usd),
+        "long": eth.get("long") or _leg_vacia(),
+        "short": eth.get("short") or _leg_vacia(),
+        "por_activo": por_activo,
+        "frentes": _frentes_espejo_dual(por_activo),
     }
 
 
@@ -230,12 +276,17 @@ def telemetria_desde_pesos(pesos: dict, equity_usd: float) -> dict[str, Any]:
     from core import mercado
 
     if not pesos:
+        por_activo = {
+            "ETH": {"long": _leg_vacia(), "short": _leg_vacia()},
+            "MNT": {"long": _leg_vacia(), "short": _leg_vacia()},
+        }
         return {
-            "par": getattr(config, "SIMBOLO_LINEAR", "BTCUSDT"),
+            "par": "ETHUSDT/ETHUSD",
             "fuente": "interno",
             "long": _leg_vacia(),
             "short": _leg_vacia(),
-            "por_activo": {},
+            "por_activo": por_activo,
+            "frentes": _frentes_espejo_dual(por_activo),
         }
 
     frente_dom = max(
@@ -329,10 +380,17 @@ def telemetria_desde_pesos(pesos: dict, equity_usd: float) -> dict[str, Any]:
             }
         por_activo[base] = {"long": L, "short": S}
 
+    if "ETH" not in por_activo:
+        por_activo["ETH"] = {"long": _leg_vacia(), "short": _leg_vacia()}
+    if "MNT" not in por_activo:
+        por_activo["MNT"] = {"long": _leg_vacia(), "short": _leg_vacia()}
+
+    eth = por_activo["ETH"]
     return {
-        "par": par,
+        "par": _par_label(eth) or "ETHUSDT/ETHUSD",
         "fuente": "interno",
-        "long": long_leg,
-        "short": short_leg,
+        "long": eth.get("long") or _leg_vacia(),
+        "short": eth.get("short") or _leg_vacia(),
         "por_activo": por_activo,
+        "frentes": _frentes_espejo_dual(por_activo),
     }

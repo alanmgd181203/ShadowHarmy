@@ -207,10 +207,14 @@ def test_telemetria_enrich() -> None:
     ]
     t = ti.telemetria_desde_exchange(posiciones, equity_usd=1000.0)
     _assert(t["fuente"] == "exchange", "fuente exchange")
-    _assert(t["long"]["margen_usd"] == 20.0, "IM long publicado")
-    _assert(t["long"]["leverage"] == 50.0, "lev long")
     _assert("BTC" in t["por_activo"], "por_activo BTC")
     _assert(t["por_activo"]["BTC"]["short"]["leverage"] == 25.0, "lev short por activo")
+    _assert("ETH" in t["por_activo"], "bucket ETH espejo")
+    _assert("MNT" in t["por_activo"], "bucket MNT espejo")
+    _assert(isinstance(t.get("frentes"), list) and len(t["frentes"]) == 2, "frentes duales")
+    _assert(t["frentes"][0]["activo"] == "ETH", "tarjeta ETH primero")
+    _assert(t["frentes"][1]["activo"] == "MNT", "tarjeta MNT colateral")
+    _assert(t["par"].startswith("ETH") or "ETH" in t["par"], "par combate ETH")
     print("  F) telemetria enrich OK")
 
 

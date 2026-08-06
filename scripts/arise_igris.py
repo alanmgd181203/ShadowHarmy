@@ -52,6 +52,11 @@ os.environ.setdefault("GREED_MULTICRUCE_ENABLED", "false")
 os.environ.setdefault("SAFE_MODE", "true")
 os.environ.setdefault("IGRIS_EVENT_DRIVEN", "true")
 os.environ.setdefault("IGRIS_BOOTSTRAP_ON_START", "false")
+# Canal paralelo: manto dual ETH exclusivo; MNT colateral intocable
+os.environ.setdefault("TICKER_BASE", "ETH")
+os.environ.setdefault("IGRIS_ACTIVOS_EXCLUSIVOS", "ETH")
+os.environ.setdefault("IGRIS_PROTEGER_BASES", "MNT")
+os.environ.setdefault("IGRIS_PROTEGER_SYMBOLS", "MNTUSD")
 # Con books reales: puerta §E no debe depender del ticker sintético
 os.environ.setdefault("IGRIS_TICKER_PUERTA_SI_SIN_LIBRO", "false")
 os.environ.setdefault("BYBIT_RECV_WINDOW_MS", "60000")
@@ -80,6 +85,13 @@ config.IGRIS_TICKER_PUERTA_SI_SIN_LIBRO = "false"
 config.BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))
 if hasattr(config, "BRIDGE_WS_FORCE_IPV4"):
     config.BRIDGE_WS_FORCE_IPV4 = True
+# Frente de combate: ETH dual; MNT fuera del canal
+config.TICKER_BASE = "ETH"
+config.SIMBOLO_LINEAR = "ETHUSDT"
+config.FRENTE_PRINCIPAL = "ETHUSDT_LINEAL"
+config.IGRIS_ACTIVOS_EXCLUSIVOS = ["ETH"]
+config.IGRIS_PROTEGER_BASES = ["MNT"]
+config.IGRIS_PROTEGER_SYMBOLS = ["MNTUSD"]
 
 from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402
@@ -138,53 +150,43 @@ def _segundos_desde_flags(
 
 
 def _aplicar_ojos_abiertos(tusk) -> list[str]:
-    """Bases lote/pase + pentiverso + ticker — con orderbook real."""
-    from core import pase_director as pd
-
-    eq = float(
-        getattr(tusk, "masa_bruta_real", 0)
-        or getattr(tusk, "masa_bruta", 0)
-        or ((getattr(tusk, "tesoreria", None) or {}).get("equity_usd") or 0)
-        or 0
-    )
-    bases: list[str] = []
-    if eq > 0:
-        plan = pd.plan_lote(eq)
-        bases.extend(str(a).upper() for a in (plan.get("activos_trabajo") or []))
-        if plan.get("foco") and plan["foco"].get("activo"):
-            bases.append(str(plan["foco"]["activo"]).upper())
-    for b in list(getattr(config, "ACTIVOS_PENTIVERSO", None) or []):
-        bases.append(str(b).upper())
-    for b in (getattr(config, "TICKER_BASE", None), "ETH", "BTC", "LTC", "MNT"):
-        if b:
-            bases.append(str(b).upper())
-    seen: set[str] = set()
-    out: list[str] = []
-    for b in bases:
-        if b and b not in seen:
-            seen.add(b)
-            out.append(b)
+    """Canal paralelo ETH: libros solo del manto dual (MNT colateral no opera)."""
+    out = ["ETH"]
+    config.TICKER_BASE = "ETH"
     config.BRIDGE_WS_BASES = out
     config.BRIDGE_WS_SUBSCRIBE_BOOKS = True
-    print(f"[OJOS] Modo abierto: {len(out)} bases · books=ON")
-    print(f"[OJOS] Bases: {', '.join(out)}")
+    # Solo ETH: no ahogar el calentamiento con 13 orderbooks
+    config.BRIDGE_WS_BOOKS_BASES = ["ETH"]
+    config.IGRIS_ACTIVOS_EXCLUSIVOS = ["ETH"]
+    print("[OJOS] Canal paralelo ETH exclusivo · books=ON · MNT protegido (colateral)")
+    print(f"[OJOS] Bases: {', '.join(out)} · books={config.BRIDGE_WS_BOOKS_BASES}")
     return out
 
 
 def _libros_eth(tank) -> dict:
-    """Evidencia de libros en frentes ETH (bids/asks)."""
+    """Evidencia de libros en frentes ETH (bids/asks + edad)."""
     from core import igris_despliegue as ides
+    from core import igris_ojos as ojos
 
     frentes = ("ETHUSDT_LINEAL", "ETHUSD_INVERSE")
     detalle = {}
     ok_alguno = False
+    stale_alguno = False
     for f in frentes:
         bids, asks = ides.libro_tank(tank, f)
         n_b, n_a = len(bids or []), len(asks or [])
-        detalle[f] = {"bids": n_b, "asks": n_a}
+        meta = ojos.meta_libro(tank, f)
+        detalle[f] = {
+            "bids": n_b,
+            "asks": n_a,
+            "edad_s": meta.get("edad_s"),
+            "stale": meta.get("stale"),
+        }
         if n_b > 0 and n_a > 0:
             ok_alguno = True
-    return {"ok": ok_alguno, "frentes": detalle}
+        if meta.get("stale"):
+            stale_alguno = True
+    return {"ok": ok_alguno and not stale_alguno, "frentes": detalle, "stale": stale_alguno}
 
 
 def _escribir_heartbeat(msg: str, extra: dict | None = None) -> None:
@@ -276,7 +278,8 @@ async def _cronica(tusk, tank, intervalo_s: float = 30.0):
         print(
             f"[LIVE] marcha={mid} | equity={eq:.2f} | O2={tes.get('oxigeno_guerra_usd')} | "
             f"masa_auth={getattr(tusk, 'masa_autorizada', None)} | pesos≈{n_pesos:.4f} | "
-            f"books_eth={lib.get('ok')} | SIM={config.MODO_SIMULACION} | TN={config.TESTNET}"
+            f"books_eth={lib.get('ok')} stale={lib.get('stale')} | "
+            f"SIM={config.MODO_SIMULACION} | TN={config.TESTNET}"
         )
         _escribir_heartbeat(
             "cronica",
@@ -284,6 +287,8 @@ async def _cronica(tusk, tank, intervalo_s: float = 30.0):
                 "marcha": mid,
                 "equity": eq,
                 "books_eth": lib.get("ok"),
+                "books_stale": lib.get("stale"),
+                "libros_eth": lib.get("frentes"),
                 "ciclos": int(time.time()),
             },
         )
@@ -440,6 +445,7 @@ async def ritual_igris_live(
     print("    4.0.3  RITUAL IGRIS LIVE (parcial)")
     print("    Kaiser · Tank · Tusk · Igris")
     print(f"    {modo}")
+    print("    Canal ETH exclusivo · MNTUSD colateral intocable")
     print("    Greed / Beru hibernados · bóveda Convert OFF")
     print(f"    Books ON · TESTNET={config.TESTNET} · SIM={config.MODO_SIMULACION}")
     print(f"    Marcha: {mid} · fill={perfil.get('fill_ratio')} · reserva={perfil.get('reserva_pasos')}")
@@ -527,7 +533,9 @@ async def ritual_igris_live(
         )
 
         verde_ok, libros_ok, libros = await _esperar_ojos_y_libros(
-            tank, timeout_s=120.0, shutdown_event=shutdown_event,
+            tank,
+            timeout_s=float(os.getenv("ARISE_IGRIS_CALENTAMIENTO_S", "300") or 300),
+            shutdown_event=shutdown_event,
         )
         libros_ref["libros"] = libros
         if verde_ok and libros_ok:

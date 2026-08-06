@@ -1,0 +1,73 @@
+{
+  "ts": 1785903030.231721,
+  "sim": true,
+  "manos_reales": false,
+  "manos_ilusorias": true,
+  "marcha_id": "personalizado",
+  "marcha_payload": {
+    "fill_ratio": 1.0,
+    "reserva_pasos": 1,
+    "duracion_dias": 0.007,
+    "titulo": "Marcha Personalizada"
+  },
+  "equity_usd": 1525.9511,
+  "masa_autorizada": 1449.6535,
+  "plan": {
+    "potencia_n": 29,
+    "foco": {
+      "n": 1,
+      "activo": "ETH",
+      "grado": "SOLDADO",
+      "delta_usd": 14.0,
+      "acum_usd": 14.0,
+      "logrado": false,
+      "etiqueta": "ETH Soldado"
+    },
+    "activos_trabajo": [
+      "ADA",
+      "AVAX",
+      "BCH",
+      "ETH",
+      "FIL",
+      "HYPE",
+      "LINK",
+      "LTC",
+      "MNT",
+      "OP",
+      "SOL",
+      "XRP"
+    ],
+    "fill_ratio": 1.0,
+    "reserva_pasos": 1
+  },
+  "meta_engorde": {
+    "ok": true,
+    "motivo": "ok",
+    "activo": "FIL",
+    "need_usd": 59.0,
+    "need_fill_usd": 59.0,
+    "have_usd": 0.0,
+    "restante_usd": 59.0,
+    "paso_n": 12,
+    "grado": "SOLDADO",
+    "mitad_alcanzada": false,
+    "fill_ratio": 1.0,
+    "marcha_id": "personalizado",
+    "meta_llena": false
+  },
+  "ventana_manto": {
+    "ratio_long": 0.486437,
+    "pct_long": 48.6437,
+    "pct_short": 51.3563,
+    "banda_min": 0.49,
+    "banda_max": 0.52,
+    "estado": "SHORT_EXCEDIDO",
+    "ok": false,
+    "usd_long": 80.5239,
+    "usd_short": 85.0143,
+    "base_ratio": "desplegado_actual_usd_entrada",
+    "ley": "ventana_48_52_long_primero"
+  },
+  "n_frentes_peso": 22,
+  "duracion_s": 706.5
+}

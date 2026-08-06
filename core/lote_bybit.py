@@ -196,7 +196,12 @@ def cuantizar_presupuesto_usd(
         mode=mode,
     )
     usd_eff = qty_a_usd(qty, precio, filt)
-    min_not = float(filt.get("minNotionalValue") or 0)
+    # Bybit linear suele exigir ~5 USDT aunque la BD no traiga minNotionalValue
+    min_not = max(
+        float(filt.get("minNotionalValue") or 0),
+        float(filt.get("min_usd_est") or 0),
+        float(getattr(config, "MIN_ORDER_USD_DEFAULT", 5.0) or 5.0),
+    )
     if min_not > 0 and usd_eff + 1e-9 < min_not and qty > 0:
         # Subir un step hasta cubrir notional si el presupuesto original alcanzaba
         step = float(filt.get("qtyStep") or 0)
@@ -222,11 +227,202 @@ def paso_minimo_usd(frente: str, precio: float) -> float:
     filt = filtros_lote(frente)
     min_q = float(filt.get("minOrderQty") or 0)
     step = float(filt.get("qtyStep") or 0)
+    floor_usd = float(
+        filt.get("min_usd_est")
+        or ancla.min_order_usd_frente(frente)
+        or getattr(config, "MIN_ORDER_USD_DEFAULT", 5.0)
+        or 5.0
+    )
     q = cuantizar_qty(min_q if min_q > 0 else step, min_qty=min_q, qty_step=step, mode="ceil")
     if q <= 0:
-        return float(filt.get("min_usd_est") or ancla.min_order_usd_frente(frente) or 5.0)
+        return floor_usd
     return max(
         qty_a_usd(q, precio, filt),
         float(filt.get("minNotionalValue") or 0),
-        float(filt.get("min_usd_est") or 0),
+        floor_usd,
     )
+
+
+def asegurar_qty_min_notional(
+    qty: float,
+    precio: float,
+    frente: str,
+    *,
+    mode: ModoRedondeo = "ceil",
+) -> dict[str, Any]:
+    """
+    Qty deseada → qty válida que cumple minOrderQty/qtyStep y minNotional (~5 USDT).
+    Si no se puede formar un escalón válido: ok=False, qty=0.
+    """
+    filt = filtros_lote(frente)
+    px = float(precio or 0)
+    if px <= 0:
+        return {"ok": False, "qty": 0.0, "usd": 0.0, "filtros": filt, "motivo": "sin_precio"}
+    min_u = paso_minimo_usd(frente, px)
+    usd_want = qty_a_usd(float(qty), px, filt)
+    usd_use = max(usd_want, min_u)
+    conv = cuantizar_presupuesto_usd(usd_use, px, frente, mode=mode)
+    if not conv.get("ok"):
+        # Segundo intento: pedir exactamente el mínimo Bybit/Ancla
+        conv = cuantizar_presupuesto_usd(min_u, px, frente, mode="ceil")
+    if not conv.get("ok"):
+        return {
+            "ok": False,
+            "qty": 0.0,
+            "usd": 0.0,
+            "filtros": filt,
+            "motivo": "bajo_min_notional",
+            "min_usd": min_u,
+        }
+    return {
+        "ok": True,
+        "qty": float(conv["qty"]),
+        "usd": float(conv["usd"]),
+        "filtros": filt,
+        "min_usd": min_u,
+        "motivo": "OK",
+    }
+
+
+def _frente_lineal_del_par(frente_a: str, frente_b: str) -> str | None:
+    """El Lineal dicta la Masa Absoluta; si ambos o ninguno son linear → None."""
+    a_lin = clave_mercado_desde_frente(frente_a) == "linear"
+    b_lin = clave_mercado_desde_frente(frente_b) == "linear"
+    if a_lin and not b_lin:
+        return (frente_a or "").upper()
+    if b_lin and not a_lin:
+        return (frente_b or "").upper()
+    return None
+
+
+def ley_de_la_masa_dual(
+    frente_a: str,
+    frente_b: str,
+    precio_a: float,
+    precio_b: float,
+    usd_deseado: float,
+    *,
+    asim_max_pct: float | None = None,
+) -> dict[str, Any]:
+    """
+    Ley de la Masa (Monarca): el Inverso no pelea su mínimo aislado.
+
+    1) Alfa = mínimo real del Lineal (max fracción-en-USD, piso ~$5).
+    2) Masa Absoluta = max(usd_deseado, Alfa) → cuantiza el Lineal (ceil).
+    3) Inverso espeja el USD efectivo del Lineal (ceil; si asim > lim, floor).
+    4) Candado: si |USD_a − USD_b| / ref > asim_max → disparo prohibido.
+    """
+    fa = (frente_a or "").upper()
+    fb = (frente_b or "").upper()
+    px_a = float(precio_a or 0)
+    px_b = float(precio_b or 0)
+    usd_want = max(0.0, float(usd_deseado or 0))
+    lim = float(
+        asim_max_pct
+        if asim_max_pct is not None
+        else getattr(config, "IGRIS_MASA_ASIMETRIA_MAX_PCT", 0.05)
+    )
+    lim = max(0.0, lim)
+
+    if px_a <= 0 or px_b <= 0:
+        return {
+            "ok": False,
+            "motivo": "sin_precio_ley_masa",
+            "usd_deseado": usd_want,
+        }
+
+    frente_lin = _frente_lineal_del_par(fa, fb)
+    if not frente_lin:
+        return {
+            "ok": False,
+            "motivo": "sin_frente_lineal",
+            "frente_a": fa,
+            "frente_b": fb,
+            "usd_deseado": usd_want,
+        }
+
+    frente_inv = fb if frente_lin == fa else fa
+    px_lin = px_a if frente_lin == fa else px_b
+    px_inv = px_b if frente_lin == fa else px_a
+
+    alfa = float(paso_minimo_usd(frente_lin, px_lin))
+    piso = float(getattr(config, "MIN_ORDER_USD_DEFAULT", 5.0) or 5.0)
+    masa_absoluta = max(usd_want, alfa, piso)
+
+    conv_lin = cuantizar_presupuesto_usd(masa_absoluta, px_lin, frente_lin, mode="ceil")
+    if not conv_lin.get("ok"):
+        return {
+            "ok": False,
+            "motivo": "no_cuantiza_lineal",
+            "frente_lineal": frente_lin,
+            "alfa_usd": round(alfa, 6),
+            "masa_absoluta_usd": round(masa_absoluta, 6),
+            "conv_lin": conv_lin,
+        }
+
+    usd_espejo = float(conv_lin["usd"])
+    conv_ceil = cuantizar_presupuesto_usd(usd_espejo, px_inv, frente_inv, mode="ceil")
+    conv_floor = cuantizar_presupuesto_usd(usd_espejo, px_inv, frente_inv, mode="floor")
+
+    candidatos = []
+    for c in (conv_ceil, conv_floor):
+        if c.get("ok") and float(c.get("qty") or 0) > 0:
+            candidatos.append(c)
+    if not candidatos:
+        return {
+            "ok": False,
+            "motivo": "no_cuantiza_inverso",
+            "frente_lineal": frente_lin,
+            "alfa_usd": round(alfa, 6),
+            "masa_absoluta_usd": round(masa_absoluta, 6),
+            "usd_espejo": round(usd_espejo, 6),
+            "conv_inv_ceil": conv_ceil,
+            "conv_inv_floor": conv_floor,
+        }
+
+    # Espejo más cercano al USD efectivo del Lineal
+    conv_inv = min(candidatos, key=lambda c: abs(float(c["usd"]) - usd_espejo))
+
+    usd_lin = float(conv_lin["usd"])
+    usd_inv = float(conv_inv["usd"])
+    ref = max((usd_lin + usd_inv) / 2.0, usd_espejo, 1e-9)
+    asim = abs(usd_lin - usd_inv) / ref
+
+    if frente_lin == fa:
+        qty_a, qty_b = float(conv_lin["qty"]), float(conv_inv["qty"])
+        usd_a, usd_b = usd_lin, usd_inv
+        filt_a, filt_b = conv_lin.get("filtros"), conv_inv.get("filtros")
+    else:
+        qty_a, qty_b = float(conv_inv["qty"]), float(conv_lin["qty"])
+        usd_a, usd_b = usd_inv, usd_lin
+        filt_a, filt_b = conv_inv.get("filtros"), conv_lin.get("filtros")
+
+    return {
+        "ok": asim <= lim + 1e-12,
+        "motivo": "OK" if asim <= lim + 1e-12 else "asimetr_masa_usd",
+        "frente_lineal": frente_lin,
+        "frente_inverso": frente_inv,
+        "alfa_usd": round(alfa, 6),
+        "masa_absoluta_usd": round(masa_absoluta, 6),
+        "usd_espejo": round(usd_espejo, 6),
+        "usd_deseado": round(usd_want, 6),
+        "qty_a": qty_a,
+        "qty_b": qty_b,
+        "usd_a": round(usd_a, 6),
+        "usd_b": round(usd_b, 6),
+        "asim_pct": round(asim * 100.0, 4),
+        "asim_max_pct": round(lim * 100.0, 4),
+        "filtros_a": filt_a,
+        "filtros_b": filt_b,
+    }
+
+
+def qty_espejo_usd(
+    usd: float,
+    precio: float,
+    frente: str,
+    *,
+    mode: ModoRedondeo = "ceil",
+) -> dict[str, Any]:
+    """Convierte un USD espejo a qty nativa válida del frente (sin re-elevar a otro Alfa)."""
+    return cuantizar_presupuesto_usd(float(usd), float(precio), frente, mode=mode)

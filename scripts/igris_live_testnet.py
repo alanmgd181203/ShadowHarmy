@@ -34,12 +34,20 @@ for _stream in (sys.stdout, sys.stderr):
 os.environ["LIVE_IGRIS_TESTNET"] = "true"
 os.environ["MODO_TESTNET"] = "True"
 os.environ["MODO_SIMULACION"] = "False"
-os.environ["ARENA_IGRIS_ACTIVA"] = "false"
-os.environ["ARENA_IGRIS_FILLS_VIRTUALES"] = "false"
+# Fuego a discreción (prueba): umbral~0 + cero off; fills REALES testnet
+_FORZAR = os.getenv("LIVE_IGRIS_FORZAR_DISPARO", "").lower() in ("1", "true", "yes", "on")
+if _FORZAR:
+    os.environ["ARENA_IGRIS_ACTIVA"] = "true"
+    os.environ["ARENA_IGRIS_SIN_PACIENCIA"] = "true"
+    os.environ["ARENA_IGRIS_UMBRAL_PCT"] = os.getenv("ARENA_IGRIS_UMBRAL_PCT", "0")
+    os.environ["ARENA_IGRIS_FILLS_VIRTUALES"] = "false"  # manos reales
+    os.environ["MANTO_CERO_ESTRUCTURAL"] = "false"
+else:
+    os.environ["ARENA_IGRIS_ACTIVA"] = "false"
+    os.environ["ARENA_IGRIS_FILLS_VIRTUALES"] = "false"
+    os.environ["ARENA_IGRIS_SIN_PACIENCIA"] = "false"
 os.environ["ARENA_IGRIS_SIN_RANGOS"] = "true"  # verificación: elige activos sin grado Beru
 os.environ["ARENA_IGRIS_SIN_BANDA_DELTA"] = "true"
-# Puerta §E en live = fees (prod). Micro arena solo si ARENA_IGRIS_ACTIVA.
-os.environ["ARENA_IGRIS_SIN_PACIENCIA"] = "false"
 os.environ["IGRIS_EVENT_DRIVEN"] = "true"
 os.environ["IGRIS_BOOTSTRAP_ON_START"] = "false"
 os.environ["GREED_KAISER_ENABLED"] = "false"
@@ -47,6 +55,9 @@ os.environ["GREED_VIP_ENABLED"] = "false"
 os.environ["GREED_BASIS_HOLD_ENABLED"] = "false"
 os.environ["GREED_MULTICRUCE_ENABLED"] = "false"
 os.environ["SAFE_MODE"] = "true"
+# Stale tolerante en prueba testnet (default ya puede venir de .env)
+if _FORZAR and not os.getenv("IGRIS_LIBRO_STALE_S"):
+    os.environ["IGRIS_LIBRO_STALE_S"] = "60"
 
 import core.config as config
 from core.bellion import BellionAuditor
@@ -94,6 +105,91 @@ def _contar_ordenes_historial(path: Path, desde_ts: float) -> dict:
     return out
 
 
+def _posiciones_eth_testnet(bridge) -> dict:
+    """Lee posiciones ETH inverse + lineal en el exchange de prueba."""
+    out: dict = {"ok": False, "inverse": None, "linear": None, "error": None}
+    if not getattr(bridge, "session", None):
+        out["error"] = "sin_session"
+        return out
+    try:
+        inv = bridge.session.get_positions(category="inverse", symbol="ETHUSD")
+        lin = bridge.session.get_positions(category="linear", symbol="ETHUSDT")
+        def _pick(resp, category: str) -> dict | None:
+            if not resp or resp.get("retCode") != 0:
+                return {"error": (resp or {}).get("retMsg"), "category": category}
+            rows = (resp.get("result") or {}).get("list") or []
+            abiertas = []
+            for r in rows:
+                size = float(r.get("size") or 0)
+                if size <= 0:
+                    continue
+                abiertas.append({
+                    "symbol": r.get("symbol"),
+                    "side": r.get("side"),
+                    "size": size,
+                    "avgPrice": float(r.get("avgPrice") or 0),
+                    "positionValue": float(r.get("positionValue") or 0),
+                    "unrealisedPnl": float(r.get("unrealisedPnl") or 0),
+                    "category": category,
+                })
+            return {"abiertas": abiertas, "raw_n": len(rows)}
+        out["inverse"] = _pick(inv, "inverse")
+        out["linear"] = _pick(lin, "linear")
+        out["ok"] = True
+    except Exception as e:
+        out["error"] = str(e)
+    return out
+
+
+def _auditar_ley_masa(posiciones: dict) -> dict:
+    """Compara USD notional L inverse vs S lineal; asim ≤5%."""
+    from core import lote_bybit as lote
+
+    inv_list = ((posiciones.get("inverse") or {}).get("abiertas") or [])
+    lin_list = ((posiciones.get("linear") or {}).get("abiertas") or [])
+    # Prefer Buy on inverse (long) + Sell on linear (short) — bootstrap manto
+    inv = next((p for p in inv_list if str(p.get("side")) == "Buy"), inv_list[0] if inv_list else None)
+    lin = next((p for p in lin_list if str(p.get("side")) == "Sell"), lin_list[0] if lin_list else None)
+    if not inv or not lin:
+        return {
+            "ok": False,
+            "motivo": "faltan_piernas",
+            "inverse": inv,
+            "linear": lin,
+        }
+    filt_inv = lote.filtros_lote("ETHUSD_INVERSE")
+    filt_lin = lote.filtros_lote("ETHUSDT_LINEAL")
+    px_inv = float(inv.get("avgPrice") or 0)
+    px_lin = float(lin.get("avgPrice") or 0)
+    # Inverse Coin-M: size = USD nocional. positionValue Bybit ≈ coin, NO usar como USD.
+    usd_inv = lote.qty_a_usd(float(inv["size"]), px_inv, filt_inv)
+    usd_lin = lote.qty_a_usd(float(lin["size"]), px_lin, filt_lin)
+    # Lineal: positionValue sí es nocional USDT
+    if float(lin.get("positionValue") or 0) > 0:
+        usd_lin = float(lin["positionValue"])
+    ref = max((usd_inv + usd_lin) / 2.0, 1e-9)
+    asim = abs(usd_inv - usd_lin) / ref
+    lim = float(getattr(config, "IGRIS_MASA_ASIMETRIA_MAX_PCT", 0.05) or 0.05)
+    return {
+        "ok": asim <= lim + 1e-12,
+        "usd_inverse": round(usd_inv, 4),
+        "usd_linear": round(usd_lin, 4),
+        "qty_inverse": float(inv["size"]),
+        "qty_linear": float(lin["size"]),
+        "side_inverse": inv.get("side"),
+        "side_linear": lin.get("side"),
+        "avg_inverse": px_inv,
+        "avg_linear": px_lin,
+        "asim_pct": round(asim * 100.0, 4),
+        "asim_max_pct": round(lim * 100.0, 4),
+        "espejo_alfa": asim <= lim + 1e-12,
+        "nota": (
+            "Totales en cuenta (pueden incluir restos previos). "
+            "Disparo de esta sesión: ver ENGORDE_DUAL / Alfa en log."
+        ),
+    }
+
+
 async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
     aplicar_a_config(config)
     try:
@@ -103,14 +199,18 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
         print("[live-igris] trinidad cache local")
 
     # Reafirmar sesión (por si .env / trinidad sobrescribió)
+    forzar = bool(_FORZAR)
     config.LIVE_IGRIS_TESTNET = True
     config.TESTNET = True
     config.MODO_SIMULACION = False
-    config.ARENA_IGRIS_ACTIVA = False
+    config.ARENA_IGRIS_ACTIVA = forzar
     config.ARENA_IGRIS_FILLS_VIRTUALES = False
     config.ARENA_IGRIS_SIN_RANGOS = True
     config.ARENA_IGRIS_SIN_BANDA_DELTA = True
-    config.ARENA_IGRIS_SIN_PACIENCIA = False  # live: umbral fees, no micro arena
+    config.ARENA_IGRIS_SIN_PACIENCIA = forzar
+    if forzar:
+        config.ARENA_IGRIS_UMBRAL_PCT = float(os.getenv("ARENA_IGRIS_UMBRAL_PCT", "0") or 0)
+        config.MANTO_CERO_ESTRUCTURAL = False
     config.IGRIS_EVENT_DRIVEN = True
     config.IGRIS_BOOTSTRAP_ON_START = False
     config.GREED_KAISER_ENABLED = False
@@ -118,9 +218,26 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
     config.GREED_BASIS_HOLD_ENABLED = False
     config.GREED_MULTICRUCE_ENABLED = False
     config.SAFE_MODE = True
+    # Lentes: stale alto solo en esta prueba forzada / .env
+    if forzar:
+        config.IGRIS_LIBRO_STALE_S = float(
+            os.getenv("IGRIS_LIBRO_STALE_S", "60") or 60
+        )
+        # Cuenta impecable: dual Market directo (sin escalera Limit que deja huérfanos)
+        config.ESCALERA_IGRIS_ACTIVA = False
+        config.ESCALERA_PRECIOS_ACTIVA = False
+        config.ESCALERA_GREED_ACTIVA = False
+        # Sin delay de fill Limit en testnet lento
+        config.IGRIS_DUAL_FILL_TIMEOUT_S = float(
+            os.getenv("IGRIS_DUAL_FILL_TIMEOUT_S", "25") or 25
+        )
 
     if not config.API_KEY or not config.API_SECRET:
-        raise SystemExit("ABORT: faltan BYBIT_API_KEY / BYBIT_API_SECRET en .env")
+        raise SystemExit(
+            "ABORT: faltan llaves activas en .env "
+            "(MODO_TESTNET=True → BYBIT_TESTNET_API_KEY/SECRET; "
+            "False → BYBIT_API_KEY/SECRET)"
+        )
     if not config.TESTNET:
         raise SystemExit("ABORT: MODO_TESTNET debe ser True (campo de entrenamiento)")
 
@@ -139,6 +256,10 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
     kaiser = KaiserVocero(tank, bellion)
     bridge = BybitBridge(tank, tusk, bellion, config.API_KEY, config.API_SECRET)
     igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge, kaiser=kaiser)
+    if forzar:
+        # Manos Market en ambas piernas (no Limit táctico)
+        igris._orden_tipo_manto = lambda _px: ("Market", None)  # type: ignore[method-assign]
+        print("[live-igris] forzado: escalera OFF · órdenes Market")
 
     tasks = [
         asyncio.create_task(bridge.conectar()),
@@ -151,7 +272,14 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
     print("  Shadow Army — Igris LIVE TESTNET (3.10.7b)")
     print("  Manos: Bybit DEMO · Ojos: mainnet WS")
     print(f"  Ojos: {seg:.0f}s · Activos: {','.join(activos)}")
-    print(f"  Mordida max: ${max_usd:.0f}/pata · Umbral: fees (prod)")
+    if forzar:
+        print(
+            f"  FUEGO FORZADO · umbral={float(getattr(config, 'ARENA_IGRIS_UMBRAL_PCT', 0)):.4f}% "
+            f"· stale={float(getattr(config, 'IGRIS_LIBRO_STALE_S', 60)):.0f}s · cero OFF"
+        )
+        print(f"  Mordida max: ${max_usd:.0f}/pata · Ley de la Masa ON")
+    else:
+        print(f"  Mordida max: ${max_usd:.0f}/pata · Umbral: fees (prod)")
     print("  Greed/Beru: hibernados en esta sesión")
     print("=" * 52)
     print("")
@@ -208,6 +336,13 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
         for activo in activos:
             print(f"[live-igris] -> {activo} ...", flush=True)
             fl, fs = im.frentes_bootstrap(activo)
+            # Muleta REST antes de la puerta (ojos lentos testnet / WS desfasado)
+            from core import igris_ojos as ojos
+
+            try:
+                await ojos.asegurar_libros_frescos(tank, bridge, [fl, fs])
+            except Exception as e:
+                print(f"[live-igris]   ojos REST aviso: {e}")
             bids_l, asks_l = ides.libro_tank(tank, fl)
             bids_s, asks_s = ides.libro_tank(tank, fs)
             tiene_libro = bool(bids_l or asks_l) and bool(bids_s or asks_s)
@@ -228,6 +363,10 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
                 origen = "kaiser"
             elif puerta.get("ok") and not require_kaiser:
                 origen = "puerta"
+            elif forzar and tiene_libro and not require_kaiser:
+                # Fuego a discreción: intentar inyección aunque puerta aún falle
+                # (live_inyectar revalúa con REST/ojos dentro)
+                origen = "forzado"
 
             fila = {
                 "activo": activo,
@@ -240,7 +379,7 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
                 "origen_candidato": origen,
             }
 
-            if origen in ("kaiser", "puerta"):
+            if origen in ("kaiser", "puerta", "forzado"):
                 res = await igris.live_inyectar_activo(
                     activo, max_usd=max_usd, origen="LIVE_TESTNET",
                 )
@@ -279,6 +418,10 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
         hist = _contar_ordenes_historial(ROOT / "data" / "historial_hierro.jsonl", t_hist)
         pesos = {f: dict(p) for f, p in tusk.pesos.items()}
 
+        # Impacto: posiciones reales en testnet (espejo Alfa)
+        posiciones = _posiciones_eth_testnet(bridge)
+        ley_masa = _auditar_ley_masa(posiciones)
+
         criterio_ok = disparos >= 1 and hist["orden_enviada"] >= 1
         criterio_parcial = disparos >= 1  # fill Tusk sin log Bridge (raro)
         veredicto = (
@@ -296,9 +439,11 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
             "config": {
                 "testnet": True,
                 "modo_simulacion": False,
-                "arena_activa": False,
+                "arena_activa": bool(forzar),
                 "fills_virtuales": False,
-                "vision_manto": "ask_bid_fees",
+                "forzar_disparo": bool(forzar),
+                "libro_stale_s": float(getattr(config, "IGRIS_LIBRO_STALE_S", 12) or 12),
+                "vision_manto": "ask_bid_fees" if not forzar else "forzado_umbral0",
                 "mordida_max_usd": max_usd,
                 "activos": activos,
                 "require_kaiser": require_kaiser,
@@ -311,6 +456,8 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
             "esperas_o_fallos": esperas,
             "historial_resumen": hist,
             "pesos_tusk": pesos,
+            "posiciones_exchange": posiciones,
+            "ley_masa_impacto": ley_masa,
             "oportunidad_manto_top": [
                 {
                     "base": a.get("base"),
@@ -348,6 +495,10 @@ async def run_live(segundos: float | None, activos_arg: str | None) -> dict:
             "reporte": str(out_path),
         }
         print(json.dumps(resumen, indent=2))
+        if ley_masa:
+            print("")
+            print("[live-igris] IMPACTO Ley de la Masa:")
+            print(json.dumps(ley_masa, indent=2))
         print("")
         if veredicto == "PASS_LIVE":
             print("[live-igris] CHECKLIST 3.10.7b listo para marcar OK.")

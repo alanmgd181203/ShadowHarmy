@@ -30,10 +30,9 @@ source "$ROOT/.venv/bin/activate"
 liberar_puerto() {
   local port="$1"
   echo "→ Liberando puerto ${port}..."
-  # Matar por patrón de comando (varias formas de invocar http.server)
+  # Solo el servidor web del Pergamino — NO matar arise_igris / rituales live
   pkill -f "http.server ${port}" 2>/dev/null || true
   pkill -f "http.server.*${port}" 2>/dev/null || true
-  pkill -f "python.*arise.py" 2>/dev/null || true
   # Matar lo que escuche el puerto (macOS)
   if command -v lsof >/dev/null 2>&1; then
     local pids
@@ -56,32 +55,43 @@ liberar_puerto() {
 echo ""
 liberar_puerto "$PORT"
 
-echo "→ Activando arise.py (ejército)..."
-PYTHONUNBUFFERED=1 nohup python "$ROOT/arise.py" >> "$LOG_DIR/arise_panel.log" 2>&1 &
-ARISE_PID=$!
-echo "$ARISE_PID" > "$ROOT/data/panel_arise.pid"
+# Si Igris live (u otro ejército) ya corre, solo servir el Pergamino
+SKIP_ARISE=0
+if [[ "${PANEL_SOLO_WEB:-}" == "1" ]] || pgrep -f "scripts/arise_igris.py" >/dev/null 2>&1; then
+  SKIP_ARISE=1
+  echo "→ Ritual live detectado (o PANEL_SOLO_WEB=1) — no arranco arise.py"
+fi
 
-ARISE_OK=0
-for i in $(seq 1 30); do
-  if ! kill -0 "$ARISE_PID" 2>/dev/null; then
-    echo "❌ arise.py murió al arrancar. Revisa: data/logs/arise_panel.log"
-    tail -n 40 "$LOG_DIR/arise_panel.log" 2>/dev/null || true
+if [[ "$SKIP_ARISE" -eq 0 ]]; then
+  echo "→ Activando arise.py (ejército)..."
+  PYTHONUNBUFFERED=1 nohup python "$ROOT/arise.py" >> "$LOG_DIR/arise_panel.log" 2>&1 &
+  ARISE_PID=$!
+  echo "$ARISE_PID" > "$ROOT/data/panel_arise.pid"
+
+  ARISE_OK=0
+  for i in $(seq 1 30); do
+    if ! kill -0 "$ARISE_PID" 2>/dev/null; then
+      echo "❌ arise.py murió al arrancar. Revisa: data/logs/arise_panel.log"
+      tail -n 40 "$LOG_DIR/arise_panel.log" 2>/dev/null || true
+      read -r -p "Pulsa Enter para cerrar..."
+      exit 1
+    fi
+    if [[ -f "$ROOT/data/estado_vivo.json" ]] || [[ "$i" -ge 6 ]]; then
+      ARISE_OK=1
+      break
+    fi
+    sleep 0.5
+  done
+
+  if [[ "$ARISE_OK" -ne 1 ]]; then
+    echo "❌ Timeout esperando arise.py"
     read -r -p "Pulsa Enter para cerrar..."
     exit 1
   fi
-  if [[ -f "$ROOT/data/estado_vivo.json" ]] || [[ "$i" -ge 6 ]]; then
-    ARISE_OK=1
-    break
-  fi
-  sleep 0.5
-done
-
-if [[ "$ARISE_OK" -ne 1 ]]; then
-  echo "❌ Timeout esperando arise.py"
-  read -r -p "Pulsa Enter para cerrar..."
-  exit 1
+  echo "  ✓ arise.py activo (PID ${ARISE_PID})"
+else
+  echo "  ✓ Solo Pergamino web (estado_vivo lo escribe el ritual ya vivo)"
 fi
-echo "  ✓ arise.py activo (PID ${ARISE_PID})"
 
 # Si el puerto sigue ocupado tras liberar, reintentar una vez
 if command -v lsof >/dev/null 2>&1; then

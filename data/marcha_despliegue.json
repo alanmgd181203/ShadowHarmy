@@ -1,11 +1,14 @@
 {
-  "marcha_id": "marcha_forzada",
-  "titulo": "Marcha Forzada",
-  "ts": 1785936841.960163,
+  "marcha_id": "personalizado",
+  "titulo": "Marcha Personalizada",
+  "ts": 1786045161.7851882,
   "reserva_pasos": 1,
-  "umbral_fees_mult": 0.5,
+  "umbral_fees_mult": -1.0,
   "force_market": false,
-  "permite_urgencia": true,
+  "permite_urgencia": false,
   "fill_ratio": 1.0,
-  "equity_usd": 1525.9511
+  "equity_usd": 1530.334,
+  "duracion_dias": 0.33,
+  "umbrales_calibrados": true,
+  "calibrado_ts": 1786042447.903268
 }

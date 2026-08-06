@@ -106,6 +106,9 @@ class TankNode:
 
     def aplicar_delta_libro(self, f_key: str, bid_updates: list, ask_updates: list):
         self.asegurar_libro(f_key)
+        # Sin snapshot fresco (post-reconexión): ignorar deltas — evitan libro zombi
+        if float(self.libros[f_key].get("ts") or 0) <= 0:
+            return
         if bid_updates:
             self.libros[f_key]["bids"] = self._merge_niveles(
                 self.libros[f_key]["bids"], bid_updates, reverse=True,
@@ -116,6 +119,12 @@ class TankNode:
             )
         self.libros[f_key]["ts"] = time.time()
         self._actualizar_muro_desde_libro(f_key)
+
+    def invalidar_libros(self, bases: list[str] | None = None) -> int:
+        """Vacía libros (WS caído). bases=None → todos."""
+        from core import igris_ojos as ojos
+
+        return ojos.invalidar_libros_tank(self, bases)
 
     def inyectar_funding(self, f_key: str, rate: float):
         self.asegurar_frente(f_key)
@@ -260,6 +269,12 @@ class TankCluster:
             return min(verdes, key=lambda n: n.latencia_ms)
         amarillos = [n for n in self.nodos if n.estado_foco == "AMARILLO"]
         return min(amarillos, key=lambda n: n.latencia_ms) if amarillos else None
+
+    def invalidar_libros(self, bases: list[str] | None = None) -> int:
+        """Tirar fotos de libros en todos los nodos (ojos rotos / reconexión)."""
+        from core import igris_ojos as ojos
+
+        return ojos.invalidar_libros_tank(self, bases)
 
     async def vision_especulativa(self):
         lider = self._obtener_lider_verde()

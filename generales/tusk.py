@@ -362,13 +362,21 @@ class TuskBoveda:
 
         try:
             posiciones: list[dict] = []
-            for category, settle in (("linear", "USDT"), ("inverse", None)):
-                kwargs = {"category": category}
-                if settle:
-                    kwargs["settleCoin"] = settle
-                resp = bridge.session.get_positions(**kwargs)
-                if resp.get("retCode") == 0:
-                    posiciones.extend(resp.get("result", {}).get("list", []) or [])
+            # linear USDT + inverse (sin settleCoin: MNTUSD/ETHUSD aparecen aquí)
+            queries = (
+                {"category": "linear", "settleCoin": "USDT"},
+                {"category": "inverse"},
+            )
+            for kwargs in queries:
+                try:
+                    resp = bridge.session.get_positions(**kwargs)
+                except Exception:
+                    continue
+                if resp.get("retCode") != 0:
+                    continue
+                for p in resp.get("result", {}).get("list", []) or []:
+                    if float(p.get("size") or 0) > 0:
+                        posiciones.append(p)
 
             if posiciones:
                 self.telemetria_posiciones_manto = telemetria_desde_exchange(posiciones, equity)
