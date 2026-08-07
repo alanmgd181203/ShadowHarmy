@@ -57,7 +57,7 @@ export default function BellionPanel({ onClose }) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col bg-[#0a0c10] text-white overflow-y-auto overflow-x-hidden transition-opacity duration-1000 ease-in-out ${
+      className={`absolute inset-0 z-50 flex flex-col bg-[#0a0c10] text-white overflow-y-auto overflow-x-hidden transition-opacity duration-1000 ease-in-out ${
         visible ? "opacity-100" : "opacity-0"
       }`}
     >

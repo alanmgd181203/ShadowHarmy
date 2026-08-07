@@ -1,5 +1,5 @@
 {
-    "timestamp": 1785999114.188849,
+    "timestamp": 1786078982.5077682,
     "fase": "LILIT DE HIERRO V2.0.0",
     "boveda": {
         "pesos": {
@@ -103,7 +103,7 @@
         "masa_bruta": 1528.58231379,
         "masa_bruta_real": 1528.58231379,
         "total_ciclos_consumados": 0,
-        "precio_perp": 1912.7,
+        "precio_perp": 1897.49,
         "precio_spot": 0.0
     },
     "legion": [],

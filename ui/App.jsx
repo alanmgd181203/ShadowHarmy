@@ -16,12 +16,12 @@ import imgIgris from "../assets/portales/igris.png";
  * Cosas apagadas: ui/featuresApagadas.js
  */
 const PORTALS = [
-  { id: "tusk", src: imgTusk, label: "Tusk", style: { top: "-1%", left: "-14%", width: "70%", zIndex: 8 } },
-  { id: "beru", src: imgBeru, label: "Beru", style: { top: "13%", right: "-18%", width: "68%", zIndex: 7 } },
-  { id: "kamish", src: imgKamish, label: "Kamish", style: { top: "28%", left: "-22%", width: "72%", zIndex: 6 } },
-  { id: "bellion", src: imgBellion, label: "Bellion", style: { top: "44%", right: "8%", width: "60%", zIndex: 5 } },
-  { id: "greed", src: imgGreed, label: "Greed", style: { top: "58%", left: "-24%", width: "72%", zIndex: 4 } },
-  { id: "igris", src: imgIgris, label: "Igris", style: { top: "74%", right: "-16%", width: "68%", zIndex: 3 } },
+  { id: "tusk", src: imgTusk, label: "Tusk", aura: "#00ff66", style: { top: "-1%", left: "-14%", width: "70%", zIndex: 8 } },
+  { id: "beru", src: imgBeru, label: "Beru", aura: "#00f0ff", style: { top: "13%", right: "-18%", width: "68%", zIndex: 7 } },
+  { id: "kamish", src: imgKamish, label: "Kamish", aura: "#4a72ff", style: { top: "28%", left: "-22%", width: "72%", zIndex: 6 } },
+  { id: "bellion", src: imgBellion, label: "Bellion", aura: "#a100ff", style: { top: "44%", right: "8%", width: "60%", zIndex: 5 } },
+  { id: "greed", src: imgGreed, label: "Greed", aura: "#e0115f", style: { top: "58%", left: "-24%", width: "72%", zIndex: 4 } },
+  { id: "igris", src: imgIgris, label: "Igris", aura: "#ff0055", style: { top: "74%", right: "-16%", width: "68%", zIndex: 3 } },
 ];
 
 const UMBRAL_IDS = new Set(["igris", "beru", "bellion"]);
@@ -58,6 +58,23 @@ export default function App() {
   return (
     <div className="relative min-h-screen w-full max-w-[430px] mx-auto bg-[#0a0c10] overflow-hidden">
       <div className="relative w-full h-[100dvh] min-h-[720px]">
+        {/* Aura de color detrás de cada sello · humo/video sigue apagado */}
+        <div
+          className={`absolute inset-0 z-0 pointer-events-none overflow-hidden transition-opacity duration-1000 ${
+            vanguardiaOculta ? "opacity-0" : "opacity-100"
+          }`}
+          aria-hidden
+        >
+          {PORTALS.map((p) => (
+            <div key={`aura-${p.id}`} className="absolute" style={{ ...p.style, zIndex: 0 }}>
+              <div
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[64px] opacity-45"
+                style={{ background: p.aura }}
+              />
+            </div>
+          ))}
+        </div>
+
         {PORTALS.map((p) => {
           const esUmbral = UMBRAL_IDS.has(p.id);
           const enFoco = umbralActivo && activeGeneral === p.id;

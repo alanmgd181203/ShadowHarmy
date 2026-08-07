@@ -191,6 +191,78 @@ class BellionAuditor:
                 "motivo": "sin_puerta_aun",
                 "bloqueado": None,
             }
+        # Libros del Santo en foco (meta engorde) → Pergamino; ETH queda como legado
+        if tank is not None:
+            try:
+                from core import igris_despliegue as ides
+                from core import igris_manto as im
+                from core import igris_ojos as ojos
+
+                meta_act = (igris_resumen.get("meta_engorde") or {}).get("activo")
+                activo_lib = str(meta_act or "ETH").upper() or "ETH"
+                frente_inv, frente_lin = im.frentes_bootstrap(activo_lib)
+                detalle_lib: dict = {}
+                ok_alg = False
+                stale_alg = False
+                for f in (frente_lin, frente_inv):
+                    bids, asks = ides.libro_tank(tank, f)
+                    n_b, n_a = len(bids or []), len(asks or [])
+                    meta_l = ojos.meta_libro(tank, f)
+                    detalle_lib[f] = {
+                        "bids": n_b,
+                        "asks": n_a,
+                        "edad_s": meta_l.get("edad_s"),
+                        "stale": meta_l.get("stale"),
+                    }
+                    if n_b > 0 and n_a > 0:
+                        ok_alg = True
+                    if meta_l.get("stale"):
+                        stale_alg = True
+                bloque_lib = {
+                    "ok": ok_alg and not stale_alg,
+                    "activo": activo_lib,
+                    "frentes": detalle_lib,
+                    "stale": stale_alg,
+                }
+                igris_resumen["libros_foco"] = bloque_lib
+                # Compat: claves viejas / heartbeat ETH
+                if activo_lib == "ETH":
+                    igris_resumen["libros_eth"] = bloque_lib
+                else:
+                    # ETH sigue publicándose si el Tank lo trae (ojos canal)
+                    detalle_eth: dict = {}
+                    ok_e = False
+                    stale_e = False
+                    for f in ("ETHUSDT_LINEAL", "ETHUSD_INVERSE"):
+                        bids, asks = ides.libro_tank(tank, f)
+                        n_b, n_a = len(bids or []), len(asks or [])
+                        meta_l = ojos.meta_libro(tank, f)
+                        detalle_eth[f] = {
+                            "bids": n_b,
+                            "asks": n_a,
+                            "edad_s": meta_l.get("edad_s"),
+                            "stale": meta_l.get("stale"),
+                        }
+                        if n_b > 0 and n_a > 0:
+                            ok_e = True
+                        if meta_l.get("stale"):
+                            stale_e = True
+                    igris_resumen["libros_eth"] = {
+                        "ok": ok_e and not stale_e,
+                        "activo": "ETH",
+                        "frentes": detalle_eth,
+                        "stale": stale_e,
+                    }
+            except Exception as e:
+                err = {
+                    "ok": False,
+                    "activo": None,
+                    "frentes": {},
+                    "stale": True,
+                    "error": str(e)[:120],
+                }
+                igris_resumen["libros_foco"] = err
+                igris_resumen["libros_eth"] = dict(err)
         try:
             from core import manto_frecuencia as mf
 

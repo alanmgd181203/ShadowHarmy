@@ -42,6 +42,30 @@ if command -v lsof >/dev/null 2>&1; then
   fi
 fi
 
-rm -f "$ROOT/data/panel_arise.pid" "$ROOT/data/panel_http.pid"
+# Vite Cascada React
+VITE_PORT="${VITE_PORT:-5173}"
+if [[ -f "$ROOT/data/panel_vite.pid" ]]; then
+  VP="$(cat "$ROOT/data/panel_vite.pid" 2>/dev/null || true)"
+  if [[ -n "${VP}" ]]; then
+    kill "${VP}" 2>/dev/null || true
+    sleep 0.2
+    kill -9 "${VP}" 2>/dev/null || true
+  fi
+fi
+if command -v lsof >/dev/null 2>&1; then
+  VPIDS="$(lsof -tiTCP:"${VITE_PORT}" -sTCP:LISTEN 2>/dev/null || true)"
+  if [[ -n "${VPIDS}" ]]; then
+    # shellcheck disable=SC2086
+    kill ${VPIDS} 2>/dev/null || true
+    sleep 0.2
+    VPIDS="$(lsof -tiTCP:"${VITE_PORT}" -sTCP:LISTEN 2>/dev/null || true)"
+    if [[ -n "${VPIDS}" ]]; then
+      # shellcheck disable=SC2086
+      kill -9 ${VPIDS} 2>/dev/null || true
+    fi
+  fi
+fi
 
-echo "🌑 Panel detenido (arise + http:${PORT})."
+rm -f "$ROOT/data/panel_arise.pid" "$ROOT/data/panel_http.pid" "$ROOT/data/panel_vite.pid"
+
+echo "🌑 Panel detenido (arise + http:${PORT} + vite:${VITE_PORT})."

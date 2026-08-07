@@ -62,7 +62,7 @@ export default function AssetDetail({ symbol, onClose }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[60] flex flex-col bg-[#0a0c10] text-white overflow-y-auto overflow-x-hidden transition-opacity duration-700 ease-in-out ${
+      className={`absolute inset-0 z-[60] flex flex-col bg-[#0a0c10] text-white overflow-y-auto overflow-x-hidden transition-opacity duration-700 ease-in-out ${
         visible && !closing ? "opacity-100" : "opacity-0"
       }`}
     >
@@ -87,27 +87,46 @@ export default function AssetDetail({ symbol, onClose }) {
       </header>
 
       <div className="px-4 py-4 space-y-4 pb-10">
+        {/* Sellos de unidad de apertura · doctrina 21 */}
+        <div className="grid grid-cols-2 gap-2">
+          <Sello
+            lado="LONG"
+            sello={L.unidad_apertura || "INVERSE→USD"}
+            frente={L.frente}
+            tone="long"
+          />
+          <Sello
+            lado="SHORT"
+            sello={S.unidad_apertura || "LINEAR→COIN"}
+            frente={S.frente}
+            tone="short"
+          />
+        </div>
+
         {/* Identidad / frentes */}
         <Section title="Frentes del manto">
           <Row label="Long (frente)" value={L.frente || "—"} />
           <Row label="Short (frente)" value={S.frente || "—"} />
         </Section>
 
-        {/* Tamaños */}
+        {/* Tamaños · USD + moneda en ambas piernas */}
         <Section title="Tamaño de posiciones">
           <TwoCol
-            leftTitle="Long"
-            rightTitle="Short"
+            leftTitle={`Long · ${L.unidad_apertura || "INVERSE→USD"}`}
+            rightTitle={`Short · ${S.unidad_apertura || "LINEAR→COIN"}`}
             left={[
               ["USD", fmtUsd(L.size_usd)],
-              ["Base", fmtNum(L.size_base, 6)],
+              [L.unidad_coin || data.symbol || "COIN", fmtNum(L.size_base, 6)],
             ]}
             right={[
               ["USD", fmtUsd(S.size_usd)],
-              ["Base", fmtNum(S.size_base, 6)],
+              [S.unidad_coin || data.symbol || "COIN", fmtNum(S.size_base, 6)],
             ]}
           />
           <Row label="Global (L+S USD)" value={fmtUsd(G.size_usd_total)} accent />
+          <p className="text-[10px] text-white/30 mt-1.5 leading-relaxed">
+            Inverso abre en dólares; lineal abre en moneda. Ambas piernas muestran USD + coin.
+          </p>
         </Section>
 
         {/* Margen y apalancamiento (solo lectura) */}
@@ -203,6 +222,29 @@ export default function AssetDetail({ symbol, onClose }) {
           <Row label="Global %" value={fmtPct(O.mejora_pct_global)} accent />
         </Section>
       </div>
+    </div>
+  );
+}
+
+function Sello({ lado, sello, frente, tone }) {
+  const longTone = tone === "long";
+  return (
+    <div
+      className={`rounded-xl border px-2.5 py-2 ${
+        longTone
+          ? "border-[#ff0055]/35 bg-[#ff0055]/8"
+          : "border-cyan-500/30 bg-cyan-500/8"
+      }`}
+    >
+      <p
+        className={`text-[9px] uppercase tracking-[0.18em] ${
+          longTone ? "text-[#ff0055]/80" : "text-cyan-400/80"
+        }`}
+      >
+        {lado}
+      </p>
+      <p className="text-[13px] font-bold tracking-wide mt-0.5">{sello}</p>
+      <p className="text-[9px] text-white/35 truncate mt-0.5">{frente || "—"}</p>
     </div>
   );
 }

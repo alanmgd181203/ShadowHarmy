@@ -69,6 +69,9 @@ def test_acumulado_sync_mismo_activo():
     if os.path.exists(ruta):
         with open(ruta, encoding="utf-8") as f:
             previo = f.read()
+    # Smoke toca disco: forzar escritura aunque MODO_TESTNET esté en True
+    prev_force = os.environ.get("PASE_PROGRESO_FORCE_WRITE")
+    os.environ["PASE_PROGRESO_FORCE_WRITE"] = "1"
     try:
         # Solo pasos previos al Capitán ETH ya "logrados" en disco (lote lleno → cola Capitán)
         pd.guardar_progreso(list(range(1, 37)))
@@ -88,6 +91,10 @@ def test_acumulado_sync_mismo_activo():
         assert 37 in set(plan_lleno["pasos_logrados"]), "acum Soldado+Capitán marca Capitán"
         print("  acumulado sync ETH (Soldado->Capitan) OK")
     finally:
+        if prev_force is None:
+            os.environ.pop("PASE_PROGRESO_FORCE_WRITE", None)
+        else:
+            os.environ["PASE_PROGRESO_FORCE_WRITE"] = prev_force
         if previo is None:
             if os.path.exists(ruta):
                 os.remove(ruta)

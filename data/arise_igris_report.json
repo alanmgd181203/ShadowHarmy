@@ -1,5 +1,5 @@
 {
-  "ts": 1785999114.186152,
+  "ts": 1786078982.506764,
   "checklist": "4.0.3",
   "sim": false,
   "manos_reales": true,
@@ -10,39 +10,43 @@
     "frentes": {
       "ETHUSDT_LINEAL": {
         "bids": 50,
-        "asks": 50
+        "asks": 50,
+        "edad_s": 0.023,
+        "stale": false
       },
       "ETHUSD_INVERSE": {
         "bids": 50,
-        "asks": 50
+        "asks": 50,
+        "edad_s": 0.099,
+        "stale": false
       }
-    }
+    },
+    "stale": false
   },
   "testnet": false,
-  "marcha_id": "marcha_forzada",
+  "marcha_id": "asalto",
   "marcha_payload": {
     "fill_ratio": 1.0,
     "reserva_pasos": 1,
-    "titulo": "Marcha Forzada"
+    "titulo": "Asalto Inmediato"
   },
   "equity_usd": 1528.5823,
   "masa_autorizada": 1452.1532,
   "plan": {
     "potencia_n": 29,
     "foco": {
-      "n": 1,
-      "activo": "ETH",
+      "n": 2,
+      "activo": "HYPE",
       "grado": "SOLDADO",
-      "delta_usd": 14.0,
-      "acum_usd": 14.0,
+      "delta_usd": 28.0,
+      "acum_usd": 42.0,
       "logrado": false,
-      "etiqueta": "ETH Soldado"
+      "etiqueta": "HYPE Soldado"
     },
     "activos_trabajo": [
       "ADA",
       "AVAX",
       "BCH",
-      "ETH",
       "FIL",
       "HYPE",
       "LINK",
@@ -58,16 +62,17 @@
   "meta_engorde": {
     "ok": true,
     "motivo": "ok",
-    "activo": "ETH",
-    "need_usd": 14.0,
-    "need_fill_usd": 14.0,
+    "activo": "HYPE",
+    "need_usd": 28.0,
+    "need_fill_usd": 28.0,
     "have_usd": 0.0,
-    "restante_usd": 14.0,
-    "paso_n": 1,
+    "restante_usd": 28.0,
+    "paso_n": 2,
     "grado": "SOLDADO",
+    "delta_paso_usd": 28.0,
     "mitad_alcanzada": false,
     "fill_ratio": 1.0,
-    "marcha_id": "marcha_forzada",
+    "marcha_id": "asalto",
     "meta_llena": false
   },
   "ventana_manto": {
@@ -87,6 +92,6 @@
   "greed_hibernado": true,
   "beru_hibernado": true,
   "boveda_manos": false,
-  "duracion_s": 135.1,
+  "duracion_s": 41.7,
   "veredicto_calentamiento": "OJOS_Y_LIBROS_OK"
 }

@@ -1,8 +1,6 @@
 {
-  "pasos_logrados": [
-    1,
-    37,
-    38
-  ],
-  "ts": 1786049469.794898
+  "pasos_logrados": [],
+  "ts": 0,
+  "red": "mainnet",
+  "nota": "Limpiado 2026-08-07: checks [1,37,38] eran contaminacion testnet DEMO, no manto mainnet."
 }

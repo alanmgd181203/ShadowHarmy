@@ -124,16 +124,39 @@ else
 fi
 
 CACHE_BUST="$(date +%s)"
-URL="http://localhost:${PORT}/dashboard_sombras.html?v=${CACHE_BUST}"
-echo "→ Abriendo Pergamino..."
-open "$URL"
+URL_CLASICO="http://localhost:${PORT}/dashboard_sombras.html?v=${CACHE_BUST}"
+
+# Pergamino React (Cascada + Manto Igris Figma) — puerto 5173
+VITE_PORT="${VITE_PORT:-5173}"
+URL_REACT="http://localhost:${VITE_PORT}/"
+echo "→ Levantando Pergamino React (Vite :${VITE_PORT})..."
+if [[ ! -d "$ROOT/ui/node_modules" ]]; then
+  echo "  · npm install en ui/ (primera vez)..."
+  (cd "$ROOT/ui" && npm install --silent) || true
+fi
+if command -v lsof >/dev/null 2>&1; then
+  pids="$(lsof -tiTCP:"${VITE_PORT}" -sTCP:LISTEN 2>/dev/null || true)"
+  if [[ -n "${pids}" ]]; then
+    # shellcheck disable=SC2086
+    kill ${pids} 2>/dev/null || true
+    sleep 0.3
+  fi
+fi
+nohup bash -c "cd \"$ROOT/ui\" && npm run dev -- --host --port ${VITE_PORT}" >> "$LOG_DIR/panel_vite.log" 2>&1 &
+VITE_PID=$!
+echo "$VITE_PID" > "$ROOT/data/panel_vite.pid"
+sleep 2
+echo "→ Abriendo Cascada React (clic Igris = Manto Figma)..."
+open "$URL_REACT"
 
 echo ""
 echo "═══════════════════════════════════════════════"
 echo "  ✅ Panel listo — arise activo al abrir"
 echo "  arise.py      → PID ${ARISE_PID}"
 echo "  http.server   → PID ${HTTP_PID} (puerto ${PORT})"
-echo "  Pergamino     → ${URL}"
+echo "  Vite React    → PID ${VITE_PID} (puerto ${VITE_PORT})"
+echo "  Cascada Igris → ${URL_REACT}   ← USA ESTA (clic Igris)"
+echo "  Clásico HTML  → ${URL_CLASICO}"
 echo "  Logs          → data/logs/"
 echo "═══════════════════════════════════════════════"
 echo ""

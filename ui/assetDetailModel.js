@@ -21,6 +21,8 @@ export function snapshotCero(symbol = "BTC") {
       fees_paid_usd: 0,
       impacto_1pct_usd: 0,
       entry_baseline: 0,
+      unidad_apertura: "INVERSE→USD",
+      unidad_coin: s,
     },
     short: {
       frente: `${s}USDT_LINEAL`,
@@ -35,6 +37,8 @@ export function snapshotCero(symbol = "BTC") {
       fees_paid_usd: 0,
       impacto_1pct_usd: 0,
       entry_baseline: 0,
+      unidad_apertura: "LINEAR→COIN",
+      unidad_coin: s,
     },
     global: {
       entry_avg: 0,
@@ -150,7 +154,20 @@ export function desdeEstadoVivo(symbol, snap) {
 
   const pre = (snap.igris_asset_details || {})[s];
   if (pre && typeof pre === "object" && pre.long && pre.short) {
-    return pre;
+    return {
+      ...pre,
+      symbol: pre.symbol || s,
+      long: {
+        ...pre.long,
+        unidad_apertura: pre.long.unidad_apertura || "INVERSE→USD",
+        unidad_coin: pre.long.unidad_coin || s,
+      },
+      short: {
+        ...pre.short,
+        unidad_apertura: pre.short.unidad_apertura || "LINEAR→COIN",
+        unidad_coin: pre.short.unidad_coin || s,
+      },
+    };
   }
 
   const out = snapshotCero(s);
@@ -222,6 +239,8 @@ export function desdeEstadoVivo(symbol, snap) {
     fees_paid_usd: Math.round(fees.long * 1e4) / 1e4,
     impacto_1pct_usd: impacto1pct(sizeL),
     entry_baseline: Math.round((baselines.long || 0) * 1e6) / 1e6,
+    unidad_apertura: "INVERSE→USD",
+    unidad_coin: s,
   };
   out.short = {
     ...out.short,
@@ -235,6 +254,8 @@ export function desdeEstadoVivo(symbol, snap) {
     fees_paid_usd: Math.round(fees.short * 1e4) / 1e4,
     impacto_1pct_usd: impacto1pct(sizeS),
     entry_baseline: Math.round((baselines.short || 0) * 1e6) / 1e6,
+    unidad_apertura: "LINEAR→COIN",
+    unidad_coin: s,
   };
 
   let entryAvg = 0;

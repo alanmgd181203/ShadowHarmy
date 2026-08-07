@@ -138,7 +138,28 @@ def _ruta_marcha() -> str:
 
 
 def _ruta_progreso() -> str:
+    """Libro canónico del pase — solo campo de guerra mainnet."""
     return os.path.join(_ruta_base(), "data", "pase_progreso.json")
+
+
+def _progreso_forzar_escritura() -> bool:
+    """Escape para smokes/fríos que tocan el archivo sin Bybit."""
+    return str(os.getenv("PASE_PROGRESO_FORCE_WRITE", "")).lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+
+
+def es_mainnet_pase() -> bool:
+    """True solo en cuenta de guerra real. Testnet / LIVE demo no cuentan."""
+    if _progreso_forzar_escritura():
+        return True
+    if bool(getattr(config, "TESTNET", True)):
+        return False
+    if bool(getattr(config, "LIVE_IGRIS_TESTNET", False)):
+        return False
+    return True
 
 
 def normalizar_marcha(mid: str | None) -> MarchaId:
@@ -272,26 +293,41 @@ def guardar_marcha(
 
 
 def cargar_progreso() -> dict[str, Any]:
+    """Lee pasos logrados del libro mainnet. En testnet/demo → vacío (no hereda demo)."""
+    vacio = {"pasos_logrados": [], "ts": 0, "red": "mainnet"}
+    if not es_mainnet_pase():
+        return vacio
     ruta = _ruta_progreso()
     if not os.path.exists(ruta):
-        return {"pasos_logrados": [], "ts": 0}
+        return vacio
     try:
         with open(ruta, encoding="utf-8") as f:
             data = json.load(f)
+        # Defensa: si alguien etiquetó testnet, ignorar
+        if str(data.get("red") or "mainnet").lower() == "testnet":
+            return vacio
         logs = [int(x) for x in (data.get("pasos_logrados") or []) if int(x) >= 1]
-        return {"pasos_logrados": sorted(set(logs)), "ts": float(data.get("ts") or 0)}
+        return {
+            "pasos_logrados": sorted(set(logs)),
+            "ts": float(data.get("ts") or 0),
+            "red": "mainnet",
+        }
     except (json.JSONDecodeError, OSError, TypeError, ValueError):
-        return {"pasos_logrados": [], "ts": 0}
+        return vacio
 
 
 def guardar_progreso(pasos_logrados: list[int]) -> dict[str, Any]:
+    """Persiste solo en mainnet. Testnet/demo no toca el libro de guerra."""
     logs = sorted({int(x) for x in pasos_logrados if int(x) >= 1})
+    payload = {"pasos_logrados": logs, "ts": time.time(), "red": "mainnet"}
+    if not es_mainnet_pase():
+        return payload
     ruta = _ruta_progreso()
     os.makedirs(os.path.dirname(ruta), exist_ok=True)
-    payload = {"pasos_logrados": logs, "ts": time.time()}
     tmp = ruta + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
+        f.write("\n")
     if os.path.exists(ruta):
         os.remove(ruta)
     os.rename(tmp, ruta)
@@ -299,6 +335,14 @@ def guardar_progreso(pasos_logrados: list[int]) -> dict[str, Any]:
 
 
 def marcar_paso_logrado(n: int) -> dict[str, Any]:
+    if not es_mainnet_pase():
+        # Demo: no sellar el libro; reportar solo en memoria
+        return {
+            "pasos_logrados": [],
+            "ts": time.time(),
+            "red": "testnet",
+            "omitido": "testnet_no_escribe_progreso",
+        }
     prog = cargar_progreso()
     logs = list(prog.get("pasos_logrados") or [])
     ni = int(n)
@@ -679,6 +723,8 @@ def sincronizar_logrados_desde_tusk(
 
     Dentro del lote paralelo (≤ lote_techo): cada Santo se marca por su cobertura,
     sin cola forzada 1→2→3. En la cola fina (pasos de reserva): sigue el orden.
+
+    Solo persiste en mainnet. En testnet/demo calcula en memoria y no toca el libro.
     """
     mid = normalizar_marcha(marcha_id or cargar_marcha())
     fill = float(MARCHAS[mid]["fill_ratio"])
@@ -690,6 +736,7 @@ def sincronizar_logrados_desde_tusk(
     desplegado: dict[str, float] = {}
     need_por_activo: dict[str, float] = {}
     changed = False
+    puede_escribir = es_mainnet_pase()
 
     for p in PASE_PASOS:
         pn = int(p["n"])
@@ -708,7 +755,7 @@ def sincronizar_logrados_desde_tusk(
             logs.add(pn)
             changed = True
 
-    if changed:
+    if changed and puede_escribir:
         guardar_progreso(sorted(logs))
     return plan_lote(equity_usd, marcha_id=mid, pasos_logrados=sorted(logs))
 
@@ -720,6 +767,8 @@ def marcar_foco_si_bloque_completo(
     marcha_id: str | None = None,
 ) -> dict[str, Any] | None:
     """Tras misión/bloque Igris: marca el paso del lote que coincide con el Santo (paralelo)."""
+    if not es_mainnet_pase():
+        return None
     plan = plan_lote(equity_usd, marcha_id=marcha_id)
     act_u = str(activo or "").upper()
     # Primero cualquier paso incompleto del trabajo con ese activo (lote paralelo)

@@ -113,8 +113,30 @@ if ! kill -0 "$ARISE_PID" 2>/dev/null; then
 fi
 
 CACHE_BUST="$(date +%s)"
-open "http://localhost:${PORT}/dashboard_sombras.html?v=${CACHE_BUST}"
+URL_CLASICO="http://localhost:${PORT}/dashboard_sombras.html?v=${CACHE_BUST}"
 
+VITE_PORT="${VITE_PORT:-5173}"
+URL_REACT="http://localhost:${VITE_PORT}/"
+echo "→ Levantando Pergamino React (Vite :${VITE_PORT})..."
+if [[ ! -d "$ROOT/ui/node_modules" ]]; then
+  (cd "$ROOT/ui" && npm install --silent) || true
+fi
+if command -v lsof >/dev/null 2>&1; then
+  pids="$(lsof -tiTCP:"${VITE_PORT}" -sTCP:LISTEN 2>/dev/null || true)"
+  if [[ -n "${pids}" ]]; then
+    # shellcheck disable=SC2086
+    kill ${pids} 2>/dev/null || true
+    sleep 0.3
+  fi
+fi
+nohup bash -c "cd \"$ROOT/ui\" && npm run dev -- --host --port ${VITE_PORT}" >> "$LOG_DIR/panel_vite.log" 2>&1 &
+echo $! > "$ROOT/data/panel_vite.pid"
+sleep 2
+open "$URL_REACT"
+
+echo ""
+echo "  Cascada React → ${URL_REACT}  (clic Igris = Manto)"
+echo "  Clásico HTML  → ${URL_CLASICO}"
 echo ""
 echo "═══════════════════════════════════════════════"
 echo "  ✅ Panel listo (arise activo al abrir)"
