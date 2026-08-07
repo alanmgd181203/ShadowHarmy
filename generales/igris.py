@@ -39,6 +39,9 @@ class IgrisEscudo:
         # Override temporal: engorde/bootstrap del lote en paralelo (varios Santos por latido)
         self._override_activo: str | None = None
         self._engorde_fail_until_por: dict[str, float] = {}
+        # Aire entre duales OK (mismo Santo): no ametrallar libro / ensanchar spread
+        self._engorde_ritmo_until_por: dict[str, float] = {}
+        self._engorde_ritmo_until = 0.0
 
         self._capital_pre_vuelo = 0.0
         self._rango_progresion: str | None = None
@@ -245,6 +248,29 @@ class IgrisEscudo:
         # legado: no bloquear todo el lote; solo el Santo que falló
         self._engorde_fail_until = until
 
+    def _marcar_ritmo_engorde(self, activo: str | None = None) -> None:
+        """Tras dual OK: aire antes del siguiente dual del mismo Santo (Asalto / piso Igris)."""
+        wait = float(getattr(config, "IGRIS_ENGORDE_RITMO_S", 5.0) or 0.0)
+        if wait <= 0:
+            return
+        until = time.time() + wait
+        act = (activo or self._override_activo or self._activo_despliegue() or "").upper()
+        if act:
+            self._engorde_ritmo_until_por[act] = until
+        self._engorde_ritmo_until = until
+
+    def _engorde_en_espera(self, activo: str | None = None, ahora: float | None = None) -> bool:
+        """True si fallo de puerta o ritmo post-dual aún bloquean este Santo."""
+        now = float(ahora if ahora is not None else time.time())
+        act = (activo or self._override_activo or self._activo_despliegue() or "").upper()
+        if act:
+            if now < float(self._engorde_fail_until_por.get(act, 0.0)):
+                return True
+            if now < float(self._engorde_ritmo_until_por.get(act, 0.0)):
+                return True
+            return False
+        return now < float(self._engorde_fail_until) or now < float(self._engorde_ritmo_until)
+
     async def auditar_manto_global(self):
         """Despliega el manto sobre TODO el lote en trabajo (paralelo), no de par en par."""
         if not await self._auditoria_pre_despliegue():
@@ -305,7 +331,7 @@ class IgrisEscudo:
                 if event_driven and hay_eventos_lote:
                     if not self._alertas_evento_para_activo(alertas, act):
                         continue
-                if ahora < float(self._engorde_fail_until_por.get(act, 0.0)):
+                if self._engorde_en_espera(act, ahora):
                     continue
                 self._override_activo = act
                 self._reset_bloque_mision()
@@ -363,7 +389,7 @@ class IgrisEscudo:
         ok_engorde = False
         intentos = 0
         for act in activos:
-            if ahora < float(self._engorde_fail_until_por.get(act, 0.0)):
+            if self._engorde_en_espera(act, ahora):
                 continue
             if event_driven and not self._alertas_evento_para_activo(alertas, act):
                 continue
@@ -1080,6 +1106,8 @@ class IgrisEscudo:
         mordida = techo_misión × fracción(confianza) hasta 100%.
         """
         activo = self._activo_despliegue()
+        if self._engorde_en_espera(activo):
+            return False
         frente_l, frente_s = im.frentes_bootstrap(activo)
 
         if activo == "ETH" and origen == "BOOTSTRAP":
@@ -1255,6 +1283,7 @@ class IgrisEscudo:
 
         self._paciencia_t0 = time.time()
         self.ultimo_movimiento = time.time()
+        self._marcar_ritmo_engorde(activo)
 
         tag = "BOOTSTRAP_MANTO" if origen == "BOOTSTRAP" else "ENGORDE_DUAL"
         await self.bel.anotar(

@@ -37,6 +37,12 @@
 
 ---
 
+## Addendum — ritmo engorde dual (2026-08-06)
+
+Tras dual **OK** de engorde/bootstrap: aire ≥**5 s** default (`IGRIS_ENGORDE_RITMO_S`, piso ~3–5) antes del siguiente dual del **mismo Santo**. Asalto lo exige (no ametrallar libro). Personalizado hereda el mismo flag. Fallo de puerta ya ~5 s — mismo espíritu. **Ley de Igris**; Greed tendrá otras. Smoke: `validar_igris_ritmo_engorde_smoke.py`.
+
+---
+
 ## Siguiente del camino
 
 Seguir en **Igris** bajo preferencia **Asalto** (revisar despliegue · 4.0.x). Beru y Greed no se adelantan.

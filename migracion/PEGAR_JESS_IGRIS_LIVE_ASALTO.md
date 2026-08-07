@@ -2,6 +2,7 @@
 
 **Para:** Cursor / terminal en la Mac de Jess (México)  
 **Ley:** preferencia **Asalto** (2026-08-06). Igris ≠ Greed. Hibernan Greed y Beru.  
+**Ritmo:** tras cada dual **exitoso** de engorde/bootstrap, Igris espera ≥**5 s** (`IGRIS_ENGORDE_RITMO_S`) antes del siguiente dual del **mismo Santo**. No ametralladora cada ~1 s (protege libro / spread). Fallo de puerta ya tenía ~5 s; mismo espíritu.  
 **USA laptop:** solo sello / panel cableado — **no** corre arise ni manos.
 
 ```
@@ -24,12 +25,13 @@ python3 scripts/vigilar_arise_igris.py --confirmar-go \
 - `data/estado_vivo.json` → bloques `igris.marcha` · `ventana_manto` · `meta_engorde` · `ley_masa` · `tusk_tesoreria`.
 - Heartbeat: `data/logs/arise_igris/heartbeat.json`
 - Parte al sellar: `data/arise_igris_report.json`
+- Engorde: duales del mismo Santo **espaciados ≥5 s** (no ráfaga de latido)
 
 ## Checklist al Monarca
 
 - Ojos VERDE + libros ETH
 - Marcha = **asalto**
-- Engorde / restante meta del paso
+- Engorde / restante meta del paso · **ritmo ≥5s entre duales** (mismo Santo)
 - Greed · Beru hibernados
 - Panel refleja estado_vivo (sin números inventados)
 

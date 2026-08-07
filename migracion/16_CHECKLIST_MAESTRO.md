@@ -270,6 +270,7 @@
   - **EN CURSO 2026-08-05** — ejército parcial oficial (Tusk·Tank·Kaiser·Igris; Greed/Beru hibernan) · marcha_forzada · books ON · manos sueltas mainnet (`arise_igris.py` + guardián `vigilar_arise_igris` hasta ~18:30) · smoke libros OK · **no PASS** hasta evidencia manto/meta · [`CHECKPOINT_IGRIS_LIVE_4_0_3.md`](CHECKPOINT_IGRIS_LIVE_4_0_3.md)
   - *(lab)* Teatro de sombras **preparado** + **óptica Tank cableada** 2026-08-04 — 1 óptica + 4 marchas papel; `--optica-tank` para GO serio; no marcas live · ver [`TEATRO_SOMBRAS_IGRIS.md`](TEATRO_SOMBRAS_IGRIS.md)
   - **Preferencia 2026-08-06:** revisar / operar bajo **Asalto** (no exigir spread fino tipo Greed). Personalizado solo si el Monarca fija T a propósito.
+  - **Ritmo engorde dual (2026-08-06):** tras dual OK → aire ≥**5 s** default (`IGRIS_ENGORDE_RITMO_S`) mismo Santo; Asalto exige no ametralladora · smoke `validar_igris_ritmo_engorde_smoke.py`
   - **Panel cableado 2026-08-06:** estado_vivo publica marcha · ventana · meta engorde · ley_masa (lectura) · Tusk O₂/equity; Pergamino/Ascensión/Manto leen — **Jess corre 4.0.3 bajo Asalto; USA no ejecuta** · runbook [`PEGAR_JESS_IGRIS_LIVE_ASALTO.md`](PEGAR_JESS_IGRIS_LIVE_ASALTO.md)
   - **Noche historial flota Igris (≠ 4.0.3):** función ejército — bóveda velas 1m (spot + L/S manto) · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · motor [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · **manos OFF**
 - [ ] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)

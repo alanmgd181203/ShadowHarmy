@@ -1,6 +1,6 @@
 # 21 — Doctrina Igris (escudo del manto)
 
-**Estado:** §A + §C (parcial) + §E **v2** + **3.5.8c motor** + **mega-pre-Igris** + **sello 2 marchas** + **ley Igris≠Greed / Asalto** (2026-08-06)  
+**Estado:** §A + §C (parcial) + §E **v2** + **3.5.8c motor** + **mega-pre-Igris** + **sello 2 marchas** + **ley Igris≠Greed / Asalto** + **ritmo engorde dual** (2026-08-06)  
 **Código:** `generales/igris.py`, `core/manto_ventana.py`, `core/pase_director.py`, `core/marcha_duracion.py`, `core/marcha_ritmo_lote.py`, `core/tusk_libros.py`  
 **Sellos:** [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md) · [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md)  
 **Actualizado:** 2026-08-06
@@ -22,6 +22,7 @@
 
 1. **Oficio distinto.** Igris **no** vive de esperar spreads finos ni caza edge/arbitraje. Despliega manto con **peaje aceptado** (mismo espíritu que la bóveda Tusk: pagar el peaje y seguir).  
 2. **Marchas.** **Asalto** = plantar ya. **Personalizado** = solo si el Monarca fija duración ~T a propósito (menos peaje / más espera) — **nunca** como atajo para “ser Greed”.  
+   - **Ritmo engorde dual (Asalto exige; piso Igris general):** tras un dual **exitoso** de engorde/bootstrap, esperar al menos **~3–5 s** (default **5 s**, `IGRIS_ENGORDE_RITMO_S`) antes del siguiente dual del **mismo Santo**. No ráfaga cada ~1 s de latido (come libro / ensancha spread). Mismo espíritu que el cooldown de puerta fallida (~5 s). Ley de **Igris** — Greed tendrá otras (puede “comer” libro distinto). Personalizado hereda el mismo piso/flag. Smoke: `validar_igris_ritmo_engorde_smoke.py`.
 3. **Etapa.** Camino actual = **Igris**; preferencia operativa = **Asalto**. Revisar despliegue (reglas / condiciones).  
 4. **Greed después.** Entradas/salidas finas, slippage, spreads = **Greed** + laboratorio. Greed no despliega manos a ciegas aún.  
 5. **Kaiser peinado / indicadores / mega-historial = después.** No candan el camino Igris ahora.  

@@ -337,6 +337,9 @@ MANTO_FREQ_META_DEFAULT_USD = float(os.getenv("MANTO_FREQ_META_DEFAULT_USD", "10
 MANTO_CERO_ESTRUCTURAL = os.getenv("MANTO_CERO_ESTRUCTURAL", "true").lower() in ("1", "true", "yes", "on")
 IGRIS_ESPERA_LOG_S = float(os.getenv("IGRIS_ESPERA_LOG_S", "60"))
 IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))
+# Ritmo entre duales OK de engorde/bootstrap (mismo Santo): Asalto exige aire ~3–5s; default 5s
+# (mismo espíritu que cooldown de puerta fallida). Ley de Igris — no de Greed.
+IGRIS_ENGORDE_RITMO_S = float(os.getenv("IGRIS_ENGORDE_RITMO_S", "5"))
 # Disparo dual §E: timeout fill inicial + salvavidas Market si una pierna queda huérfana
 IGRIS_DUAL_FILL_TIMEOUT_S = float(os.getenv("IGRIS_DUAL_FILL_TIMEOUT_S", "20"))
 IGRIS_DUAL_SALVAVIDAS_MARKET = os.getenv("IGRIS_DUAL_SALVAVIDAS_MARKET", "true").lower() == "true"

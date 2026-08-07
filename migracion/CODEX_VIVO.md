@@ -83,6 +83,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Candado rango (2026-07-19):** `MONARCA_RANK_GATE` → Igris auditoría/despliegue + Beru casa (no live) + Ascensión viva desde `estado_vivo`
 - **Director pase (2026-07-19→08-06):** `pase_director` — potencia/lote · **2 marchas operativas (asalto · personalizado)** · **fill 100% · reserva 1** · personalizado por T · legado táctico/forzada → asalto · altar hidrata JSON · `set_marcha_cli` · sello [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md)
 - **Ley Igris≠Greed · Asalto (2026-08-06):** Igris peaje aceptado / plantar; caza edge = Greed después; indicadores/peinado Kaiser después; orden Igris→Beru→Greed · [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md) · doctrina `21`
+- **Ritmo engorde dual (2026-08-06):** tras dual OK, aire ≥~5s (`IGRIS_ENGORDE_RITMO_S`) mismo Santo — Asalto exige no ametrallar libro · smoke `validar_igris_ritmo_engorde_smoke.py` · ley de Igris (no Greed)
 - **Libros Tusk / duración / ritmo:** `tusk_libros` · `marcha_duracion` · `marcha_ritmo_lote` (legado dormido tras sello 2 marchas)
 - **Disparo dual Igris (2026-07-19):** L+S a la vez + salvavidas Market si una pierna huérfana (`IGRIS_DUAL_*`)
 - **Escalera precios (2026-07-20):** micro-bocados Limit Igris+Greed · cancel no llenos · equilibrar Market · `core/escalera_precios.py`
@@ -97,7 +98,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Panel cableado (2026-08-06):** estado_vivo → marcha · ventana 48–52 · meta engorde · ley_masa lectura · Tusk O₂/equity; Jess corre 4.0.3 Asalto · USA no ejecuta · [`PEGAR_JESS_IGRIS_LIVE_ASALTO.md`](PEGAR_JESS_IGRIS_LIVE_ASALTO.md)
 - **Noche historial flota Igris (2026-08-06):** bóveda velas 1m spot+L+S de la flota manto · función ejército · **≠ 4.0.3** · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · motor Coliseo
 - **Jess runbook informe:** [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md)
-- **Validar:** `validar_arise_igris_sim_smoke.py` · `validar_pase_director_smoke.py` · `validar_pase_metas_etapas_smoke.py` · `validar_marcha_duracion_smoke.py` · `validar_marcha_ritmo_lote_smoke.py` · `validar_tusk_libros_smoke.py` · `validar_manto_ventana_smoke.py` · (+ smokes previos)
+- **Validar:** `validar_arise_igris_sim_smoke.py` · `validar_pase_director_smoke.py` · `validar_pase_metas_etapas_smoke.py` · `validar_marcha_duracion_smoke.py` · `validar_marcha_ritmo_lote_smoke.py` · `validar_tusk_libros_smoke.py` · `validar_manto_ventana_smoke.py` · `validar_igris_ritmo_engorde_smoke.py` · (+ smokes previos)
 - **Igris sim 4.0.2:** [`CHECKPOINT_IGRIS_SIM_4_0_2.md`](CHECKPOINT_IGRIS_SIM_4_0_2.md) · manos atadas / ilusorias
 - **Tono obligatorio:** `17_GUIA_MONARCA.md`
 
