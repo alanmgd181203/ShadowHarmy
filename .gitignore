@@ -1,7 +1,8 @@
-# Secretos — .env testnet incluido en repo para despliegue; no subir .env.local
+# Secretos — NUNCA subir .env a GitHub
+.env
 .env.local
 .env.*
-!.env
+!.env.example
 
 # Python
 __pycache__/
@@ -15,11 +16,14 @@ venv/
 data/*.tmp
 
 # Coliseo — bóveda pesada (Drive, no git)
-data/coliseo/*.sqlite
-data/coliseo/*.sqlite-*
-data/coliseo/*.zip
+data/coliseo/**/*.sqlite
+data/coliseo/**/*.sqlite-*
+data/coliseo/**/*.zip
+data/coliseo/bak_*/
 data/coliseo/heartbeat.json
 data/coliseo/checkpoint.json
+data/coliseo/checkpoint_*.json
+data/coliseo/NOTA_MONARCA_*.md
 data/coliseo/mega/jobs/
 data/coliseo/mega/charts/
 data/coliseo/mega/checkpoint.json

@@ -1,7 +1,8 @@
-"""Bóveda del Coliseo — velas 1m en SQLite (Gran Consumo Jess).
+"""Bóveda del Coliseo — velas (1m o 1s) en SQLite (Gran Consumo Jess).
 
 Mercados: spot (gráficas / teatro) + linear + inverse (pares manto Igris).
-Cada mercado tiene su sqlite bajo data/coliseo/.
+Cada mercado×intervalo tiene su sqlite bajo data/coliseo/.
+Bybit: interval "1" = 1 minuto · "1s" = 1 segundo (linear/inverse; spot suele no soportar 1s).
 """
 from __future__ import annotations
 
@@ -13,25 +14,54 @@ from typing import Any, Iterable
 
 ROOT = Path(__file__).resolve().parents[1]
 COLISEO_DIR = ROOT / "data" / "coliseo"
-BOVEDA_PATH = COLISEO_DIR / "boveda_spot_1m.sqlite"
-BOVEDA_LINEAR_PATH = COLISEO_DIR / "boveda_linear_1m.sqlite"
-BOVEDA_INVERSE_PATH = COLISEO_DIR / "boveda_inverse_1m.sqlite"
-PROGRESO_PATH = COLISEO_DIR / "PROGRESO.md"
-CHECKPOINT_PATH = COLISEO_DIR / "checkpoint.json"
-HEARTBEAT_PATH = COLISEO_DIR / "heartbeat.json"
+
+# Intervalo activo de la sesión (1 | 1s). Lo setea el ritual de noche.
+_INTERVAL: str = "1"
 
 MARKETS = ("spot", "linear", "inverse")
 
 
+def set_interval(interval: str) -> str:
+    """Activa 1 (minuto) o 1s (segundo) para rutas de bóveda/checkpoint."""
+    global _INTERVAL
+    raw = (interval or "1").strip().lower()
+    if raw in ("1s", "s", "1sec", "segundo", "segundos"):
+        _INTERVAL = "1s"
+    else:
+        _INTERVAL = "1"
+    return _INTERVAL
+
+
+def get_interval() -> str:
+    return _INTERVAL
+
+
+def interval_label() -> str:
+    return "1s" if _INTERVAL == "1s" else "1m"
+
+
 def boveda_path(market: str = "spot") -> Path:
     m = (market or "spot").strip().lower()
-    if m == "spot":
-        return BOVEDA_PATH
-    if m == "linear":
-        return BOVEDA_LINEAR_PATH
-    if m == "inverse":
-        return BOVEDA_INVERSE_PATH
-    raise ValueError(f"mercado desconocido: {market}")
+    suf = "1s" if _INTERVAL == "1s" else "1m"
+    if m not in MARKETS:
+        raise ValueError(f"mercado desconocido: {market}")
+    return COLISEO_DIR / f"boveda_{m}_{suf}.sqlite"
+
+
+# Compat paths antiguos (1m)
+BOVEDA_PATH = COLISEO_DIR / "boveda_spot_1m.sqlite"
+BOVEDA_LINEAR_PATH = COLISEO_DIR / "boveda_linear_1m.sqlite"
+BOVEDA_INVERSE_PATH = COLISEO_DIR / "boveda_inverse_1m.sqlite"
+PROGRESO_PATH = COLISEO_DIR / "PROGRESO.md"
+
+
+def checkpoint_path() -> Path:
+    suf = "1s" if _INTERVAL == "1s" else "1m"
+    return COLISEO_DIR / f"checkpoint_{suf}.json"
+
+
+CHECKPOINT_PATH = COLISEO_DIR / "checkpoint.json"  # legacy 1m alias
+HEARTBEAT_PATH = COLISEO_DIR / "heartbeat.json"
 
 
 def ck_key(base: str, market: str = "spot") -> str:
@@ -45,7 +75,7 @@ def ensure_dirs() -> None:
 
 def connect(db_path: Path | None = None) -> sqlite3.Connection:
     ensure_dirs()
-    path = db_path or BOVEDA_PATH
+    path = db_path or boveda_path("spot")
     con = sqlite3.connect(str(path))
     con.execute("PRAGMA journal_mode=WAL")
     con.execute("PRAGMA synchronous=NORMAL")
@@ -83,18 +113,31 @@ def connect_market(market: str = "spot") -> sqlite3.Connection:
 
 def load_checkpoint() -> dict[str, Any]:
     ensure_dirs()
-    if not CHECKPOINT_PATH.exists():
-        return {"bases": {}, "fase": "ingest", "updated_ts": 0}
-    return json.loads(CHECKPOINT_PATH.read_text(encoding="utf-8"))
+    path = checkpoint_path()
+    # Legacy: checkpoint.json era 1m
+    if not path.exists() and _INTERVAL == "1" and CHECKPOINT_PATH.exists():
+        path = CHECKPOINT_PATH
+    if not path.exists():
+        return {"bases": {}, "fase": "ingest", "interval": _INTERVAL, "updated_ts": 0}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data.setdefault("interval", _INTERVAL)
+    return data
 
 
 def save_checkpoint(data: dict[str, Any]) -> None:
     ensure_dirs()
     data["updated_ts"] = time.time()
-    CHECKPOINT_PATH.write_text(
+    data["interval"] = _INTERVAL
+    checkpoint_path().write_text(
         json.dumps(data, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
+    # Mantener alias legacy en 1m
+    if _INTERVAL == "1":
+        CHECKPOINT_PATH.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
 
 
 def write_heartbeat(*, fase: str, detalle: str, ok: bool = True) -> None:
@@ -105,6 +148,7 @@ def write_heartbeat(*, fase: str, detalle: str, ok: bool = True) -> None:
         "fase": fase,
         "detalle": detalle[:400],
         "ok": ok,
+        "interval": _INTERVAL,
     }
     HEARTBEAT_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 

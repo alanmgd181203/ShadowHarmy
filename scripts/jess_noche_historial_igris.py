@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Ritual noche — historial/gráficas flota Igris (spots + L/S).
+"""Ritual noche — historial/gráficas flota Igris en velas **1 segundo**.
 
-NO es 4.0.3 Asalto (manos). Función del ejército para llenar bóveda de noche.
-Ver: migracion/PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md
+Linear + inverse (Bybit 1s). Spot no soporta 1s → omitido.
+NO es 4.0.3 Asalto (manos).
 
-Uso:
   python scripts/jess_noche_historial_igris.py --dias 365 --watchdog
 """
 from __future__ import annotations
@@ -20,9 +19,14 @@ COLISEO = ROOT / "scripts" / "jess_boveda_coliseo_noche.py"
 def main() -> int:
     argv = list(sys.argv[1:])
     if "--markets" not in argv and "--solo-spot" not in argv:
-        argv = ["--markets", "spot,linear,inverse", *argv]
+        argv = ["--markets", "linear,inverse", *argv]
     if "--ritual" not in argv:
         argv = ["--ritual", "historial_igris", *argv]
+    if "--interval" not in argv:
+        argv = ["--interval", "1s", *argv]
+    # Doctrina Monarca: ~1 año (Bybit puede truncar historial 1s)
+    if "--dias" not in argv:
+        argv = ["--dias", "365", *argv]
 
     spec = importlib.util.spec_from_file_location("jess_boveda_coliseo_noche", COLISEO)
     if spec is None or spec.loader is None:

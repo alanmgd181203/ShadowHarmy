@@ -18,19 +18,17 @@ alwaysApply: true
 
 ## PROHIBIDO — AskQuestion / cards «Questions» (inequívoco)
 
-**Totalmente prohibido** con el Monarca (orden reforzada tras captura UI):
+**Prohibición ABSOLUTA — sin excepciones** (orden del Monarca tras capturas UI):
 
-- Invocar la herramienta **AskQuestion** (cualquier agente, cualquier “clarificación”).
-- Cards UI «**Questions**» (A / B / Other / noop / placeholders / Skip / Continue / menús empaquetados).
-- Cuestionarios, menús, “¿quieres A o B?”, “elige…”, “siguiente corte”.
-- No vale “por costumbre”, “solo esta vez”, ni empaquetar confirmaciones blandas en card.
+- Invocar **AskQuestion** (cualquier agente / modo).
+- Cards «**Questions**» (A / B / Other / Skip / Continue / menús).
+- Cuestionarios, “¿quieres A o B?”, “elige…”, “siguiente corte”.
 
-**Si hay duda → NO usar AskQuestion.** Escribir en prosa en el chat o **asumir** el camino del checklist `16`.
+**Si hay duda → NO AskQuestion.** Prosa en el chat **o** asumir checklist `16` y actuar.
 
-**Cierre obligatorio:** una sola frase concreta de qué sigue del camino — **sin pedirle que elija**.
+**Cierre:** una frase de qué sigue — **sin pedirle que elija**.
 
-**Única excepción teórica (muy rara):** bloqueo total **y** el Monarca **ya pidió explícitamente** elegir entre opciones concretas que él nombró (manos/live, destruir fondos/datos, Override codex). Preferir **una línea en el chat**; card AskQuestion solo si él la exige. Si hay duda → **no card**.
-
+**NO hay excepción** (ni manos/live): crítico → una línea en el chat, nunca card.
 ## Otros prohibidos (deriva)
 
 - Responder con SHAs, ramas, empujes, tablas de archivos, flags de entorno o nombres de función **salvo** pedido técnico explícito del Monarca.

@@ -1,18 +1,11 @@
 #!/usr/bin/env python3
-"""Ritual nocturno Jess — bóveda velas 1m (Coliseo / historial Igris).
+"""Ritual nocturno Jess — bóveda velas 1s (historial Igris) / 1m (Coliseo spot).
 
-Uso Coliseo clásico (solo spot, theater Beru):
-  python scripts/jess_boveda_coliseo_noche.py --dias 365 --watchdog
+Historial Igris (L/S 1s; spot Bybit no da 1s):
+  python scripts/jess_noche_historial_igris.py --dias 7 --watchdog
 
-Uso historial flota Igris (spots + L/S) — preferido de noche:
-  python scripts/jess_noche_historial_igris.py --dias 365 --watchdog
-
-- Flota = diccionario manto Inverse∩Linear (~22) + sus spots
-- 3 puentes en paralelo + pausa + backoff si Bybit frena
-- Reanudable + vigilante cada 10 min
-- Al terminar: zip para Drive (SIN simulación; SIN 4.0.3 Asalto / manos)
-
-NO confundir con live Asalto (manos). Esto solo llena historial/gráficas.
+Coliseo spot 1m:
+  python scripts/jess_boveda_coliseo_noche.py --dias 365 --solo-spot --interval 1 --watchdog
 """
 from __future__ import annotations
 
@@ -90,20 +83,22 @@ def _fetch_klines(
     start_ms: int,
     end_ms: int,
     sleep_s: float,
+    interval: str = "1",
 ) -> list[tuple[int, float, float, float, float]]:
-    """Bybit kline interval=1, páginas de 1000 hacia atrás."""
+    """Bybit kline — interval 1 (1m) o 1s · páginas de 1000 hacia atrás."""
+    iv = (interval or "1").strip()
     rows: list[tuple[int, float, float, float, float]] = []
     cursor_end = end_ms
     seen: set[int] = set()
     fail_streak = 0
-    for _ in range(900):
+    for _ in range(9000 if iv == "1s" else 900):
         if cursor_end <= start_ms:
             break
         try:
             resp = session.get_kline(
                 category=category,
                 symbol=symbol,
-                interval="1",
+                interval=iv,
                 start=start_ms,
                 end=cursor_end,
                 limit=1000,
@@ -160,14 +155,18 @@ def ingest_one(
     *,
     dias: int,
     sleep_s: float,
+    interval: str = "1",
 ) -> dict[str, Any]:
     """Descarga un activo×mercado y escribe a su bóveda bajo lock."""
     symbol = _symbol_for(base, market)
     category = market.lower()
+    iv = (interval or bov.get_interval()).strip()
     session = _session()
     now_ms = int(time.time() * 1000)
     start_ms = now_ms - dias * 86_400_000
     db = bov.boveda_path(category)
+    step_ms = 1000 if iv == "1s" else 60_000
+    fresh_ms = 2_000 if iv == "1s" else 60_000
 
     with _WRITE_LOCK:
         con = bov.connect(db)
@@ -175,8 +174,8 @@ def ingest_one(
         con.close()
 
     if existing:
-        start_ms = max(start_ms, existing * 1000 + 60_000)
-    if start_ms >= now_ms - 60_000:
+        start_ms = max(start_ms, existing * 1000 + step_ms)
+    if start_ms >= now_ms - fresh_ms:
         with _WRITE_LOCK:
             con = bov.connect(db)
             n = bov.count_candles(con, base)
@@ -192,9 +191,10 @@ def ingest_one(
             "added": 0,
             "rows": n,
             "status": "fresh",
+            "interval": iv,
         }
 
-    _hb("ingest", f"Descargando {category}/{symbol}…")
+    _hb("ingest", f"Descargando {category}/{symbol} interval={iv}…")
     t0 = time.time()
     rows = _fetch_klines(
         session,
@@ -203,6 +203,7 @@ def ingest_one(
         start_ms=start_ms,
         end_ms=now_ms,
         sleep_s=sleep_s,
+        interval=iv,
     )
     with _WRITE_LOCK:
         con = bov.connect(db)
@@ -223,6 +224,7 @@ def ingest_one(
         "rows": total,
         "status": "ok",
         "secs": round(time.time() - t0, 1),
+        "interval": iv,
     }
 
 
@@ -246,9 +248,10 @@ def _refresh_progreso(
             totals.append(f"{m}={bov.count_candles(con)}")
             con.close()
     lines = [
-        f"# Historial / Coliseo — progreso bóveda",
+        f"# Historial / Coliseo — progreso bóveda ({bov.interval_label()})",
         f"",
         f"- UTC: `{datetime.now(timezone.utc).isoformat()}`",
+        f"- Intervalo: **{bov.interval_label()}**",
         f"- Velas: **{', '.join(totals)}**",
         f"- Flota Igris (diccionario manto): **{len(flota)}** · mercados: `{','.join(markets)}`",
         f"",
@@ -273,10 +276,17 @@ def run_ingest(
     workers: int,
     only: list[str] | None,
     markets: list[str],
+    interval: str = "1",
 ) -> list[dict]:
     flota = only or _flota()
+    iv = bov.set_interval(interval)
     # Orden: spot primero, luego linear, inverse (prioridad Monarca)
     order = [m for m in ("spot", "linear", "inverse") if m in markets]
+    # Spot no soporta 1s en Bybit mainnet — saltear
+    if iv == "1s":
+        order = [m for m in order if m != "spot"]
+        if not order:
+            order = ["linear", "inverse"]
     jobs: list[tuple[str, str]] = [(b, m) for m in order for b in flota]
 
     cp = bov.load_checkpoint()
@@ -312,7 +322,7 @@ def run_ingest(
     def _job(pair: tuple[str, str]) -> dict[str, Any]:
         base, market = pair
         try:
-            r = ingest_one(base, market, dias=dias, sleep_s=sleep_s)
+            r = ingest_one(base, market, dias=dias, sleep_s=sleep_s, interval=iv)
             with results_lock:
                 results.append(r)
                 cp_local = bov.load_checkpoint()
@@ -383,22 +393,25 @@ def run_ranking(*, vacio: float, label: str) -> Path:
 def pack_drive() -> Path:
     bov.ensure_dirs()
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M")
-    zip_path = bov.COLISEO_DIR / f"ShadowHarmy_Coliseo_{stamp}.zip"
+    label = bov.interval_label()
+    zip_path = bov.COLISEO_DIR / f"ShadowHarmy_Coliseo_{label}_{stamp}.zip"
+    # Rutas del intervalo activo (1s / 1m) — no las constantes legacy 1m
     include = [
-        bov.BOVEDA_PATH,
-        bov.BOVEDA_LINEAR_PATH,
-        bov.BOVEDA_INVERSE_PATH,
-        bov.CHECKPOINT_PATH,
+        bov.boveda_path("spot"),
+        bov.boveda_path("linear"),
+        bov.boveda_path("inverse"),
+        bov.checkpoint_path(),
         bov.PROGRESO_PATH,
         bov.HEARTBEAT_PATH,
         bov.COLISEO_DIR / "MANIFIESTO.md",
         bov.COLISEO_DIR / "INSTRUCCIONES_MONARCA.md",
+        bov.COLISEO_DIR / "NOTA_MONARCA_NOCHE_1s.md",
     ]
     include += list(bov.COLISEO_DIR.glob("ranking_*.json"))
     include += list(bov.COLISEO_DIR.glob("ranking_*.md"))
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for p in include:
-            if p.exists():
+            if p.exists() and p.is_file():
                 zf.write(p, arcname=f"coliseo/{p.name}")
     return zip_path
 
@@ -421,12 +434,12 @@ def write_manifiesto(
         f"# Manifiesto {titulo}",
         f"",
         f"- UTC: `{datetime.now(timezone.utc).isoformat()}`",
-        f"- Ritual: **{ritual}** · días: **{dias}** · workers: **{workers}**",
+        f"- Ritual: **{ritual}** · días: **{dias}** · workers: **{workers}** · intervalo: **{bov.interval_label()}**",
         f"- Mercados: `{','.join(markets)}`",
         f"- Pares OK: **{ok}/{len(ingest_results)}**",
-        f"- Spot: `data/coliseo/boveda_spot_1m.sqlite`",
-        f"- Linear: `data/coliseo/boveda_linear_1m.sqlite`",
-        f"- Inverse: `data/coliseo/boveda_inverse_1m.sqlite`",
+        f"- Spot: `{bov.boveda_path('spot').name}`",
+        f"- Linear: `{bov.boveda_path('linear').name}`",
+        f"- Inverse: `{bov.boveda_path('inverse').name}`",
         f"- **NO es 4.0.3 Asalto** (sin manos Igris)",
         f"- Simulación Fantasma: **NO** en esta noche (correr después en forja)",
         f"",
@@ -460,6 +473,8 @@ def watchdog_loop(args: argparse.Namespace) -> None:
         args.markets,
         "--ritual",
         args.ritual,
+        "--interval",
+        str(getattr(args, "interval", "1")),
         "--once",
     ]
     if args.with_ranking:
@@ -521,9 +536,15 @@ def _parse_markets(raw: str, solo_spot: bool) -> list[str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(
-        description="Noche Jess — bóveda velas 1m flota Igris / Coliseo (sin manos)"
+        description="Noche Jess — bóveda velas 1s/1m flota Igris / Coliseo (sin manos)"
     )
     ap.add_argument("--dias", type=int, default=365)
+    ap.add_argument(
+        "--interval",
+        type=str,
+        default="1",
+        help="Bybit kline: 1 (minuto) o 1s (segundo). Default 1.",
+    )
     ap.add_argument(
         "--sleep",
         type=float,
@@ -567,6 +588,12 @@ def main() -> int:
     args = ap.parse_args()
 
     markets = _parse_markets(args.markets, args.solo_spot)
+    iv = bov.set_interval(args.interval)
+    if iv == "1s":
+        # Spot no tiene 1s; forzar L/S si el usuario pidió spot en la mezcla
+        markets = [m for m in markets if m != "spot"] or ["linear", "inverse"]
+        # 1s es denso: si alguien deja 365 por error, aun así avanza con checkpoint
+        args.sleep = max(float(args.sleep), 0.08)
     args.markets = ",".join(markets)
 
     if args.watchdog and not args.once:
@@ -577,12 +604,16 @@ def main() -> int:
     bov.ensure_dirs()
     _hb(
         "start",
-        f"ritual={args.ritual} dias={args.dias} markets={args.markets} "
+        f"ritual={args.ritual} dias={args.dias} interval={iv} markets={args.markets} "
         f"workers={args.workers} sleep={args.sleep}",
     )
 
     try:
-        _session().get_kline(category="spot", symbol="BTCUSDT", interval="1", limit=1)
+        probe_cat = "linear" if iv == "1s" else "spot"
+        probe_sym = "ETHUSDT" if iv == "1s" else "BTCUSDT"
+        _session().get_kline(
+            category=probe_cat, symbol=probe_sym, interval=iv, limit=1
+        )
     except Exception as exc:
         if "403" in str(exc):
             print("HTTP 403 — este ritual es para México (Jess). Abortando.")
@@ -595,6 +626,7 @@ def main() -> int:
         workers=args.workers,
         only=only,
         markets=markets,
+        interval=iv,
     )
     write_manifiesto(results, args.dias, args.workers, markets, args.ritual)
 
