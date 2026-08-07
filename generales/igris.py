@@ -561,7 +561,7 @@ class IgrisEscudo:
         return {"ok": True, "masa": float(masa), "precio": float(precio_fill or 0)}
 
     def _orden_tipo_manto(self, precio_fill: float) -> tuple[str, float | None]:
-        """Táctico → Limit@Ask/Bid · Forzada/Asalto → Market (Asalto force; Forzada mix vía umbral)."""
+        """Asalto → Market · personalizado → Limit si hay precio (legado táctico unificado)."""
         try:
             from core import pase_director as pd
             if not pd.director_activo():
@@ -569,7 +569,8 @@ class IgrisEscudo:
             perfil = pd.perfil_marcha()
             if perfil.get("force_market"):
                 return "Market", None
-            if str(perfil.get("id")) == "tactico" and float(precio_fill or 0) > 0:
+            # personalizado: Preferir Limit al precio de oportunidad cuando hay ref
+            if str(perfil.get("id")) == "personalizado" and float(precio_fill or 0) > 0:
                 return "Limit", float(precio_fill)
         except Exception:
             pass

@@ -1,51 +1,25 @@
 /**
- * Cuatro marchas de despliegue — ritmo del manto Igris + lote del pase.
+ * Dos marchas de despliegue — ritmo del manto Igris + lote del pase.
  * Espejo backend: core/pase_director.py · data/marcha_despliegue.json
- * Sello mega-pre-Igris: fill 100% · reserva 1 · + personalizado por duración.
+ * Sello 2 marchas: asalto (rápido) · personalizado (~T). Legado → asalto.
  */
 
+/** Legado no operativo: se mapea a asalto al hidratar / elegir. */
+export const MARCHA_LEGACY_MAP = {
+  tactico: "asalto",
+  marcha_forzada: "asalto",
+  forzada: "asalto",
+  inmediato: "asalto",
+  custom: "personalizado",
+  duracion: "personalizado",
+};
+
 export const DEPLOYMENT_MARCHES = [
-  {
-    id: "tactico",
-    titulo: "Despliegue Tactico",
-    tagline: "Espera total",
-    voz: "Igris solo entra si el spread cubre fees",
-    tiempoEstimado: "—",
-    tiempoNota: "reloj = lote (ritmo)",
-    impacto: {
-      label: "Rentabilidad sacrificada",
-      valor: "~0 – 0.3%",
-      detalle: "umbral = fees · reserva 1 · fill 100%",
-    },
-    ritmoMs: 1400,
-    reservaPasos: 1,
-    umbralFeesMult: 1.0,
-    forceMarket: false,
-    fillRatio: 1.0,
-  },
-  {
-    id: "marcha_forzada",
-    titulo: "Marcha Forzada",
-    tagline: "Medio espero",
-    voz: "Umbral a mitad de fees · lote con colchon 1",
-    tiempoEstimado: "—",
-    tiempoNota: "reloj = lote (ritmo)",
-    impacto: {
-      label: "Rentabilidad sacrificada",
-      valor: "~0.3 – 0.8%",
-      detalle: "umbral = ½ fees · reserva 1 · fill 100%",
-    },
-    ritmoMs: 700,
-    reservaPasos: 1,
-    umbralFeesMult: 0.5,
-    forceMarket: false,
-    fillRatio: 1.0,
-  },
   {
     id: "asalto",
     titulo: "Asalto Inmediato",
     tagline: "Cero espera",
-    voz: "El ejercito entra ya (market)",
+    voz: "El ejercito entra ya (market). Peaje aceptado.",
     tiempoEstimado: "—",
     tiempoNota: "minutos",
     impacto: {
@@ -82,11 +56,19 @@ export const DEPLOYMENT_MARCHES = [
 
 export const MARCH_STORAGE_KEY = "shadow_marcha_despliegue";
 export const MARCHA_API_URL = "/data/marcha_despliegue.json";
+export const MARCHA_DEFAULT = "asalto";
+
+export function normalizeMarchId(id) {
+  const raw = String(id || "").toLowerCase().trim();
+  if (!raw) return null;
+  const mapped = MARCHA_LEGACY_MAP[raw] || raw;
+  return DEPLOYMENT_MARCHES.some((m) => m.id === mapped) ? mapped : null;
+}
 
 export function loadMarchId() {
   try {
     const v = localStorage.getItem(MARCH_STORAGE_KEY);
-    return v && v.length > 0 ? v : null;
+    return normalizeMarchId(v);
   } catch {
     return null;
   }
@@ -94,18 +76,20 @@ export function loadMarchId() {
 
 export function saveMarchId(id) {
   try {
-    if (!id) {
+    const mid = normalizeMarchId(id);
+    if (!mid) {
       localStorage.removeItem(MARCH_STORAGE_KEY);
       return;
     }
-    localStorage.setItem(MARCH_STORAGE_KEY, id);
+    localStorage.setItem(MARCH_STORAGE_KEY, mid);
   } catch {
     /* ignore */
   }
 }
 
 export function marchById(id) {
-  return DEPLOYMENT_MARCHES.find((m) => m.id === id) || null;
+  const mid = normalizeMarchId(id);
+  return DEPLOYMENT_MARCHES.find((m) => m.id === mid) || null;
 }
 
 /** Hydrata Ascensión desde data/marcha_despliegue.json (fuente de verdad). */
@@ -114,8 +98,8 @@ export async function hydrateMarchFromBackend() {
     const res = await fetch(MARCHA_API_URL, { cache: "no-store" });
     if (!res.ok) return null;
     const data = await res.json();
-    const id = String(data?.marcha_id || data?.id || "").toLowerCase();
-    if (!id || !marchById(id)) return null;
+    const id = normalizeMarchId(data?.marcha_id || data?.id);
+    if (!id) return null;
     return {
       id,
       duracionDias: data.duracion_dias != null ? Number(data.duracion_dias) : null,
@@ -169,7 +153,8 @@ export async function persistMarchaBackend(marchaId, opts = {}) {
 
 /** ETA lote desde estado_vivo.igris.frecuencia_manto */
 export function etaLoteLabel(freq, marchaId) {
-  const lote = freq?.eta_lote_por_marcha?.[marchaId];
+  const mid = normalizeMarchId(marchaId) || marchaId;
+  const lote = freq?.eta_lote_por_marcha?.[mid];
   if (!lote || lote.eta_h == null) return "—";
   const h = Number(lote.eta_h);
   if (h < 1) return `~${Math.round(h * 60)} min`;

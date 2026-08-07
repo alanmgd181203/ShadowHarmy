@@ -39,11 +39,11 @@ def test_meta_engorde():
 
     # Equity con potencia ≥1, sin notional → restante = delta * fill
     eq = 14.0
-    plan = pd.plan_lote(eq, marcha_id="tactico", pasos_logrados=[])
+    plan = pd.plan_lote(eq, marcha_id="asalto", pasos_logrados=[])
     assert plan["foco"]["activo"] == "ETH"
     fill = float(plan["fill_ratio"])
     need = float(plan["foco"]["delta_usd"])
-    meta = pd.meta_engorde_usd(eq, "ETH", tusk=FakeTusk(), marcha_id="tactico", pasos_logrados=[])
+    meta = pd.meta_engorde_usd(eq, "ETH", tusk=FakeTusk(), marcha_id="asalto", pasos_logrados=[])
     assert meta["ok"] is True
     assert abs(meta["need_usd"] - need) < 1e-6
     assert abs(meta["restante_usd"] - need * fill) < 1e-6
@@ -57,7 +57,7 @@ def test_meta_engorde():
         }
 
     # notional = masa * px; long masa = need*fill with px=1 → have = need*fill
-    meta2 = pd.meta_engorde_usd(eq, "ETH", tusk=FullTusk(), marcha_id="tactico", pasos_logrados=[])
+    meta2 = pd.meta_engorde_usd(eq, "ETH", tusk=FullTusk(), marcha_id="asalto", pasos_logrados=[])
     assert meta2["restante_usd"] <= 1e-6
     print("  meta_engorde OK", meta["restante_usd"], "->", meta2["restante_usd"])
 

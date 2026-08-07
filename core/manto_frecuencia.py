@@ -1,16 +1,20 @@
 """Frecuencia de oportunidades del manto — 4 umbrales × 3 plazos (anual ~10%).
 
 Contadores en paralelo (misma historia `lineal_vs_inverse`):
-  - fees        → exceso vs cero ≥ break-even completo (Táctico)
-  - medio_fees  → exceso vs cero ≥ ½ fees (Marcha Forzada)
-  - tablas      → exceso vs cero ≥ epsilon (~0 edge; Asalto / salir tablas)
+  - fees        → exceso vs cero ≥ break-even completo
+  - medio_fees  → exceso vs cero ≥ ½ fees
+  - tablas      → exceso vs cero ≥ epsilon (~0 edge; Asalto)
   - morado      → exceso vs cero ≥ max(fees_be, umbral OPORTUNIDAD_MANTO)
+
+ETA / modo sugerido: solo marchas operativas **asalto** · **personalizado**
+(legado táctico/forzada → asalto en el director del pase).
 
 Cero estructural (MANTO_CERO_ESTRUCTURAL): no cuenta el gap eterno lineal↔inverso;
 oportunidad = alejarse del clima normal (cero_lineal − cero_inverso vs índice).
 
 Pesos de fusión (Monarca 2026-07-24): corto 50% · mediano 40% · anual 10%.
-Alta frecuencia → más paciencia (tau grande). Baja → empujar (Asalto / tablas).
+Alta frecuencia → más paciencia (tau grande) / sugerir personalizado.
+Baja → empujar (Asalto / tablas).
 """
 from __future__ import annotations
 
@@ -172,18 +176,15 @@ def frecuencia_activo(base: str, *, ahora: float | None = None) -> dict[str, Any
 
 def sugerir_modo(score: float | None, contadores: dict[str, Any]) -> str:
     """
-    Alta freq fees → tactico (paciencia).
-    Media → marcha_forzada.
-    Solo tablas / casi nada → asalto.
+    Sello 2 marchas: solo asalto | personalizado.
+    Alta freq → personalizado (conviene esperar con T).
+    Baja / sin edge → asalto.
     """
     if score is None:
         return "sin_datos"
     hi = float(getattr(config, "MANTO_FREQ_SCORE_TACTICO", 0.25) or 0.25)
-    mid = float(getattr(config, "MANTO_FREQ_SCORE_FORZADA", 0.08) or 0.08)
     if score >= hi:
-        return "tactico"
-    if score >= mid:
-        return "marcha_forzada"
+        return "personalizado"
     tablas_b = (contadores.get("tablas") or {}).get("pct_blend")
     if tablas_b is not None and float(tablas_b) < 0.02:
         return "asalto"
@@ -237,7 +238,7 @@ def eta_despliegue_horas(
     base: str,
     meta_usd: float,
     *,
-    marcha_id: str = "marcha_forzada",
+    marcha_id: str = "asalto",
     mordida_usd: float | None = None,
     ahora: float | None = None,
     umbral_pct_override: float | None = None,
@@ -346,15 +347,9 @@ def snapshot_ranking(
     eta_lote: dict[str, Any] = {}
     try:
         from core import pase_director as pd
-        from core import marcha_duracion as mdur
 
-        marchas = ["tactico", "marcha_forzada", "asalto"]
-        store = mdur.cargar_umbrales()
-        if store.get("duracion_dias") or store.get("por_base"):
-            marchas.append("personalizado")
-        payload = pd.cargar_marcha_payload() or {}
-        if payload.get("marcha_id") == "personalizado" and "personalizado" not in marchas:
-            marchas.append("personalizado")
+        # Solo marchas operativas (legado tactico/forzada fuera del altar)
+        marchas = list(pd.MARCHAS_UI)
 
         for mid in marchas:
             etas_m: dict[str, Any] = {}

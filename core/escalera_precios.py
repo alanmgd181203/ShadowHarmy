@@ -28,12 +28,12 @@ def max_peldaños(marcha_id: str | None = None) -> int:
     tope = int(getattr(config, "ESCALERA_MAX_PELDANOS", 10) or 10)
     tope = max(1, min(12, tope))
     mid = (marcha_id or "").lower()
-    if mid == "tactico":
-        return tope
+    # Legado tactico/forzada → asalto (sello 2 marchas)
+    if mid in ("tactico", "táctico", "marcha_forzada", "forzada"):
+        mid = "asalto"
     if mid == "asalto":
         return 1
-    if mid == "marcha_forzada":
-        return max(2, min(6, tope))
+    # personalizado u otros: peldaños moderados
     return max(2, min(8, tope))
 
 

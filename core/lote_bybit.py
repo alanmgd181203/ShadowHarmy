@@ -295,6 +295,35 @@ def _frente_lineal_del_par(frente_a: str, frente_b: str) -> str | None:
     return None
 
 
+def _elegir_espejo_inv_long_primero(
+    candidatos: list[dict[str, Any]],
+    usd_espejo: float,
+) -> dict[str, Any]:
+    """
+    Elige ceil/floor del Inverso al espejar el USD del Lineal.
+
+    Claramente más cercano → ese. Ante duda (equidistantes o |Δcercanía|
+    ≤ max(1e-6 USD, medio step entre candidatos)) → más USD (long / Inverso).
+    """
+    if len(candidatos) == 1:
+        return candidatos[0]
+
+    usds = [float(c["usd"]) for c in candidatos]
+    step_usd = max(usds) - min(usds)
+    eps = max(1e-6, 0.5 * step_usd)
+
+    def _dist(c: dict[str, Any]) -> float:
+        return abs(float(c["usd"]) - usd_espejo)
+
+    por_cercania = sorted(candidatos, key=_dist)
+    mejor = por_cercania[0]
+    # Candidatos en zona de duda respecto al más cercano
+    en_duda = [c for c in candidatos if abs(_dist(c) - _dist(mejor)) <= eps + 1e-15]
+    if len(en_duda) > 1:
+        return max(en_duda, key=lambda c: float(c["usd"]))
+    return mejor
+
+
 def ley_de_la_masa_dual(
     frente_a: str,
     frente_b: str,
@@ -309,7 +338,9 @@ def ley_de_la_masa_dual(
 
     1) Alfa = mínimo real del Lineal (max fracción-en-USD, piso ~$5).
     2) Masa Absoluta = max(usd_deseado, Alfa) → cuantiza el Lineal (ceil).
-    3) Inverso espeja el USD efectivo del Lineal (ceil; si asim > lim, floor).
+    3) Inverso espeja el USD efectivo del Lineal: candidatos ceil/floor;
+       el más cercano al espejo gana; ante duda (equidistantes / cercanía
+       despreciable) → más USD en el Inverso (long). Lineal manda siempre.
     4) Candado: si |USD_a − USD_b| / ref > asim_max → disparo prohibido.
     """
     fa = (frente_a or "").upper()
@@ -380,8 +411,8 @@ def ley_de_la_masa_dual(
             "conv_inv_floor": conv_floor,
         }
 
-    # Espejo más cercano al USD efectivo del Lineal
-    conv_inv = min(candidatos, key=lambda c: abs(float(c["usd"]) - usd_espejo))
+    # Espejo: más cercano al USD del Lineal; ante duda → más USD inverso (long)
+    conv_inv = _elegir_espejo_inv_long_primero(candidatos, usd_espejo)
 
     usd_lin = float(conv_lin["usd"])
     usd_inv = float(conv_inv["usd"])

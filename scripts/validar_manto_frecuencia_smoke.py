@@ -76,11 +76,15 @@ def test_eta():
     if path.exists():
         path.unlink()
     _sembrar(base, n=100, abs_pct=0.2)
-    eta = mf.eta_despliegue_horas(base, 100.0, marcha_id="marcha_forzada", mordida_usd=5.0)
+    eta = mf.eta_despliegue_horas(base, 100.0, marcha_id="asalto", mordida_usd=5.0)
     assert eta["ok"] is True, eta
     assert eta["eta_h"] is not None and eta["eta_h"] > 0, eta
     assert eta["eta_h_opt"] <= eta["eta_h"] <= eta["eta_h_pes"], eta
-    print("  ETA forzada OK", eta["eta_h"], "h · bocados", eta["bocados_est"])
+    assert eta["marcha_id"] == "asalto"
+    print("  ETA asalto OK", eta["eta_h"], "h · bocados", eta["bocados_est"])
+    # Legado forzada → asalto
+    eta_leg = mf.eta_despliegue_horas(base, 100.0, marcha_id="marcha_forzada", mordida_usd=5.0)
+    assert eta_leg["marcha_id"] == "asalto"
     if path.exists():
         path.unlink()
 

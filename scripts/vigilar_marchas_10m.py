@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guardián: mantiene la batida 4×10min viva; relanza si se cae; guarda heartbeat.
+"""Guardián: mantiene la batida 2×10min (asalto · personalizado); relanza si se cae.
 
 Uso:
   python3 scripts/vigilar_marchas_10m.py
@@ -45,7 +45,7 @@ def done() -> bool:
     except Exception:
         return False
     ids = {c.get("marcha_id") for c in data.get("corridas") or [] if c.get("ok")}
-    return ids >= {"tactico", "marcha_forzada", "asalto", "personalizado"}
+    return ids >= {"asalto", "personalizado"}
 
 
 def main() -> int:

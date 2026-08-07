@@ -50,8 +50,8 @@ python scripts/validar_lote_bybit_smoke.py
 ## Hechos recientes
 
 - **Oído Bellion 4.1.2 (2026-07-24):** susurro crítico/ejecución/salud en Cascada · ruido filtrado · sin LLM.
-- **Frecuencia manto 3.5.8b2 (2026-07-24):** 4 umbrales (fees · ½ · tablas · morado) × plazos 50/40/10 · ETA por marcha · alimenta el reloj de paciencia de Igris.
-- **Jess sync Bybit (2026-07-21):** en master — 780 bases, mínimos/qtyStep frescos; lotes de Igris ya leen esa BD.
+- **Frecuencia manto 3.5.8b2 (2026-07-24):** 4 umbrales (fees · ½ · tablas · morado) × plazos 50/40/10 · ETA por marcha operativa (asalto · personalizado).
+- **Sello 2 marchas (2026-08-06):** altar operativo solo asalto / personalizado; legado táctico·forzada → asalto.- **Jess sync Bybit (2026-07-21):** en master — 780 bases, mínimos/qtyStep frescos; lotes de Igris ya leen esa BD.
 - **Meta engorde pase (2026-07-20):** Igris engorda solo el Δ del paso foco; no empuja 95% si director on.
 - **3.7.P1 luces matriz:** V/A/R en `estado_vivo.kaiser.indicadores.matriz_luces`.
 - **3.7.P3** reclasificado: semáforo aliado/huérfano/global = **Greed** (pausa).

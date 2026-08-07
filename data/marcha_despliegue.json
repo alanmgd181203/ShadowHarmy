@@ -1,7 +1,7 @@
 {
   "marcha_id": "personalizado",
   "titulo": "Marcha Personalizada",
-  "ts": 1786045161.7851882,
+  "ts": 1786067899.9767187,
   "reserva_pasos": 1,
   "umbral_fees_mult": -1.0,
   "force_market": false,
@@ -10,5 +10,5 @@
   "equity_usd": 1530.334,
   "duracion_dias": 0.33,
   "umbrales_calibrados": true,
-  "calibrado_ts": 1786042447.903268
+  "calibrado_ts": 1786067899.9905488
 }

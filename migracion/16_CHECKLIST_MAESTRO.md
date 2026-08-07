@@ -132,8 +132,8 @@
 - [x] **3.5.8a** Igris §E v1 — bootstrap inverse L + lineal S + promedios pierna *(2026-07-05)*
 - [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
 - [x] **3.5.8b2** Frecuencia manto 4 umbrales (fees · ½ · tablas · morado) × plazos 50/40/10 · ETA por marcha · `core/manto_frecuencia.py` *(2026-07-24)*
-- [x] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · dual+salvavidas ✅ · **meta engorde = `delta_usd` del pase** ✅ MVP 2026-07-20 · **mega-pre-Igris** ✅ fill 100% · reserva 1 · personalizado · ritmo lote · libros Tusk · USD@entrada (`CHECKPOINT_MEGA_PRE_IGRIS.md`) · mitad/manto-completo fino aún abiertos
-- [x] **3.5.8d** Sello mega-pre-Igris — 4 marchas · `marcha_duracion` · `marcha_ritmo_lote` · `tusk_libros` · altar hidrata desde JSON · smokes frío *(2026-08-03)*
+- [x] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · dual+salvavidas ✅ · **meta engorde = `delta_usd` del pase** ✅ MVP 2026-07-20 · **mega-pre-Igris** ✅ fill 100% · reserva 1 · personalizado · ritmo lote · libros Tusk · USD@entrada (`CHECKPOINT_MEGA_PRE_IGRIS.md`) · mitad/manto-completo fino aún abiertos · **redondeo espejo duda→long (Inverso)** *(2026-08-06)*
+- [x] **3.5.8d** Sello mega-pre-Igris — marchas · `marcha_duracion` · `marcha_ritmo_lote` · `tusk_libros` · altar hidrata desde JSON · smokes frío *(2026-08-03)* · **sello 2 marchas (asalto · personalizado; legado→asalto)** *(2026-08-06)*
 
 - [x] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v2 + `plan_crecimiento.py` + [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) *(Aspirante→Chamán; candado + **director pase** `pase_director.py` · 3 marchas 2026-07-19; botín runtime y mérito aún pendiente)*
 
@@ -259,6 +259,7 @@
 *Criterio fase:* el Monarca ve lo crítico en **Pergamino**; Telegram es legado.
 
 ### 4.0 Despliegue por capas (ojos → manto → Beru)
+*Ley Monarca 2026-08-06:* etapa = **Igris**; preferencia operativa = **Asalto** (peaje aceptado). Igris ≠ Greed — no pedir edge/arbitraje fino a Igris. Indicadores / peinado Kaiser / Greed laboratorio = **después**. Orden: Igris → Beru (manto sirva) → Greed último. Sello: [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md). Disco marcha no se fuerza en este sello.
 - [x] **4.0.1** Ritual ojos — `scripts/arise_ojos_tusk.py` (Tusk tesorería + Tank + Kaiser; sin Igris/Greed/Beru) · runbook `18` · smoke `validar_arise_ojos_smoke.py`
 - [x] **4.0.1b** Checkpoint bóveda MNT — doctrina + capital_mando / foto / potencia_pase frío · Convert≠ley · **manos OFF** · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · smoke `validar_tusk_boveda_mnt_smoke.py`
 - [x] **4.0.1c** Ley bóveda: estado sucio → **reset a cero** → ritual ideal (peaje OK; no catalogar rarezas ahora) · firmada 2026-08-02 · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · manos aún OFF
@@ -268,6 +269,7 @@
 - [ ] **4.0.3** Igris live hasta manto 100% del paso (meta engorde)
   - **EN CURSO 2026-08-05** — ejército parcial oficial (Tusk·Tank·Kaiser·Igris; Greed/Beru hibernan) · marcha_forzada · books ON · manos sueltas mainnet (`arise_igris.py` + guardián `vigilar_arise_igris` hasta ~18:30) · smoke libros OK · **no PASS** hasta evidencia manto/meta · [`CHECKPOINT_IGRIS_LIVE_4_0_3.md`](CHECKPOINT_IGRIS_LIVE_4_0_3.md)
   - *(lab)* Teatro de sombras **preparado** + **óptica Tank cableada** 2026-08-04 — 1 óptica + 4 marchas papel; `--optica-tank` para GO serio; no marcas live · ver [`TEATRO_SOMBRAS_IGRIS.md`](TEATRO_SOMBRAS_IGRIS.md)
+  - **Preferencia 2026-08-06:** revisar / operar bajo **Asalto** (no exigir spread fino tipo Greed). Personalizado solo si el Monarca fija T a propósito.
 - [ ] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)
 
 ### 4.1 Notificaciones *(oído = Pergamino)*
@@ -397,7 +399,7 @@
 
 | Horizonte | Fases | Meta en una frase |
 |-----------|-------|-------------------|
-| **Ahora** | 3 cierre + 4 + 10 | Meta pase Igris ✅ · **3.7.P1 luces** ✅ · Greed pausa · **4.1.2 Pergamino** · mitad engorde |
+| **Ahora** | 3 cierre + 4 + 10 | **Igris / Asalto** (ley 08-06) · Greed pausa · **4.1.2 Pergamino** · indicadores/peinado después |
 | **Semanas** | 2–3 | ✅ Testnet + pentiverso + Beru doctrina + Igris despliegue |
 | **Meses** | 4–6 | **Ops** + **mainnet** + estrategia madura |
 | **Trimestres** | 7–9 | Más activos, Surge, entrenamiento |
@@ -420,8 +422,8 @@ TOTAL checklist:  125 / 184  [x]  →  ~68%
 Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-08-02 (cuartel VPS decisión Monarca · ETA parcial Jess)  
-**Próximo ítem recomendado:** **4.0.3** Igris live (solo con orden explícita del Monarca) · luego **4.0.4** Beru
+**Última actualización checklist:** 2026-08-06 (ley Igris≠Greed · preferencia Asalto)  
+**Próximo ítem recomendado:** seguir **Igris** en **4.0.3** / despliegue bajo preferencia **Asalto** (peaje OK; no edge Greed) · luego **4.0.4** Beru cuando manto sirva · **Greed al último** (laboratorio; checklist Greed mainnet sigue pausada)
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
@@ -440,7 +442,7 @@ Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
 Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
-Siguiente: 4.0.3 Igris live (orden Monarca) · luego 4.0.4 Beru.
+Siguiente: Igris 4.0.3 preferencia Asalto (ley 2026-08-06) · luego 4.0.4 Beru · Greed último.
 Validar: scripts/validar_*_smoke.py + validar_bellion_oido_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.
 Hablar siempre en términos del Ejército (Beru, Greed, Tusk, manto, legión).

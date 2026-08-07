@@ -467,9 +467,10 @@ IGRIS_PROTEGER_SYMBOLS: list[str] = (
 
 # Candado pase → Igris (activos por rango). Lives saltan con LIVE_IGRIS_TESTNET / ARENA SIN_RANGOS.
 MONARCA_RANK_GATE = os.getenv("MONARCA_RANK_GATE", "true").lower() == "true"
-# Director pase: lote/reserva + marcha (tactico | marcha_forzada | asalto)
+# Director pase: lote/reserva + marcha operativa (asalto | personalizado)
+# Legado env tactico/marcha_forzada → normalizar_marcha las mapea a asalto
 PASE_DIRECTOR_ACTIVO = os.getenv("PASE_DIRECTOR_ACTIVO", "true").lower() == "true"
-MARCHA_DESPLIEGUE = os.getenv("MARCHA_DESPLIEGUE", "marcha_forzada").strip().lower()
+MARCHA_DESPLIEGUE = os.getenv("MARCHA_DESPLIEGUE", "asalto").strip().lower()
 # Legacy — botín 50/50 retirado; Greed usa colchón 5%
 MONARCA_BOTIN_CIMIENTOS_PCT = float(os.getenv("MONARCA_BOTIN_CIMIENTOS_PCT", "1.0"))
 

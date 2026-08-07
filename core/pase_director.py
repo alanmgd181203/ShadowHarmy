@@ -1,9 +1,10 @@
 """Director del pase de batalla — potencia, lote por marcha, umbral Igris.
 
-Sello mega-pre-Igris:
+Sello mega-pre-Igris + sello 2 marchas (Monarca):
 - Engorde 100% del delta (fill_ratio=1.0).
 - Reserva = 1 en todas las marchas (lote hasta potencia−1).
-- Marcha personalizado por duración T (calibración por par).
+- Operativas: **asalto** (rápido / peaje) y **personalizado** (T días / calib).
+- Legado `tactico` / `marcha_forzada` → se normalizan a **asalto** (sin reescribir disco).
 - Meta llena (restante≤0) → no engordar más ese foco.
 """
 from __future__ import annotations
@@ -15,7 +16,7 @@ from typing import Any, Literal
 
 import core.config as config
 
-MarchaId = Literal["tactico", "marcha_forzada", "asalto", "personalizado"]
+MarchaId = Literal["asalto", "personalizado"]
 GradoPase = Literal["SOLDADO", "CAPITAN", "GENERAL", "MARISCAL"]
 
 # Caballero del pergamino = CAPITAN en motor Beru
@@ -83,24 +84,8 @@ PASE_PASOS: tuple[dict[str, Any], ...] = (
 )
 
 # Reserva de pasos (no abrir todo el techo de golpe) + umbral fees
-# Sello mega-pre-Igris: reserva=1 · fill=1.0 en todas
+# Sello 2 marchas: solo asalto + personalizado (reserva=1 · fill=1.0)
 MARCHAS: dict[str, dict[str, Any]] = {
-    "tactico": {
-        "titulo": "Despliegue Tactico",
-        "reserva_pasos": 1,
-        "umbral_fees_mult": 1.0,
-        "permite_urgencia": False,
-        "force_market": False,
-        "fill_ratio": 1.0,
-    },
-    "marcha_forzada": {
-        "titulo": "Marcha Forzada",
-        "reserva_pasos": 1,
-        "umbral_fees_mult": 0.5,
-        "permite_urgencia": True,
-        "force_market": False,
-        "fill_ratio": 1.0,
-    },
     "asalto": {
         "titulo": "Asalto Inmediato",
         "reserva_pasos": 1,
@@ -119,13 +104,17 @@ MARCHAS: dict[str, dict[str, Any]] = {
     },
 }
 
-MARCHA_DEFAULT: MarchaId = "marcha_forzada"
+# Lista canónica para altar / panel / ETA (Monarca no ve legado)
+MARCHAS_UI: tuple[str, ...] = ("asalto", "personalizado")
 
+MARCHA_DEFAULT: MarchaId = "asalto"
+
+# Legado: tactico / marcha_forzada → asalto (JSONs viejos, ETA, CLI)
 _MARCHA_ALIASES: dict[str, str] = {
-    "táctico": "tactico",
-    "tactico": "tactico",
-    "forzada": "marcha_forzada",
-    "marcha_forzada": "marcha_forzada",
+    "táctico": "asalto",
+    "tactico": "asalto",
+    "forzada": "asalto",
+    "marcha_forzada": "asalto",
     "asalto": "asalto",
     "inmediato": "asalto",
     "personalizado": "personalizado",
@@ -536,10 +525,9 @@ def umbral_por_marcha(
     base: str | None = None,
 ) -> dict[str, Any]:
     """
-    Táctico/forzada (+base): ritmo de lote si hay base.
-    Personalizado: umbral_activo de marcha_duracion.
-    Asalto: umbral 0 + market.
-    Forzada sin base: urgencia Kaiser sin bajar del piso ½ fees.
+    Asalto: umbral 0 + market (despliegue rápido; peaje aceptado).
+    Personalizado: umbral_activo de marcha_duracion (calib ~T).
+    Legado tactico/forzada llega aquí ya normalizado a asalto.
     """
     mid = cargar_marcha() if marcha_id is None else normalizar_marcha(marcha_id)
     perfil = MARCHAS[mid]
@@ -563,7 +551,8 @@ def umbral_por_marcha(
             "duracion_dias": ua.get("duracion_dias"),
         }
 
-    if mid == "asalto" or (mult <= 0 and mid != "personalizado"):
+    # asalto (único resto operativo) o mult≤0
+    if mid == "asalto" or mult <= 0:
         return {
             "umbral_pct": 0.0,
             "fees_be_pct": round(fees, 6),
@@ -573,37 +562,6 @@ def umbral_por_marcha(
             "force_market": True,
             "piso_fees_mult": mult,
         }
-
-    # Ritmo de lote (táctico / forzada) cuando hay base
-    if base and mid in ("tactico", "marcha_forzada"):
-        try:
-            from core import marcha_ritmo_lote as mrl
-
-            stored = mrl.umbral_activo(base, mid)
-            if stored and stored.get("umbral_pct") is not None:
-                return {
-                    "umbral_pct": round(float(stored["umbral_pct"]), 6),
-                    "fees_be_pct": round(fees, 6),
-                    "factor": 0.0,
-                    "modo_paciencia": str(stored.get("modo_paciencia") or f"ritmo_lote_{mid}"),
-                    "marcha_id": mid,
-                    "force_market": False,
-                    "piso_fees_mult": mult,
-                    "reloj_eta_h": stored.get("reloj_eta_h"),
-                }
-            # Sin store: umbral piso + marca ritmo
-            piso = fees * mult
-            return {
-                "umbral_pct": round(piso, 6),
-                "fees_be_pct": round(fees, 6),
-                "factor": 0.0,
-                "modo_paciencia": f"ritmo_lote_{mid}",
-                "marcha_id": mid,
-                "force_market": False,
-                "piso_fees_mult": mult,
-            }
-        except Exception:
-            pass
 
     piso = fees * mult
     if not perfil["permite_urgencia"] or t0_paciencia is None:

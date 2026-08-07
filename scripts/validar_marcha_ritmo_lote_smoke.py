@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke marcha_ritmo_lote — reloj del lote táctico/forzada."""
+"""Smoke marcha_ritmo_lote — módulo legado inactivo (2 marchas: asalto/personalizado)."""
 from __future__ import annotations
 
 import sys
@@ -13,19 +13,19 @@ from core import pase_director as pd
 
 
 def main() -> int:
-    print("[SMOKE] marcha_ritmo_lote")
-    assert mrl.aplica_marcha("tactico")
-    assert mrl.aplica_marcha("marcha_forzada")
+    print("[SMOKE] marcha_ritmo_lote (legado dormido)")
+    # Sello 2 marchas: nada usa ritmo; legado → asalto
+    assert pd.normalizar_marcha("tactico") == "asalto"
+    assert pd.normalizar_marcha("marcha_forzada") == "asalto"
+    assert not mrl.aplica_marcha("tactico")
+    assert not mrl.aplica_marcha("marcha_forzada")
     assert not mrl.aplica_marcha("asalto")
     assert not mrl.aplica_marcha("personalizado")
+    assert mrl.MARCHAS_RITMO == frozenset()
 
-    clock = mrl.estimar_reloj_lote({"ETH": 14.0}, "tactico")
-    assert "reloj_eta_h" in clock
-    # sin muestras: ok puede ser False; umbral_ritmo aún devuelve piso
-    u = mrl.umbral_ritmo_par("ETH", "tactico", meta_usd=14.0, reloj_eta_h=48.0)
-    assert u["modo_paciencia"].startswith("ritmo_lote_")
-    assert u["umbral_pct"] >= 0
-    assert u["force_market"] is False
+    clock = mrl.estimar_reloj_lote({"ETH": 14.0}, "asalto")
+    assert clock.get("ok") is False
+    assert clock.get("motivo") == "marcha_sin_ritmo"
 
     um = pd.umbral_por_marcha(0.10, marcha_id="asalto", base="ETH")
     assert um["umbral_pct"] == 0.0 and um["force_market"] is True

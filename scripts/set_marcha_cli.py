@@ -15,7 +15,10 @@ from core import pase_director as pd  # noqa: E402
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Guardar marcha de despliegue")
-    ap.add_argument("--id", "-i", required=True, help="tactico|marcha_forzada|asalto|personalizado")
+    ap.add_argument(
+        "--id", "-i", required=True,
+        help="asalto|personalizado (legado tactico|marcha_forzada → asalto)",
+    )
     ap.add_argument("--dias", "-d", type=float, default=None, help="Obligatorio si personalizado")
     ap.add_argument("--equity", "-e", type=float, default=None)
     ap.add_argument("--json-out", action="store_true")

@@ -1,16 +1,9 @@
 {
   "duracion_dias": 0.33,
-  "equity_usd": 1530.33401226,
-  "calibrado_ts": 1786042447.903268,
+  "equity_usd": 1530.334,
+  "calibrado_ts": 1786067899.9905488,
   "eta_h_target": 7.92,
   "por_base": {
-    "ETH": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 14.0,
-      "ok": false
-    },
     "HYPE": {
       "umbral_pct": 0.055,
       "eta_h_est": null,
@@ -89,5 +82,5 @@
       "ok": false
     }
   },
-  "ts": 1786042447.970284
+  "ts": 1786067900.0076783
 }

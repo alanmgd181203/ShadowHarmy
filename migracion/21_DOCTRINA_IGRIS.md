@@ -1,9 +1,9 @@
 # 21 — Doctrina Igris (escudo del manto)
 
-**Estado:** §A + §C (parcial) + §E **v2** + **3.5.8c motor** + **mega-pre-Igris** (fill 100% · reserva 1 · personalizado · ritmo lote · USD@entrada · stop engorde en meta)  
+**Estado:** §A + §C (parcial) + §E **v2** + **3.5.8c motor** + **mega-pre-Igris** + **sello 2 marchas** + **ley Igris≠Greed / Asalto** (2026-08-06)  
 **Código:** `generales/igris.py`, `core/manto_ventana.py`, `core/pase_director.py`, `core/marcha_duracion.py`, `core/marcha_ritmo_lote.py`, `core/tusk_libros.py`  
-**Sello:** [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md)
-**Actualizado:** 2026-07-17
+**Sellos:** [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md) · [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md)  
+**Actualizado:** 2026-08-06
 
 ---
 
@@ -13,6 +13,21 @@
 **Greed** = arbitraje Kaiser. No administra el manto; si toca un frente del manto, `core/manto_touch.py` marca cooldown para que Igris no rebalancee en falso. *(Exención Greed vs ventana 48–52: congelada — no definir aún.)*
 
 **Beru** = casa spot — fuera de oleada Kaiser→Greed.
+
+---
+
+## Ley Monarca — Igris ≠ Greed · preferencia Asalto (sello 2026-08-06)
+
+**Firmado en pergamino.** No reescribe el motor; fija oficio y etapa.
+
+1. **Oficio distinto.** Igris **no** vive de esperar spreads finos ni caza edge/arbitraje. Despliega manto con **peaje aceptado** (mismo espíritu que la bóveda Tusk: pagar el peaje y seguir).  
+2. **Marchas.** **Asalto** = plantar ya. **Personalizado** = solo si el Monarca fija duración ~T a propósito (menos peaje / más espera) — **nunca** como atajo para “ser Greed”.  
+3. **Etapa.** Camino actual = **Igris**; preferencia operativa = **Asalto**. Revisar despliegue (reglas / condiciones).  
+4. **Greed después.** Entradas/salidas finas, slippage, spreads = **Greed** + laboratorio. Greed no despliega manos a ciegas aún.  
+5. **Kaiser peinado / indicadores / mega-historial = después.** No candan el camino Igris ahora.  
+6. **Orden:** Igris → Beru cuando el manto sirva → Greed al último.
+
+Detalle fechado: [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md).
 
 ---
 
@@ -108,7 +123,7 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 
 #### Redondeo / mínimos de exchange
 - Si una pierna no encaja por decimales/mínimos: **acoplar/recortar la pierna que cotiza en dólares** para no salir de 48–52.
-- **Ley de la Masa (Monarca, 2026-08-06):** el contrato **Inverso jamás pelea con su mínimo aislado**. Alfa = mínimo real del **Lineal** (`max` fracción-en-USD, p.ej. 0.01 ETH, y piso ~$5). Esa **Masa Absoluta** obliga al Inverso a espejar el mismo USD. Si \|USD_L − USD_S\| / ref > **5%** → disparo **prohibido** (`LEY_MASA_BLOQUEO`). Código: `lote_bybit.ley_de_la_masa_dual` · puerta §E · `_disparo_dual_simultaneo` · smoke `scripts/validar_ley_masa_smoke.py` · flag `IGRIS_MASA_ASIMETRIA_MAX_PCT`.
+- **Ley de la Masa (Monarca, 2026-08-06):** el contrato **Inverso jamás pelea con su mínimo aislado**. Alfa = mínimo real del **Lineal** (`max` fracción-en-USD, p.ej. 0.01 ETH, y piso ~$5). Esa **Masa Absoluta** obliga al Inverso a espejar el mismo USD. Si \|USD_L − USD_S\| / ref > **5%** → disparo **prohibido** (`LEY_MASA_BLOQUEO`). **Redondeo del espejo:** candidatos ceil/floor del Inverso; el más cercano al USD del Lineal gana; **ante la duda** (equidistantes / cercanía despreciable) → favorece al **long** (= Inverso; short = Lineal). El Lineal sigue mandando la masa absoluta — no se invierte la jerarquía. Código: `lote_bybit.ley_de_la_masa_dual` · puerta §E · `_disparo_dual_simultaneo` · smoke `scripts/validar_ley_masa_smoke.py` · flag `IGRIS_MASA_ASIMETRIA_MAX_PCT`.
 
 #### Disparo dual
 - Ante oportunidad: **ambas órdenes a la vez** (limit/limit, market/market o mix — da igual).
@@ -116,7 +131,9 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 - Si una falla: **market inmediato** en la que falta; el chiste es llenar **ambas**.
 - **Escalera de precios:** micro-bocados Limit a distintos niveles (`core/escalera_precios.py`); cancelar no llenos; equilibrar Market; manto parcial OK.
 - **Lotes Bybit:** cada peldaño/orden respeta `minOrderQty` + `qtyStep` de la BD Jess (`core/lote_bybit.py` · `data/bybit_parametros_mercado.json`). Sync México **2026-07-21** en origin (`349b375`).
-- **Frecuencia / paciencia (2026-07-24):** cuatro contadores en paralelo sobre historia `lineal_vs_inverse` — **fees** (Táctico), **½ fees** (Marcha Forzada), **tablas** (~0 edge / Asalto), **morado** (`OPORTUNIDAD_MANTO`). Fusión de plazos: corto **50%** · mediano **40%** · anual **10%**. Alta frecuencia → más tau (espera); baja → modo sugerido Asalto. ETA de despliegue por marcha en `estado_vivo.igris.frecuencia_manto` y panel.- **Código:** `IgrisEscudo._disparo_dual_simultaneo` + `_salvavidas_market_pierna` · Greed `_ejecutar_dos_piernas` · flags `ESCALERA_*` / `IGRIS_DUAL_*`.
+- **Frecuencia / paciencia (2026-07-24):** cuatro contadores en paralelo sobre historia `lineal_vs_inverse` — **fees** · **½ fees** · **tablas** (~0 edge / Asalto) · **morado** (`OPORTUNIDAD_MANTO`). Fusión de plazos: corto **50%** · mediano **40%** · anual **10%**. Alta frecuencia → más tau (espera) / sugerir **personalizado**; baja → **Asalto**. ETA solo para marchas operativas.
+- **Marchas operativas (sello Monarca):** solo **asalto** (desplegar ya, peaje aceptado) y **personalizado** (el Monarca elige ~T; calib de umbral por par). **Fuera del altar:** `tactico` y `marcha_forzada` — al cargar/CLI se **normalizan a asalto** (sin reescritura agresiva de disco solo por lectura). Ritmo de lote queda legado/dormido. Default sin JSON/`MARCHA_DESPLIEGUE` = **asalto**.
+- **Código:** `IgrisEscudo._disparo_dual_simultaneo` + `_salvavidas_market_pierna` · Greed `_ejecutar_dos_piernas` · flags `ESCALERA_*` / `IGRIS_DUAL_*`.
 - Kaiser viendo order book dual a fondo: **revisar después** (metaverso / si ya vive).
 
 #### Violación del candado (ej. long 53%)
@@ -151,7 +168,7 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 | Ranking → meta USD manto | ✅ MVP `pase_director.meta_engorde_usd` → Igris bloque (2026-07-20) · mitad/manto-completo fino pendiente |
 
 ### En ~90% (zona ideal)
-Igris **pulir entradas/salidas** con rigor tipo Greed (mínimo orden, Ancla, neto ≥ fees) pero **más tolerancia** y horizonte largo.
+Igris sigue armando / rebalanceando con peaje aceptado y horizonte largo (mínimo orden, Ancla). La **caza fina** de entradas/salidas, slippage y spreads = oficio de **Greed** (después; ley 2026-08-06) — no pedir a Igris que “sea Greed”.
 
 ### Contabilidad
 - Equilibrio por **promedio de entrada** y **USD@entrada** para el ratio, no tick/mark.

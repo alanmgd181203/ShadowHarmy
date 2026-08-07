@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DEPLOYMENT_MARCHES, etaLoteLabel } from "./deploymentMarches.js";
 
 /**
- * Altar de decision — ritmo de despliegue (4 marchas).
+ * Altar de decision — ritmo de despliegue (2 marchas: asalto · personalizado).
  * Personalizado: dias obligatorios + Calibrar.
  */
 export default function DeploymentAltar({ onChoose, collapsing, onClose, frecuenciaManto }) {
@@ -49,8 +49,8 @@ export default function DeploymentAltar({ onChoose, collapsing, onClose, frecuen
             Ritmo del ejercito
           </h2>
           <p className="text-[12px] text-[#5a6170] mt-2 max-w-[20rem] mx-auto leading-relaxed">
-            El presupuesto lo marca Tusk. Igris construye el manto. Elige con que prisa entra la
-            sangre. Fill 100% · reserva 1.
+            Asalto = entrar ya (peaje aceptado). Personalizado = escribe ~T dias y el umbral se
+            calibra. Fill 100% · reserva 1.
           </p>
         </header>
 

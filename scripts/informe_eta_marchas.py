@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Informe Monarca — ETA de despliegue del manto en las 3 marchas.
+"""Informe Monarca — ETA de despliegue del manto (2 marchas operativas).
 
 Usa el indicador YA cableado con cero estructural (no gap eterno):
-  Táctico / Marcha Forzada / Asalto.
+  Asalto / Personalizado (legado táctico·forzada → asalto al normalizar).
 
 Uso (Jess, con muestras calientes):
   git pull
@@ -33,11 +33,10 @@ from core import pase_director as pd
 OUT_JSON = ROOT / "data" / "informe_eta_marchas.json"
 OUT_MD = ROOT / "migracion" / "INFORME_ETA_MARCHAS.md"
 
-MARCHAS_ORDEN = ("tactico", "marcha_forzada", "asalto")
+MARCHAS_ORDEN = ("asalto", "personalizado")
 TITULOS = {
-    "tactico": "Tactico (fees)",
-    "marcha_forzada": "Marcha Forzada (1/2 fees)",
-    "asalto": "Asalto (tablas)",
+    "asalto": "Asalto (tablas / market)",
+    "personalizado": "Personalizado (~T calib)",
 }
 
 
@@ -109,7 +108,7 @@ def _fila_base(base: str, equity: float, meta_fija: float | None) -> dict:
 
 def _texto_monarca(filas: list[dict], *, ts: float, equity: float, meta_fija: float | None) -> str:
     lineas = [
-        "# Informe Monarca — ETA manto por las 3 marchas",
+        "# Informe Monarca — ETA manto (2 marchas operativas)",
         "",
         f"**Fecha:** {time.strftime('%Y-%m-%d %H:%M', time.localtime(ts))}  ",
         f"**Equity ref:** {equity:.0f} USD  " if equity > 0 else "**Equity ref:** (meta fija / default)  ",
@@ -117,15 +116,16 @@ def _texto_monarca(filas: list[dict], *, ts: float, equity: float, meta_fija: fl
         "**Ley:** oportunidades = exceso vs **cero estructural** "
         f"(`MANTO_CERO_ESTRUCTURAL={getattr(config, 'MANTO_CERO_ESTRUCTURAL', True)}`).",
         "",
-        "Las tres marchas:",
-        "- **Tactico** — exceso >= fees enteros (paciente)",
-        "- **Marcha Forzada** — exceso >= 1/2 fees (media)",
-        "- **Asalto** — exceso >= tablas / casi 0 (ansiosa; igual sobre el cero, no gap eterno)",
+        "Marchas operativas:",
+        "- **Asalto** — entrar ya (umbral tablas / market; peaje aceptado)",
+        "- **Personalizado** — el Monarca fija ~T; calib viva de umbral por par",
+        "",
+        "Legado táctico/forzada → se normaliza a asalto (fuera del altar).",
         "",
         "## Tabla ETA (base / opt / pes)",
         "",
-        "| Base | Cero gap % | Fees % | Tactico | Forzada | Asalto | Modo sugerido |",
-        "|------|------------|--------|---------|---------|--------|---------------|",
+        "| Base | Cero gap % | Fees % | Asalto | Personalizado | Modo sugerido |",
+        "|------|------------|--------|--------|---------------|---------------|",
     ]
     for f in filas:
         cero = (f.get("cero_estructural") or {}).get("cero_pct")
@@ -142,9 +142,11 @@ def _texto_monarca(filas: list[dict], *, ts: float, equity: float, meta_fija: fl
                     f"{_fmt_h(eta.get('eta_h'))} "
                     f"[{_fmt_h(eta.get('eta_h_opt'))}–{_fmt_h(eta.get('eta_h_pes'))}]"
                 )
+        while len(cells) < 2:
+            cells.append("—")
         modo = (f.get("frecuencia") or {}).get("modo_sugerido") or "—"
         lineas.append(
-            f"| {f['base']} | {cero_s} | {fees_s} | {cells[0]} | {cells[1]} | {cells[2]} | {modo} |"
+            f"| {f['base']} | {cero_s} | {fees_s} | {cells[0]} | {cells[1]} | {modo} |"
         )
 
     lineas.extend(

@@ -18,13 +18,13 @@ export const FEATURES_APAGADAS = {
       "Pausado en WiFi (latencia). Encender cuando el Pergamino sea app y el MP4 vaya empaquetado en local.",
   },
 
-  /** Pantalla de las 4 marchas al despertar — cableada al director de pase. */
+  /** Pantalla de las 2 marchas al despertar — cableada al director de pase. */
   altarTresMarchas: {
     encendido: true,
-    nombre: "Altar de las cuatro marchas (elegir ritmo)",
+    nombre: "Altar de dos marchas (asalto · personalizado)",
     donde: "ui/DeploymentAltar.jsx · core/pase_director.py · data/marcha_despliegue.json",
     porQue:
-      "Táctico / Forzada / Asalto / Personalizado — fill 100%, reserva 1, umbral + ritmo de lote.",
+      "Asalto (rápido) / Personalizado (~T). Legado táctico·forzada → asalto. Fill 100% · reserva 1.",
   },
 };
 

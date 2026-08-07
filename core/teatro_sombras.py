@@ -1,9 +1,9 @@
-"""Teatro de sombras — 1 óptica Tank + 4 Igris de papel (una marcha cada uno).
+"""Teatro de sombras — 1 óptica Tank + 2 Igris de papel (asalto · personalizado).
 
 Laboratorio pre-manos: compara fiabilidad y calidad de entrada bajo el MISMO
 mercado. No toca Tusk real, no escribe marcha_despliegue.json, no es 4.0.3 live.
 
-Óptica compartida (libros/tickers) → 4 espejos de decisión aislados.
+Óptica compartida (libros/tickers) → espejos de decisión aislados.
 Métricas: ¿mordió?, spread al fill, dist. al mid, espera, fees/notional, avance.
 """
 from __future__ import annotations
@@ -22,7 +22,7 @@ from core import pase_director as pd
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "data" / "logs" / "teatro_sombras"
 
-MARCHAS_TEATRO: tuple[str, ...] = ("tactico", "marcha_forzada", "asalto", "personalizado")
+MARCHAS_TEATRO: tuple[str, ...] = ("asalto", "personalizado")
 
 # personalizado de batida corta (mismo espíritu que marchas_10m)
 DIAS_PERSONALIZADO_DEFAULT = 0.007

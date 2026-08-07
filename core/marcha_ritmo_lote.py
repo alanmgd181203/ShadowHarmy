@@ -1,9 +1,8 @@
-"""Ritmo de lote — táctico / marcha forzada.
+"""Ritmo de lote — módulo legado (fuera del altar operativo).
 
-Reloj = ETA del par más lento @ umbral-base del lote.
-Pares adelantados endurecen umbral (piso/techo por marcha);
-con el tiempo aflojan hacia el piso.
-Asalto y personalizado NO usan este módulo.
+Sello 2 marchas: solo asalto + personalizado. `tactico` / `marcha_forzada`
+se normalizan a asalto en pase_director; este módulo queda inactivo
+(aplica_marcha → False). Código retenido por compat ETA/JSON viejos.
 Persiste: data/marcha_ritmo_lote.json
 """
 from __future__ import annotations
@@ -16,7 +15,8 @@ from typing import Any
 from core import marcha_duracion as md
 from core.manto_frecuencia import eta_despliegue_horas, fees_be_activo
 
-MARCHAS_RITMO = frozenset({"tactico", "marcha_forzada"})
+# Vacío a propósito: marchas de ritmo ya no son operativas
+MARCHAS_RITMO = frozenset()
 
 
 def _pd():
@@ -73,9 +73,10 @@ def _piso_techo(marcha_id: str, fees: float) -> tuple[float, float]:
     pd = _pd()
     mid = pd.normalizar_marcha(marcha_id)
     perfil = pd.MARCHAS[mid]
-    mult = float(perfil.get("umbral_fees_mult") or 0.5)
+    mult = float(perfil.get("umbral_fees_mult") or 0.0)
     piso = fees * mult
-    techo = fees * (2.0 if mid == "tactico" else 1.5)
+    # Legado: techos táctico/forzada ya no aplican (mid operativo es asalto/personalizado)
+    techo = fees * 1.5
     return piso, max(techo, piso)
 
 

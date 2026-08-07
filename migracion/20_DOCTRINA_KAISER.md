@@ -91,6 +91,8 @@ Detalle: [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md
 
 **Regla:** situaciones “normales” en trinidad/pentiverso = optimización **intra-Bybit**. Greed es quien **toma riesgo entre mares/exchanges**.
 
+**Nota Monarca 2026-08-06:** entradas/salidas finas, slippage y spreads = oficio de **Greed al final** (laboratorio); no reabrir Greed mainnet ahora ni pedírselo a Igris. Indicadores / mega-historial / peinado Kaiser = **después**. Camino vigente: Igris (Asalto) → Beru → Greed. Sello: [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md).
+
 **Semáforos matriz (3.7.P1 ✅):** `indicadores.matriz_luces` en digest — VERDE &lt; umbral · AMARILLO ≥ umbral · ROJO ≥ 2× · **sin órdenes**.
 
 **3.7.P3 (pausa):** luz aliado spot / huérfano / panorama global → **Greed**, no Igris. Igris solo manto con inverse.

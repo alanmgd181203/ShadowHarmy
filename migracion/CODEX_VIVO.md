@@ -70,7 +70,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Kaiser sesgo vivo anti-ROJO (Jess `a1f2e7e`, 2026-08-02):** si Tank no tiene líder verde, el sesgo vivo lee del **nodo más fresco** (`_lider_para_sesgo`) — el clima no se apaga solo por latencia del semáforo
 - **Manto vs cero estructural (2026-08-02):** frecuencia/ETA + puerta Igris cuentan **exceso vs cero** (no gap eterno) · `MANTO_CERO_ESTRUCTURAL` · informe `scripts/informe_sesgo_monarca.py` · [`INFORME_SESGO_ESTRUCTURAL.md`](INFORME_SESGO_ESTRUCTURAL.md)
 - **Ritual ojos vivo México (Jess, 2026-08-02):** mainnet reiniciado · Tusk ~1525 sana · 15 bases × 3 mares con sesgo vivo tras calentamiento · Mac CPU alta al backfill (semáforo puede parpadear) · manos OFF
-- **Teatro de sombras Igris (lab, 2026-08-04):** 1 óptica + 4 marchas de papel · preparado, no soltado · no es 4.0.3 · [`TEATRO_SOMBRAS_IGRIS.md`](TEATRO_SOMBRAS_IGRIS.md)
+- **Teatro de sombras Igris (lab, 2026-08-04→06):** 1 óptica + **2** marchas de papel (asalto · personalizado) · preparado, no soltado · no es 4.0.3 · [`TEATRO_SOMBRAS_IGRIS.md`](TEATRO_SOMBRAS_IGRIS.md)
 - **Oído Bellion 4.1.2 (2026-07-24):** tabla evento→nivel · `bellion_oido` · portal Cascada · sin LLM/Telegram
 - **Pergamino React (local):** Cascada → Manto Igris · Beru Sub-Santuario · **Bellion susurro** · Ascensión Tusk
 - **Sub-Santuario Beru (2026-07-24):** `beru_asset_detail` · flota caza/neg · red engorde frontera · crónica `data/beru/cronicas/` · Bellion `beru_flota` / `beru_asset_details` · panel Streamlit
@@ -81,8 +81,9 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Jess sync Bybit (2026-07-21):** lev+mínimos+piso manto vivos · 780 bases · origin sync México
 - **Pase batalla 13 Santos (2026-07-19):** vacío 1,6 % · rangos Aspirante→Chamán · [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md)
 - **Candado rango (2026-07-19):** `MONARCA_RANK_GATE` → Igris auditoría/despliegue + Beru casa (no live) + Ascensión viva desde `estado_vivo`
-- **Director pase (2026-07-19→08-03):** `pase_director` — potencia/lote · **4 marchas** · **fill 100% · reserva 1** · ritmo de lote · personalizado por T · altar hidrata JSON · `set_marcha_cli` · sello [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md)
-- **Libros Tusk / duración / ritmo:** `tusk_libros` · `marcha_duracion` · `marcha_ritmo_lote`
+- **Director pase (2026-07-19→08-06):** `pase_director` — potencia/lote · **2 marchas operativas (asalto · personalizado)** · **fill 100% · reserva 1** · personalizado por T · legado táctico/forzada → asalto · altar hidrata JSON · `set_marcha_cli` · sello [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md)
+- **Ley Igris≠Greed · Asalto (2026-08-06):** Igris peaje aceptado / plantar; caza edge = Greed después; indicadores/peinado Kaiser después; orden Igris→Beru→Greed · [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md) · doctrina `21`
+- **Libros Tusk / duración / ritmo:** `tusk_libros` · `marcha_duracion` · `marcha_ritmo_lote` (legado dormido tras sello 2 marchas)
 - **Disparo dual Igris (2026-07-19):** L+S a la vez + salvavidas Market si una pierna huérfana (`IGRIS_DUAL_*`)
 - **Escalera precios (2026-07-20):** micro-bocados Limit Igris+Greed · cancel no llenos · equilibrar Market · `core/escalera_precios.py`
 - **Lotes Bybit qtyStep (2026-07-20):** `core/lote_bybit.py` lee BD Jess · peldaños/órdenes en múltiplos reales · [`CHECKPOINT_LOTES_BYBIT_2026-07-20.md`](CHECKPOINT_LOTES_BYBIT_2026-07-20.md)
@@ -92,7 +93,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Kaiser memoria barcos (2026-07-19):** Tank horario → `data/kaiser/memoria/` · digest vivo · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 - **Oído Monarca:** **Pergamino** (app) + susurro Bellion; Telegram = legado (`06_NOTIFICACIONES.md` v2)
 - **Cuartel VPS (2026-08-02→03):** droplet SG · pivot **túnel VIP WireGuard** · [`27_VPS_TUNEL_WIREGUARD.md`](27_VPS_TUNEL_WIREGUARD.md)
-- **Próximo:** corrida viva **4.0.2** `arise_igris_sim.py` (VIP OK) → luego **4.0.3** live
+- **Próximo:** **Igris** bajo preferencia **Asalto** (4.0.3 / revisar despliegue) · **no** pedir edge Greed a Igris · Beru cuando manto sirva · Greed + laboratorio al último · indicadores/peinado Kaiser **después**
 - **Jess runbook informe:** [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md)
 - **Validar:** `validar_arise_igris_sim_smoke.py` · `validar_pase_director_smoke.py` · `validar_marcha_duracion_smoke.py` · `validar_marcha_ritmo_lote_smoke.py` · `validar_tusk_libros_smoke.py` · `validar_manto_ventana_smoke.py` · (+ smokes previos)
 - **Igris sim 4.0.2:** [`CHECKPOINT_IGRIS_SIM_4_0_2.md`](CHECKPOINT_IGRIS_SIM_4_0_2.md) · manos atadas / ilusorias

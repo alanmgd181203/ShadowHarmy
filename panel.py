@@ -234,9 +234,8 @@ def main():
             )
             etas = freq.get("eta_por_marcha") or {}
             for mid, titulo in (
-                ("tactico", "Táctico"),
-                ("marcha_forzada", "Forzada"),
                 ("asalto", "Asalto"),
+                ("personalizado", "Personalizado"),
             ):
                 bloque = etas.get(mid) or {}
                 if not isinstance(bloque, dict) or not bloque:

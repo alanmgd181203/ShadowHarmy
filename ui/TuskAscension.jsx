@@ -18,11 +18,11 @@ import {
 
 /**
  * Camino de Ascensión — Aspirante→Aprendiz→Brujo→Chamán (pase 13 Santos).
- * Altar 4 marchas: featuresApagadas → altarTresMarchas (nombre legado).
+ * Altar 2 marchas: featuresApagadas → altarTresMarchas (nombre legado).
  * Fuente marcha: data/marcha_despliegue.json (hidratar Ascensión).
  */
 const ALTAR_TRES_MARCHAS_ON = featureEncendida("altarTresMarchas");
-const MARCHA_DEFAULT = "marcha_forzada";
+const MARCHA_DEFAULT = "asalto";
 const ESTADO_VIVO_URL = "/data/estado_vivo.json";
 const PLAN_POLL_MS = 4000;
 

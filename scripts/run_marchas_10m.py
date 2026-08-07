@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""4×10min arise_igris_sim — resumible; guarda parte tras cada marcha.
+"""2×10min arise_igris_sim — asalto · personalizado; resumible.
 
 Reanuda marchas ya selladas (report_* + SUCESION en log).
 Uso:
@@ -29,8 +29,6 @@ FINAL = OUT_DIR / "resumen_monarca.json"
 HEARTBEAT = OUT_DIR / "heartbeat.json"
 
 MARCHAS = [
-    ("tactico", None),
-    ("marcha_forzada", None),
     ("asalto", None),
     ("personalizado", 0.007),  # ~10 min T calibración
 ]
@@ -282,11 +280,11 @@ def main() -> int:
                 return 2
 
         try:
-            pd.guardar_marcha("marcha_forzada")
+            pd.guardar_marcha("asalto")
         except Exception:
             pass
         resumen["ts_end"] = time.time()
-        resumen["marcha_restored"] = "marcha_forzada"
+        resumen["marcha_restored"] = "asalto"
         FINAL.write_text(json.dumps(resumen, indent=2, ensure_ascii=False), encoding="utf-8")
         _save_parcial(resumen)
         _beat("done")

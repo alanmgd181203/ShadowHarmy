@@ -148,7 +148,7 @@ def test_despliegue_paciente():
 
     mid_prev = pd.cargar_marcha()
     try:
-        pd.guardar_marcha("marcha_forzada")
+        pd.guardar_marcha("asalto")
         puerta = ides.evaluar_puerta_se(
             FakeTank(), "ETHUSD_INVERSE", "ETHUSDT_LINEAL",
             t0_paciencia=t0, restante_usd=150.0, activo="ETH", ahora=t0,
@@ -179,9 +179,9 @@ def test_despliegue_paciente():
                 dias = float(payload.get("duracion_dias") or 0.33)
                 pd.guardar_marcha("personalizado", duracion_dias=dias)
             else:
-                pd.guardar_marcha(mid_prev)
+                pd.guardar_marcha(mid_prev if mid_prev else "asalto")
         except Exception:
-            pd.guardar_marcha("marcha_forzada")
+            pd.guardar_marcha("asalto")
 
 
 def test_libro_tank_desde_lider():

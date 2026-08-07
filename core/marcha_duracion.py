@@ -1,7 +1,8 @@
 """Marcha personalizada por duración — calibra umbral por par para ~T días.
 
-Sello mega-pre-Igris: el Monarca escribe T; cada base del lote ajusta umbral
-para que el engorde dure ~T. Reajuste vivo si adelanta/atrasa.
+Una de las dos marchas operativas (junto a asalto): el Monarca escribe T;
+cada base del lote ajusta umbral para que el engorde dure ~T.
+Reajuste vivo si adelanta/atrasa.
 Persiste: data/marcha_umbrales_custom.json
 """
 from __future__ import annotations

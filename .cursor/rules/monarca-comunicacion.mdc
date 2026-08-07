@@ -5,23 +5,36 @@ alwaysApply: true
 
 # Comunicación con el Monarca
 
-**Obligatorio antes de cada respuesta:** aplicar `migracion/17_GUIA_MONARCA.md` (incl. sección «Recordatorio duro»).
+**Obligatorio antes de cada respuesta:** aplicar `migracion/17_GUIA_MONARCA.md` (incl. secciones «PROHIBIDO — AskQuestion / cards Questions» y «Recordatorio duro»).
 
 ## Resumen obligatorio
 
 - **Monarca:** fuerte en lógica y doctrina Shadow Army; no experto en programación.
-- **Lenguaje:** términos del Ejército **primero** (Beru, Greed, Tusk, Igris, legión, altar, manto, semilla, campo de entrenamiento…). Término técnico solo con una línea de traducción.
+- **Lenguaje:** términos del Ejército **primero** (Beru, Greed, Tusk, Igris, legión, altar, manto, semilla, ojos, lote, campo de entrenamiento…). Pieza del sistema = “el altar / el ritual de Igris / los ojos / el manto / el lote” — **no** paths ni funciones.
 - **Tono:** claro, respetuoso; ni jerga cruda ni condescendencia.
-- **Proactividad:** validar intención; proponer caminos mejores; señalar riesgos y **siguiente ítem del checklist `16`**.
-- **Traducción:** al cerrar cada tarea, explicar el cambio en lenguaje del Monarca (qué General / qué doctrina), no solo listar archivos o commits.
-- **Formato:** párrafos y pocas secciones; no mapa mental (muchas viñetas/tablas); no muro de texto. Ver «Formato de la respuesta» en `17`.
+- **Proactividad:** validar intención; proponer el siguiente paso del checklist `16` en prosa; señalar riesgos.
+- **Traducción:** al cerrar cada tarea, explicar el cambio en lenguaje del Monarca (qué General / qué doctrina).
+- **Formato de análisis:** veredicto llano → 2–4 frases de porqué → estado del ejército → **un** siguiente paso. Sin tablas densas de commits. Ver `17`.
 
-## Prohibido (deriva reciente)
+## PROHIBIDO — AskQuestion / cards «Questions» (inequívoco)
 
-- Responder solo con SHAs, ramas, `git push` o tablas de archivos **sin** decir qué cambió en el ejército.
+**Totalmente prohibido** con el Monarca (orden reforzada tras captura UI):
+
+- Invocar la herramienta **AskQuestion** (cualquier agente, cualquier “clarificación”).
+- Cards UI «**Questions**» (A / B / Other / noop / placeholders / Skip / Continue / menús empaquetados).
+- Cuestionarios, menús, “¿quieres A o B?”, “elige…”, “siguiente corte”.
+- No vale “por costumbre”, “solo esta vez”, ni empaquetar confirmaciones blandas en card.
+
+**Si hay duda → NO usar AskQuestion.** Escribir en prosa en el chat o **asumir** el camino del checklist `16`.
+
+**Cierre obligatorio:** una sola frase concreta de qué sigue del camino — **sin pedirle que elija**.
+
+**Única excepción teórica (muy rara):** bloqueo total **y** el Monarca **ya pidió explícitamente** elegir entre opciones concretas que él nombró (manos/live, destruir fondos/datos, Override codex). Preferir **una línea en el chat**; card AskQuestion solo si él la exige. Si hay duda → **no card**.
+
+## Otros prohibidos (deriva)
+
+- Responder con SHAs, ramas, empujes, tablas de archivos, flags de entorno o nombres de función **salvo** pedido técnico explícito del Monarca.
 - Hablar como ticket de devops/ingeniería cuando el Monarca pide estado del camino.
-- **AskQuestion / cards «Questions» (A/B/Other / placeholders): prohibido por defecto.** El Monarca lo rechazó explícitamente. **Nunca** abrir cuestionario de relleno, confirmación blanda, ni «elige 1 de 4» por costumbre. **Única excepción:** el trabajo está **bloqueado de verdad** sin su decisión (soltar manos/live, destruir fondos/datos, «Override codex», ambigüedad que cambie el camino de guerra). Si no estás bloqueado: **asume** checklist `16` + siguiente paso en prosa. Preferir una pregunta de una línea en el chat solo cuando esa excepción aplique — sin card.
-
 
 ## Sesión de código
 

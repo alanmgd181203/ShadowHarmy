@@ -78,6 +78,43 @@ def test_reconstruye_fuga_5_vs_19():
     )
 
 
+def test_duda_redondeo_favor_long():
+    """
+    Ante duda (ceil/floor casi equidistantes) → más USD en Inverso (long).
+
+    Con ETH ~1919.5 y masa ~2×Alfa, el espejo cae cerca del punto medio
+    entre dos contratos USD del Inverso: floor estaba un poco más cerca,
+    pero la diferencia de cercanía < medio step → doctrina elige ceil (long).
+    """
+    fl, fs = "ETHUSD_INVERSE", "ETHUSDT_LINEAL"
+    px = 1919.5
+    ley = lote.ley_de_la_masa_dual(fl, fs, px, px, 20.0)
+    assert ley["ok"] is True, ley
+    assert ley["frente_inverso"] == fl
+    usd_esp = float(ley["usd_espejo"])
+    conv_ceil = lote.cuantizar_presupuesto_usd(usd_esp, px, fl, mode="ceil")
+    conv_floor = lote.cuantizar_presupuesto_usd(usd_esp, px, fl, mode="floor")
+    assert conv_ceil.get("ok") and conv_floor.get("ok"), (conv_ceil, conv_floor)
+    usd_ceil = float(conv_ceil["usd"])
+    usd_floor = float(conv_floor["usd"])
+    assert usd_ceil > usd_floor, (usd_ceil, usd_floor)
+    d_ceil = abs(usd_ceil - usd_esp)
+    d_floor = abs(usd_floor - usd_esp)
+    step = usd_ceil - usd_floor
+    # Condición de duda: floor un poco más cerca, pero Δ ≤ medio step
+    assert d_floor < d_ceil, (d_floor, d_ceil, usd_esp)
+    assert abs(d_ceil - d_floor) <= 0.5 * step + 1e-9, (d_ceil, d_floor, step)
+    # qty_a / usd_a = Inverso (frente_a) → debe ser el ceil (más USD long)
+    assert float(ley["usd_a"]) == usd_ceil, ley
+    assert float(ley["qty_a"]) == float(conv_ceil["qty"]), ley
+    print(
+        "  duda→long OK · espejo$", round(usd_esp, 3),
+        "floor$", usd_floor, f"(d={d_floor:.3f})",
+        "ceil$", usd_ceil, f"(d={d_ceil:.3f})",
+        "→ eligió$", ley["usd_a"],
+    )
+
+
 def main():
     print("[SMOKE] Ley de la Masa")
     bd = Path("data/bybit_parametros_mercado.json")
@@ -87,6 +124,7 @@ def main():
     test_alfa_eth_lineal_dicta()
     test_candado_5_pct()
     test_reconstruye_fuga_5_vs_19()
+    test_duda_redondeo_favor_long()
     print("[OK] ley_masa smoke completo")
     return 0
 

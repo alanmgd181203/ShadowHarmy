@@ -14,8 +14,16 @@
 5. Libros Tusk: MtM bóveda ≠ riqueza Beru; equity UTA = testigo; guerra stub.
 6. Aporte guerra→bóveda = transferencia explícita (asiento futuro).
 7. Equilibrio manto = ratio L/S sobre **desplegado @ entrada**; meta llena → no engordar.
-8. Ritmo de lote (táctico/forzada): reloj = ETA del par más lento; adelantados endurecen.
+8. Ritmo de lote (legado táctico/forzada): **fuera del altar operativo** tras sello 2 marchas; módulo dormido. Operativas = **asalto** + **personalizado**.
 
+## Sello 2 marchas (Monarca, 2026-08-06)
+
+| Marcha | Intención |
+|--------|-----------|
+| **asalto** | Desplegar el manto lo más rápido posible (peaje aceptado). Default si no hay T. |
+| **personalizado** | El Monarca elige duración ~T; calib de umbral por par. |
+
+**Legado:** `tactico` y `marcha_forzada` no se ofrecen en el altar. Al cargar / CLI / ETA, `normalizar_marcha` las mapea a **asalto** (lectura segura; `guardar_marcha` con id legado también persiste asalto).
 ## Código
 
 | Pieza | Ruta |
@@ -42,3 +50,9 @@ python scripts/validar_marcha_ritmo_lote_smoke.py
 ## Siguiente ritual
 
 Igris sim (**4.0.2**) — otro trabajo. Manos siguen OFF.
+
+---
+
+## Addendum ley 2026-08-06
+
+Sello doctrinal aparte (oficio Igris ≠ Greed · preferencia Asalto · camino Igris→Beru→Greed): [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md). Este mega-pre-Igris **no** se reescribe; el disco de marcha no se fuerza aquí.
