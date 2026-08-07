@@ -305,7 +305,10 @@ function AscensionTrack({ progress, march, lit, forgingId, onResetMarch, onClose
             <p className="text-[10px] uppercase tracking-[0.4em] text-[#6a5a40]">Tusk</p>
             <h2 className="text-xl text-[#e8e4d8] font-light tracking-[0.12em]">Camino de Ascension</h2>
             {march ? (
-              <p className="text-[10px] text-[#6a5a40] mt-1 tracking-wide">{march.titulo}</p>
+              <p className="text-[10px] text-[#6a5a40] mt-1 tracking-wide">
+                {march.titulo}
+                {progress?.vivo?.preferenciaAsalto ? " · preferencia Asalto" : ""}
+              </p>
             ) : null}
             {progress?.live ? (
               <p className="text-[10px] text-[#8a7a55] mt-1 tracking-wide">
@@ -313,6 +316,56 @@ function AscensionTrack({ progress, march, lit, forgingId, onResetMarch, onClose
                 {progress.activoPreferido ? ` · foco ${progress.activoPreferido}` : ""}
                 {progress.potenciaN != null ? ` · potencia ${progress.nLogrados || 0}/${progress.potenciaN}` : ""}
               </p>
+            ) : null}
+            {progress?.vivo ? (
+              <div className="mt-2 space-y-0.5 text-[10px] text-[#5a6170] tracking-wide leading-relaxed">
+                <p>
+                  O₂{" "}
+                  {progress.vivo.oxigeno != null
+                    ? `~$${Math.round(Number(progress.vivo.oxigeno))}`
+                    : "—"}
+                  {" · equity "}
+                  {progress.vivo.equity != null
+                    ? `~$${Math.round(Number(progress.vivo.equity))}`
+                    : "—"}
+                </p>
+                <p>
+                  Ventana 48–52{" "}
+                  {progress.vivo.ventanaEstado || "—"}
+                  {progress.vivo.ventanaPctLong != null
+                    ? ` · L ${Number(progress.vivo.ventanaPctLong).toFixed(1)}%`
+                    : ""}
+                  {progress.vivo.ventanaOk === true
+                    ? " · ok"
+                    : progress.vivo.ventanaOk === false
+                      ? " · fuera"
+                      : ""}
+                </p>
+                <p>
+                  Engorde{" "}
+                  {progress.vivo.metaActivo || "—"}
+                  {progress.vivo.metaHave != null && progress.vivo.metaNeed != null
+                    ? ` · $${Math.round(Number(progress.vivo.metaHave))}/$${Math.round(Number(progress.vivo.metaNeed))}`
+                    : ""}
+                  {progress.vivo.metaRestante != null
+                    ? ` · resta $${Math.round(Number(progress.vivo.metaRestante))}`
+                    : ""}
+                  {progress.vivo.metaLlena ? " · meta llena" : ""}
+                </p>
+                {progress.vivo.leyMotivo && progress.vivo.leyMotivo !== "sin_puerta_aun" ? (
+                  <p>
+                    Ley masa{" "}
+                    {progress.vivo.leyBloqueado === true
+                      ? "bloqueo"
+                      : progress.vivo.leyBloqueado === false
+                        ? "libre"
+                        : "—"}
+                    {" · "}
+                    {progress.vivo.leyMotivo}
+                    {progress.vivo.leyAsim != null ? ` · asim ${progress.vivo.leyAsim}%` : ""}
+                  </p>
+                ) : null}
+              </div>
             ) : null}
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0">
@@ -407,6 +460,7 @@ export default function TuskAscension({ onClose }) {
   const [liveMode, setLiveMode] = useState(false);
   const [forgingId, setForgingId] = useState(null);
   const [freqManto, setFreqManto] = useState(null);
+  const [vivoExtra, setVivoExtra] = useState(null);
   const forgeTimer = useRef(null);
 
   const march = marchById(marchId) || (!ALTAR_TRES_MARCHAS_ON ? marchById(MARCHA_DEFAULT) : null);
@@ -486,6 +540,30 @@ export default function TuskAscension({ onClose }) {
         const data = await res.json();
         const plan = data?.igris?.plan_crecimiento || data?.plan_crecimiento;
         if (data?.igris?.frecuencia_manto) setFreqManto(data.igris.frecuencia_manto);
+        const tes = data?.tusk_tesoreria || {};
+        const march = data?.igris?.marcha || {};
+        const vent = data?.igris?.ventana_manto || {};
+        const meta = data?.igris?.meta_engorde || {};
+        const ley = data?.igris?.ley_masa || {};
+        setVivoExtra({
+          equity: tes.equity_usd ?? data?.masa_bruta_real ?? null,
+          oxigeno: tes.oxigeno_guerra_usd ?? data?.masa_autorizada ?? null,
+          disponible: tes.disponible_usd ?? null,
+          marchaId: march.id || plan?.pase_director?.marcha_id || null,
+          marchaTitulo: march.titulo || null,
+          preferenciaAsalto: march.preferencia_asalto !== false,
+          ventanaEstado: vent.estado || null,
+          ventanaPctLong: vent.pct_long ?? null,
+          ventanaOk: vent.ok,
+          metaActivo: meta.activo || null,
+          metaHave: meta.have_usd ?? null,
+          metaNeed: meta.need_fill_usd ?? null,
+          metaRestante: meta.restante_usd ?? null,
+          metaLlena: meta.meta_llena,
+          leyMotivo: ley.motivo || null,
+          leyBloqueado: ley.bloqueado,
+          leyAsim: ley.asim_pct ?? null,
+        });
         const next = progressFromPlan(plan);
         if (!next || cancelled) return;
         setLiveMode(true);
@@ -563,6 +641,7 @@ export default function TuskAscension({ onClose }) {
             activoPreferido: progress.activoPreferido,
             potenciaN: progress.potenciaN,
             nLogrados: progress.nLogrados,
+            vivo: vivoExtra,
           }}
           march={march}
           lit={lit}

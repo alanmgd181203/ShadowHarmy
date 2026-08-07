@@ -150,6 +150,47 @@ class BellionAuditor:
         if usd_l + usd_s <= 0:
             usd_l, usd_s = float(peso_l), float(peso_s)
         igris_resumen["ventana_manto"] = mv.resumen_barco(usd_l, usd_s)
+        # Marcha operativa + preferencia Asalto (lectura; no escribe disco)
+        try:
+            from core import pase_director as pd
+
+            mid = pd.cargar_marcha()
+            payload_m = pd.cargar_marcha_payload() or {}
+            igris_resumen["marcha"] = {
+                "id": mid,
+                "titulo": payload_m.get("titulo") or (
+                    "Asalto Inmediato" if mid == "asalto" else "Marcha Personalizada"
+                ),
+                "preferencia_asalto": True,  # ley Monarca 2026-08-06
+                "duracion_dias": payload_m.get("duracion_dias"),
+                "fill_ratio": payload_m.get("fill_ratio"),
+                "reserva_pasos": payload_m.get("reserva_pasos"),
+                "force_market": payload_m.get("force_market"),
+            }
+            try:
+                igris_resumen["meta_engorde"] = pd.meta_engorde_usd(eq, tusk=tusk, marcha_id=mid)
+            except Exception as e:
+                igris_resumen["meta_engorde"] = {"ok": False, "motivo": str(e)}
+        except Exception as e:
+            igris_resumen["marcha"] = {
+                "id": None,
+                "titulo": None,
+                "preferencia_asalto": True,
+                "error": str(e),
+            }
+            igris_resumen["meta_engorde"] = {"ok": False, "motivo": "sin_director"}
+        # Ley de la Masa — solo lectura (último candado de Igris o sin dato)
+        if hasattr(igris, "snapshot_ley_masa"):
+            try:
+                igris_resumen["ley_masa"] = igris.snapshot_ley_masa()
+            except Exception as e:
+                igris_resumen["ley_masa"] = {"ok": None, "motivo": str(e), "bloqueado": None}
+        else:
+            igris_resumen["ley_masa"] = {
+                "ok": None,
+                "motivo": "sin_puerta_aun",
+                "bloqueado": None,
+            }
         try:
             from core import manto_frecuencia as mf
 

@@ -67,20 +67,26 @@ def main():
     margen = estado.get("margen_ocupado", 0)
     col1.metric("Margen usado", f"{margen:.1f}%")
 
-    masa_aut = estado.get("masa_autorizada", 0)
-    col2.metric("Oxígeno guerra", f"${float(masa_aut):.2f}")
+    tes = estado.get("tusk_tesoreria") or {}
+    o2 = tes.get("oxigeno_guerra_usd")
+    if o2 is None:
+        o2 = estado.get("masa_autorizada", 0)
+    col2.metric("Oxígeno guerra", f"${float(o2 or 0):.2f}")
 
-    masa_bruta = estado.get("masa_bruta_real") or estado.get("masa_bruta", 0)
-    col3.metric("Equity UTA", f"${float(masa_bruta):.2f}")
+    eq_tusk = tes.get("equity_usd")
+    if eq_tusk is None:
+        eq_tusk = estado.get("masa_bruta_real") or estado.get("masa_bruta", 0)
+    col3.metric("Equity UTA", f"${float(eq_tusk or 0):.2f}")
 
     ciclos = estado.get("ciclos_consumados", 0)
     col4.metric("Ciclos completados", ciclos)
 
-    tes = estado.get("tusk_tesoreria") or {}
     if tes and tes.get("fuente") not in (None, "cero"):
+        disp = tes.get("disponible_usd")
         st.caption(
             f"Tusk tesorería · {tes.get('estado', '?')} · "
-            f"disponible ${float(tes.get('disponible_usd') or 0):.2f} · "
+            f"disponible {('$' + f'{float(disp):.2f}') if disp is not None else '—'} · "
+            f"O₂ ${float(tes.get('oxigeno_guerra_usd') or 0):.2f} · "
             f"MNT ${float(tes.get('mnt_usd') or 0):.2f} · "
             f"hedge IM ${float(tes.get('im_hedge_usd') or 0):.2f} · "
             f"match {'OK' if tes.get('hedge_match_ok') else '—'} · "
@@ -166,6 +172,81 @@ def main():
     igris = estado.get("igris", {})
     if igris:
         st.subheader("🛡️ Igris — escudo del manto")
+        marcha = igris.get("marcha") or {}
+        mid = marcha.get("id") or (igris.get("plan_crecimiento") or {}).get("pase_director", {}).get("marcha_id")
+        titulo_m = marcha.get("titulo") or ("Asalto" if mid == "asalto" else ("Personalizado" if mid == "personalizado" else "—"))
+        pref = "preferencia Asalto" if marcha.get("preferencia_asalto", True) else ""
+        st.caption(
+            f"Marcha operativa: **{titulo_m}** (`{mid or '—'}`)"
+            + (f" · {pref}" if pref else "")
+            + (
+                f" · ~T {marcha.get('duracion_dias')}d"
+                if mid == "personalizado" and marcha.get("duracion_dias") is not None
+                else ""
+            )
+        )
+
+        vent = igris.get("ventana_manto") or {}
+        if vent:
+            v1, v2, v3, v4 = st.columns(4)
+            pct_l = vent.get("pct_long")
+            v1.metric("Ventana L%", f"{pct_l:.1f}%" if pct_l is not None else "—")
+            v2.metric("Estado 48–52", vent.get("estado") or "—")
+            v3.metric("Long-primero", "✅" if vent.get("ok") else ("⚠️" if vent.get("estado") else "—"))
+            v4.metric(
+                "USD L / S",
+                (
+                    f"${float(vent.get('usd_long') or 0):.0f} / ${float(vent.get('usd_short') or 0):.0f}"
+                    if vent.get("usd_long") is not None
+                    else "—"
+                ),
+            )
+
+        meta = igris.get("meta_engorde") or {}
+        if meta:
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("Foco engorde", meta.get("activo") or "—")
+            m2.metric(
+                "Meta paso",
+                f"${float(meta['need_fill_usd']):.0f}" if meta.get("need_fill_usd") is not None else "—",
+            )
+            m3.metric(
+                "Ya desplegado",
+                f"${float(meta['have_usd']):.0f}" if meta.get("have_usd") is not None else "—",
+            )
+            m4.metric(
+                "Restante",
+                f"${float(meta['restante_usd']):.0f}" if meta.get("restante_usd") is not None else "—",
+            )
+            if meta.get("ok") and meta.get("need_fill_usd"):
+                need = float(meta["need_fill_usd"]) or 1.0
+                have = float(meta.get("have_usd") or 0)
+                st.progress(max(0.0, min(1.0, have / need)))
+                st.caption(
+                    f"Paso n={meta.get('paso_n') or '—'} · "
+                    f"{'meta llena' if meta.get('meta_llena') else 'engorde en curso'} · "
+                    f"mitad={'sí' if meta.get('mitad_alcanzada') else 'aún no'}"
+                )
+            elif meta.get("motivo"):
+                st.caption(f"Meta engorde: {meta.get('motivo')}")
+
+        ley = igris.get("ley_masa") or {}
+        if ley:
+            bloq = ley.get("bloqueado")
+            if bloq is True:
+                etiqueta = "🔒 bloqueado"
+            elif bloq is False:
+                etiqueta = "✅ libre"
+            else:
+                etiqueta = "—"
+            asim = ley.get("asim_pct")
+            st.caption(
+                f"Ley de la Masa · {etiqueta} · "
+                f"motivo {ley.get('motivo') or '—'} · "
+                f"asim {f'{asim}%' if asim is not None else '—'} · "
+                f"activo {ley.get('activo') or '—'}"
+            )
+
         fase = igris.get("fase_margen", "?")
         accion = igris.get("accion_heuristica", "VIGILAR")
         umb = igris.get("umbrales", {})

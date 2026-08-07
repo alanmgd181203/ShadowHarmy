@@ -48,6 +48,46 @@ class IgrisEscudo:
         self._alertas_kaiser_cache: list = []
         self._bootstrap_inicial_hecho = False
         self._ultimo_heartbeat_evento = 0.0
+        # Último candado Ley de la Masa (solo lectura → estado_vivo; no dispara órdenes)
+        self._ultimo_ley_masa: dict | None = None
+
+    def snapshot_ley_masa(self) -> dict:
+        """Campos ligeros para panel — sin re-evaluar puerta ni enviar órdenes."""
+        snap = self._ultimo_ley_masa
+        if not snap:
+            return {
+                "ok": None,
+                "motivo": "sin_puerta_aun",
+                "bloqueado": None,
+                "asim_pct": None,
+                "activo": None,
+            }
+        return dict(snap)
+
+    def _registrar_ley_masa(self, activo: str, puerta: dict) -> None:
+        ley = puerta.get("ley_masa") if isinstance(puerta, dict) else None
+        if not isinstance(ley, dict):
+            ley = {}
+        motivo = str(ley.get("motivo") or puerta.get("motivo") or "—")
+        ok = ley.get("ok")
+        if ok is None and puerta.get("motivo") in (
+            "ley_masa_fallida",
+            "asimetr_masa_usd",
+            "sin_precio_ley_masa",
+        ):
+            ok = False
+        self._ultimo_ley_masa = {
+            "ok": ok,
+            "motivo": motivo,
+            "bloqueado": False if ok is True else (True if ok is False else None),
+            "asim_pct": ley.get("asim_pct"),
+            "asim_max_pct": ley.get("asim_max_pct"),
+            "alfa_usd": ley.get("alfa_usd") or puerta.get("alfa_usd"),
+            "masa_absoluta_usd": ley.get("masa_absoluta_usd") or puerta.get("micro_usd"),
+            "activo": (activo or "").upper() or None,
+            "puerta_ok": bool(puerta.get("ok")) if isinstance(puerta, dict) else None,
+            "ts": time.time(),
+        }
 
     def calcular_banda_delta(self):
         """Ventana 48–52 (crecimiento) o legacy por margen si flag off."""
@@ -1114,6 +1154,7 @@ class IgrisEscudo:
             pipeline_ms=self._pipeline_ms_kaiser(),
             margen_ocupado_pct=float(self.tusk.margen_ocupado),
         )
+        self._registrar_ley_masa(activo, puerta)
         if not puerta.get("ok"):
             await self._anotar_espera_spread(
                 "BOOTSTRAP_ESPERA_SPREAD" if origen == "BOOTSTRAP" else "ENGORDE_ESPERA_SPREAD",
@@ -1132,6 +1173,10 @@ class IgrisEscudo:
 
         if masa_l <= 0 or masa_s <= 0:
             # Candado duro: sin qtys nativas de Ley de la Masa no hay disparo
+            self._registrar_ley_masa(
+                activo,
+                {**puerta, "ok": False, "motivo": "sin_masa_nativa", "ley_masa": puerta.get("ley_masa") or {"ok": False, "motivo": "sin_masa_nativa"}},
+            )
             await self.bel.anotar(
                 "IGRIS", "LEY_MASA_BLOQUEO",
                 f"Sin masa_long/short · puerta={puerta.get('motivo')} · "

@@ -1,19 +1,66 @@
 import { useState, useEffect } from "react";
 import AssetDetail from "./AssetDetail.jsx";
 
+const ESTADO_URL = "/data/estado_vivo.json";
+
+function fmtDash(n, digits = 0) {
+  if (n == null || Number.isNaN(Number(n))) return "—";
+  const v = Number(n);
+  return digits > 0 ? v.toFixed(digits) : String(Math.round(v));
+}
+
 /**
  * IgrisPanel — Lienzo táctico "EL MANTO"
- * Estado cero + fundido + Sub-Santuario por activo.
+ * Lee estado_vivo para oxígeno / ventana; sin inventar ceros si no hay dato.
  */
 export default function IgrisPanel({ onClose }) {
   const [showOxygen, setShowOxygen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
+  const [vivo, setVivo] = useState(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setPanelVisible(true));
     return () => cancelAnimationFrame(id);
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    async function tick() {
+      try {
+        const res = await fetch(`${ESTADO_URL}?t=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok || !alive) return;
+        const data = await res.json();
+        if (!alive) return;
+        const tes = data?.tusk_tesoreria || {};
+        const vent = data?.igris?.ventana_manto || {};
+        const meta = data?.igris?.meta_engorde || {};
+        const march = data?.igris?.marcha || {};
+        const pctL = vent.pct_long != null ? Number(vent.pct_long) : null;
+        const pctS =
+          vent.pct_short != null ? Number(vent.pct_short) : pctL != null ? 100 - pctL : null;
+        setVivo({
+          margen: data?.margen_ocupado ?? null,
+          oxigeno: tes.oxigeno_guerra_usd ?? data?.masa_autorizada ?? null,
+          equity: tes.equity_usd ?? data?.masa_bruta_real ?? null,
+          pctLong: pctL,
+          pctShort: pctS,
+          ventanaEstado: vent.estado || null,
+          marchaTitulo: march.titulo || march.id || null,
+          metaActivo: meta.activo || null,
+          metaRestante: meta.restante_usd ?? null,
+        });
+      } catch {
+        /* sin ejército → no inventar */
+      }
+    }
+    tick();
+    const t = setInterval(tick, 3000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
   }, []);
 
   const vanguardia = [
@@ -32,6 +79,15 @@ export default function IgrisPanel({ onClose }) {
     { id: "LINK", longPct: 50 },
     { id: "AVAX", longPct: 50 },
   ];
+
+  const pctL = vivo?.pctLong;
+  const pctS = vivo?.pctShort;
+  const wL = pctL != null ? Math.max(0, Math.min(100, pctL)) : 50;
+  const wS = pctS != null ? Math.max(0, Math.min(100, pctS)) : 50;
+  const margen = vivo?.margen;
+  const o2 = vivo?.oxigeno;
+  const o2Pct =
+    margen != null && Number(margen) >= 0 ? Math.max(0, 100 - Number(margen)) : null;
 
   return (
     <div
@@ -91,17 +147,44 @@ export default function IgrisPanel({ onClose }) {
             </p>
             <ul className="space-y-1.5 text-sm text-white/85">
               <li className="flex justify-between gap-2">
-                <span className="text-white/45">Masa de Manto</span>
-                <span className="font-medium tabular-nums">$0.00</span>
+                <span className="text-white/45">Equity Tusk</span>
+                <span className="font-medium tabular-nums">
+                  {vivo?.equity != null ? `$${fmtDash(vivo.equity)}` : "—"}
+                </span>
               </li>
               <li className="flex justify-between gap-2">
-                <span className="text-white/45">Margen de Ocupación</span>
-                <span className="font-medium tabular-nums">00%</span>
+                <span className="text-white/45">Oxígeno guerra</span>
+                <span className="font-medium tabular-nums">
+                  {o2 != null ? `$${fmtDash(o2)}` : "—"}
+                </span>
               </li>
               <li className="flex justify-between gap-2">
-                <span className="text-white/45">Oxígeno Libre</span>
-                <span className="font-medium tabular-nums text-[#ff0055]">00%</span>
+                <span className="text-white/45">Margen ocupado</span>
+                <span className="font-medium tabular-nums">
+                  {margen != null ? `${fmtDash(margen, 1)}%` : "—"}
+                </span>
               </li>
+              <li className="flex justify-between gap-2">
+                <span className="text-white/45">Oxígeno libre</span>
+                <span className="font-medium tabular-nums text-[#ff0055]">
+                  {o2Pct != null ? `${fmtDash(o2Pct, 1)}%` : "—"}
+                </span>
+              </li>
+              {vivo?.marchaTitulo ? (
+                <li className="flex justify-between gap-2 pt-1 border-t border-white/5">
+                  <span className="text-white/45">Marcha</span>
+                  <span className="font-medium text-right text-[12px]">{vivo.marchaTitulo}</span>
+                </li>
+              ) : null}
+              {vivo?.metaActivo ? (
+                <li className="flex justify-between gap-2">
+                  <span className="text-white/45">Resta engorde</span>
+                  <span className="font-medium tabular-nums">
+                    {vivo.metaActivo}
+                    {vivo.metaRestante != null ? ` · $${fmtDash(vivo.metaRestante)}` : ""}
+                  </span>
+                </li>
+              ) : null}
             </ul>
           </div>
         )}
@@ -110,14 +193,23 @@ export default function IgrisPanel({ onClose }) {
       <section className="pt-5 pb-2 shrink-0">
         <p className="text-center text-[10px] uppercase tracking-[0.25em] text-white/35 mb-2">
           Balance global · Long / Short
+          {vivo?.ventanaEstado ? ` · ${vivo.ventanaEstado}` : ""}
         </p>
         <div className="h-4 rounded-full w-[90%] mx-auto overflow-hidden flex border border-white/10">
-          <div className="h-full w-1/2 bg-[#ff0055]/40" title="Long 00%" />
-          <div className="h-full w-1/2 bg-[#1a1d26]" title="Short 00%" />
+          <div
+            className="h-full bg-[#ff0055]/40"
+            style={{ width: `${wL}%` }}
+            title={pctL != null ? `Long ${pctL.toFixed(1)}%` : "Long —"}
+          />
+          <div
+            className="h-full bg-[#1a1d26]"
+            style={{ width: `${wS}%` }}
+            title={pctS != null ? `Short ${pctS.toFixed(1)}%` : "Short —"}
+          />
         </div>
         <div className="w-[90%] mx-auto mt-1.5 flex justify-between text-[10px] tracking-wider text-white/40">
-          <span>LONG 00%</span>
-          <span>SHORT 00%</span>
+          <span>LONG {pctL != null ? `${pctL.toFixed(1)}%` : "—"}</span>
+          <span>SHORT {pctS != null ? `${pctS.toFixed(1)}%` : "—"}</span>
         </div>
       </section>
 
@@ -199,7 +291,7 @@ function AssetRow({ coin, onOpen }) {
         <div className="h-full w-1/2 bg-[#2a2e3a]" />
       </div>
       <span className="w-14 shrink-0 text-right text-[10px] tabular-nums text-white/35">
-        00/00
+        —
       </span>
     </button>
   );
