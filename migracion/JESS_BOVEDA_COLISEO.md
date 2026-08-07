@@ -1,15 +1,30 @@
 # Jess — Bóveda Coliseo (noche México · SOLO descarga)
 
 **Para:** Cursor en la Mac de Jess  
-**Objetivo de esta noche:** armar la bóveda spot 1m lo más rápido posible.  
+**Objetivo de esta noche (Coliseo clásico):** armar la bóveda **spot** 1m lo más rápido posible.  
 **No** simular Beru Fantasma ahora — eso es mañana en paralelo (Monarca + Jess).
 
 ---
 
-## Mandato listo para pegar en Cursor (Agent) — NOCHE
+## Noche historial flota Igris (mandato preferido)
+
+Si el Monarca pide **llenar historial/gráficas de la flota Igris** (spots **+** lineal/inverso del manto), usa el pergamino:
+
+→ **[`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md)**
 
 ```
-Actualiza el repo y deja corriendo SOLO la descarga de la bóveda Coliseo.
+python scripts/jess_noche_historial_igris.py --dias 365 --watchdog
+```
+
+Eso es **función del ejército de noche**, **no** el live **4.0.3 Asalto** (manos).  
+Este documento abajo sigue siendo el Coliseo **solo-spot** (compat / teatro Fantasma).
+
+---
+
+## Mandato listo para pegar en Cursor (Agent) — NOCHE SOLO SPOT
+
+```
+Actualiza el repo y deja corriendo SOLO la descarga de la bóveda Coliseo (spot).
 
 1) git status && git pull origin master
 
@@ -83,5 +98,5 @@ python scripts/coliseo_beru_fantasma.py --vacios 0.010,0.012,0.016,0.020
 | Simulación al final | **Omitida** (default) |
 | sleep 0.25s | sleep **0.12s** + backoff solo si falla |
 
-Estimación orientativa: de ~1–3 h según red/límites Bybit (no es exacto).  
-Si tarda de más, usar `--workers 2`.
+Estimación orientativa (solo spot): de ~1–3 h según red/límites Bybit.  
+Historial Igris (spot+L+S) tarda más — ~3× los pares. Si tarda de más, usar `--workers 2`.

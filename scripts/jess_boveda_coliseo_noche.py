@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-"""Ritual nocturno Jess — SOLO Gran Consumo bóveda spot 1m (máx. velocidad).
+"""Ritual nocturno Jess — bóveda velas 1m (Coliseo / historial Igris).
 
-Uso típico (México, toda la noche):
+Uso Coliseo clásico (solo spot, theater Beru):
   python scripts/jess_boveda_coliseo_noche.py --dias 365 --watchdog
 
-- Descarga flota Beru (~22) spot USDT 1m · ~1 año
-- 3 puentes en paralelo (activos distintos) + pausa corta + backoff si Bybit frena
-- Reanudable + vigilante cada 10 min
-- Al terminar: zip para Drive (SIN simulación; el Coliseo es después)
+Uso historial flota Igris (spots + L/S) — preferido de noche:
+  python scripts/jess_noche_historial_igris.py --dias 365 --watchdog
 
-Opcional teatro esa misma máquina:
-  ... --with-ranking
+- Flota = diccionario manto Inverse∩Linear (~22) + sus spots
+- 3 puentes en paralelo + pausa + backoff si Bybit frena
+- Reanudable + vigilante cada 10 min
+- Al terminar: zip para Drive (SIN simulación; SIN 4.0.3 Asalto / manos)
+
+NO confundir con live Asalto (manos). Esto solo llena historial/gráficas.
 """
 from __future__ import annotations
 
@@ -34,6 +36,7 @@ from core import coliseo_boveda as bov
 
 _WRITE_LOCK = threading.Lock()
 _HB_LOCK = threading.Lock()
+_DICT_CACHE: dict[str, Any] | None = None
 
 
 def _session():
@@ -41,14 +44,37 @@ def _session():
     return HTTP(testnet=bool(getattr(config, "TESTNET", False)))
 
 
-def _flota() -> list[str]:
+def _load_dict() -> dict[str, Any]:
+    global _DICT_CACHE
+    if _DICT_CACHE is not None:
+        return _DICT_CACHE
     dict_path = ROOT / "config" / "diccionario_beru_flota_manto.json"
     if dict_path.exists():
-        meta = json.loads(dict_path.read_text(encoding="utf-8")).get("meta") or {}
-        acts = meta.get("activos") or []
-        if acts:
-            return [str(a).upper() for a in acts]
+        _DICT_CACHE = json.loads(dict_path.read_text(encoding="utf-8"))
+    else:
+        _DICT_CACHE = {}
+    return _DICT_CACHE
+
+
+def _flota() -> list[str]:
+    meta = (_load_dict().get("meta") or {})
+    acts = meta.get("activos") or []
+    if acts:
+        return [str(a).upper() for a in acts]
     return [str(a).upper() for a in (getattr(config, "ACTIVOS_BERU_FLOTA", []) or [])]
+
+
+def _symbol_for(base: str, market: str) -> str:
+    """Símbolo Bybit: spot/linear = BASEUSDT · inverse = BASEUSD (diccionario)."""
+    bu = base.upper()
+    m = market.lower()
+    activos = (_load_dict().get("activos") or {})
+    row = activos.get(bu) or {}
+    if m == "inverse":
+        return str(row.get("symbol_inverse") or f"{bu}USD")
+    if m == "linear":
+        return str(row.get("symbol_linear") or f"{bu}USDT")
+    return f"{bu}USDT"
 
 
 def _hb(fase: str, detalle: str, ok: bool = True) -> None:
@@ -60,11 +86,12 @@ def _fetch_klines(
     session,
     symbol: str,
     *,
+    category: str,
     start_ms: int,
     end_ms: int,
     sleep_s: float,
 ) -> list[tuple[int, float, float, float, float]]:
-    """Bybit spot kline interval=1, páginas de 1000 hacia atrás."""
+    """Bybit kline interval=1, páginas de 1000 hacia atrás."""
     rows: list[tuple[int, float, float, float, float]] = []
     cursor_end = end_ms
     seen: set[int] = set()
@@ -74,7 +101,7 @@ def _fetch_klines(
             break
         try:
             resp = session.get_kline(
-                category="spot",
+                category=category,
                 symbol=symbol,
                 interval="1",
                 start=start_ms,
@@ -88,17 +115,18 @@ def _fetch_klines(
             _hb("ingest", f"{symbol} retry {fail_streak}: {exc} → sleep {wait:.1f}s", ok=False)
             time.sleep(wait)
             if fail_streak >= 8:
-                raise RuntimeError(f"kline {symbol}: {exc}") from exc
+                raise RuntimeError(f"kline {category}/{symbol}: {exc}") from exc
             continue
 
         ret = resp.get("retCode")
         if ret not in (0, "0", None) and int(ret or -1) != 0:
-            # rate limit / soft error
             fail_streak += 1
             wait = min(30.0, 0.5 * (2 ** fail_streak))
             time.sleep(wait)
             if fail_streak >= 8:
-                raise RuntimeError(f"kline {symbol} retCode={ret} {resp.get('retMsg')}")
+                raise RuntimeError(
+                    f"kline {category}/{symbol} retCode={ret} {resp.get('retMsg')}"
+                )
             continue
 
         lst = (resp.get("result") or {}).get("list") or []
@@ -126,20 +154,23 @@ def _fetch_klines(
     return rows
 
 
-def ingest_base(
+def ingest_one(
     base: str,
+    market: str,
     *,
     dias: int,
     sleep_s: float,
 ) -> dict[str, Any]:
-    """Descarga un activo (sesión propia) y escribe a la bóveda bajo lock."""
-    symbol = f"{base}USDT"
+    """Descarga un activo×mercado y escribe a su bóveda bajo lock."""
+    symbol = _symbol_for(base, market)
+    category = market.lower()
     session = _session()
     now_ms = int(time.time() * 1000)
     start_ms = now_ms - dias * 86_400_000
+    db = bov.boveda_path(category)
 
     with _WRITE_LOCK:
-        con = bov.connect()
+        con = bov.connect(db)
         existing = bov.max_ts(con, base)
         con.close()
 
@@ -147,22 +178,34 @@ def ingest_base(
         start_ms = max(start_ms, existing * 1000 + 60_000)
     if start_ms >= now_ms - 60_000:
         with _WRITE_LOCK:
-            con = bov.connect()
+            con = bov.connect(db)
             n = bov.count_candles(con, base)
             bov.set_ingest_meta(
                 con, base, symbol=symbol, last_ts=existing or 0, rows=n, status="ok"
             )
             con.commit()
             con.close()
-        return {"base": base, "ok": True, "added": 0, "rows": n, "status": "fresh"}
+        return {
+            "base": base,
+            "market": category,
+            "ok": True,
+            "added": 0,
+            "rows": n,
+            "status": "fresh",
+        }
 
-    _hb("ingest", f"Descargando {symbol}…")
+    _hb("ingest", f"Descargando {category}/{symbol}…")
     t0 = time.time()
     rows = _fetch_klines(
-        session, symbol, start_ms=start_ms, end_ms=now_ms, sleep_s=sleep_s
+        session,
+        symbol,
+        category=category,
+        start_ms=start_ms,
+        end_ms=now_ms,
+        sleep_s=sleep_s,
     )
     with _WRITE_LOCK:
-        con = bov.connect()
+        con = bov.connect(db)
         added = bov.upsert_candles(con, base, rows)
         last = bov.max_ts(con, base) or 0
         total = bov.count_candles(con, base)
@@ -174,6 +217,7 @@ def ingest_base(
 
     return {
         "base": base,
+        "market": category,
         "ok": True,
         "added": added,
         "rows": total,
@@ -182,27 +226,43 @@ def ingest_base(
     }
 
 
-def _refresh_progreso(flota: list[str], results: list[dict]) -> None:
+def _job_key(base: str, market: str) -> str:
+    return bov.ck_key(base, market)
+
+
+def _legacy_spot_ok(cp: dict, base: str) -> bool:
+    """Checkpoint viejo guardaba solo BASE (spot)."""
+    meta = (cp.get("bases") or {}).get(base) or {}
+    return (meta or {}).get("status") == "ok"
+
+
+def _refresh_progreso(
+    flota: list[str], markets: list[str], results: list[dict]
+) -> None:
+    totals: list[str] = []
     with _WRITE_LOCK:
-        con = bov.connect()
-        total = bov.count_candles(con)
-        con.close()
+        for m in markets:
+            con = bov.connect(bov.boveda_path(m))
+            totals.append(f"{m}={bov.count_candles(con)}")
+            con.close()
     lines = [
-        f"# Coliseo — progreso (solo bóveda)",
+        f"# Historial / Coliseo — progreso bóveda",
         f"",
         f"- UTC: `{datetime.now(timezone.utc).isoformat()}`",
-        f"- Velas totales: **{total}**",
+        f"- Velas: **{', '.join(totals)}**",
+        f"- Flota Igris (diccionario manto): **{len(flota)}** · mercados: `{','.join(markets)}`",
         f"",
-        f"| Base | Estado | Filas | Añadidas | Seg |",
-        f"|------|--------|------:|---------:|----:|",
+        f"| Base | Mar | Estado | Filas | Añadidas | Seg |",
+        f"|------|-----|--------|------:|---------:|----:|",
     ]
-    by = {r["base"]: r for r in results}
+    by = {(r["base"], r.get("market", "spot")): r for r in results}
     for b in flota:
-        r = by.get(b) or {}
-        st = r.get("status") or r.get("error") or "pendiente"
-        lines.append(
-            f"| {b} | {st} | {r.get('rows', '—')} | {r.get('added', '—')} | {r.get('secs', '—')} |"
-        )
+        for m in markets:
+            r = by.get((b, m)) or {}
+            st = r.get("status") or r.get("error") or "pendiente"
+            lines.append(
+                f"| {b} | {m} | {st} | {r.get('rows', '—')} | {r.get('added', '—')} | {r.get('secs', '—')} |"
+            )
     bov.write_progreso(lines)
 
 
@@ -212,45 +272,68 @@ def run_ingest(
     sleep_s: float,
     workers: int,
     only: list[str] | None,
+    markets: list[str],
 ) -> list[dict]:
     flota = only or _flota()
-    # Priorizar incompletos (reanudación)
+    # Orden: spot primero, luego linear, inverse (prioridad Monarca)
+    order = [m for m in ("spot", "linear", "inverse") if m in markets]
+    jobs: list[tuple[str, str]] = [(b, m) for m in order for b in flota]
+
     cp = bov.load_checkpoint()
-    done_ok = {
-        b
-        for b, meta in (cp.get("bases") or {}).items()
-        if (meta or {}).get("status") == "ok"
-    }
-    pending = [b for b in flota if b not in done_ok] or list(flota)
-    # Si todos ok pero queremos refresh incremental, procesar todos
-    if len(done_ok) >= len(flota):
-        pending = list(flota)
+    done_ok: set[str] = set()
+    for k, meta in (cp.get("bases") or {}).items():
+        if (meta or {}).get("status") != "ok":
+            continue
+        done_ok.add(str(k))
+        if "@" not in str(k):
+            done_ok.add(bov.ck_key(str(k), "spot"))
+
+    pending: list[tuple[str, str]] = []
+    for b, m in jobs:
+        key = _job_key(b, m)
+        if key in done_ok:
+            continue
+        if m == "spot" and _legacy_spot_ok(cp, b):
+            continue
+        pending.append((b, m))
+
+    if not pending:
+        pending = list(jobs)  # refresh incremental
 
     results: list[dict] = []
     results_lock = threading.Lock()
-    workers = max(1, min(workers, len(pending)))
+    workers = max(1, min(workers, len(pending) or 1))
 
-    _hb("ingest", f"Flota {len(flota)} · pendientes {len(pending)} · workers={workers}")
+    _hb(
+        "ingest",
+        f"Flota {len(flota)} · mercados {order} · pendientes {len(pending)} · workers={workers}",
+    )
 
-    def _job(base: str) -> dict[str, Any]:
+    def _job(pair: tuple[str, str]) -> dict[str, Any]:
+        base, market = pair
         try:
-            r = ingest_base(base, dias=dias, sleep_s=sleep_s)
+            r = ingest_one(base, market, dias=dias, sleep_s=sleep_s)
             with results_lock:
                 results.append(r)
                 cp_local = bov.load_checkpoint()
                 cp_local["fase"] = "ingest"
-                cp_local.setdefault("bases", {})[base] = {
+                cp_local.setdefault("bases", {})[_job_key(base, market)] = {
                     "status": "ok",
+                    "market": market,
                     "rows": r.get("rows"),
                     "ts": time.time(),
                 }
                 bov.save_checkpoint(cp_local)
-                _refresh_progreso(flota, list(results))
-            _hb("ingest", f"OK {base} rows={r.get('rows')} +{r.get('added')} ({r.get('secs')}s)")
+                _refresh_progreso(flota, order, list(results))
+            _hb(
+                "ingest",
+                f"OK {market}/{base} rows={r.get('rows')} +{r.get('added')} ({r.get('secs')}s)",
+            )
             return r
         except Exception as exc:
             err = {
                 "base": base,
+                "market": market,
                 "ok": False,
                 "error": str(exc)[:240],
                 "status": "error",
@@ -258,24 +341,26 @@ def run_ingest(
             with results_lock:
                 results.append(err)
                 cp_local = bov.load_checkpoint()
-                cp_local.setdefault("bases", {})[base] = {
+                cp_local.setdefault("bases", {})[_job_key(base, market)] = {
                     "status": "error",
+                    "market": market,
                     "error": str(exc)[:240],
                     "ts": time.time(),
                 }
                 bov.save_checkpoint(cp_local)
-                _refresh_progreso(flota, list(results))
-            _hb("ingest", f"ERROR {base}: {exc}", ok=False)
+                _refresh_progreso(flota, order, list(results))
+            _hb("ingest", f"ERROR {market}/{base}: {exc}", ok=False)
             return err
 
     with ThreadPoolExecutor(max_workers=workers) as ex:
-        futs = [ex.submit(_job, b) for b in pending]
+        futs = [ex.submit(_job, p) for p in pending]
         for fut in as_completed(futs):
             fut.result()
 
-    # Orden estable en progreso
-    by = {r["base"]: r for r in results}
-    return [by[b] for b in flota if b in by] + [r for r in results if r["base"] not in flota]
+    by = {(r["base"], r.get("market", "spot")): r for r in results}
+    ordered = [by[p] for p in jobs if p in by]
+    extras = [r for r in results if (r["base"], r.get("market", "spot")) not in dict.fromkeys(jobs)]
+    return ordered + extras
 
 
 def run_ranking(*, vacio: float, label: str) -> Path:
@@ -301,6 +386,8 @@ def pack_drive() -> Path:
     zip_path = bov.COLISEO_DIR / f"ShadowHarmy_Coliseo_{stamp}.zip"
     include = [
         bov.BOVEDA_PATH,
+        bov.BOVEDA_LINEAR_PATH,
+        bov.BOVEDA_INVERSE_PATH,
         bov.CHECKPOINT_PATH,
         bov.PROGRESO_PATH,
         bov.HEARTBEAT_PATH,
@@ -316,22 +403,37 @@ def pack_drive() -> Path:
     return zip_path
 
 
-def write_manifiesto(ingest_results: list[dict], dias: int, workers: int) -> None:
+def write_manifiesto(
+    ingest_results: list[dict],
+    dias: int,
+    workers: int,
+    markets: list[str],
+    ritual: str,
+) -> None:
     bov.ensure_dirs()
     ok = sum(1 for r in ingest_results if r.get("ok"))
+    titulo = (
+        "Historial flota Igris (bóveda noche)"
+        if ritual == "historial_igris"
+        else "Coliseo (bóveda only)"
+    )
     lines = [
-        f"# Manifiesto Coliseo (bóveda only)",
+        f"# Manifiesto {titulo}",
         f"",
         f"- UTC: `{datetime.now(timezone.utc).isoformat()}`",
-        f"- Días pedidos: **{dias}** · workers: **{workers}**",
-        f"- Bases OK: **{ok}/{len(ingest_results)}**",
-        f"- Bóveda: `data/coliseo/boveda_spot_1m.sqlite`",
-        f"- Simulación: **NO** en esta noche (correr después en forja)",
+        f"- Ritual: **{ritual}** · días: **{dias}** · workers: **{workers}**",
+        f"- Mercados: `{','.join(markets)}`",
+        f"- Pares OK: **{ok}/{len(ingest_results)}**",
+        f"- Spot: `data/coliseo/boveda_spot_1m.sqlite`",
+        f"- Linear: `data/coliseo/boveda_linear_1m.sqlite`",
+        f"- Inverse: `data/coliseo/boveda_inverse_1m.sqlite`",
+        f"- **NO es 4.0.3 Asalto** (sin manos Igris)",
+        f"- Simulación Fantasma: **NO** en esta noche (correr después en forja)",
         f"",
         f"## Instrucciones Monarca",
         f"1. Baja este pack por Drive a tu forja.",
         f"2. Copia `coliseo/` → `data/coliseo/`.",
-        f"3. Teatro paralelo (sin Bybit):",
+        f"3. Teatro paralelo (sin Bybit), si aplica:",
         f"   `python scripts/coliseo_beru_fantasma.py --vacios 0.010,0.012,0.016,0.020`",
         f"",
     ]
@@ -354,6 +456,10 @@ def watchdog_loop(args: argparse.Namespace) -> None:
         str(args.sleep),
         "--workers",
         str(args.workers),
+        "--markets",
+        args.markets,
+        "--ritual",
+        args.ritual,
         "--once",
     ]
     if args.with_ranking:
@@ -362,6 +468,8 @@ def watchdog_loop(args: argparse.Namespace) -> None:
         cmd.append("--skip-pack")
     if args.only:
         cmd += ["--only", args.only]
+    if args.solo_spot:
+        cmd.append("--solo-spot")
 
     def _start() -> subprocess.Popen:
         _hb("watchdog", "Lanzando worker de descarga…")
@@ -398,9 +506,22 @@ def watchdog_loop(args: argparse.Namespace) -> None:
             child.terminate()
 
 
+def _parse_markets(raw: str, solo_spot: bool) -> list[str]:
+    if solo_spot:
+        return ["spot"]
+    parts = [x.strip().lower() for x in (raw or "").split(",") if x.strip()]
+    out: list[str] = []
+    for p in parts:
+        if p not in bov.MARKETS:
+            raise SystemExit(f"Mercado inválido: {p} (válidos: {','.join(bov.MARKETS)})")
+        if p not in out:
+            out.append(p)
+    return out or ["spot"]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
-        description="Coliseo nocturno Jess — SOLO descarga bóveda (rápido)"
+        description="Noche Jess — bóveda velas 1m flota Igris / Coliseo (sin manos)"
     )
     ap.add_argument("--dias", type=int, default=365)
     ap.add_argument(
@@ -413,21 +534,40 @@ def main() -> int:
         "--workers",
         type=int,
         default=3,
-        help="Puentes paralelos (activos distintos). Default 3 — no subir mucho.",
+        help="Puentes paralelos (pares distintos). Default 3 — no subir mucho.",
     )
     ap.add_argument("--only", type=str, default="", help="Bases CSV (debug)")
     ap.add_argument(
+        "--markets",
+        type=str,
+        default="spot",
+        help="Mercados CSV: spot,linear,inverse (default spot = Coliseo clásico)",
+    )
+    ap.add_argument(
+        "--solo-spot",
+        action="store_true",
+        help="Solo spot (alias Coliseo clásico)",
+    )
+    ap.add_argument(
+        "--ritual",
+        type=str,
+        default="coliseo",
+        help="Etiqueta manifiesto: coliseo | historial_igris",
+    )
+    ap.add_argument(
         "--with-ranking",
         action="store_true",
-        help="Opcional: al terminar, corre Fantasma Normal 1.6% (más lento)",
+        help="Opcional: al terminar, corre Fantasma Normal 1.6 pct (mas lento)",
     )
     ap.add_argument("--skip-pack", action="store_true")
     ap.add_argument("--once", action="store_true", help="Una pasada (sin vigilante)")
     ap.add_argument("--watchdog", action="store_true", help="Vigilante cada N min")
     ap.add_argument("--watchdog-min", type=int, default=10)
-    # compat flags antiguos
     ap.add_argument("--skip-ranking", action="store_true", help=argparse.SUPPRESS)
     args = ap.parse_args()
+
+    markets = _parse_markets(args.markets, args.solo_spot)
+    args.markets = ",".join(markets)
 
     if args.watchdog and not args.once:
         watchdog_loop(args)
@@ -435,7 +575,11 @@ def main() -> int:
 
     only = [x.strip().upper() for x in args.only.split(",") if x.strip()] or None
     bov.ensure_dirs()
-    _hb("start", f"dias={args.dias} workers={args.workers} sleep={args.sleep} (bóveda only)")
+    _hb(
+        "start",
+        f"ritual={args.ritual} dias={args.dias} markets={args.markets} "
+        f"workers={args.workers} sleep={args.sleep}",
+    )
 
     try:
         _session().get_kline(category="spot", symbol="BTCUSDT", interval="1", limit=1)
@@ -450,8 +594,9 @@ def main() -> int:
         sleep_s=args.sleep,
         workers=args.workers,
         only=only,
+        markets=markets,
     )
-    write_manifiesto(results, args.dias, args.workers)
+    write_manifiesto(results, args.dias, args.workers, markets, args.ritual)
 
     if args.with_ranking:
         try:
@@ -472,8 +617,13 @@ def main() -> int:
     bov.save_checkpoint(cp)
     _hb("done", f"Bóveda lista. zip={zip_path.name if zip_path else '—'}")
     print("=" * 60)
-    print("COLISEO NOCHE — BÓVEDA DONE (sin simulación)")
-    print(f"Bóveda: {bov.BOVEDA_PATH}")
+    print(f"NOCHE BÓVEDA DONE — ritual={args.ritual} (sin manos / no 4.0.3)")
+    print(f"Mercados: {args.markets}")
+    print(f"Spot: {bov.BOVEDA_PATH}")
+    if "linear" in markets:
+        print(f"Linear: {bov.BOVEDA_LINEAR_PATH}")
+    if "inverse" in markets:
+        print(f"Inverse: {bov.BOVEDA_INVERSE_PATH}")
     if zip_path:
         print(f"Pack Drive: {zip_path}")
     print(f"Progreso: {bov.PROGRESO_PATH}")

@@ -271,6 +271,7 @@
   - *(lab)* Teatro de sombras **preparado** + **óptica Tank cableada** 2026-08-04 — 1 óptica + 4 marchas papel; `--optica-tank` para GO serio; no marcas live · ver [`TEATRO_SOMBRAS_IGRIS.md`](TEATRO_SOMBRAS_IGRIS.md)
   - **Preferencia 2026-08-06:** revisar / operar bajo **Asalto** (no exigir spread fino tipo Greed). Personalizado solo si el Monarca fija T a propósito.
   - **Panel cableado 2026-08-06:** estado_vivo publica marcha · ventana · meta engorde · ley_masa (lectura) · Tusk O₂/equity; Pergamino/Ascensión/Manto leen — **Jess corre 4.0.3 bajo Asalto; USA no ejecuta** · runbook [`PEGAR_JESS_IGRIS_LIVE_ASALTO.md`](PEGAR_JESS_IGRIS_LIVE_ASALTO.md)
+  - **Noche historial flota Igris (≠ 4.0.3):** función ejército — bóveda velas 1m (spot + L/S manto) · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · motor [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · **manos OFF**
 - [ ] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)
 
 ### 4.1 Notificaciones *(oído = Pergamino)*
@@ -389,7 +390,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · **Sub-Santuario Beru** · **oído Bellion** (portal susurro 4.1.2) · Ascensión Aspirante→Chamán (estrella · techos pase · **progreso vivo** `plan_crecimiento`) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · unificar Streamlit↔Pergamino pendiente
+- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · **Sub-Santuario Beru** · **oído Bellion** (portal susurro 4.1.2) · Ascensión Aspirante→Chamán (estrella · techos pase · **progreso vivo** `plan_crecimiento`) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo / noche historial Igris: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · unificar Streamlit↔Pergamino pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑
@@ -423,8 +424,8 @@ TOTAL checklist:  125 / 184  [x]  →  ~68%
 Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-08-06 (panel cableado · Jess 4.0.3 Asalto · USA no ejecuta)
-**Próximo ítem recomendado:** Jess corre **4.0.3** bajo preferencia **Asalto** (ley 08-06) · luego **4.0.4** Beru cuando manto sirva · **Greed al último**
+**Última actualización checklist:** 2026-08-06 (noche historial Igris · panel cableado · Jess 4.0.3 Asalto aparte)
+**Próximo ítem recomendado:** Jess corre **4.0.3** bajo preferencia **Asalto** (ley 08-06) · noches: historial flota Igris (bóveda, manos OFF) · luego **4.0.4** Beru cuando manto sirva · **Greed al último**
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  

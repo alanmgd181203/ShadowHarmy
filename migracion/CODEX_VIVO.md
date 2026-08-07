@@ -95,6 +95,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Cuartel VPS (2026-08-02→03):** droplet SG · pivot **túnel VIP WireGuard** · [`27_VPS_TUNEL_WIREGUARD.md`](27_VPS_TUNEL_WIREGUARD.md)
 - **Próximo:** **Igris** bajo preferencia **Asalto** (4.0.3 / revisar despliegue) · **no** pedir edge Greed a Igris · Beru cuando manto sirva · Greed + laboratorio al último · indicadores/peinado Kaiser **después**
 - **Panel cableado (2026-08-06):** estado_vivo → marcha · ventana 48–52 · meta engorde · ley_masa lectura · Tusk O₂/equity; Jess corre 4.0.3 Asalto · USA no ejecuta · [`PEGAR_JESS_IGRIS_LIVE_ASALTO.md`](PEGAR_JESS_IGRIS_LIVE_ASALTO.md)
+- **Noche historial flota Igris (2026-08-06):** bóveda velas 1m spot+L+S de la flota manto · función ejército · **≠ 4.0.3** · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · motor Coliseo
 - **Jess runbook informe:** [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md)
 - **Validar:** `validar_arise_igris_sim_smoke.py` · `validar_pase_director_smoke.py` · `validar_marcha_duracion_smoke.py` · `validar_marcha_ritmo_lote_smoke.py` · `validar_tusk_libros_smoke.py` · `validar_manto_ventana_smoke.py` · (+ smokes previos)
 - **Igris sim 4.0.2:** [`CHECKPOINT_IGRIS_SIM_4_0_2.md`](CHECKPOINT_IGRIS_SIM_4_0_2.md) · manos atadas / ilusorias

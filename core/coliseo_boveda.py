@@ -1,4 +1,8 @@
-"""Bóveda del Coliseo — velas spot 1m en SQLite (Gran Consumo Jess)."""
+"""Bóveda del Coliseo — velas 1m en SQLite (Gran Consumo Jess).
+
+Mercados: spot (gráficas / teatro) + linear + inverse (pares manto Igris).
+Cada mercado tiene su sqlite bajo data/coliseo/.
+"""
 from __future__ import annotations
 
 import json
@@ -10,9 +14,29 @@ from typing import Any, Iterable
 ROOT = Path(__file__).resolve().parents[1]
 COLISEO_DIR = ROOT / "data" / "coliseo"
 BOVEDA_PATH = COLISEO_DIR / "boveda_spot_1m.sqlite"
+BOVEDA_LINEAR_PATH = COLISEO_DIR / "boveda_linear_1m.sqlite"
+BOVEDA_INVERSE_PATH = COLISEO_DIR / "boveda_inverse_1m.sqlite"
 PROGRESO_PATH = COLISEO_DIR / "PROGRESO.md"
 CHECKPOINT_PATH = COLISEO_DIR / "checkpoint.json"
 HEARTBEAT_PATH = COLISEO_DIR / "heartbeat.json"
+
+MARKETS = ("spot", "linear", "inverse")
+
+
+def boveda_path(market: str = "spot") -> Path:
+    m = (market or "spot").strip().lower()
+    if m == "spot":
+        return BOVEDA_PATH
+    if m == "linear":
+        return BOVEDA_LINEAR_PATH
+    if m == "inverse":
+        return BOVEDA_INVERSE_PATH
+    raise ValueError(f"mercado desconocido: {market}")
+
+
+def ck_key(base: str, market: str = "spot") -> str:
+    """Clave de checkpoint: BASE@spot | BASE@linear | BASE@inverse."""
+    return f"{str(base).upper()}@{(market or 'spot').strip().lower()}"
 
 
 def ensure_dirs() -> None:
@@ -51,6 +75,10 @@ def connect(db_path: Path | None = None) -> sqlite3.Connection:
         """
     )
     return con
+
+
+def connect_market(market: str = "spot") -> sqlite3.Connection:
+    return connect(boveda_path(market))
 
 
 def load_checkpoint() -> dict[str, Any]:
