@@ -1,7 +1,8 @@
 """Director del pase de batalla — potencia, lote por marcha, umbral Igris.
 
 Sello mega-pre-Igris + sello 2 marchas (Monarca):
-- Engorde 100% del delta (fill_ratio=1.0).
+- Engorde 100% del need acumulado del activo hasta el paso en foco (fill_ratio=1.0).
+  Alineado con sincronizar_logrados_desde_tusk (Soldado+Capitán+… del mismo barco).
 - Reserva = 1 en todas las marchas (lote hasta potencia−1).
 - Operativas: **asalto** (rápido / peaje) y **personalizado** (T días / calib).
 - Legado `tactico` / `marcha_forzada` → se normalizan a **asalto** (sin reescribir disco).
@@ -398,6 +399,23 @@ def plan_lote(
     }
 
 
+def need_acum_activo_hasta_paso(activo: str, paso_n: int) -> float:
+    """Suma de deltas del mismo activo en el pase hasta el paso N (inclusive).
+
+    Misma regla que sincronizar_logrados_desde_tusk: Capitán pide Soldado+Capitán,
+    General pide suma hasta General, etc. Redondeos del mercado = peaje del Monarca.
+    """
+    act = str(activo or "").upper()
+    pn = int(paso_n)
+    total = 0.0
+    for p in PASE_PASOS:
+        if int(p["n"]) > pn:
+            break
+        if str(p["activo"]).upper() == act:
+            total += float(p["delta_usd"])
+    return total
+
+
 def activo_manto_foco(
     equity_usd: float,
     *,
@@ -417,7 +435,7 @@ def activo_manto_foco(
     best_ratio = 1e18
     for p in trabajo:
         act = str(p["activo"]).upper()
-        need = max(float(p["delta_usd"]), 1.0)
+        need = max(need_acum_activo_hasta_paso(act, int(p["n"])), 1.0)
         have = notional_manto_usd(tusk, act)
         ratio = have / need
         if ratio < best_ratio:
@@ -435,8 +453,11 @@ def meta_engorde_usd(
     pasos_logrados: list[int] | None = None,
 ) -> dict[str, Any]:
     """
-    Meta de engorde del paso en trabajo: need = 100% del delta_usd (fill=1.0).
-    restante_usd = need − notional L+S desplegado.
+    Meta de engorde del paso en trabajo.
+
+    need = suma de deltas del mismo activo hasta el paso en foco (100% con fill=1.0).
+    Así restante = acum − have, alineado con sincronizar_logrados_desde_tusk:
+    si ya cubriste Soldado pero Capitán sigue abierto, no queda restante 0 a destiempo.
     Si restante ≤ 0 → Igris no engorda más ese foco (solo ventana/corrección).
     """
     plan = plan_lote(equity_usd, marcha_id=marcha_id, pasos_logrados=pasos_logrados)
@@ -451,6 +472,7 @@ def meta_engorde_usd(
             "have_usd": 0.0,
             "restante_usd": 0.0,
             "paso_n": None,
+            "delta_paso_usd": 0.0,
             "mitad_alcanzada": False,
             "fill_ratio": float(plan.get("fill_ratio") or 1.0),
         }
@@ -469,6 +491,7 @@ def meta_engorde_usd(
                 "have_usd": round(have, 4),
                 "restante_usd": 0.0,
                 "paso_n": None,
+                "delta_paso_usd": 0.0,
                 "mitad_alcanzada": False,
                 "fill_ratio": float(plan.get("fill_ratio") or 1.0),
             }
@@ -484,8 +507,9 @@ def meta_engorde_usd(
             act = str(paso["activo"]).upper()
 
     fill = float(plan.get("fill_ratio") or 1.0)
-    need = float(paso["delta_usd"])
-    need_fill = need * fill  # sello: fill=1 → 100% del delta
+    delta_paso = float(paso["delta_usd"])
+    need = need_acum_activo_hasta_paso(act, int(paso["n"]))
+    need_fill = need * fill  # sello: fill=1 → 100% del acumulado hasta el grado
     have = notional_manto_usd(tusk, act) if tusk is not None else 0.0
     restante = max(0.0, need_fill - have)
     return {
@@ -498,6 +522,7 @@ def meta_engorde_usd(
         "restante_usd": round(restante, 4),
         "paso_n": int(paso["n"]),
         "grado": paso.get("grado"),
+        "delta_paso_usd": round(delta_paso, 4),
         "mitad_alcanzada": have + 1e-9 >= need_fill * 0.5,
         "fill_ratio": fill,
         "marcha_id": plan.get("marcha_id"),

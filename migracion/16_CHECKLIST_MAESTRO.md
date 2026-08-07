@@ -132,7 +132,7 @@
 - [x] **3.5.8a** Igris §E v1 — bootstrap inverse L + lineal S + promedios pierna *(2026-07-05)*
 - [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
 - [x] **3.5.8b2** Frecuencia manto 4 umbrales (fees · ½ · tablas · morado) × plazos 50/40/10 · ETA por marcha · `core/manto_frecuencia.py` *(2026-07-24)*
-- [x] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · dual+salvavidas ✅ · **meta engorde = `delta_usd` del pase** ✅ MVP 2026-07-20 · **mega-pre-Igris** ✅ fill 100% · reserva 1 · personalizado · ritmo lote · libros Tusk · USD@entrada (`CHECKPOINT_MEGA_PRE_IGRIS.md`) · mitad/manto-completo fino aún abiertos · **redondeo espejo duda→long (Inverso)** *(2026-08-06)*
+- [x] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · dual+salvavidas ✅ · **meta engorde = acum deltas del activo hasta el grado en foco** (alineado sync; no atasco Capitán) ✅ · MVP 2026-07-20 · **mega-pre-Igris** ✅ fill 100% · reserva 1 · personalizado · ritmo lote · libros Tusk · USD@entrada (`CHECKPOINT_MEGA_PRE_IGRIS.md`) · mitad/manto-completo fino aún abiertos · **redondeo espejo duda→long (Inverso)** *(2026-08-06)* · smoke etapas/acum ✅ `validar_pase_metas_etapas_smoke.py`
 - [x] **3.5.8d** Sello mega-pre-Igris — marchas · `marcha_duracion` · `marcha_ritmo_lote` · `tusk_libros` · altar hidrata desde JSON · smokes frío *(2026-08-03)* · **sello 2 marchas (asalto · personalizado; legado→asalto)** *(2026-08-06)*
 
 - [x] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v2 + `plan_crecimiento.py` + [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) *(Aspirante→Chamán; candado + **director pase** `pase_director.py` · 3 marchas 2026-07-19; botín runtime y mérito aún pendiente)*
@@ -430,7 +430,7 @@ Núcleo Fases 0–3: fuerte (~95% operativo)
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
 **Smokes Bellion:** `validar_bellion_oido_smoke.py`  
-**Smokes plan:** `validar_plan_crecimiento_smoke.py` · `validar_pase_director_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_manto_frecuencia_smoke.py`  
+**Smokes plan:** `validar_plan_crecimiento_smoke.py` · `validar_pase_director_smoke.py` · `validar_pase_metas_etapas_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_manto_frecuencia_smoke.py`  
 **Runbook testnet:** `18_ARRANQUE_TESTNET.md`  
 **Validar estado:** `python scripts/validar_checklist.py`  
 **Validar sentidos Tank:** `python scripts/validar_panorama_tank.py --segundos 35`
