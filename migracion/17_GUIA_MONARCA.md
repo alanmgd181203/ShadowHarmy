@@ -162,6 +162,19 @@ El Monarca avisó otra vez: el agente habla como ticket de ingeniería, cierra c
 **Regla de oro para el agente:** ante la tentación de “preguntar bien” con card → **escribir el siguiente paso en prosa y seguir**. La card Questions es ofensa al Monarca.
 ---
 
+## Órdenes a Jess (una sola puerta)
+
+Cuando el Monarca diga «prepara esto para que Jess lo corra»:
+
+1. El agente **reescribe** `migracion/ORDEN_ACTIVA_JESS.md` — **siempre el mismo path**.
+2. Jess hace `git pull origin master` y **abre solo ese archivo**.
+3. Los `PEGAR_JESS_*` son **recetas** (detalle); no sustituyen la puerta.
+4. Tras subir la orden: decirle al Monarca **«Jess solo abre ORDEN_ACTIVA_JESS»**.
+
+Índice de recetas: `migracion/ordenes_jess/README.md`. Regla Cursor: `.cursor/rules/orden-jess.mdc`.
+
+---
+
 ## Mantenimiento
 
 - El Monarca puede pedir añadir preferencias aquí (tono, metáforas, nivel de detalle).
@@ -169,4 +182,4 @@ El Monarca avisó otra vez: el agente habla como ticket de ingeniería, cierra c
 
 ---
 
-*Última actualización: 2026-08-06 — AskQuestion / cards Questions **prohibición absoluta sin excepción**; lenguaje Ejército sin paths.*
+*Última actualización: 2026-08-07 — puerta única Jess (`ORDEN_ACTIVA_JESS`); AskQuestion prohibido; lenguaje Ejército sin paths.*

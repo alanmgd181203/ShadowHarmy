@@ -1,5 +1,7 @@
 # PEGAR Jess — Sync mínimos de orden Bybit (G_min por Santo)
 
+> **Puerta oficial:** [`ORDEN_ACTIVA_JESS.md`](ORDEN_ACTIVA_JESS.md) — este archivo es **receta/anexo**, no la puerta.
+
 **Para:** Cursor en la Mac de Jess (México)  
 **Qué es:** ritual de **ojos** — actualiza el peaje real de cada Santo (mínimo spot/lineal/inverso) para que Beru calcule `G_min` vivo.  
 **Qué NO es:** no regenera el pase/ranking · no dispara órdenes · no es Asalto Igris · no enciende Beru manos.

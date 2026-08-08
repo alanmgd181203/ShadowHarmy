@@ -1,0 +1,31 @@
+---
+description: Puerta única Jess — ORDEN_ACTIVA_JESS; PEGAR solo como receta
+alwaysApply: true
+---
+
+# Órdenes a Jess (una sola puerta)
+
+## Puerta canónica
+
+- Path fijo: **`migracion/ORDEN_ACTIVA_JESS.md`**
+- Jess / Cursor México: `git pull origin master` → **solo** ese archivo.
+- Los `PEGAR_JESS_*` y runbooks `JESS_*` son **recetas/anexos**, nunca la puerta principal.
+- Índice recetas: `migracion/ordenes_jess/README.md`
+- Plantilla: `migracion/ORDEN_ACTIVA_JESS.plantilla.md`
+
+## Cuando el Monarca pida preparar algo para que Jess corra
+
+1. **Reescribir** `migracion/ORDEN_ACTIVA_JESS.md` (no crear otro PEGAR como puerta).
+2. Incluir siempre:
+   - Arranque: `git pull origin master`
+   - Misión en lenguaje ejército + **comandos exactos**
+   - **Qué NO hacer** (manos / arise / ranking / secretos según aplique)
+   - **Qué mirar** al terminar (archivos de salida + cómo avisar)
+   - Casilla **HECHO** para que Jess/Cursor marque
+   - Enlace a receta `PEGAR_*` solo si hace falta detalle
+3. Tras commit/push de esa orden, decir al Monarca: **«Jess solo abre ORDEN_ACTIVA_JESS»**.
+4. No AskQuestion. No correr Bybit live Igris desde USA salvo orden explícita.
+
+## Agentes USA
+
+No inventar un `PEGAR_JESS_NUEVO.md` como mandato del día. Actualizar la puerta. Receta nueva solo si el ritual se repetirá y merece anexo.

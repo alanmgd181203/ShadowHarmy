@@ -1,5 +1,7 @@
 # PEGAR Jess — Noche historial flota Igris (bóveda / gráficas)
 
+> **Puerta oficial:** [`ORDEN_ACTIVA_JESS.md`](ORDEN_ACTIVA_JESS.md) — este archivo es **receta/anexo**, no la puerta.
+
 **Para:** Cursor en la Mac de Jess (México)  
 **Qué es:** función del **ejército de noche** — llena historial y gráficas de la flota que Igris desplegará (manto Inverse∩Linear) **y** sus spots.  
 **Qué NO es:** **no** es el live **4.0.3 Asalto** (manos). No dispara órdenes. No sustituye `PEGAR_JESS_IGRIS_LIVE_ASALTO.md`.

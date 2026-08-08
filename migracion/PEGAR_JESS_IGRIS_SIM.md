@@ -1,5 +1,7 @@
 # ORDEN Jess / Cursor México — 4.0.2 Igris sim (SIN túnel VIP)
 
+> **Puerta oficial:** [`ORDEN_ACTIVA_JESS.md`](ORDEN_ACTIVA_JESS.md) — este archivo es **receta/anexo**, no la puerta.
+
 ```
 git pull origin master
 

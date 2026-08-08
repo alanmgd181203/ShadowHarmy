@@ -39,3 +39,7 @@ alwaysApply: true
 Tras esta guía: `RESUMEN_EJECUTIVO` → `CODEX_VIVO` → `16_CHECKLIST_MAESTRO` → módulo / doctrina relevante (`21` Igris, `22` Beru, `20` Kaiser…).
 
 Override codex solo con frase explícita del Monarca (ver `CODEX_VIVO.md`).
+
+## Órdenes a Jess
+
+Si el Monarca pide preparar trabajo para **Jess**: reescribir `migracion/ORDEN_ACTIVA_JESS.md` (puerta única). Ver regla `orden-jess.mdc`. Tras push: «Jess solo abre ORDEN_ACTIVA_JESS».

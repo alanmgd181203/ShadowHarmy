@@ -1,5 +1,7 @@
 # PEGAR Jess — 4.0.3 Igris live bajo Asalto (México corre · USA no ejecuta)
 
+> **Puerta oficial:** [`ORDEN_ACTIVA_JESS.md`](ORDEN_ACTIVA_JESS.md) — este archivo es **receta/anexo**, no la puerta.
+
 **Para:** Cursor / terminal en la Mac de Jess (México)  
 **Ley:** preferencia **Asalto** (2026-08-06). Igris ≠ Greed. Hibernan Greed y Beru.  
 **Ritmo:** tras cada dual **exitoso** de engorde/bootstrap, Igris espera ≥**5 s** (`IGRIS_ENGORDE_RITMO_S`) antes del siguiente dual del **mismo Santo**. No ametralladora cada ~1 s (protege libro / spread). Fallo de puerta ya tenía ~5 s; mismo espíritu.  

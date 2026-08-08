@@ -1,5 +1,7 @@
 # Jess — Bóveda Coliseo (noche México · SOLO descarga)
 
+> **Puerta oficial:** [`ORDEN_ACTIVA_JESS.md`](ORDEN_ACTIVA_JESS.md) — este archivo es **receta/anexo**, no la puerta.
+
 **Para:** Cursor en la Mac de Jess  
 **Objetivo de esta noche (Coliseo clásico):** armar la bóveda **spot** 1m lo más rápido posible.  
 **No** simular Beru Fantasma ahora — eso es mañana en paralelo (Monarca + Jess).

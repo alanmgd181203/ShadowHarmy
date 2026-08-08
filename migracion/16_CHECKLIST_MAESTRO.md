@@ -129,7 +129,8 @@
 - [x] **3.5.5** Doctrina Igris §A — [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) *(2026-07-05)*
 - [x] **3.5.6** §C parcial — VIP en ley marcial + `manto_touch` Greed→Igris
 - [x] **3.5.7** Beru capital + ProtoBeru — `22_DOCTRINA_BERU.md`, `beru_tier.py`, `beru_capital.py`, cableado `beru.py`, capitanes 1.2/1.6%
-- [x] **3.5.7b** G_min **variable por Santo** — sync Bybit mínimos · `core/g_min.py` · mordida=G_min · Mariscal=G_min/0,1% · PLENO=10×G_min · **pase/ranking aún pendiente** (2026-08-07) · [`PEGAR_JESS_SYNC_MINIMOS_BYBIT.md`](PEGAR_JESS_SYNC_MINIMOS_BYBIT.md)
+- [x] **3.5.7b** G_min **variable por Santo** — sync Bybit mínimos · `core/g_min.py` · mordida=G_min · Mariscal=G_min/0,1% · PLENO=10×G_min · **pase/ranking aún pendiente** (2026-08-07) · puerta Jess [`ORDEN_ACTIVA_JESS.md`](ORDEN_ACTIVA_JESS.md) · receta [`PEGAR_JESS_SYNC_MINIMOS_BYBIT.md`](PEGAR_JESS_SYNC_MINIMOS_BYBIT.md)
+- [x] **3.5.7c** Protocolo **ORDEN_ACTIVA_JESS** — una sola puerta para Jess · PEGAR = recetas · regla Cursor `orden-jess.mdc` *(2026-08-07)*
 - [x] **3.5.8a** Igris §E v1 — bootstrap inverse L + lineal S + promedios pierna *(2026-07-05)*
 - [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
 - [x] **3.5.8b2** Frecuencia manto 4 umbrales (fees · ½ · tablas · morado) × plazos 50/40/10 · ETA por marcha · `core/manto_frecuencia.py` *(2026-07-24)*
