@@ -1,4 +1,4 @@
-"""Beru Cazador — doctrina capas: 0 manto, ±vacio/2 gatillo, trailing 0.1%, $5/escalón."""
+"""Beru Cazador — doctrina capas: 0 manto, ±vacio/2 gatillo, trailing 0.1%, G_min/escalón."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -14,8 +14,15 @@ def paso_pct() -> float:
     return beru_tier.PASO_TRAILING_CAZA
 
 
-def mordida_usd() -> float:
-    return float(getattr(config, "BERU_CAZADOR_MORDIDA_USD", 5.0))
+def mordida_usd(asset: str | None = None) -> float:
+    """Mordida = G_min del Santo. Override fijo si BERU_CAZADOR_MORDIDA_USD > 0."""
+    override = float(getattr(config, "BERU_CAZADOR_MORDIDA_USD", 0.0) or 0.0)
+    if override > 0:
+        return override
+    from core.beru_capital import g_min_usd
+
+    activo = (asset or str(getattr(config, "BERU_ACTIVO_SEMILLA", "ETH"))).upper()
+    return float(g_min_usd(activo))
 
 
 def gatillo_pct(vacio_adan: float) -> float:
@@ -24,18 +31,18 @@ def gatillo_pct(vacio_adan: float) -> float:
     return float(vacio_adan) * fraccion
 
 
-def capa1_masa_usd(masa_autorizada: float) -> float:
+def capa1_masa_usd(masa_autorizada: float, asset: str | None = None) -> float:
     """Masa inicial al gatillar capa 1.
 
-    Default: mordida ($5). El engorde en frontera (+$5 / 0.1%) **no tiene techo
-    artificial** — solo el oxígeno que Tusk reserve (doctrina Monarca 2026-07-18).
+    Default: mordida = G_min del Santo. Engorde frontera (+G_min / 0.1%) sin techo
+    artificial — solo el oxígeno que Tusk reserve (doctrina Monarca 2026-07-18).
 
     BERU_CAZA_CAPA1_USD > 0 → fuerza masa inicial fija.
     BERU_CAZA_CAPA1_MAX_USD > 0 → techo legacy opcional (0 = sin techo).
     """
     fijo = float(getattr(config, "BERU_CAZA_CAPA1_USD", 0.0))
     cap = float(getattr(config, "BERU_CAZA_CAPA1_MAX_USD", 0.0))
-    masa = fijo if fijo > 0 else mordida_usd()
+    masa = fijo if fijo > 0 else mordida_usd(asset)
     auth = float(masa_autorizada or 0.0)
     if auth > 0:
         masa = min(masa, auth)

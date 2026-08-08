@@ -191,6 +191,10 @@ export default function AssetDetail({ symbol, onClose }) {
           <Row label="Fase margen §A" value={F.fase_margen || "—"} />
           <Row label="Grado Beru" value={F.grado_beru || "BLOQUEADO"} />
           <Row label="Rango ejército" value={F.rango_beru || "—"} />
+          <Row
+            label="G_min Santo"
+            value={F.G_min != null && F.G_min !== "" ? fmtUsd(F.G_min) : "—"}
+          />
         </Section>
 
         {/* Fees */}

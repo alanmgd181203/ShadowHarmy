@@ -61,6 +61,7 @@ export function snapshotCero(symbol = "BTC") {
       rango_beru: "—",
       grado_beru: "BLOQUEADO",
       fase_margen: null,
+      G_min: null,
     },
     optimizacion_igris: {
       mejora_pts_long: 0,
@@ -299,6 +300,7 @@ export function desdeEstadoVivo(symbol, snap) {
     rango_beru: progresion.rango_ejercito || snap.rango_ejercito || "—",
     grado_beru: progresion.grado_beru || snap.grado_beru || "BLOQUEADO",
     fase_margen: igris.fase_margen || null,
+    G_min: progresion.G_min ?? snap.progresion?.G_min ?? null,
   };
 
   const [mpl, mpcl] = mejoraEntrada(baselines.long, entryL, true);

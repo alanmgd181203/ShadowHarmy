@@ -107,11 +107,20 @@ def main():
         c2.metric("Tier activo", tier_act)
         c3.metric("Margen manto (tier)", f"${sem.get('margen_manto_tier_usd', 0):.0f}")
         c4.metric("Equity mín", f"${sem.get('equity_min_usd', 0):.0f}")
+        g_min = bc.get("G_min_semilla", sem.get("G_min"))
+        if g_min is not None:
+            st.caption(
+                f"G_min semilla ${float(g_min):.2f} · "
+                f"PLENO ≈ 10×G_min = ${float(bc.get('pleno_pnl_1pct_como_10x_gmin', 10 * float(g_min))):.2f} PnL/1% · "
+                f"piso ${float(bc.get('G_min_piso', 1)):.2f}"
+            )
         caps = bc.get("capitanes", {})
         st.caption(
-            f"Modo default {modo} | Objetivo ${bc.get('pnl_objetivo_1pct_usd', 50)}/1% por pierna | "
-            f"Vacío Ansiedad {caps.get('ansiedad_vacio_pct', 1.2)}% / Normal {caps.get('normal_vacio_pct', 1.6)}%"
+            f"Modo default {modo} | Vacío Ansiedad {caps.get('ansiedad_vacio_pct', 1.2)}% / "
+            f"Normal {caps.get('normal_vacio_pct', 1.6)}%"
         )
+        if bc.get("nota_pase"):
+            st.caption(bc["nota_pase"])
         tiers = bc.get("tiers") or []
         if tiers:
             st.caption("Pasos oz/red por tier (% del centro)")

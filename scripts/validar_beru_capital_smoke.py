@@ -14,17 +14,40 @@ import core.config as config
 
 
 def test_eth_btc_friccion_directa():
-    # G_min=5, lev=100 → Soldado ceil 14 · Capitán round 26 · General 53 · Mariscal 105
-    for asset in ("ETH", "BTC"):
-        r = bc.rangos_activo(asset)
-        assert r["X"] == 14
-        assert r["SOLDADO"] == (14, 25)
-        assert r["CAPITAN"] == (26, 52)
-        assert r["GENERAL"] == (53, 104)
-        assert r["MARISCAL"] == 105
-        assert r["costos_friccion"]["MARISCAL"] == 105
-        assert (1.0 - r["margen_volumen_base_usd"] / r["X"]) >= 0.05 - 1e-9
-    print("  ETH/BTC Mariscal=105 (fricción 0.1% directa) OK · reserva≥5%")
+    # Pin G_min=5 para aritmética legado (smoke aislado del sync vivo)
+    from core import g_min as gm
+
+    old_path = gm.PATH_MINIMOS
+    import tempfile, json
+    from pathlib import Path as P
+
+    with tempfile.TemporaryDirectory() as td:
+        mock = P(td) / "bybit_minimos_orden.json"
+        mock.write_text(
+            json.dumps({
+                "meta": {},
+                "activos": {
+                    "ETH": {"G_min": 5.0, "G_min_fuente": "mock", "spot_usdt": {"min_usd_est": 5.0}},
+                    "BTC": {"G_min": 5.0, "G_min_fuente": "mock", "spot_usdt": {"min_usd_est": 5.0}},
+                },
+            }),
+            encoding="utf-8",
+        )
+        gm.PATH_MINIMOS = mock
+        gm.invalidar_cache()
+        # G_min=5, lev=100 → Soldado ceil 14 · Capitán round 26 · General 53 · Mariscal 105
+        for asset in ("ETH", "BTC"):
+            r = bc.rangos_activo(asset)
+            assert r["X"] == 14
+            assert r["SOLDADO"] == (14, 25)
+            assert r["CAPITAN"] == (26, 52)
+            assert r["GENERAL"] == (53, 104)
+            assert r["MARISCAL"] == 105
+            assert r["costos_friccion"]["MARISCAL"] == 105
+            assert (1.0 - r["margen_volumen_base_usd"] / r["X"]) >= 0.05 - 1e-9
+        print("  ETH/BTC Mariscal=105 (friccion 0.1% directa) OK · reserva>=5%")
+        gm.PATH_MINIMOS = old_path
+        gm.invalidar_cache()
 
 
 def test_sin_escalares_sobre_x():
@@ -43,19 +66,58 @@ def test_friccion_ley():
 
 
 def test_grado_por_equity():
-    assert bc.grado_en_rango(10, "ETH") == "BLOQUEADO"
-    assert bc.grado_en_rango(20, "ETH") == "SOLDADO"
-    assert bc.grado_en_rango(30, "ETH") == "CAPITAN"
-    assert bc.grado_en_rango(60, "ETH") == "GENERAL"
-    assert bc.grado_en_rango(105, "ETH") == "MARISCAL"
-    print("  grados por equity OK")
+    from core import g_min as gm
+    import tempfile, json
+    from pathlib import Path as P
+
+    old_path = gm.PATH_MINIMOS
+    with tempfile.TemporaryDirectory() as td:
+        mock = P(td) / "bybit_minimos_orden.json"
+        mock.write_text(
+            json.dumps({
+                "meta": {},
+                "activos": {"ETH": {"G_min": 5.0, "spot_usdt": {"min_usd_est": 5.0}}},
+            }),
+            encoding="utf-8",
+        )
+        gm.PATH_MINIMOS = mock
+        gm.invalidar_cache()
+        assert bc.grado_en_rango(10, "ETH") == "BLOQUEADO"
+        assert bc.grado_en_rango(20, "ETH") == "SOLDADO"
+        assert bc.grado_en_rango(30, "ETH") == "CAPITAN"
+        assert bc.grado_en_rango(60, "ETH") == "GENERAL"
+        assert bc.grado_en_rango(105, "ETH") == "MARISCAL"
+        print("  grados por equity OK")
+        gm.PATH_MINIMOS = old_path
+        gm.invalidar_cache()
 
 
 def test_cola_graduacion():
-    cola = bc.cola_activos_con_a_base(["ETH", "SOL"])
-    assert cola[0]["A_base"] == 0
-    assert cola[1]["A_base"] == cola[0]["A_base_siguiente"] == 105
-    print("  cola A_base ETH→SOL OK", f"SOL X={cola[1]['X']} A_base={cola[1]['A_base']}")
+    from core import g_min as gm
+    import tempfile, json
+    from pathlib import Path as P
+
+    old_path = gm.PATH_MINIMOS
+    with tempfile.TemporaryDirectory() as td:
+        mock = P(td) / "bybit_minimos_orden.json"
+        mock.write_text(
+            json.dumps({
+                "meta": {},
+                "activos": {
+                    "ETH": {"G_min": 5.0, "spot_usdt": {"min_usd_est": 5.0}},
+                    "SOL": {"G_min": 5.0, "spot_usdt": {"min_usd_est": 5.0}},
+                },
+            }),
+            encoding="utf-8",
+        )
+        gm.PATH_MINIMOS = mock
+        gm.invalidar_cache()
+        cola = bc.cola_activos_con_a_base(["ETH", "SOL"])
+        assert cola[0]["A_base"] == 0
+        assert cola[1]["A_base"] == cola[0]["A_base_siguiente"] == 105
+        print("  cola A_base ETH→SOL OK", f"SOL X={cola[1]['X']} A_base={cola[1]['A_base']}")
+        gm.PATH_MINIMOS = old_path
+        gm.invalidar_cache()
 
 
 def test_telemetria_cero():

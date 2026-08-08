@@ -59,27 +59,27 @@ FRENTES_BERU_VIGILANCIA = [f"{BERU_ACTIVO_SEMILLA}USDT_SPOT"]
 ACTIVOS_VIGILANCIA = list(dict.fromkeys(ACTIVOS_PENTIVERSO + [BERU_ACTIVO_SEMILLA]))
 BERU_TIER_DEFAULT = os.getenv("BERU_TIER_DEFAULT", "PROTO1").upper()  # arranque: ProtoBeru ETH
 BERU_MODO_COMBATE_DEFAULT = os.getenv("BERU_MODO_COMBATE_DEFAULT", "NEGOCIADOR").upper()
-# Legacy — el motor dinámico usa G_min + fricción 0.8% (beru_capital)
+# Legacy — PnL/1% PLENO se expresa como 10×G_min del Santo (antes $50 con G_min=$5)
 BERU_PNL_OBJETIVO_POR_1PCT_USD = float(os.getenv("BERU_PNL_OBJETIVO_POR_1PCT_USD", "50"))
 BERU_SPOT_COLCHON_USD = float(os.getenv("BERU_SPOT_COLCHON_USD", "0"))  # spot margen: mismo equity, sin extra
 BERU_VACIO_ANSIEDAD = float(os.getenv("BERU_VACIO_ANSIEDAD", "0.012"))   # 1.2%
 BERU_VACIO_NORMAL = float(os.getenv("BERU_VACIO_NORMAL", "0.016"))         # 1.6%
-# Motor 5 Reglas — G_min Bybit (arranque estático) + fricción Soldado
-G_MIN_USD_DEFAULT = float(os.getenv("G_MIN_USD_DEFAULT", "5"))
-G_MIN_USD_BY_ASSET: dict[str, float] = {
-    "ETH": 5.0, "BTC": 5.0, "LTC": 5.0, "SOL": 5.0, "XRP": 5.0,
-    "DOGE": 5.0, "ADA": 5.0, "LINK": 5.0, "AVAX": 5.0, "FIL": 5.0,
-    "WIF": 5.0, "PEPE": 5.0,
-}
+# Motor 5 Reglas — G_min Bybit POR SANTO (archivo sync) + piso + default
+# Default 1.0: pensamiento en mínimo real; override por activo en data/bybit_minimos_orden.json
+# Legado 5.0: documentado en CHECKPOINT_PRE_GMIN_VARIABLE — ya no es el peaje único
+G_MIN_USD_DEFAULT = float(os.getenv("G_MIN_USD_DEFAULT", "1"))
+G_MIN_USD_PISO = float(os.getenv("G_MIN_USD_PISO", "1"))  # nunca por debajo (salvo override explícito archivo)
+# Legado estático — solo si el Santo no está en archivo de mínimos
+G_MIN_USD_BY_ASSET: dict[str, float] = {}
 BERU_FRICCION_SOLDADO_PCT = float(os.getenv("BERU_FRICCION_SOLDADO_PCT", "0.008"))  # 0.8%
 BERU_ABISMO_SALIDA_PCT = float(os.getenv("BERU_ABISMO_SALIDA_PCT", "0.02"))         # -2% salida
 BERU_ADAN_ARMADO_PCT = float(os.getenv("BERU_ADAN_ARMADO_PCT", "0.005"))           # 0.5% vacío Adán
-# Beru Cazador — capas, red/oz reactivas (doctrina Monarca 2026-07)
-BERU_CAZADOR_MORDIDA_USD = float(os.getenv("BERU_CAZADOR_MORDIDA_USD", "5"))
+# Beru Cazador — 0 = usar G_min del Santo; >0 override fijo (p.ej. live testnet $20)
+BERU_CAZADOR_MORDIDA_USD = float(os.getenv("BERU_CAZADOR_MORDIDA_USD", "0"))
 BERU_CAZADOR_PASO_PCT = float(os.getenv("BERU_CAZADOR_PASO_PCT", "0.001"))
 BERU_CAZADOR_SPAWN_CADA_PCT = float(os.getenv("BERU_CAZADOR_SPAWN_CADA_PCT", "0.003"))
 BERU_CAZADOR_GATILLO_FRACCION = float(os.getenv("BERU_CAZADOR_GATILLO_FRACCION", "0.5"))
-BERU_CAZA_CAPA1_USD = float(os.getenv("BERU_CAZA_CAPA1_USD", "0"))  # 0 = mordida $5 al gatillar
+BERU_CAZA_CAPA1_USD = float(os.getenv("BERU_CAZA_CAPA1_USD", "0"))  # 0 = mordida = G_min del activo
 BERU_CAZA_CAPA1_MAX_USD = float(os.getenv("BERU_CAZA_CAPA1_MAX_USD", "0"))  # 0 = sin techo engorde/masa (doctrina 2026-07-18)
 # Peces / barcos — apalancamiento máx Bybit (promedio inverse+lineal en beru_capital)
 # Flota manto viva (Jess sync 2026-07-18): Inverse ∩ Linear USDT — ver diccionario_beru_flota_manto.json

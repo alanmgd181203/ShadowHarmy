@@ -206,7 +206,9 @@ class BeruCazador:
         ):
             return
 
-        masa_fresca = beru_cazador.capa1_masa_usd(self.tusk.masa_autorizada)
+        masa_fresca = beru_cazador.capa1_masa_usd(
+            self.tusk.masa_autorizada, asset=self._activo_casa(),
+        )
         if masa_fresca <= 0.0:
             return
 
@@ -587,7 +589,7 @@ class BeruCazador:
         if centro <= 0:
             return
         touch_pct = beru_cazador.pct_desde_precio(centro, precio_actual)
-        masa = beru_cazador.mordida_usd()
+        masa = beru_cazador.mordida_usd(self._activo_casa())
         if masa <= 0:
             return
         nuevo_uid = f"BERU_CAPA{capa}_{self._activo_casa()}_{time.time_ns()}"
@@ -643,7 +645,7 @@ class BeruCazador:
                         )
                     else:
                         continue
-                masa_extra = beru_cazador.mordida_usd()
+                masa_extra = beru_cazador.mordida_usd(self._activo_casa())
                 if await self.tusk.solicitar_reserva(f"E_{beru.uid}", masa_extra, "BERU", beru.direccion):
                     beru.masa += masa_extra
                     beru.oz_pct, beru.red_pct = beru_cazador.mover_niveles_cazador(

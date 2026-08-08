@@ -61,6 +61,7 @@ def snapshot_cero(symbol: str) -> dict[str, Any]:
             "rango_beru": "—",
             "grado_beru": "BLOQUEADO",
             "fase_margen": None,
+            "G_min": round(float(bc.g_min_usd(s)), 4),
         },
         "optimizacion_igris": {
             "mejora_pts_long": 0.0,
@@ -158,6 +159,7 @@ def _fase_desde_estado(
         "rango_beru": rango if rango else "—",
         "grado_beru": grado,
         "fase_margen": fase_margen,
+        "G_min": progresion.get("G_min"),
     }
 
 
@@ -319,6 +321,11 @@ def construir_asset_detail(
         igris_bloque=igris_bloque,
         progresion=progresion,
     )
+    # G_min del Santo de esta ficha (no del motor de progresión global)
+    try:
+        out["fase_manto"]["G_min"] = round(float(bc.g_min_usd(s)), 4)
+    except Exception:
+        pass
 
     bl = float(baselines.get("long") or 0)
     bs = float(baselines.get("short") or 0)

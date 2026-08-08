@@ -11,8 +11,10 @@ from pathlib import Path
 from typing import Any
 
 import core.config as config
+from core import beru_capital as bc
 from core import beru_cazador
 from core import beru_rail
+from core import g_min as gm
 
 ROOT = Path(__file__).resolve().parents[1]
 CRONICA_DIR = ROOT / "data" / "beru" / "cronicas"
@@ -304,6 +306,8 @@ def snapshot_activo(
     frentes_casa = beru_rail.frentes_casa_estables(act)
 
     total = max(len(barcos), 1)
+    det_g = gm.detalle_g_min(act)
+    g_mostrar = bc.g_min_usd(act)
     return {
         "symbol": act,
         "fuente": "legion" if barcos else "cero",
@@ -312,6 +316,10 @@ def snapshot_activo(
         "n_negociando": n_neg,
         "n_acechando": n_acech,
         "n_mega": n_mega,
+        "G_min": round(float(g_mostrar), 4),
+        "G_min_fuente": det_g.get("fuente_pierna") or det_g.get("archivo"),
+        "G_min_hay_dato": bool(det_g.get("hay_dato_archivo")),
+        "mordida_usd": round(float(beru_cazador.mordida_usd(act)), 4),
         "masa_total_usd": masa_total,
         "pnl_est_usd": round(pnl_sum, 4) if barcos else 0.0,
         "fees_paid_usd": None,
@@ -341,6 +349,7 @@ def snapshot_activo(
 
 def snapshot_cero(activo: str) -> dict[str, Any]:
     act = (activo or "ETH").upper()
+    det_g = gm.detalle_g_min(act)
     return {
         "symbol": act,
         "fuente": "cero",
@@ -349,6 +358,10 @@ def snapshot_cero(activo: str) -> dict[str, Any]:
         "n_negociando": 0,
         "n_acechando": 0,
         "n_mega": 0,
+        "G_min": round(float(bc.g_min_usd(act)), 4),
+        "G_min_fuente": det_g.get("fuente_pierna") or det_g.get("archivo"),
+        "G_min_hay_dato": bool(det_g.get("hay_dato_archivo")),
+        "mordida_usd": round(float(beru_cazador.mordida_usd(act)), 4),
         "masa_total_usd": 0.0,
         "pnl_est_usd": 0.0,
         "fees_paid_usd": None,
@@ -392,6 +405,10 @@ def flota_resumen(legion: list[Any], *, semilla: str | None = None) -> dict[str,
             "n_negociando": snap["n_negociando"],
             "n_acechando": snap["n_acechando"],
             "n_mega": snap["n_mega"],
+            "G_min": snap.get("G_min"),
+            "G_min_fuente": snap.get("G_min_fuente"),
+            "G_min_hay_dato": snap.get("G_min_hay_dato"),
+            "mordida_usd": snap.get("mordida_usd"),
             "masa_total_usd": snap["masa_total_usd"],
             "pnl_est_usd": snap["pnl_est_usd"],
             "centro_0": snap["centro_0"],

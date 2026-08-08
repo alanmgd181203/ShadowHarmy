@@ -79,6 +79,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Checklist global:** ~69% (125/184 [x] + 5 [~]) · núcleo Fases 0–3 ~95%
 - **Estado código:** Fase 3 ~92% · lives ✅ · pase Chamán firmado · falta Telegram/ranking fusión
 - **Jess sync Bybit (2026-07-21):** lev+mínimos+piso manto vivos · 780 bases · origin sync México
+- **G_min variable por Santo (2026-08-07):** peaje Beru = mínimo spot USDT (fallback linear, piso $1) · `core/g_min.py` · sync `scripts/sync_bybit_minimos_orden.py` · **pase/ranking PENDIENTE** tras mínimos reales + análisis Monarca · [`CHECKPOINT_PRE_GMIN_VARIABLE_2026-08-07.md`](CHECKPOINT_PRE_GMIN_VARIABLE_2026-08-07.md) · [`PEGAR_JESS_SYNC_MINIMOS_BYBIT.md`](PEGAR_JESS_SYNC_MINIMOS_BYBIT.md)
 - **Pase batalla 13 Santos (2026-07-19):** vacío 1,6 % · rangos Aspirante→Chamán · [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md)
 - **Candado rango (2026-07-19):** `MONARCA_RANK_GATE` → Igris auditoría/despliegue + Beru casa (no live) + Ascensión viva desde `estado_vivo`
 - **Director pase (2026-07-19→08-06):** `pase_director` — potencia/lote · **2 marchas operativas (asalto · personalizado)** · **fill 100% · reserva 1** · personalizado por T · legado táctico/forzada → asalto · altar hidrata JSON · `set_marcha_cli` · sello [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md)

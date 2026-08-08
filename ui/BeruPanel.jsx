@@ -102,6 +102,12 @@ export default function BeruPanel({ onClose }) {
                   </span>
                   <span className="text-xs text-white/45 tabular-nums">{fmtUsd(a.masa_total_usd)}</span>
                 </div>
+                {a.G_min_hay_dato && a.G_min != null ? (
+                  <p className="text-[10px] text-white/40 mb-1.5 tabular-nums">
+                    G_min {fmtUsd(a.G_min)}
+                    {a.G_min_fuente ? ` · ${a.G_min_fuente}` : ""}
+                  </p>
+                ) : null}
                 <div className="flex gap-3 text-[11px] text-white/55 mb-2">
                   <span>{a.n_caza || 0} caza</span>
                   <span>{a.n_negociando || 0} neg</span>

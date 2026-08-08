@@ -51,7 +51,7 @@ Cuando el **Mega Beru** (`es_super_beru`) negocia y el precio **toca su red** (n
 | 1 | **Cosecha / suelta** del Mega — capital vuelve a la **bóveda** (margen cruzado Tusk); nada exclusivo salvo doctrina Greed |
 | 2 | **Nuevo 0** = precio del toque de red (`centro_manto` local) |
 | 3 | **Semilla nueva** con **masa $0** — otro soldado, no hereda los $100 del Mega |
-| 4 | Modo **CAZA** — al gatillar pide reserva a Tusk (`capa1`); **engorde** +$5/0,1 % en red como primera caza real |
+| 4 | Modo **CAZA** — al gatillar pide reserva a Tusk (`capa1`); **engorde** +G_min/0,1 % en red como primera caza real |
 
 Negociador normal del ciclo infinito: toque red → `ESPERANDO_ABISMO` (caza fantasma, masa congelada). Solo Mega hace reset generacional.
 
@@ -73,11 +73,11 @@ No fusionar en `ESPERANDO_ABISMO` ni sin grid desplegada.
 |-------|--------|
 | Gatillo Normal | ±**0,8 %** desde el 0 |
 | Al gatillar | oz **−0,1 %** del toque; red a **distancia de clon** del tier (Mariscal +0,1 % … Soldado +0,8 %) |
-| Toque de red (frontera) | Solo el Beru con la **red más extrema** engorda: oz/red **+0,1 %** juntas; **+$5** · **sin techo artificial** (surf del movimiento; la oz va detrás) |
+| Toque de red (frontera) | Solo el Beru con la **red más extrema** engorda: oz/red **+0,1 %** juntas; **+G_min** · **sin techo artificial** (surf del movimiento; la oz va detrás) |
 | Peloteo en rangos intermedios | Caza fantasma / ciclo infinito **sin engorde** |
 | Cosecha (Hoz) | Pasa a **Negociador** · deja `red_residual` en memoria |
-| Clonación | Toque de `red_residual` → **Capa N+1** con **$5** (legión paralela OK) |
-| Capa 1 (masa) | Arranque **+$5** (mordida) · engorde libre **+$5 / 0,1 %** · único límite = **oxígeno Tusk** (`BERU_CAZA_CAPA1_MAX_USD=0` = sin techo; Monarca 2026-07-18) |
+| Clonación | Toque de `red_residual` → **Capa N+1** con **G_min** (legión paralela OK) |
+| Capa 1 (masa) | Arranque **+G_min** (mordida) · engorde libre **+G_min / 0,1 %** · único límite = **oxígeno Tusk** (`BERU_CAZA_CAPA1_MAX_USD=0` = sin techo; Monarca 2026-07-18) |
 
 **Eliminado:** techo fijo ~**$50** de capa 1 — era miope ante corridas largas.  
 **Eliminado:** spawn automático cada **0,3 %** durante caza activa — el cazador de frontera **engorda solo**.
@@ -119,22 +119,29 @@ Tras la **primera caza real**, la masa queda **congelada** (ej. $35) — **nunca
 
 ## Beru al 100 % — tamaño del manto (tier PLENO)
 
-Objetivo: **$50 PnL por 1 %** de movimiento **por pierna** del manto  
-→ **$5 por 0,1 %** (línea del mínimo de orden ~$5).
+**G_min variable por Santo (2026-08-07):** el peaje ya no es un $5 fijo para toda la flota.  
+`G_min` = mínimo de orden del **rail spot USDT** del Santo (si existe); si no, linear; piso configurable (default **$1**). Fuente: `data/bybit_minimos_orden.json` (sync Bybit).
+
+Objetivo Mariscal: **PnL / 0,1 % = G_min del Santo**  
+→ PLENO **PnL / 1 % = 10×G_min** (antes se leía “$50 / 1 %” cuando G_min era $5).
 
 | Fórmula | Valor |
 |---------|--------|
-| Notional / pierna | $50 ÷ 0,01 = **$5.000** |
-| Margen / pierna | $5.000 ÷ lev_promedio |
+| Notional / pierna (PLENO) | (10×G_min) ÷ 0,01 |
+| Margen / pierna | notional ÷ lev_promedio |
 | **Manto L+S** | **2 × margen / pierna** |
 
 **Apalancamiento:** promedio de máx **inverse (long)** + **lineal stable (short)** por activo (`config.MANTO_LEVERAGE_*_BY_ASSET`).
 
 Proto tiers dividen el manto: `margen_tier = margen_pleno ÷ escala_manto` (×2 → PROTO1, ×4 → PROTO2).
 
-### Ejemplos PLENO (manto solo)
+### Mordida Cazador
 
-| Activo | Lev prom | Margen manto PLENO |
+Default = **G_min del Santo**. Override fijo solo si `BERU_CAZADOR_MORDIDA_USD > 0` (p.ej. live testnet). Engorde frontera: **+G_min / 0,1 %** sin techo artificial (oxígeno Tusk).
+
+### Ejemplos PLENO (manto solo, *con G_min=$5 legado*)
+
+| Activo | Lev prom | Margen manto PLENO (~) |
 |--------|----------|---------------------|
 | **ETH** | 100 | **$100** |
 | **BTC** | 100 | **$100** |
@@ -142,12 +149,18 @@ Proto tiers dividen el manto: `margen_tier = margen_pleno ÷ escala_manto` (×2 
 | **SOL** | 50 | **$200** |
 | **WIF** | 20 | **$500** |
 
+Con G_min real distinto, los $ del manto **escalan solos** (fricción fija).
+
 ### Equity mínima recomendada
 
 `margen_manto_por_tier(activo, tier)` — **sin colchón spot extra** (`BERU_SPOT_COLCHON_USD=0`).  
 Spot margen usa la misma equity; ganancias/pérdidas se compensan ahí.
 
-Ej. ETH **PROTO1:** **~$50** equity (manto L+S a escala ×2).
+Ej. ETH **PROTO1** con G_min=$5: **~$50** equity (manto L+S a escala ×2).
+
+### Pase / ranking — PENDIENTE
+
+**No** regenerar `PASE_BATALLA` / ranking hasta tener mínimos verdaderos sincronizados **y** análisis del Monarca. El cableado lee G_min vivo; el orden de batalla sigue el pase firmado 2026-07-19.
 
 ---
 
@@ -198,4 +211,5 @@ Variables por usuario: activo semilla, tier (auto por equity), vacíos, modo com
 
 ## Validación
 
-`python scripts/validar_beru_capital_smoke.py` · `python scripts/validar_beru_asset_detail_smoke.py`
+`python scripts/validar_beru_capital_smoke.py` · `python scripts/validar_g_min_variable_smoke.py` · `python scripts/validar_beru_asset_detail_smoke.py`  
+Sync mínimos: `python scripts/sync_bybit_minimos_orden.py` · Jess: [`PEGAR_JESS_SYNC_MINIMOS_BYBIT.md`](PEGAR_JESS_SYNC_MINIMOS_BYBIT.md)

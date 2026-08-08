@@ -60,7 +60,9 @@ Subniveles por **pasos del pase de batalla** (efi Coliseo ÷ costo Igris), no po
 | $50+ | **PROTO1** | Guerrero | ~$50 |
 | $100+ | **PLENO** | Comandante | ~$100 |
 
-**North star PLENO:** $50 PnL por 1% movimiento. Protos buscan órdenes mínimas ~$5.
+**North star PLENO:** PnL / 1 % = **10×G_min del Santo** (legado: $50 cuando G_min era $5). Mariscal 0,1 % = **G_min**. Protos escalan con el peaje real del altar, no con un $5 clavado.
+
+> **2026-08-07:** G_min variable cableado; **pase/ranking aún NO regenerado** — pendiente sync + análisis Monarca.
 
 **Auto-tier:** `MONARCA_NIVEL_AUTO=true` — sube/baja tras **3 días** promedio sobre/bajo umbral (`MONARCA_TIER_AUTO_DIAS`).
 

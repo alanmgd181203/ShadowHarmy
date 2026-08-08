@@ -68,10 +68,10 @@ def apalancamiento_ejecucion(frente_o_asset: str, category: str | None = None) -
 
 
 def g_min_usd(asset: str) -> float:
-    """G_min Bybit — diccionario estático de arranque (config)."""
-    mp = getattr(config, "G_MIN_USD_BY_ASSET", {}) or {}
-    default = float(getattr(config, "G_MIN_USD_DEFAULT", 5.0))
-    return float(mp.get(asset.upper(), default))
+    """G_min Bybit por Santo — archivo sync (spot USDT → linear → piso/default)."""
+    from core import g_min as gm
+
+    return gm.g_min_usd(asset)
 
 
 def friccion_soldado_pct() -> float:
@@ -312,6 +312,7 @@ def telemetria_progresion(equity_usd: float) -> dict[str, Any]:
         "costo_base_X": x,
         "A_base": motor.get("A_base", 0),
         "activo_motor": motor.get("activo"),
+        "G_min": g_min_usd(str(motor.get("activo") or getattr(config, "BERU_ACTIVO_SEMILLA", "ETH"))),
         "rango_ejercito": rango_titulo,
         "rango_ejercito_id": rango_id,
         "piso_soldado_usd": piso_soldado,
@@ -414,22 +415,32 @@ def tabla_flota_beru(activos: list[str] | None = None) -> list[dict[str, Any]]:
 
 
 def resumen_capital() -> dict[str, Any]:
+    from core import g_min as gm
+
     semilla = str(getattr(config, "BERU_ACTIVO_SEMILLA", "ETH")).upper()
     cola = cola_activos_con_a_base()
     sem = next((c for c in cola if c["activo"] == semilla), cola[0] if cola else rangos_activo(semilla))
+    det = gm.detalle_g_min(semilla)
+    g_sem = float(sem.get("G_min") if isinstance(sem, dict) else g_min_usd(semilla))
     return {
         "activo_semilla": semilla,
         "motor": "5_REGLAS_UNIVERSALES",
-        "G_min_default": float(getattr(config, "G_MIN_USD_DEFAULT", 5.0)),
+        "G_min_default": float(getattr(config, "G_MIN_USD_DEFAULT", 1.0)),
+        "G_min_piso": float(getattr(config, "G_MIN_USD_PISO", 1.0)),
+        "G_min_semilla": g_sem,
+        "G_min_detalle_semilla": det,
+        "pleno_pnl_1pct_como_10x_gmin": round(10.0 * g_sem, 4),
         "friccion_soldado_pct": friccion_soldado_pct() * 100,
         "colchon_tusk_pct": colchon_tusk_pct() * 100,
         "semilla_rangos": sem,
+        "semilla": {**(sem if isinstance(sem, dict) else {}), "G_min": g_sem},
         "cola_graduacion": cola,
         "tiers": beru_tier.resumen_tiers(),
         "capitanes": {
             "ansiedad_vacio_pct": float(getattr(config, "BERU_VACIO_ANSIEDAD", 0.012)) * 100,
             "normal_vacio_pct": float(getattr(config, "BERU_VACIO_NORMAL", 0.016)) * 100,
         },
+        "nota_pase": "ranking/pase NO regenerado — pendiente tras mínimos reales + análisis Monarca",
     }
 
 
