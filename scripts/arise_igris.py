@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-4.0.3 — Igris live parcial: manos sueltas, ojos con libros.
+4.0.3 — Igris live: manos sueltas, ojos con libros, lote del pase.
 
 Despierta: Tusk (oxígeno) · Tank (orderbook real) · Kaiser · Igris (manto).
-NO despierta: Greed · Beru.
+NO despierta: Greed · Beru (hibernados hasta orden Monarca).
 Manos reales: ON (MODO_SIMULACION=False).
-Bóveda manos Convert: OFF (TUSK_BOVEDA_MANOS no se enciende).
-Books: ON (BRIDGE_WS_SUBSCRIBE_BOOKS=true) — no ojos estrechos de la sim.
+Bóveda manos Convert: OFF. MNT short inverso = bóveda (hedge), no manto.
+Canal: lote completo de potencia (vacío exclusivos). ETH-only: IGRIS_FORZAR_EXCLUSIVOS=ETH.
+MNT: por defecto fuera del lote (`IGRIS_BOVEDA_EN_LOTE=false`) — short bóveda intacto.
 
   python scripts/arise_igris.py --solo-ojos --segundos 90
-  python scripts/arise_igris.py --segundos 90
-  python scripts/arise_igris.py --durar-hasta 2026-08-05T18:30:00 --permitir-mainnet-manos
+  python scripts/arise_igris.py --durar-hasta 2026-08-09T12:00:00 --permitir-mainnet-manos
 
 ABORTA mainnet manos sin --permitir-mainnet-manos / ARISE_IGRIS_PERMITIR_MAINNET.
 Respeta marcha en data/marcha_despliegue.json.
@@ -50,17 +50,44 @@ os.environ.setdefault("GREED_VIP_ENABLED", "false")
 os.environ.setdefault("GREED_BASIS_HOLD_ENABLED", "false")
 os.environ.setdefault("GREED_MULTICRUCE_ENABLED", "false")
 os.environ.setdefault("SAFE_MODE", "true")
-os.environ.setdefault("IGRIS_EVENT_DRIVEN", "true")
-os.environ.setdefault("IGRIS_BOOTSTRAP_ON_START", "false")
-# Canal paralelo: manto dual ETH exclusivo; MNT colateral intocable
+# Asalto: plantar ya (no esperar señal Kaiser / no event-driven frío)
+os.environ["IGRIS_EVENT_DRIVEN"] = "false"
+os.environ["IGRIS_BOOTSTRAP_ON_START"] = "true"
+os.environ["ARISE_BERU_ARMADO"] = "false"
+# Lote completo del pase (orden Monarca). Para canal ETH-only: export IGRIS_FORZAR_EXCLUSIVOS=ETH
+_forzar_excl = (os.environ.get("IGRIS_FORZAR_EXCLUSIVOS") or "").strip().upper()
+os.environ["IGRIS_ACTIVOS_EXCLUSIVOS"] = _forzar_excl  # vacío = lote potencia
 os.environ.setdefault("TICKER_BASE", "ETH")
-os.environ.setdefault("IGRIS_ACTIVOS_EXCLUSIVOS", "ETH")
+os.environ.setdefault("IGRIS_BOVEDA_BASES", "MNT")
 os.environ.setdefault("IGRIS_PROTEGER_BASES", "MNT")
 os.environ.setdefault("IGRIS_PROTEGER_SYMBOLS", "MNTUSD")
+os.environ.setdefault("IGRIS_MNT_HEDGE_OBLIGATORIO", "true")
+# Monarca 2026-08-09: no engordar MNT encima del short de bóveda
+os.environ.setdefault("IGRIS_BOVEDA_EN_LOTE", "false")
+# Ojos Asalto: no castrar por ruido mid↔ticker 0.4–0.7%
+os.environ.setdefault("IGRIS_LIBRO_DIVERGENCIA_PCT", "1.0")
+os.environ.setdefault("IGRIS_LIBRO_DIVERGENCIA_ASALTO_PCT", "2.5")
+os.environ.setdefault("IGRIS_MASA_ASIMETRIA_ASALTO_PCT", "0.12")
+os.environ.setdefault("IGRIS_ASALTO_OVERSHOOT_META", "true")
+os.environ.setdefault("IGRIS_FORCE_MAX_LEVERAGE", "true")
+os.environ.setdefault("IGRIS_ESPERA_COOLDOWN_S", "3")
 # Con books reales: puerta §E no debe depender del ticker sintético
 os.environ.setdefault("IGRIS_TICKER_PUERTA_SI_SIN_LIBRO", "false")
 os.environ.setdefault("BYBIT_RECV_WINDOW_MS", "60000")
 os.environ.setdefault("BRIDGE_WS_FORCE_IPV4", "true")
+os.environ.setdefault("IGRIS_LIBRO_REST_FALLBACK", "true")
+# Muleta REST más a menudo cuando WS tiembla (Asalto)
+os.environ.setdefault("IGRIS_LIBRO_REST_COOLDOWN_S", "8")
+os.environ.setdefault("BRIDGE_WS_OPEN_TIMEOUT_S", "60")
+os.environ.setdefault("BRIDGE_WS_INVALIDAR_ON_DROP", "true")
+# Asalto: aire ~2s (Market + dens máx — Monarca 2026-08-09)
+os.environ.setdefault("IGRIS_ENGORDE_RITMO_S", "2")
+os.environ.setdefault("IGRIS_ESPERA_LOG_S", "20")
+os.environ.setdefault("IGRIS_VENTANA_NO_BLOQUEA_ENGORDE", "true")
+os.environ.setdefault("IGRIS_ASALTO_SIN_TANK_ROJO", "true")
+os.environ.setdefault("IGRIS_ASALTO_PUERTA_SIN_OJOS", "true")
+os.environ.setdefault("IGRIS_RESERVA_AJUSTAR_A_AUTH", "true")
+os.environ.setdefault("IGRIS_PODA_AUTO", "false")
 # No forzar MODO_TESTNET: respeta .env / entorno
 
 import core.config as config  # noqa: E402
@@ -78,20 +105,69 @@ config.GREED_VIP_ENABLED = False
 config.GREED_BASIS_HOLD_ENABLED = False
 config.GREED_MULTICRUCE_ENABLED = False
 config.SAFE_MODE = True
-config.IGRIS_EVENT_DRIVEN = True
+config.IGRIS_EVENT_DRIVEN = False
 if hasattr(config, "IGRIS_BOOTSTRAP_ON_START"):
-    config.IGRIS_BOOTSTRAP_ON_START = False
+    config.IGRIS_BOOTSTRAP_ON_START = True
+config.IGRIS_ENGORDE_RITMO_S = float(os.getenv("IGRIS_ENGORDE_RITMO_S", "2") or 2)
 config.IGRIS_TICKER_PUERTA_SI_SIN_LIBRO = "false"
 config.BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))
 if hasattr(config, "BRIDGE_WS_FORCE_IPV4"):
     config.BRIDGE_WS_FORCE_IPV4 = True
-# Frente de combate: ETH dual; MNT fuera del canal
+if hasattr(config, "IGRIS_LIBRO_REST_FALLBACK"):
+    config.IGRIS_LIBRO_REST_FALLBACK = True
+if hasattr(config, "IGRIS_LIBRO_REST_COOLDOWN_S"):
+    config.IGRIS_LIBRO_REST_COOLDOWN_S = float(
+        os.environ.get("IGRIS_LIBRO_REST_COOLDOWN_S", "8") or 8
+    )
+if hasattr(config, "BRIDGE_WS_OPEN_TIMEOUT_S"):
+    config.BRIDGE_WS_OPEN_TIMEOUT_S = float(
+        os.environ.get("BRIDGE_WS_OPEN_TIMEOUT_S", "60") or 60
+    )
+if hasattr(config, "BRIDGE_WS_INVALIDAR_ON_DROP"):
+    config.BRIDGE_WS_INVALIDAR_ON_DROP = (
+        os.environ.get("BRIDGE_WS_INVALIDAR_ON_DROP", "true").lower() == "true"
+    )
+if hasattr(config, "IGRIS_ESPERA_LOG_S"):
+    config.IGRIS_ESPERA_LOG_S = float(os.environ.get("IGRIS_ESPERA_LOG_S", "20") or 20)
+# Ticker de arranque ETH; exclusivos vacíos = Igris sigue el lote del pase
 config.TICKER_BASE = "ETH"
 config.SIMBOLO_LINEAR = "ETHUSDT"
 config.FRENTE_PRINCIPAL = "ETHUSDT_LINEAL"
-config.IGRIS_ACTIVOS_EXCLUSIVOS = ["ETH"]
+_excl_raw = (os.environ.get("IGRIS_ACTIVOS_EXCLUSIVOS") or "").strip()
+config.IGRIS_ACTIVOS_EXCLUSIVOS = (
+    [a.strip().upper() for a in _excl_raw.split(",") if a.strip()] if _excl_raw else []
+)
+config.IGRIS_BOVEDA_BASES = ["MNT"]
 config.IGRIS_PROTEGER_BASES = ["MNT"]
 config.IGRIS_PROTEGER_SYMBOLS = ["MNTUSD"]
+config.IGRIS_MNT_HEDGE_OBLIGATORIO = True
+config.IGRIS_BOVEDA_EN_LOTE = (
+    os.environ.get("IGRIS_BOVEDA_EN_LOTE", "false").lower() == "true"
+)
+config.IGRIS_LIBRO_DIVERGENCIA_PCT = float(
+    os.environ.get("IGRIS_LIBRO_DIVERGENCIA_PCT", "1.0") or 1.0
+)
+config.IGRIS_LIBRO_DIVERGENCIA_ASALTO_PCT = float(
+    os.environ.get("IGRIS_LIBRO_DIVERGENCIA_ASALTO_PCT", "2.5") or 2.5
+)
+config.IGRIS_MASA_ASIMETRIA_ASALTO_PCT = float(
+    os.environ.get("IGRIS_MASA_ASIMETRIA_ASALTO_PCT", "0.12") or 0.12
+)
+config.IGRIS_ASALTO_OVERSHOOT_META = (
+    os.environ.get("IGRIS_ASALTO_OVERSHOOT_META", "true").lower() == "true"
+)
+config.IGRIS_FORCE_MAX_LEVERAGE = (
+    os.environ.get("IGRIS_FORCE_MAX_LEVERAGE", "true").lower() == "true"
+)
+if hasattr(config, "IGRIS_ESPERA_COOLDOWN_S"):
+    config.IGRIS_ESPERA_COOLDOWN_S = float(
+        os.environ.get("IGRIS_ESPERA_COOLDOWN_S", "3") or 3
+    )
+config.IGRIS_EXCLUIR_BASES = [
+    a.strip().upper()
+    for a in (os.environ.get("IGRIS_EXCLUIR_BASES") or "").split(",")
+    if a.strip()
+]
 
 from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402
@@ -149,17 +225,55 @@ def _segundos_desde_flags(
     return float(segundos or 0)
 
 
+def _bases_lote_ojos(equity_usd: float | None = None) -> list[str]:
+    """Bases del pase en potencia (+ ETH si ya tiene manto) para WS/REST."""
+    from core import pase_director as pd
+
+    eq = float(equity_usd or 0)
+    if eq <= 0:
+        try:
+            eq = float((pd.cargar_marcha_payload() or {}).get("equity_usd") or 0)
+        except Exception:
+            eq = 0.0
+    if eq <= 0:
+        eq = float(getattr(config, "EQUITY_FALLBACK_USD", 1500) or 1500)
+    plan = pd.plan_lote(eq)
+    bases: list[str] = []
+    seen: set[str] = set()
+    for p in list(plan.get("lote") or []) + list(plan.get("cola_fina") or []):
+        act = str(p.get("activo") or "").upper()
+        if act and act not in seen:
+            seen.add(act)
+            bases.append(act)
+    # ETH siempre en ojos si hay paso 1 (manto vivo / calentamiento)
+    if "ETH" not in seen:
+        bases.insert(0, "ETH")
+    excl = list(getattr(config, "IGRIS_ACTIVOS_EXCLUSIVOS", None) or [])
+    if excl:
+        bases = [b for b in bases if b in {str(x).upper() for x in excl}] or list(excl)
+    # Pausa bóveda / CSV excluido: ojos alineados al canal de engorde
+    from core import igris_proteccion as iprot
+
+    return iprot.filtrar_activos_trabajo(bases)
+
+
 def _aplicar_ojos_abiertos(tusk) -> list[str]:
-    """Canal paralelo ETH: libros solo del manto dual (MNT colateral no opera)."""
-    out = ["ETH"]
-    config.TICKER_BASE = "ETH"
-    config.BRIDGE_WS_BASES = out
+    """Ojos del lote de potencia: books ON; bóveda MNT segregada (hedge), Beru OFF."""
+    eq = float(getattr(tusk, "masa_bruta_real", 0) or getattr(tusk, "masa_bruta", 0) or 0)
+    out = _bases_lote_ojos(eq if eq > 0 else None)
+    config.TICKER_BASE = str(out[0] if out else "ETH")
+    config.BRIDGE_WS_BASES = list(out)
     config.BRIDGE_WS_SUBSCRIBE_BOOKS = True
-    # Solo ETH: no ahogar el calentamiento con 13 orderbooks
-    config.BRIDGE_WS_BOOKS_BASES = ["ETH"]
-    config.IGRIS_ACTIVOS_EXCLUSIVOS = ["ETH"]
-    print("[OJOS] Canal paralelo ETH exclusivo · books=ON · MNT protegido (colateral)")
-    print(f"[OJOS] Bases: {', '.join(out)} · books={config.BRIDGE_WS_BOOKS_BASES}")
+    config.BRIDGE_WS_BOOKS_BASES = list(out)
+    # No re-forzar exclusivos aquí (canal = lote salvo override env)
+    excl = list(getattr(config, "IGRIS_ACTIVOS_EXCLUSIVOS", None) or [])
+    modo = f"exclusivos={excl}" if excl else "lote_completo_pase"
+    boveda = "ON" if getattr(config, "IGRIS_BOVEDA_EN_LOTE", True) else "OFF(pausa MNT)"
+    print(
+        f"[OJOS] Canal Igris · {modo} · books=ON · Beru hibernado · "
+        f"bóveda_en_lote={boveda}"
+    )
+    print(f"[OJOS] Bases ({len(out)}): {', '.join(out)}")
     return out
 
 
@@ -297,17 +411,22 @@ async def _cronica(tusk, tank, intervalo_s: float = 30.0):
 
 async def _esperar_ojos_y_libros(
     tank,
+    bridge=None,
     *,
     timeout_s: float = 120.0,
     shutdown_event: asyncio.Event | None = None,
 ) -> tuple[bool, bool, dict]:
-    """Calentamiento: Tank VERDE + libros ETH (bids/asks)."""
+    """Calentamiento: Tank VERDE + libros ETH (bids/asks). REST si WS falla un frente."""
+    from core import igris_ojos as ojos
+
     base = str(getattr(config, "TICKER_BASE", "ETH") or "ETH").upper()
     keys = (f"{base}USDT_LINEAL", f"{base}USD_INVERSE", "ETHUSDT_LINEAL", "ETHUSD_INVERSE")
+    frentes_rest = [f"{base}USDT_LINEAL", f"{base}USD_INVERSE"]
     t0 = time.time()
     print(f"[OJOS] Calentamiento VERDE + libros ETH (hasta {timeout_s:.0f}s)…")
     verde_ok = False
     libros: dict = {"ok": False, "frentes": {}}
+    ultimo_rest = 0.0
     while time.time() - t0 < timeout_s:
         if shutdown_event is not None and shutdown_event.is_set():
             print("[OJOS] Calentamiento abortado (apagado).")
@@ -332,6 +451,23 @@ async def _esperar_ojos_y_libros(
                 f"{libros.get('frentes')}"
             )
             return True, True, libros
+        # Muleta REST si falta un muro (p.ej. linear vacío / inverse OK)
+        ahora = time.time()
+        if bridge is not None and ahora - ultimo_rest >= 8.0 and not libros.get("ok"):
+            ultimo_rest = ahora
+            try:
+                diag = await ojos.asegurar_libros_frescos(tank, bridge, frentes_rest)
+                if any(r.get("ok") for r in (diag.get("rest") or [])):
+                    print(
+                        f"[OJOS] REST muleta · "
+                        f"{[r.get('frente') for r in diag.get('rest') or [] if r.get('ok')]}"
+                    )
+                libros = _libros_eth(tank)
+                if verde_ok and libros.get("ok"):
+                    print(f"[OJOS] VERDE+libros OK tras REST · {libros.get('frentes')}")
+                    return True, True, libros
+            except Exception as e:
+                print(f"[OJOS] REST muleta falló: {e}")
         await asyncio.sleep(1.0)
     print(
         f"[OJOS] Timeout calentamiento — verde={verde_ok} libros={libros.get('ok')} "
@@ -445,8 +581,12 @@ async def ritual_igris_live(
     print("    4.0.3  RITUAL IGRIS LIVE (parcial)")
     print("    Kaiser · Tank · Tusk · Igris")
     print(f"    {modo}")
-    print("    Canal ETH exclusivo · MNTUSD colateral intocable")
-    print("    Greed / Beru hibernados · bóveda Convert OFF")
+    print("    Canal: lote completo del pase (potencia) · exclusivos OFF")
+    print(
+        "    MNT bóveda: "
+        + ("en lote (hedge)" if config.IGRIS_BOVEDA_EN_LOTE else "PAUSA engorde (short colateral)")
+    )
+    print("    Greed/Beru hibernados · Convert OFF")
     print(f"    Books ON · TESTNET={config.TESTNET} · SIM={config.MODO_SIMULACION}")
     print(f"    Marcha: {mid} · fill={perfil.get('fill_ratio')} · reserva={perfil.get('reserva_pasos')}")
     print("═" * 52)
@@ -483,8 +623,109 @@ async def ritual_igris_live(
 
         _aplicar_ojos_abiertos(tusk)
 
+        # Hidratar acumulado real ANTES de que Igris mire meta/engorde
+        print("[TUSK] Reconciliación inmediata con exchange (L+S visible)…")
+        recon_ok = False
+        try:
+            recon_ok = bool(await tusk.reconciliar_con_exchange(bridge))
+            await tusk.actualizar_telemetria_posiciones(bridge)
+        except Exception as e:
+            print(f"[TUSK] Reconciliación arranque falló: {e}")
+            recon_ok = False
+        if not solo_ojos and not recon_ok:
+            print(
+                "[SEGURIDAD] ABORT: Tusk ciego (sin reconciliación). "
+                "No se sueltan manos — evita duplicar manto / confundir bóveda."
+            )
+            print(
+                "  Si ves ErrCode 10010: actualiza la IP whitelist de la API en Bybit "
+                "y vuelve a lanzar el guardián."
+            )
+            await bellion.anotar(
+                "IGRIS", "ABORT_RECON",
+                "Manos OFF: reconciliación fallida al arranque",
+            )
+            raise SystemExit(2)
+
+        # Hedge MNT solo si la bóveda entra al lote de engorde
+        if (
+            not solo_ojos
+            and getattr(config, "IGRIS_BOVEDA_EN_LOTE", True)
+            and getattr(config, "IGRIS_MNT_HEDGE_OBLIGATORIO", True)
+        ):
+            from core import mnt_manto_hedge as mmh
+
+            hedge = await mmh.asegurar_hedge_bases_boveda(bridge)
+            pares_ok = [
+                f"{p['symbol']}/{p['category']}"
+                for p in (hedge.get("pares") or [])
+                if p.get("ok")
+            ]
+            pares_bad = [
+                f"{p['symbol']}/{p['category']}:{p.get('mensaje')}"
+                for p in (hedge.get("pares") or [])
+                if not p.get("ok")
+            ]
+            if pares_ok:
+                print(f"[OJOS] Hedge bidireccional ON · {', '.join(pares_ok)}")
+            if pares_bad:
+                print(f"[!] Hedge FALLIDO (MNT): {'; '.join(pares_bad)}")
+                await bellion.anotar(
+                    "IGRIS", "HEDGE_REQUERIDO",
+                    f"Bóveda sin Both Sides: {pares_bad} — "
+                    f"abrir long comería el short de colateral.",
+                )
+                raise SystemExit(2)
+            await bellion.anotar(
+                "IGRIS", "HEDGE_BOVEDA_OK",
+                f"Bidireccional activo · {pares_ok}",
+            )
+        elif not solo_ojos and not getattr(config, "IGRIS_BOVEDA_EN_LOTE", True):
+            print("[OJOS] MNT fuera del lote — short bóveda intacto (sin engorde MNT)")
+            await bellion.anotar(
+                "IGRIS", "BOVEDA_PAUSA_LOTE",
+                "IGRIS_BOVEDA_EN_LOTE=false · MNT no se engorda",
+            )
+
+        eq0 = float(getattr(tusk, "masa_bruta_real", 0) or getattr(tusk, "masa_bruta", 0) or 0)
+        if eq0 <= 0:
+            # Oxígeno aún no late — equity de marcha / fallback
+            try:
+                eq0 = float((pd.cargar_marcha_payload() or {}).get("equity_usd") or 0)
+            except Exception:
+                eq0 = 0.0
+        if eq0 <= 0:
+            eq0 = float(getattr(config, "EQUITY_FALLBACK_USD", 1500) or 1500)
+        try:
+            pd.sincronizar_logrados_desde_tusk(tusk, eq0)
+        except Exception as e:
+            print(f"[PASE] sync logrados arranque: {e}")
+        meta0 = pd.meta_engorde_usd(eq0, "ETH", tusk=tusk, marcha_id=pd.cargar_marcha())
+        have0 = float(meta0.get("have_usd") or 0)
+        need0 = float(meta0.get("need_usd") or 0)
+        rest0 = float(meta0.get("restante_usd") or 0)
+        pierna0 = float(meta0.get("need_notional_pierna_usd") or 0)
+        print(
+            f"[PASE] ETH meta · have=${have0:.2f} need=${need0:.2f} "
+            f"restante=${rest0:.2f} pierna≈${pierna0:.2f} "
+            f"capΔ={meta0.get('delta_paso_usd')} paso={meta0.get('paso_n')}"
+        )
+
         kaiser = KaiserVocero(tank, bellion)
         igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge, kaiser=kaiser)
+
+        # Densidad máxima desde el arranque (antes de engorde)
+        if not solo_ojos and getattr(config, "IGRIS_FORCE_MAX_LEVERAGE", True):
+            print("[IGRIS] Forzando apalancamiento MÁXIMO en lote (avisos si Bybit baja)…")
+            try:
+                lev_lote = await igris.forzar_densidad_maxima_lote()
+                print(
+                    f"[IGRIS] LEVERAGE_MAX_LOTE · ok={lev_lote.get('n_ok')} "
+                    f"avisos={lev_lote.get('n_aviso')} Santos={len(lev_lote.get('activos') or [])}"
+                )
+            except Exception as e:
+                print(f"[IGRIS] LEVERAGE_MAX_LOTE aviso: {e}")
+                await bellion.anotar("IGRIS", "LEVERAGE_MAX_AVISO", f"lote arranque: {e}")
 
         from core.validacion import advertir_gates
 
@@ -534,6 +775,7 @@ async def ritual_igris_live(
 
         verde_ok, libros_ok, libros = await _esperar_ojos_y_libros(
             tank,
+            bridge,
             timeout_s=float(os.getenv("ARISE_IGRIS_CALENTAMIENTO_S", "300") or 300),
             shutdown_event=shutdown_event,
         )

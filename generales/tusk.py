@@ -206,22 +206,39 @@ class TuskBoveda:
 
     # === [SUBTEMA: LOGÍSTICA DE SOMBRAS (PUENTE DE HIERRO)] ===
 
-    async def solicitar_reserva(self, uid: str, masa: float, general: str, direccion: str = "LONG") -> bool:
-        """Puente para que Beru pida masa al sistema dinámico."""
+    async def solicitar_reserva(
+        self,
+        uid: str,
+        masa: float,
+        general: str,
+        direccion: str = "LONG",
+        *,
+        consumir_auth: bool = True,
+    ) -> bool:
+        """Puente para que Beru/Igris pidan masa al sistema dinámico.
+
+        consumir_auth=False: registra la pierna espejo sin restar otra vez el oxígeno
+        (dual L+S = un corte de aire, no dos).
+        """
         async with self._lock:
-            # 1. Filtro de Oxígeno
-            if self.masa_autorizada < masa: 
+            masa_f = float(masa or 0)
+            # 1. Filtro de Oxígeno (solo si consume)
+            if consumir_auth and self.masa_autorizada < masa_f:
                 return False
 
-            # 2. Materialización de la sombra para Beru
+            # 2. Materialización de la sombra
             if uid not in self.reservas_activas:
                 self.reservas_activas[uid] = type('Sombra', (object,), {
-                    'uid': uid, 'masa': masa, 'direccion': direccion, 'estado': 'ACECHANDO'
+                    'uid': uid,
+                    'masa': masa_f if consumir_auth else 0.0,
+                    'direccion': direccion,
+                    'estado': 'ACECHANDO',
                 })
-            
-            # 3. Reserva de energía
-            self.masa_autorizada -= masa
-            self.masa_reservada_ltc += masa
+
+            # 3. Reserva de energía (una sola vez por espejo dual)
+            if consumir_auth:
+                self.masa_autorizada -= masa_f
+                self.masa_reservada_ltc += masa_f
             return True
 
     async def confirmar_reserva(
@@ -288,67 +305,126 @@ class TuskBoveda:
 
     async def reconciliar_con_exchange(self, bridge):
         """
-        Compara posiciones reales del exchange con pesos internos.
+        Compara posiciones reales (linear + inverse) con pesos internos.
         Corrige discrepancias y registra en Bellion.
         Solo opera si MODO_SIMULACION=False y hay sesión activa.
+        Guardar tamaño nativo + precio medio (linear) para que Igris vea acumulado USD.
         """
         if config.MODO_SIMULACION or not bridge or not bridge.session:
-            return
+            return True
+
+        from core import igris_manto as im
 
         try:
-            response = bridge.session.get_positions(category="linear", settleCoin="USDT")
-            if response.get("retCode") != 0:
-                await self.bel.anotar("TUSK", "RECONCILIACIÓN_ERROR", response.get("retMsg", "?"))
-                return
-
-            posiciones_reales = {}
-            for pos in response["result"].get("list", []):
-                symbol = pos.get("symbol", "")
-                side = pos.get("side", "")
-                size = float(pos.get("size", 0))
-
-                if size <= 0:
+            posiciones_reales: dict[str, dict] = {}
+            queries = (
+                {"category": "linear", "settleCoin": "USDT"},
+                {"category": "inverse"},
+            )
+            errores = 0
+            for kwargs in queries:
+                try:
+                    response = bridge.session.get_positions(**kwargs)
+                except Exception as e:
+                    errores += 1
+                    await self.bel.anotar(
+                        "TUSK", "RECONCILIACIÓN_ERROR",
+                        f"{kwargs}: {e}",
+                    )
                     continue
+                if response.get("retCode") != 0:
+                    errores += 1
+                    await self.bel.anotar(
+                        "TUSK", "RECONCILIACIÓN_ERROR",
+                        f"{kwargs}: {response.get('retMsg', '?')}",
+                    )
+                    continue
+                cat = str(kwargs.get("category") or "")
+                for pos in response.get("result", {}).get("list", []) or []:
+                    symbol = str(pos.get("symbol") or "")
+                    side = str(pos.get("side") or "")
+                    size = float(pos.get("size") or 0)
+                    if size <= 0 or not symbol:
+                        continue
+                    frente = self._symbol_a_frente(symbol, category=cat)
+                    avg = float(pos.get("avgPrice") or pos.get("markPrice") or 0)
+                    if frente not in posiciones_reales:
+                        posiciones_reales[frente] = {
+                            "long": 0.0,
+                            "short": 0.0,
+                            "precio_medio_long": 0.0,
+                            "precio_medio_short": 0.0,
+                        }
+                    dir_key = "long" if side == "Buy" else "short"
+                    px_key = "precio_medio_long" if dir_key == "long" else "precio_medio_short"
+                    prev_sz = float(posiciones_reales[frente][dir_key])
+                    prev_px = float(posiciones_reales[frente].get(px_key) or 0)
+                    posiciones_reales[frente][dir_key] = prev_sz + size
+                    if avg > 0:
+                        new_sz = prev_sz + size
+                        if prev_sz > 0 and prev_px > 0:
+                            posiciones_reales[frente][px_key] = (
+                                prev_sz * prev_px + size * avg
+                            ) / new_sz
+                        else:
+                            posiciones_reales[frente][px_key] = avg
 
-                frente = self._symbol_a_frente(symbol)
-                if frente not in posiciones_reales:
-                    posiciones_reales[frente] = {"long": 0.0, "short": 0.0}
-
-                dir_key = "long" if side == "Buy" else "short"
-                posiciones_reales[frente][dir_key] += size
-
-            # Comparar con pesos internos y corregir
             async with self._lock:
                 discrepancias = 0
                 for frente, real in posiciones_reales.items():
-                    interno = self.pesos.get(frente, {"long": 0.0, "short": 0.0})
-                    diff_l = abs(real["long"] - interno["long"])
-                    diff_s = abs(real["short"] - interno["short"])
-
-                    if diff_l > 0.0001 or diff_s > 0.0001:
+                    interno = self.pesos.get(frente) or {"long": 0.0, "short": 0.0}
+                    diff_l = abs(real["long"] - float(interno.get("long") or 0))
+                    diff_s = abs(real["short"] - float(interno.get("short") or 0))
+                    if diff_l > 0.0001 or diff_s > 0.0001 or frente not in self.pesos:
                         discrepancias += 1
-                        self.pesos[frente] = {"long": real["long"], "short": real["short"]}
+                        pf = im.asegurar_peso(self.pesos, frente)
+                        pf["long"] = float(real["long"])
+                        pf["short"] = float(real["short"])
+                        if real.get("precio_medio_long"):
+                            pf["precio_medio_long"] = float(real["precio_medio_long"])
+                        if real.get("precio_medio_short"):
+                            pf["precio_medio_short"] = float(real["precio_medio_short"])
                         await self.bel.anotar(
                             "TUSK", "RECONCILIACIÓN",
-                            f"{frente}: interno L:{interno['long']:.4f}/S:{interno['short']:.4f} → real L:{real['long']:.4f}/S:{real['short']:.4f}"
+                            f"{frente}: interno L:{float(interno.get('long') or 0):.6f}/"
+                            f"S:{float(interno.get('short') or 0):.6f} → "
+                            f"real L:{real['long']:.6f}/S:{real['short']:.6f}",
                         )
 
-                # Frentes que internamente tenemos pero el exchange no
                 for frente in list(self.pesos.keys()):
                     if frente not in posiciones_reales:
-                        if self.pesos[frente]["long"] > 0.0001 or self.pesos[frente]["short"] > 0.0001:
+                        row = self.pesos.get(frente) or {}
+                        if float(row.get("long") or 0) > 0.0001 or float(row.get("short") or 0) > 0.0001:
                             discrepancias += 1
                             await self.bel.anotar(
                                 "TUSK", "RECONCILIACIÓN_FANTASMA",
-                                f"{frente} existe interno pero no en exchange → reseteando"
+                                f"{frente} existe interno pero no en exchange → reseteando",
                             )
-                            self.pesos[frente] = {"long": 0.0, "short": 0.0}
+                            self.pesos[frente] = {
+                                "long": 0.0,
+                                "short": 0.0,
+                                "precio_medio_long": 0.0,
+                                "precio_medio_short": 0.0,
+                            }
 
-                if discrepancias == 0:
-                    pass  # Silencio si todo coincide
+                if discrepancias:
+                    await self.bel.anotar(
+                        "TUSK", "RECONCILIACIÓN_OK",
+                        f"{discrepancias} frentes alineados con exchange",
+                    )
+
+            # Ambas queries fallidas → ciego: no mentir "OK" a Igris
+            if errores >= len(queries):
+                await self.bel.anotar(
+                    "TUSK", "RECONCILIACIÓN_CIEGO",
+                    "No se pudo leer linear ni inverse — abortar manos/semilla",
+                )
+                return False
+            return True
 
         except Exception as e:
             await self.bel.anotar("TUSK", "RECONCILIACIÓN_EXCEPCIÓN", str(e))
+            return False
 
     async def actualizar_telemetria_posiciones(self, bridge):
         """Lee posiciones abiertas en Bybit — solo telemetría para el panel."""
@@ -394,26 +470,36 @@ class TuskBoveda:
         return telemetria_desde_pesos(dict(self.pesos), equity)
 
     async def hilo_reconciliacion(self, bridge):
-        """Cada 60s reconcilia pesos internos con posiciones reales del exchange."""
-        await asyncio.sleep(10)
+        """Al arrancar + cada 60s: pesos alineados con exchange (acumulado visible a Igris)."""
+        # Primera pasada pronta (no esperar 10s: Igris necesita have al despertar)
+        await asyncio.sleep(1)
         while True:
             await self.actualizar_telemetria_posiciones(bridge)
             if not config.MODO_SIMULACION:
                 await self.reconciliar_con_exchange(bridge)
             await asyncio.sleep(60)
 
-    def _symbol_a_frente(self, symbol):
+    def _symbol_a_frente(self, symbol, category: str | None = None):
         """Traduce símbolo Bybit al nombre interno del frente."""
+        s = str(symbol or "").upper()
+        cat = (category or "").lower()
+        if cat == "inverse" or (
+            s.endswith("USD") and not s.endswith("USDT") and not s.endswith("USDC")
+        ):
+            return f"{s}_INVERSE"
         mapa = {
             "LTCUSDT": "LTCUSDT_LINEAL",
             "LTCUSDC": "LTCUSDC_SPOT",
-            "LTCUSD": "LTCUSD_INVERSE",
             "BTCUSDT": "BTCUSDT_LINEAL",
             "BTCUSDC": "BTCUSDC_SPOT",
-            "BTCUSD": "BTCUSD_INVERSE",
             "ETHUSDT": "ETHUSDT_LINEAL",
+            "ETHUSDC": "ETHUSDC_SPOT",
         }
-        return mapa.get(symbol, f"{symbol}_LINEAL")
+        if s in mapa:
+            return mapa[s]
+        if s.endswith("USDT") or s.endswith("USDC"):
+            return f"{s}_LINEAL"
+        return f"{s}_LINEAL"
 
     def export_for_bellion(self):
         return {

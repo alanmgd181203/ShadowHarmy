@@ -1,8 +1,8 @@
 """Jurisdicción del manto — Igris gobierna L/S de principio a fin (doctrina 2026-07-12).
 
 Greed ya no ejecuta ni vigila el escudo. Horizonte operativo = 95%
-(colchón de oxígeno / cálculo). Rebase táctico >95% permitido en el disparo;
-Ley Marcial poda el exceso en ciclos posteriores si no hubo mordida.
+(colchón de oxígeno / cálculo). Rebase táctico >95% permitido en el disparo.
+Monarca 2026-08-09: sin poda automática al cruzar el muro (IGRIS_PODA_AUTO=false).
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ def techo_ideal() -> float:
 
 
 def muro_marcial() -> float:
-    """Umbral de poda táctica posterior — no cierra la puerta de asimetría."""
+    """Umbral de oxígeno bajo (aviso) — no dispara poda con IGRIS_PODA_AUTO=false."""
     return float(getattr(config, "MURO_LEY_MARCIAL", 95.0))
 
 

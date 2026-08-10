@@ -125,6 +125,13 @@ def main():
     test_candado_5_pct()
     test_reconstruye_fuga_5_vs_19()
     test_duda_redondeo_favor_long()
+    # Asalto: techo holgado (no cacería)
+    config.IGRIS_MASA_ASIMETRIA_ASALTO_PCT = 0.12
+    lim_a = lote.asim_masa_lim_activo(marcha_asalto=True)
+    lim_p = lote.asim_masa_lim_activo(marcha_asalto=False)
+    assert abs(lim_a - 0.12) < 1e-9, lim_a
+    assert abs(lim_p - float(config.IGRIS_MASA_ASIMETRIA_MAX_PCT)) < 1e-9, lim_p
+    print("  asim Asalto 12% / personalizado 5% OK")
     print("[OK] ley_masa smoke completo")
     return 0
 

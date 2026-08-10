@@ -1,8 +1,8 @@
 """Director del pase de batalla — potencia, lote por marcha, umbral Igris.
 
 Sello mega-pre-Igris + sello 2 marchas (Monarca):
-- Engorde 100% del need acumulado del activo hasta el paso en foco (fill_ratio=1.0).
-  Alineado con sincronizar_logrados_desde_tusk (Soldado+Capitán+… del mismo barco).
+- Engorde 100% del *nocional del grado* en foco (fill_ratio=1.0).
+  Capital delta_usd solo abre potencia/ranking; Igris planta nocional L+S.
 - Reserva = 1 en todas las marchas (lote hasta potencia−1).
 - Operativas: **asalto** (rápido / peaje) y **personalizado** (T días / calib).
 - Legado `tactico` / `marcha_forzada` → se normalizan a **asalto** (sin reescribir disco).
@@ -444,10 +444,10 @@ def plan_lote(
 
 
 def need_acum_activo_hasta_paso(activo: str, paso_n: int) -> float:
-    """Suma de deltas del mismo activo en el pase hasta el paso N (inclusive).
+    """Suma de *capital* (delta_usd) del mismo activo hasta el paso N (inclusive).
 
-    Misma regla que sincronizar_logrados_desde_tusk: Capitán pide Soldado+Capitán,
-    General pide suma hasta General, etc. Redondeos del mercado = peaje del Monarca.
+    Sirve a potencia/equity del ranking. Igris NO planta con este número:
+    usa need_notional_grado_usd (tamaño real L+S del grado).
     """
     act = str(activo or "").upper()
     pn = int(paso_n)
@@ -458,6 +458,20 @@ def need_acum_activo_hasta_paso(activo: str, paso_n: int) -> float:
         if str(p["activo"]).upper() == act:
             total += float(p["delta_usd"])
     return total
+
+
+def need_notional_grado_usd(activo: str, grado: str) -> float:
+    """Meta nocional L+S del manto para (activo, grado) — peaje ÷ fricción × 2."""
+    from core import beru_capital as bc
+
+    return float(bc.notional_manto_ls_grado(activo, grado))
+
+
+def need_notional_por_pierna_usd(activo: str, grado: str) -> float:
+    """Meta nocional de una pierna (L o S) para el grado."""
+    from core import beru_capital as bc
+
+    return float(bc.notional_por_pierna_grado(activo, grado))
 
 
 def activo_manto_foco(
@@ -479,7 +493,7 @@ def activo_manto_foco(
     best_ratio = 1e18
     for p in trabajo:
         act = str(p["activo"]).upper()
-        need = max(need_acum_activo_hasta_paso(act, int(p["n"])), 1.0)
+        need = max(need_notional_grado_usd(act, str(p.get("grado") or "SOLDADO")), 1.0)
         have = notional_manto_usd(tusk, act)
         ratio = have / need
         if ratio < best_ratio:
@@ -499,46 +513,45 @@ def meta_engorde_usd(
     """
     Meta de engorde del paso en trabajo.
 
-    need = suma de deltas del mismo activo hasta el paso en foco (100% con fill=1.0).
-    Así restante = acum − have, alineado con sincronizar_logrados_desde_tusk:
-    si ya cubriste Soldado pero Capitán sigue abierto, no queda restante 0 a destiempo.
+    Capas:
+    - capital (delta_usd / need_capital_*): ranking de equity / potencia.
+    - nocional (need_usd / restante_usd): tamaño real L+S del *grado* en foco.
+      Igris planta con restante_usd (p.ej. ETH Soldado ~1250 L+S → ~625/pierna).
+
     Si restante ≤ 0 → Igris no engorda más ese foco (solo ventana/corrección).
     """
     plan = plan_lote(equity_usd, marcha_id=marcha_id, pasos_logrados=pasos_logrados)
     trabajo = list(plan.get("trabajo") or [])
+    _vacio = {
+        "ok": False,
+        "motivo": "sin_trabajo",
+        "activo": (activo or "").upper() or None,
+        "need_usd": 0.0,
+        "need_fill_usd": 0.0,
+        "have_usd": 0.0,
+        "restante_usd": 0.0,
+        "need_capital_usd": 0.0,
+        "need_notional_pierna_usd": 0.0,
+        "paso_n": None,
+        "delta_paso_usd": 0.0,
+        "mitad_alcanzada": False,
+        "fill_ratio": float(plan.get("fill_ratio") or 1.0),
+    }
     if not trabajo:
-        return {
-            "ok": False,
-            "motivo": "sin_trabajo",
-            "activo": (activo or "").upper() or None,
-            "need_usd": 0.0,
-            "need_fill_usd": 0.0,
-            "have_usd": 0.0,
-            "restante_usd": 0.0,
-            "paso_n": None,
-            "delta_paso_usd": 0.0,
-            "mitad_alcanzada": False,
-            "fill_ratio": float(plan.get("fill_ratio") or 1.0),
-        }
+        return _vacio
 
     act = (activo or "").upper()
     if act:
         candidatos = [p for p in trabajo if str(p["activo"]).upper() == act]
         if not candidatos:
             have = notional_manto_usd(tusk, act) if tusk is not None else 0.0
-            return {
-                "ok": False,
+            out = dict(_vacio)
+            out.update({
                 "motivo": "activo_fuera_trabajo",
                 "activo": act,
-                "need_usd": 0.0,
-                "need_fill_usd": 0.0,
                 "have_usd": round(have, 4),
-                "restante_usd": 0.0,
-                "paso_n": None,
-                "delta_paso_usd": 0.0,
-                "mitad_alcanzada": False,
-                "fill_ratio": float(plan.get("fill_ratio") or 1.0),
-            }
+            })
+            return out
         paso = candidatos[0]
     else:
         if tusk is not None and len(trabajo) > 1:
@@ -551,9 +564,12 @@ def meta_engorde_usd(
             act = str(paso["activo"]).upper()
 
     fill = float(plan.get("fill_ratio") or 1.0)
+    grado = str(paso.get("grado") or "SOLDADO").upper()
     delta_paso = float(paso["delta_usd"])
-    need = need_acum_activo_hasta_paso(act, int(paso["n"]))
-    need_fill = need * fill  # sello: fill=1 → 100% del acumulado hasta el grado
+    need_capital = need_acum_activo_hasta_paso(act, int(paso["n"]))
+    need = need_notional_grado_usd(act, grado)
+    pierna = need_notional_por_pierna_usd(act, grado)
+    need_fill = need * fill
     have = notional_manto_usd(tusk, act) if tusk is not None else 0.0
     restante = max(0.0, need_fill - have)
     return {
@@ -564,8 +580,10 @@ def meta_engorde_usd(
         "need_fill_usd": round(need_fill, 4),
         "have_usd": round(have, 4),
         "restante_usd": round(restante, 4),
+        "need_capital_usd": round(need_capital, 4),
+        "need_notional_pierna_usd": round(pierna, 4),
         "paso_n": int(paso["n"]),
-        "grado": paso.get("grado"),
+        "grado": grado,
         "delta_paso_usd": round(delta_paso, 4),
         "mitad_alcanzada": have + 1e-9 >= need_fill * 0.5,
         "fill_ratio": fill,
@@ -688,15 +706,25 @@ def beru_puede_cazar(
 
 
 def notional_manto_usd(tusk, activo: str) -> float:
-    """Estima USD desplegados L+S del manto de un activo (promedio × masa)."""
+    """USD desplegados del *manto de ranking* L+S (no colateral bóveda).
+
+    MNT inverso short = bóveda → no suma al have del pase.
+    MNT inverso long + lineal short = manto Santo.
+    """
     try:
         from core import igris_manto as im
+        from core import lote_bybit as lote
+        from core import mnt_manto_hedge as mmh
+
         fl, fs = im.frentes_bootstrap(activo)
     except Exception:
         return 0.0
+    act = str(activo or "").upper()
     pesos = getattr(tusk, "pesos", None) or {}
     total = 0.0
-    for frente, lado in ((fl, "long"), (fs, "short")):
+    for frente, lado in ((fl, "long"), (fs, "short"), (fl, "short"), (fs, "long")):
+        if not mmh.lado_cuenta_como_manto(act, frente, lado):
+            continue
         p = pesos.get(frente) or {}
         masa = float(p.get(lado) or 0)
         if masa <= 0:
@@ -705,11 +733,17 @@ def notional_manto_usd(tusk, activo: str) -> float:
         px = float(p.get(key) or 0)
         if px <= 0:
             px = float(p.get("precio_medio_long") or p.get("precio_medio_short") or 0)
-        if px > 0:
-            total += abs(masa) * px
-        else:
-            # fallback: masa ya en USD en algunos caminos
-            total += abs(masa)
+        fu = str(frente or "").upper()
+        try:
+            filt = lote.filtros_lote(frente)
+            total += float(lote.qty_a_usd(abs(masa), px if px > 0 else 1.0, filt))
+        except Exception:
+            if "INVERSE" in fu or lote.clave_mercado_desde_frente(frente) == "inverse":
+                total += abs(masa)
+            elif px > 0:
+                total += abs(masa) * px
+            else:
+                total += abs(masa)
     return total
 
 
@@ -719,7 +753,10 @@ def sincronizar_logrados_desde_tusk(
     *,
     marcha_id: str | None = None,
 ) -> dict[str, Any]:
-    """Marca pasos logrados si el manto del activo cubre el Δ acumulado del Santo (fill_ratio).
+    """Marca pasos logrados si el manto cubre el nocional del *grado* (fill_ratio).
+
+    Compara have (nocional L+S) vs meta del grado — no vs capital delta_usd.
+    Soldado ETH ~1250 L+S; Capitán ~2500; etc. (peaje ÷ fricción × 2).
 
     Dentro del lote paralelo (≤ lote_techo): cada Santo se marca por su cobertura,
     sin cola forzada 1→2→3. En la cola fina (pasos de reserva): sigue el orden.
@@ -734,7 +771,6 @@ def sincronizar_logrados_desde_tusk(
     prog = cargar_progreso()
     logs = set(int(x) for x in (prog.get("pasos_logrados") or []))
     desplegado: dict[str, float] = {}
-    need_por_activo: dict[str, float] = {}
     changed = False
     puede_escribir = es_mainnet_pase()
 
@@ -745,13 +781,34 @@ def sincronizar_logrados_desde_tusk(
         act = str(p["activo"]).upper()
         if act not in desplegado:
             desplegado[act] = notional_manto_usd(tusk, act)
-        need_por_activo[act] = need_por_activo.get(act, 0.0) + float(p["delta_usd"])
+        need = need_notional_grado_usd(act, str(p.get("grado") or "SOLDADO"))
+        have = float(desplegado.get(act, 0.0))
+        # Desmarca sello falso solo si el Santo tiene masa en Tusk y no cubre meta
+        # (nocional inflado corregido, o bóveda MNT contada como manto). No borra
+        # la cadena de otros Santos sin posiciones (cola del lote).
+        if pn in logs and have + 1e-6 < need * fill:
+            tiene_masa = False
+            try:
+                from core import igris_manto as im
+
+                fl0, fs0 = im.frentes_bootstrap(act)
+                for fr in (fl0, fs0):
+                    row = (getattr(tusk, "pesos", None) or {}).get(fr) or {}
+                    if float(row.get("long") or 0) > 0 or float(row.get("short") or 0) > 0:
+                        tiene_masa = True
+                        break
+            except Exception:
+                tiene_masa = have > 0
+            if tiene_masa or have > 0:
+                logs.discard(pn)
+                changed = True
+            continue
         if pn in logs:
             continue
         # Lote paralelo: sin cadena forzada. Cola fina: paso anterior obligatorio.
         if pn > n_lote_techo and pn > 1 and (pn - 1) not in logs:
             continue
-        if desplegado.get(act, 0.0) + 1e-6 >= need_por_activo[act] * fill:
+        if have + 1e-6 >= need * fill:
             logs.add(pn)
             changed = True
 
@@ -765,22 +822,15 @@ def marcar_foco_si_bloque_completo(
     activo: str,
     *,
     marcha_id: str | None = None,
+    tusk=None,
 ) -> dict[str, Any] | None:
-    """Tras misión/bloque Igris: marca el paso del lote que coincide con el Santo (paralelo)."""
+    """Tras bloque Igris: solo sella si el nocional del grado ya cubre la meta (vía sync)."""
     if not es_mainnet_pase():
         return None
-    plan = plan_lote(equity_usd, marcha_id=marcha_id)
-    act_u = str(activo or "").upper()
-    # Primero cualquier paso incompleto del trabajo con ese activo (lote paralelo)
-    for p in plan.get("trabajo") or []:
-        if str(p["activo"]).upper() == act_u:
-            return marcar_paso_logrado(int(p["n"]))
-    foco = plan.get("foco")
-    if not foco:
+    if tusk is None:
         return None
-    if str(foco["activo"]).upper() != act_u:
-        return None
-    return marcar_paso_logrado(int(foco["n"]))
+    _ = activo  # sync revisa cobertura real de todos los Santos en potencia
+    return sincronizar_logrados_desde_tusk(tusk, equity_usd, marcha_id=marcha_id)
 
 def resumen_director(equity_usd: float) -> dict[str, Any]:
     mid = cargar_marcha()

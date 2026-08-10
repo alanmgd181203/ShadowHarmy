@@ -1,13 +1,19 @@
-"""Protección de colateral MNT + canal Igris exclusivo (segundo frente).
+"""Canal Igris + bóveda MNT (colateral ≠ exclusión permanente del ranking).
 
-Doctrina Monarca: MNTUSD es colateral intacto; el manto dual ETH corre
-en canal paralelo sin tocarlo ni mezclarlo en el lote de engorde.
+Doctrina Monarca 2026-08-08:
+- MNT *sí* es Santo del pase (puede recibir manto dual cuando el canal lo permite).
+- El short inverso MNT de *bóveda* no se mezcla con el long del manto.
+- `IGRIS_PROTEGER_*` / bases bóveda: no *reducir* colateral en cleanup.
+- `IGRIS_ACTIVOS_EXCLUSIVOS`: canal paralelo temporal (p.ej. solo ETH en Asalto).
+- `IGRIS_BOVEDA_EN_LOTE=false` (2026-08-09): pausa engorde de bases bóveda (MNT)
+  para no chambeár encima del short de colateral hasta hedge firme.
 """
 from __future__ import annotations
 
 from typing import Iterable
 
 import core.config as config
+from core import mnt_manto_hedge as mmh
 
 
 def _csv_upper(raw: str | None) -> list[str]:
@@ -17,7 +23,7 @@ def _csv_upper(raw: str | None) -> list[str]:
 
 
 def activos_exclusivos() -> list[str]:
-    """Si no vacío: Igris solo opera estos activos (p. ej. ETH)."""
+    """Si no vacío: Igris solo opera estos activos (p. ej. ETH en Asalto)."""
     raw = getattr(config, "IGRIS_ACTIVOS_EXCLUSIVOS", None)
     if isinstance(raw, (list, tuple)):
         return [str(x).upper() for x in raw if str(x).strip()]
@@ -25,23 +31,30 @@ def activos_exclusivos() -> list[str]:
 
 
 def bases_protegidas() -> set[str]:
-    """Bases intocables (colateral). Default MNT."""
-    raw = getattr(config, "IGRIS_PROTEGER_BASES", None)
+    """Bases de bóveda/colateral (cleanup no cierra). MNT sigue siendo Santo."""
+    return set(mmh.bases_boveda())
+
+
+def bases_excluidas_lote() -> set[str]:
+    """Activos que Igris no engorda en este canal (pausa temporal o CSV)."""
+    out: set[str] = set()
+    raw = getattr(config, "IGRIS_EXCLUIR_BASES", None)
     if isinstance(raw, (list, tuple, set)):
-        out = {str(x).upper() for x in raw if str(x).strip()}
+        out |= {str(x).upper() for x in raw if str(x).strip()}
     else:
-        out = set(_csv_upper(str(raw or "MNT")))
-    return out or {"MNT"}
+        out |= set(_csv_upper(str(raw or "")))
+    if not bool(getattr(config, "IGRIS_BOVEDA_EN_LOTE", True)):
+        out |= bases_protegidas()
+    return out
 
 
 def simbolos_protegidos() -> set[str]:
-    """Símbolos Bybit que nunca se cancelan/cierran (cleanup / manos)."""
+    """Símbolos Bybit que cleanup no cancela a ciegas (bóveda)."""
     raw = getattr(config, "IGRIS_PROTEGER_SYMBOLS", None)
     if isinstance(raw, (list, tuple, set)):
         out = {str(x).upper() for x in raw if str(x).strip()}
     else:
         out = set(_csv_upper(str(raw or "")))
-    # Semillas desde bases protegidas (inverse + lineales comunes)
     for base in bases_protegidas():
         for suf in ("USD", "USDT", "USDC"):
             out.add(f"{base}{suf}")
@@ -70,24 +83,24 @@ def base_protegida(base: str | None) -> bool:
 
 
 def filtrar_activos_trabajo(activos: Iterable[str]) -> list[str]:
-    """Aplica exclusivos + excluye bases protegidas del lote de manto."""
+    """Exclusivos del canal; opcionalmente salta bóveda / CSV excluido."""
     exclusivos = set(activos_exclusivos())
-    prot = bases_protegidas()
+    excluidos = bases_excluidas_lote()
     out: list[str] = []
     seen: set[str] = set()
     for a in activos:
         act = str(a or "").upper()
         if not act or act in seen:
             continue
-        if act in prot:
+        if act in excluidos:
             continue
         if exclusivos and act not in exclusivos:
             continue
         seen.add(act)
         out.append(act)
     if not out and exclusivos:
-        # Canal paralelo forzado aunque el pase no liste el activo
         for act in sorted(exclusivos):
-            if act not in prot:
-                out.append(act)
+            if act in excluidos:
+                continue
+            out.append(act)
     return out

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import core.config as config
 from core import beru_capital as bc
 from core import igris_manto as im
 
@@ -149,7 +150,9 @@ def _fase_desde_estado(
         fase_margen == "EXPANSION" and masa > 0
     ):
         estado = "CRECIMIENTO"
-    elif accion in ("PODAR_MANTO", "LIMPIAR_ESPEJOS") or fase_margen == "LEY_MARCIAL":
+    elif accion in ("PODAR_MANTO", "LIMPIAR_ESPEJOS"):
+        estado = "REDUCCION"
+    elif fase_margen == "LEY_MARCIAL" and getattr(config, "IGRIS_PODA_AUTO", False):
         estado = "REDUCCION"
     else:
         estado = "CRECIMIENTO" if masa > 0 else "REPOSO"

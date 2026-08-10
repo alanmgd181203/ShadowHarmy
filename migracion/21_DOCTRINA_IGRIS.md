@@ -22,11 +22,23 @@
 
 1. **Oficio distinto.** Igris **no** vive de esperar spreads finos ni caza edge/arbitraje. Despliega manto con **peaje aceptado** (mismo espíritu que la bóveda Tusk: pagar el peaje y seguir).  
 2. **Marchas.** **Asalto** = plantar ya. **Personalizado** = solo si el Monarca fija duración ~T a propósito (menos peaje / más espera) — **nunca** como atajo para “ser Greed”.  
-   - **Ritmo engorde dual (Asalto exige; piso Igris general):** tras un dual **exitoso** de engorde/bootstrap, esperar al menos **~3–5 s** (default **5 s**, `IGRIS_ENGORDE_RITMO_S`) antes del siguiente dual del **mismo Santo**. No ráfaga cada ~1 s de latido (come libro / ensancha spread). Mismo espíritu que el cooldown de puerta fallida (~5 s). Ley de **Igris** — Greed tendrá otras (puede “comer” libro distinto). Personalizado hereda el mismo piso/flag. Smoke: `validar_igris_ritmo_engorde_smoke.py`.
+   - **Peaje Asalto (2026-08-09):** umbral 0 ≠ exigir edge ≥ 0. Spread negativo (ask long > bid short) **no** cierra la puerta; Market planta igual. Smoke: `validar_asalto_peaje_banda_smoke.py`.
+   - **Banda dual en USD del Santo:** nunca sumar qty inverso+lineal mezcladas (ilusión “manto todo long”). Smoke mismo.
+   - **Ojos Asalto (2026-08-09):** divergencia libro↔ticker techo **2.5%** en Asalto; masa asimetría Asalto **12%** (personalizado 5%); ritmo dual Arise **~5 s**. Asalto ≠ cacería Greed. Smoke: `validar_igris_ojos_smoke.py` · `validar_ley_masa_smoke.py`.
+   - **Mordida = mínimo real del Santo (2026-08-09):** no \$5 genérico si Alfa/qty exige más; polvo de meta < mínimo → planta 1× mínimo (OK pasarse meta) · `IGRIS_ASALTO_OVERSHOOT_META` · smoke `validar_asalto_overshoot_min_smoke.py`.
+   - **Densidad máxima siempre (2026-08-09):** al arranque Arise y ante dual se fuerza `set_leverage` al techo de catálogo (inv+lin); si Bybit acepta menos → `LEVERAGE_MAX_AVISO` (pedido vs aplicado). Flag `IGRIS_FORCE_MAX_LEVERAGE`. Smoke: `validar_igris_leverage_max_smoke.py`.
+   - **Ritmo engorde dual (Asalto exige; piso Igris general):** tras un dual **exitoso** (ambas piernas Market llenas), esperar **15 s** default (`IGRIS_ENGORDE_RITMO_S`) antes del siguiente dual del **mismo Santo**. No ráfaga; no nuevo par Market si el anterior no confirmó fills L+S (`_dual_fills_ok_por`). Ley de **Igris** — Greed tendrá otras. Smoke: `validar_igris_ritmo_engorde_smoke.py`.
+   - **Meta engorde = nocional del grado** (no capital `delta_usd`): Soldado ≈ peaje÷0,8% por pierna (~625 con peaje 5); Capitán/General/Mariscal ×2/×4/×8. Capital del ranking sigue abriendo potencia. Smoke: `validar_pase_metas_etapas_smoke.py`.
 3. **Etapa.** Camino actual = **Igris**; preferencia operativa = **Asalto**. Revisar despliegue (reglas / condiciones).  
 4. **Greed después.** Entradas/salidas finas, slippage, spreads = **Greed** + laboratorio. Greed no despliega manos a ciegas aún.  
 5. **Kaiser peinado / indicadores / mega-historial = después.** No candan el camino Igris ahora.  
 6. **Orden:** Igris → Beru cuando el manto sirva → Greed al último.
+
+### MNT bóveda ≠ manto (2026-08-08)
+
+MNT **es Santo** del ranking. El short inverso + spot margen es **bóveda** (Tusk). El manto del pase es **long inverso + short lineal**. En inverso, abrir long en modo una-vía comería el short de colateral → **hedge bidireccional obligatorio** (`positionIdx`, `reduceOnly=false` al abrir). El `have` del pase **no** suma el short de bóveda. Código: `core/mnt_manto_hedge.py` · smoke `validar_mnt_manto_hedge_smoke.py`. Arranque: sin reconciliación Tusk → **no manos** (anti-duplicar).
+
+**Pausa canal (2026-08-09, orden Monarca):** `IGRIS_BOVEDA_EN_LOTE=false` en Arise → MNT **no** se engorda (short bóveda intacto); el resto del lote Asalto sigue. Reactivar manto MNT solo con hedge firme + flag ON.
 
 Detalle fechado: [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md).
 
@@ -40,15 +52,18 @@ Detalle fechado: [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IG
 | **80–85%** | TERRENO_CAZA | Solo rebalanceo | Caza → piso 85% |
 | **85–90%** | IDEAL | Solo rebalanceo | Caza — zona objetivo |
 | **90–93%** | ALTA_PRESION | Solo rebalanceo | Caza — único inflado activo |
-| **93–95%** | PRE_PODA | Espejos si L+S | Caza |
-| **≥ 95%** | LEY_MARCIAL | Poda ~15% | **Solo VIP/Mega VIP** |
+| **93–95%** | PRE_PODA *(nombre legado)* | Vigilancia oxígeno — **sin espejos auto** | Caza |
+| **≥ 95%** | LEY_MARCIAL *(etiqueta oxígeno)* | **Sin poda** (`IGRIS_PODA_AUTO=false`) · aviso `OXIGENO_BAJO` | **Solo VIP/Mega VIP** |
 
 ```
 RANGO_EXPANSION_MIN=80  RANGO_PISO_IDEAL=85  RANGO_OBJETIVO_MARGEN=90
 RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
+IGRIS_PODA_AUTO=false   # Monarca 2026-08-09 — poda/espejos OFF de raíz
 ```
 
-**Nota 2026-07-17:** la **ventana 48–52** (abajo §E) **no** se deriva de esta tabla de margen %. Sustituye la idea vieja de “holgura que se estrecha 70→95” como ley de equilibrio L/S. §A sigue gobernando fases de margen / ley marcial.
+**Nota 2026-08-09:** la poda táctica al cruzar 95% **rompió el dual SOL** (extirpó LONG inverso). Orden Monarca: **quitar de raíz** — Igris ya no ejecuta `PODAR_MANTO`/`LIMPIAR_ESPEJOS` salvo `IGRIS_PODA_AUTO=true` explícito. Smoke: `validar_igris_sin_poda_smoke.py`.
+
+**Nota 2026-07-17:** la **ventana 48–52** (abajo §E) **no** se deriva de esta tabla de margen %. Sustituye la idea vieja de “holgura que se estrecha 70→95” como ley de equilibrio L/S. §A sigue etiquetando fases de margen / oxígeno.
 
 ---
 
@@ -60,7 +75,7 @@ RANGO_LIMPIEZA_MAX=93   MURO_LEY_MARCIAL=95
 | Greed toca manto → Igris no rebalancea ~45s | ✅ `manto_touch` |
 | Igris veta Greed desde margen > X | Pendiente |
 | Mega VIP requiere OK Igris | Pendiente |
-| SAFE_MODE: Igris sin engorde, sí poda | Pendiente |
+| SAFE_MODE: Igris sin engorde, sí poda | ❌ Contradice ley 2026-08-09 — poda auto OFF |
 | Greed exento de ventana 48–52 | ❄️ Congelado — no abrir aún |
 
 ---

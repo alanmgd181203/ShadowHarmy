@@ -324,6 +324,24 @@ def _elegir_espejo_inv_long_primero(
     return mejor
 
 
+def asim_masa_lim_activo(*, marcha_asalto: bool | None = None) -> float:
+    """
+    Techo |USD_L−USD_S|/ref.
+    Asalto: holgado (peaje de espejo). Personalizado / default: 5%.
+    """
+    if marcha_asalto is None:
+        try:
+            from core import pase_director as pd
+
+            pm = pd.perfil_marcha()
+            marcha_asalto = bool(pm.get("force_market")) or str(pm.get("id")) == "asalto"
+        except Exception:
+            marcha_asalto = False
+    if marcha_asalto:
+        return float(getattr(config, "IGRIS_MASA_ASIMETRIA_ASALTO_PCT", 0.12) or 0.12)
+    return float(getattr(config, "IGRIS_MASA_ASIMETRIA_MAX_PCT", 0.05) or 0.05)
+
+
 def ley_de_la_masa_dual(
     frente_a: str,
     frente_b: str,
@@ -351,7 +369,7 @@ def ley_de_la_masa_dual(
     lim = float(
         asim_max_pct
         if asim_max_pct is not None
-        else getattr(config, "IGRIS_MASA_ASIMETRIA_MAX_PCT", 0.05)
+        else asim_masa_lim_activo()
     )
     lim = max(0.0, lim)
 

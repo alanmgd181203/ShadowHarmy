@@ -113,6 +113,7 @@ def test_divergencia():
     config.IGRIS_TICKER_PUERTA_SI_SIN_LIBRO = "false"
     config.IGRIS_LIBRO_STALE_S = 60.0
     config.IGRIS_LIBRO_DIVERGENCIA_PCT = 0.3
+    config.IGRIS_LIBRO_DIVERGENCIA_ASALTO_PCT = 0.3  # prueba dura
     tank = _Tank()
     fl, fs = "ETHUSD_INVERSE", "ETHUSDT_LINEAL"
     tank.nodos[0].inyectar_libro_snapshot(fl, [["1900", "1"]], [["1901", "1"]])
@@ -137,11 +138,34 @@ def test_divergencia():
     print("  divergencia ticker OK")
 
 
+def test_asalto_holgado_ruido_05():
+    """Ruido ~0.5% (el que castraba el lote live) pasa bajo Asalto 2.5%."""
+    from core import pase_director as pd
+
+    config.IGRIS_TICKER_PUERTA_SI_SIN_LIBRO = "false"
+    config.IGRIS_LIBRO_STALE_S = 60.0
+    config.IGRIS_LIBRO_DIVERGENCIA_PCT = 0.35
+    config.IGRIS_LIBRO_DIVERGENCIA_ASALTO_PCT = 2.5
+    orig_m = pd.cargar_marcha
+    pd.cargar_marcha = lambda: "asalto"  # type: ignore[assignment]
+    try:
+        lim = ojos.divergencia_max_pct(marcha_asalto=True)
+        _assert(lim >= 2.0, f"asalto lim={lim}")
+        mid, ticker = 8.32, 8.275
+        div = abs(mid - ticker) / ticker * 100.0
+        _assert(div < lim, f"div={div} lim={lim}")
+        _assert(div > 0.35, "simula el ruido que antes bloqueaba")
+    finally:
+        pd.cargar_marcha = orig_m  # type: ignore[assignment]
+    print("  asalto ojos holgado OK")
+
+
 def main() -> int:
     print("validar_igris_ojos_smoke:")
     test_stale_gate()
     test_invalidar_bloquea_delta()
     test_divergencia()
+    test_asalto_holgado_ruido_05()
     print("OK")
     return 0
 

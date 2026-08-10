@@ -19,8 +19,25 @@ def rest_cooldown_s() -> float:
     return float(getattr(config, "IGRIS_LIBRO_REST_COOLDOWN_S", 15.0) or 15.0)
 
 
-def divergencia_max_pct() -> float:
-    return float(getattr(config, "IGRIS_LIBRO_DIVERGENCIA_PCT", 0.35) or 0.35)
+def divergencia_max_pct(*, marcha_asalto: bool | None = None) -> float:
+    """
+    Techo mid-libro vs ticker (%).
+    Asalto: holgado (peaje / ruido de muro no debe castrar el lote).
+    Personalizado / default: IGRIS_LIBRO_DIVERGENCIA_PCT.
+    """
+    if marcha_asalto is None:
+        try:
+            from core import pase_director as pd
+
+            mid = str(pd.cargar_marcha() or "")
+            marcha_asalto = mid == "asalto" or bool(
+                (pd.perfil_marcha(mid) or {}).get("force_market")
+            )
+        except Exception:
+            marcha_asalto = False
+    if marcha_asalto:
+        return float(getattr(config, "IGRIS_LIBRO_DIVERGENCIA_ASALTO_PCT", 2.5) or 2.5)
+    return float(getattr(config, "IGRIS_LIBRO_DIVERGENCIA_PCT", 1.0) or 1.0)
 
 
 def rest_fallback_on() -> bool:
@@ -92,7 +109,9 @@ def _best_px(niveles: list, *, lado: str) -> float:
     return 0.0
 
 
-def divergencia_libro_vs_ticker(tank, frente: str) -> dict[str, Any]:
+def divergencia_libro_vs_ticker(
+    tank, frente: str, *, marcha_asalto: bool | None = None, lim_pct: float | None = None,
+) -> dict[str, Any]:
     """Si libro y ticker divergen demasiado → ojos sospechosos."""
     from core import igris_despliegue as ides
 
@@ -107,7 +126,9 @@ def divergencia_libro_vs_ticker(tank, frente: str) -> dict[str, Any]:
     if ticker <= 0 or mid <= 0:
         return {"ok": True, "motivo": "sin_ticker", "div_pct": None}
     div = abs(mid - ticker) / ticker * 100.0
-    lim = divergencia_max_pct()
+    lim = float(lim_pct) if lim_pct is not None else divergencia_max_pct(
+        marcha_asalto=marcha_asalto,
+    )
     return {
         "ok": div <= lim,
         "motivo": "ok" if div <= lim else "divergencia_ticker",
@@ -141,6 +162,44 @@ def invalidar_libros_tank(tank, bases: list[str] | None = None) -> int:
                 except Exception:
                     pass
     return n
+
+
+def invalidar_frentes_tank(tank, frentes: list[str] | None) -> int:
+    """Vacía solo los frentes listados (feed caído), no el campamento entero."""
+    want = {str(f).upper() for f in (frentes or []) if f}
+    if not want:
+        return 0
+    n = 0
+    nodos = list(getattr(tank, "nodos", None) or [])
+    targets = nodos if nodos else [tank]
+    for nodo in targets:
+        libros = getattr(nodo, "libros", None)
+        if not isinstance(libros, dict):
+            continue
+        for frente in list(libros.keys()):
+            if str(frente).upper() not in want:
+                continue
+            libros[frente] = {"bids": [], "asks": [], "ts": 0.0}
+            n += 1
+            if hasattr(nodo, "inyectar_muro"):
+                try:
+                    nodo.inyectar_muro(frente, 0.0, 0.0)
+                except Exception:
+                    pass
+    return n
+
+
+def frentes_de_feed(feed: dict) -> list[str]:
+    """Frentes (tickers+books) de un shard WS — para invalidar con precisión."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for _sym, frente in list(feed.get("tickers") or []) + list(feed.get("books") or []):
+        fu = str(frente or "").upper()
+        if not fu or fu in seen:
+            continue
+        seen.add(fu)
+        out.append(fu)
+    return out
 
 
 def _category_symbol(frente: str) -> tuple[str, str]:
@@ -211,11 +270,22 @@ async def asegurar_libros_frescos(
     Retorna diagnóstico para Bellion / puerta.
     """
     ahora = ahora if ahora is not None else time.time()
+    # Misma holgura Asalto que la puerta §E
+    asalto = False
+    try:
+        from core import pase_director as pd
+
+        pm = pd.perfil_marcha()
+        asalto = bool(pm.get("force_market")) or str(pm.get("id")) == "asalto"
+    except Exception:
+        pass
+    lim = divergencia_max_pct(marcha_asalto=asalto)
+
     metas = [meta_libro(tank, f, ahora=ahora) for f in frentes]
     stale = [m for m in metas if m.get("stale")]
     divs = []
     for f in frentes:
-        d = divergencia_libro_vs_ticker(tank, f)
+        d = divergencia_libro_vs_ticker(tank, f, marcha_asalto=asalto, lim_pct=lim)
         if not d.get("ok") and d.get("motivo") == "divergencia_ticker":
             divs.append({"frente": f, **d})
 
@@ -235,7 +305,7 @@ async def asegurar_libros_frescos(
     # Re-check divergencia post-REST
     divs2 = []
     for f in frentes:
-        d = divergencia_libro_vs_ticker(tank, f)
+        d = divergencia_libro_vs_ticker(tank, f, marcha_asalto=asalto, lim_pct=lim)
         if not d.get("ok") and d.get("motivo") == "divergencia_ticker":
             divs2.append({"frente": f, **d})
 
@@ -247,4 +317,6 @@ async def asegurar_libros_frescos(
         "divergencias": divs2,
         "rest": rest_intentos,
         "bases_invalidar": bases_invalidar or [],
+        "lim_div_pct": lim,
+        "marcha_asalto": asalto,
     }

@@ -146,8 +146,27 @@ class BellionAuditor:
         from core import tusk_libros as tl
         eq = float(tusk.masa_bruta_real or tusk.masa_bruta or 0)
         igris_resumen["plan_crecimiento"] = pc.resumen_plan(eq)
-        usd_l, usd_s = mv.usd_piernas_desde_pesos(tusk.pesos)
-        if usd_l + usd_s <= 0:
+        pesos_vw = tusk.pesos or {}
+        exclusivos = [
+            str(a).upper()
+            for a in (getattr(config, "IGRIS_ACTIVOS_EXCLUSIVOS", None) or [])
+            if a
+        ]
+        if exclusivos:
+            # Ventana del canal (ETH), sin mezclar colateral MNT u otros
+            pesos_filtrados = {}
+            for act in exclusivos:
+                try:
+                    fl, fs = im.frentes_bootstrap(act)
+                except Exception:
+                    continue
+                if fl in pesos_vw:
+                    pesos_filtrados[fl] = pesos_vw[fl]
+                if fs in pesos_vw:
+                    pesos_filtrados[fs] = pesos_vw[fs]
+            pesos_vw = pesos_filtrados
+        usd_l, usd_s = mv.usd_piernas_desde_pesos(pesos_vw)
+        if usd_l + usd_s <= 0 and not exclusivos:
             usd_l, usd_s = float(peso_l), float(peso_s)
         igris_resumen["ventana_manto"] = mv.resumen_barco(usd_l, usd_s)
         # Marcha operativa + preferencia Asalto (lectura; no escribe disco)

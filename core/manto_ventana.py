@@ -56,14 +56,32 @@ def usd_lineal_desde_qty(qty: float, precio_entrada: float) -> float:
     return float(qty) * float(precio_entrada)
 
 
+def usd_frente_desde_qty(frente: str, qty: float, precio_entrada: float) -> float:
+    """Qty de exchange → USD notional (inverse = contratos USD; lineal = qty×px)."""
+    q = float(qty)
+    if q <= 0:
+        return 0.0
+    px = float(precio_entrada or 0)
+    try:
+        from core import lote_bybit as lote
+
+        filt = lote.filtros_lote(frente)
+        return float(lote.qty_a_usd(q, px if px > 0 else 1.0, filt))
+    except Exception:
+        fu = str(frente or "").upper()
+        if "INVERSE" in fu or (fu.endswith("USD") and "USDT" not in fu and "USDC" not in fu):
+            return q  # inverse: cada contrato ≈ $1
+        return usd_lineal_desde_qty(q, px) if px > 0 else q
+
+
 def usd_piernas_desde_pesos(pesos: dict | None) -> tuple[float, float]:
     """
     USD long/short ya desplegados @ precio medio de entrada (no mark vivo).
-    Si no hay precio_medio, asume masa ya en USD (fallback inverso/legacy).
+    Respeta unidad por frente (inverse ≠ qty×precio).
     """
     usd_l = 0.0
     usd_s = 0.0
-    for _frente, p in (pesos or {}).items():
+    for frente, p in (pesos or {}).items():
         if not isinstance(p, dict):
             continue
         ml = float(p.get("long") or 0)
@@ -71,9 +89,9 @@ def usd_piernas_desde_pesos(pesos: dict | None) -> tuple[float, float]:
         px_l = float(p.get("precio_medio_long") or 0)
         px_s = float(p.get("precio_medio_short") or 0)
         if ml > 0:
-            usd_l += usd_lineal_desde_qty(ml, px_l) if px_l > 0 else ml
+            usd_l += usd_frente_desde_qty(str(frente), ml, px_l)
         if ms > 0:
-            usd_s += usd_lineal_desde_qty(ms, px_s) if px_s > 0 else ms
+            usd_s += usd_frente_desde_qty(str(frente), ms, px_s)
     return usd_l, usd_s
 
 

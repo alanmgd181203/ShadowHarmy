@@ -67,9 +67,10 @@ def _accion_heuristica(
     peso_s: float,
 ) -> str:
     if fase == "LEY_MARCIAL":
-        return "PODAR_MANTO"
+        # Lectura de oxígeno — sin poda automática (Monarca 2026-08-09)
+        return "VIGILAR_OXIGENO"
     if fase == "PRE_PODA" and peso_l > 0 and peso_s > 0:
-        return "LIMPIAR_ESPEJOS"
+        return "VIGILAR_OXIGENO"
     if masa_bruta <= 0 and fase in ("EXPANSION", "TERRENO_CAZA", "ALTA_PRESION"):
         return "BOOTSTRAP_MANTO"
     if not en_banda and masa_bruta > 0:

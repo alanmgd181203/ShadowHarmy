@@ -113,13 +113,21 @@ def test_reduccion() -> None:
         "LTCUSD_INVERSE": {"long": 100.0, "short": 0.0, "precio_medio_long": 80.0, "precio_medio_short": 0},
         "LTCUSDT_LINEAL": {"long": 0.0, "short": 100.0, "precio_medio_long": 0, "precio_medio_short": 80.0},
     }
+    # Con poda auto OFF, ≥95% es vigilancia oxígeno — no REDUCCION
     s = ad.construir_asset_detail(
+        "LTC",
+        pesos=pesos,
+        igris_bloque={"fase_margen": "LEY_MARCIAL", "accion_heuristica": "VIGILAR_OXIGENO"},
+    )
+    _assert(s["fase_manto"]["estado"] == "CRECIMIENTO", "oxigeno bajo sin poda → crecimiento")
+    # Solo con maniobra explícita de poda
+    s2 = ad.construir_asset_detail(
         "LTC",
         pesos=pesos,
         igris_bloque={"fase_margen": "LEY_MARCIAL", "accion_heuristica": "PODAR_MANTO"},
     )
-    _assert(s["fase_manto"]["estado"] == "REDUCCION", "reduccion")
-    print("  D) fase reducción OK")
+    _assert(s2["fase_manto"]["estado"] == "REDUCCION", "poda explícita → reduccion")
+    print("  D) fase oxígeno/poda OK")
 
 
 def test_estado_vivo() -> None:

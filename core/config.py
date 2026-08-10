@@ -337,14 +337,39 @@ MANTO_FREQ_META_DEFAULT_USD = float(os.getenv("MANTO_FREQ_META_DEFAULT_USD", "10
 MANTO_CERO_ESTRUCTURAL = os.getenv("MANTO_CERO_ESTRUCTURAL", "true").lower() in ("1", "true", "yes", "on")
 IGRIS_ESPERA_LOG_S = float(os.getenv("IGRIS_ESPERA_LOG_S", "60"))
 IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))
-# Ritmo entre duales OK de engorde/bootstrap (mismo Santo): Asalto exige aire ~3–5s; default 5s
-# (mismo espíritu que cooldown de puerta fallida). Ley de Igris — no de Greed.
-IGRIS_ENGORDE_RITMO_S = float(os.getenv("IGRIS_ENGORDE_RITMO_S", "5"))
+# Ritmo entre duales OK de engorde/bootstrap (mismo Santo): default 15s.
+# No mandar otro par Market hasta confirmar fills L+S del dual anterior.
+IGRIS_ENGORDE_RITMO_S = float(os.getenv("IGRIS_ENGORDE_RITMO_S", "15"))
 # Disparo dual §E: timeout fill inicial + salvavidas Market si una pierna queda huérfana
 IGRIS_DUAL_FILL_TIMEOUT_S = float(os.getenv("IGRIS_DUAL_FILL_TIMEOUT_S", "20"))
 IGRIS_DUAL_SALVAVIDAS_MARKET = os.getenv("IGRIS_DUAL_SALVAVIDAS_MARKET", "true").lower() == "true"
 # Ley de la Masa: |USD_L − USD_S| / ref > este techo → disparo dual prohibido
 IGRIS_MASA_ASIMETRIA_MAX_PCT = float(os.getenv("IGRIS_MASA_ASIMETRIA_MAX_PCT", "0.05"))
+# Asalto (no cacería): asimetría más holgada — peaje de espejo aceptado
+IGRIS_MASA_ASIMETRIA_ASALTO_PCT = float(
+    os.getenv("IGRIS_MASA_ASIMETRIA_ASALTO_PCT", "0.12") or 0.12
+)
+# Asalto: si el polvo de meta < mínimo del Santo, igual planta 1× mínimo (puede pasarse)
+IGRIS_ASALTO_OVERSHOOT_META = os.getenv("IGRIS_ASALTO_OVERSHOOT_META", "true").lower() == "true"
+# Monarca 2026-08-09 noche: engorde no espera ojos perfectos / ventana perfecta
+IGRIS_VENTANA_NO_BLOQUEA_ENGORDE = os.getenv(
+    "IGRIS_VENTANA_NO_BLOQUEA_ENGORDE", "true"
+).lower() == "true"
+IGRIS_ASALTO_SIN_TANK_ROJO = os.getenv(
+    "IGRIS_ASALTO_SIN_TANK_ROJO", "true"
+).lower() == "true"
+IGRIS_ASALTO_PUERTA_SIN_OJOS = os.getenv(
+    "IGRIS_ASALTO_PUERTA_SIN_OJOS", "true"
+).lower() == "true"
+# Si la mordida pide más O₂ del libre, encoger al techo auth (reponer Santos chicos)
+IGRIS_RESERVA_AJUSTAR_A_AUTH = os.getenv(
+    "IGRIS_RESERVA_AJUSTAR_A_AUTH", "true"
+).lower() == "true"
+IGRIS_RESERVA_AUTH_FRAC = float(os.getenv("IGRIS_RESERVA_AUTH_FRAC", "0.92") or 0.92)
+# Densidad máxima siempre (inv+lin). Avisar si Bybit no deja el techo de catálogo.
+IGRIS_FORCE_MAX_LEVERAGE = os.getenv("IGRIS_FORCE_MAX_LEVERAGE", "true").lower() == "true"
+IGRIS_LEVERAGE_FORCE_COOLDOWN_S = float(os.getenv("IGRIS_LEVERAGE_FORCE_COOLDOWN_S", "300") or 300)
+IGRIS_LEVERAGE_FORCE_GAP_S = float(os.getenv("IGRIS_LEVERAGE_FORCE_GAP_S", "0.15") or 0.15)
 # Escalera de precios — micro-bocados Limit a distintos niveles (Igris/Greed)
 ESCALERA_PRECIOS_ACTIVA = os.getenv("ESCALERA_PRECIOS_ACTIVA", "true").lower() == "true"
 ESCALERA_IGRIS_ACTIVA = os.getenv("ESCALERA_IGRIS_ACTIVA", "true").lower() == "true"
@@ -365,7 +390,9 @@ RANGO_EXPANSION_MIN = 80.0
 RANGO_PISO_IDEAL = 95.0          # bajo esto → Igris sigue engordando
 RANGO_OBJETIVO_MARGEN = 95.0     # horizonte operativo = muro (ya no 85–90)
 RANGO_LIMPIEZA_MAX = 95.0
-MURO_LEY_MARCIAL = 95.0          # ≥95%: Igris poda; oxigeno ≥5%
+MURO_LEY_MARCIAL = 95.0          # ≥95%: fase oxígeno bajo (aviso); poda OFF por default
+# Monarca 2026-08-09: sin poda/espejos automáticos (rompió dual SOL). Solo con true explícito.
+IGRIS_PODA_AUTO = os.getenv("IGRIS_PODA_AUTO", "false").lower() == "true"
 IGRIS_YIELD_EN_ZONA_IDEAL = os.getenv("IGRIS_YIELD_EN_ZONA_IDEAL", "false").lower() == "true"
 # Igris event-driven: Kaiser despierta al escudo (no escaneo agresivo cada tick)
 IGRIS_EVENT_DRIVEN = os.getenv("IGRIS_EVENT_DRIVEN", "false").lower() == "true"
@@ -454,18 +481,36 @@ IGRIS_ACTIVOS_EXCLUSIVOS: list[str] = (
     if _IGRIS_EXCL_RAW
     else []
 )
-# Colateral intocable (cleanup / lotes). Default MNT = MNTUSD hedge.
-_IGRIS_PROT_BASES = os.getenv("IGRIS_PROTEGER_BASES", "MNT").strip()
-IGRIS_PROTEGER_BASES: list[str] = (
-    [a.strip().upper() for a in _IGRIS_PROT_BASES.split(",") if a.strip()]
-    if _IGRIS_PROT_BASES
+# Bases de *bóveda* (short inverso = colateral). MNT sigue siendo Santo del ranking.
+# No banear del lote: solo segrega contable + exige hedge al abrir long inverso.
+_IGRIS_BOVEDA = os.getenv(
+    "IGRIS_BOVEDA_BASES",
+    os.getenv("IGRIS_PROTEGER_BASES", "MNT"),
+).strip()
+IGRIS_BOVEDA_BASES: list[str] = (
+    [a.strip().upper() for a in _IGRIS_BOVEDA.split(",") if a.strip()]
+    if _IGRIS_BOVEDA
     else ["MNT"]
 )
+# Alias legado cleanup / símbolos
+IGRIS_PROTEGER_BASES: list[str] = list(IGRIS_BOVEDA_BASES)
 _IGRIS_PROT_SYMS = os.getenv("IGRIS_PROTEGER_SYMBOLS", "MNTUSD").strip()
 IGRIS_PROTEGER_SYMBOLS: list[str] = (
     [a.strip().upper() for a in _IGRIS_PROT_SYMS.split(",") if a.strip()]
     if _IGRIS_PROT_SYMS
     else ["MNTUSD"]
+)
+# Abrir manto MNT inverso: switch hedge + positionIdx (default ON)
+IGRIS_MNT_HEDGE_OBLIGATORIO = os.getenv("IGRIS_MNT_HEDGE_OBLIGATORIO", "true").lower() == "true"
+# False = no engordar bases de bóveda (MNT) hasta que hedge/segregación esté firme en vivo.
+# Monarca 2026-08-09: por ahora MNT fuera del canal (short bóveda intacto).
+IGRIS_BOVEDA_EN_LOTE = os.getenv("IGRIS_BOVEDA_EN_LOTE", "true").lower() == "true"
+# CSV extra a saltar del lote (además de bóveda si BOVEDA_EN_LOTE=false)
+_IGRIS_EXCLUIR = os.getenv("IGRIS_EXCLUIR_BASES", "").strip()
+IGRIS_EXCLUIR_BASES: list[str] = (
+    [a.strip().upper() for a in _IGRIS_EXCLUIR.split(",") if a.strip()]
+    if _IGRIS_EXCLUIR
+    else []
 )
 
 # Candado pase → Igris (activos por rango). Lives saltan con LIVE_IGRIS_TESTNET / ARENA SIN_RANGOS.
@@ -513,6 +558,10 @@ FACTOR_MASA_AUTORIZADA = 10.0
 
 # Bridge WS vía VIP/túnel: timeout de handshake y stagger entre shards
 BRIDGE_WS_OPEN_TIMEOUT_S = float(os.getenv("BRIDGE_WS_OPEN_TIMEOUT_S", "45") or 45)
+# Tras caída WS: no borrar libros si el fallo fue solo handshake (ver core/bridge.py).
+BRIDGE_WS_INVALIDAR_ON_DROP = os.getenv("BRIDGE_WS_INVALIDAR_ON_DROP", "true").lower() == "true"
+BRIDGE_WS_RECONNECT_S = float(os.getenv("BRIDGE_WS_RECONNECT_S", "5") or 5)
+BRIDGE_WS_RECONNECT_MAX_S = float(os.getenv("BRIDGE_WS_RECONNECT_MAX_S", "30") or 30)
 BRIDGE_WS_STAGGER_S = float(os.getenv("BRIDGE_WS_STAGGER_S", "0.45") or 0.45)
 # Preferir IPv4 en WS (evita handshakes muertos por IPv6 flaky en laps/hogar).
 BRIDGE_WS_FORCE_IPV4 = os.getenv("BRIDGE_WS_FORCE_IPV4", "true").lower() == "true"
@@ -540,7 +589,12 @@ IGRIS_LIBRO_STALE_S = float(os.getenv("IGRIS_LIBRO_STALE_S", "12") or 12)
 IGRIS_LIBRO_REST_FALLBACK = os.getenv("IGRIS_LIBRO_REST_FALLBACK", "true").lower() == "true"
 IGRIS_LIBRO_REST_COOLDOWN_S = float(os.getenv("IGRIS_LIBRO_REST_COOLDOWN_S", "15") or 15)
 # Si mid libro vs ticker divergen más que esto (%) → sospechoso.
-IGRIS_LIBRO_DIVERGENCIA_PCT = float(os.getenv("IGRIS_LIBRO_DIVERGENCIA_PCT", "0.35") or 0.35)
+# 0.35 era demasiado fino en live Asalto (ruido 0.4–0.7% → sin fill eterno).
+IGRIS_LIBRO_DIVERGENCIA_PCT = float(os.getenv("IGRIS_LIBRO_DIVERGENCIA_PCT", "1.0") or 1.0)
+# Asalto (peaje aceptado): techo un poco más holgado; personalizado usa el general.
+IGRIS_LIBRO_DIVERGENCIA_ASALTO_PCT = float(
+    os.getenv("IGRIS_LIBRO_DIVERGENCIA_ASALTO_PCT", "2.5") or 2.5
+)
 
 UMBRAL_VERDE_MS = 400.0
 UMBRAL_AMARILLO_MS = 800.0

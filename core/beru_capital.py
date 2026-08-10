@@ -110,6 +110,19 @@ def notional_por_pierna_base(asset: str) -> float:
     return notional_por_pierna_para_friccion(asset, friccion_soldado_pct())
 
 
+def notional_por_pierna_grado(asset: str, grado: str) -> float:
+    """Notional por pierna L o S para el grado (Soldado…Mariscal)."""
+    g = str(grado or "SOLDADO").upper()
+    if g not in FRICCION_POR_GRADO:
+        g = "SOLDADO"
+    return notional_por_pierna_para_friccion(asset, friccion_grado_pct(g))
+
+
+def notional_manto_ls_grado(asset: str, grado: str) -> float:
+    """Meta nocional L+S del manto para ese grado (2 × pierna)."""
+    return 2.0 * notional_por_pierna_grado(asset, grado)
+
+
 def margen_bidireccional_para_friccion(asset: str, friccion: float) -> float:
     """Margen L+S = 2 × (G_min / fricción) / apalancamiento."""
     lev = max(apalancamiento_manto_promedio(asset), 1.0)

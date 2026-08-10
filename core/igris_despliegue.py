@@ -298,10 +298,13 @@ def techo_mision_usd(
     frente_long: str,
     frente_short: str,
     restante_mision_usd: float,
+    permitir_overshoot_min: bool = False,
+    piso_mordida_usd: float | None = None,
 ) -> dict[str, Any]:
     """
-    Techo Igris = min(liquidez Ancla Ask L, Bid S, restante misión Beru/horizonte).
-    Sin tope 1% equity ni IGRIS_MICRO_MAX_USD.
+    Techo Igris = min(liquidez Ask L, Bid S, restante misión).
+    Asalto / overshoot: si restante < mínimo real del Santo pero >0,
+    techo = min(libro, max(restante, piso)) — puede pasarse la meta.
     """
     prof_l = ancla.profundidad_usd_libro(bids_long, asks_long, frente_long)
     prof_s = ancla.profundidad_usd_libro(bids_short, asks_short, frente_short)
@@ -309,8 +312,20 @@ def techo_mision_usd(
     techo_bid = float(prof_s.get("bid_usd") or 0)
     techo_libro = min(techo_ask, techo_bid) if techo_ask > 0 and techo_bid > 0 else 0.0
     restante = max(0.0, float(restante_mision_usd))
-    techo = min(techo_libro, restante) if restante > 0 and techo_libro > 0 else 0.0
-    min_par = ancla.min_order_usd_cruce([frente_long, frente_short])
+    min_par = float(ancla.min_order_usd_cruce([frente_long, frente_short]) or 0)
+    piso = max(min_par, float(piso_mordida_usd or 0))
+    overshoot = False
+    if restante > 0 and techo_libro > 0:
+        if permitir_overshoot_min and piso > 0 and restante + 1e-9 < piso:
+            techo = min(techo_libro, piso)
+            overshoot = True
+        else:
+            techo = min(techo_libro, restante)
+    else:
+        techo = 0.0
+    ok = techo > 0 and techo_libro + 1e-9 >= max(piso, 1e-9) and (
+        techo + 1e-9 >= piso if piso > 0 else True
+    )
     return {
         "techo_usd": round(techo, 4),
         "techo_libro_usd": round(techo_libro, 4),
@@ -318,8 +333,28 @@ def techo_mision_usd(
         "techo_bid_usd": techo_bid,
         "restante_mision_usd": restante,
         "min_par_usd": min_par,
-        "ok_techo": techo + 1e-9 >= min_par and techo > 0,
+        "piso_mordida_usd": round(piso, 4),
+        "overshoot_meta": overshoot,
+        "ok_techo": ok,
     }
+
+
+def piso_mordida_santo_usd(
+    frente_long: str,
+    frente_short: str,
+    ask_long: float,
+    bid_short: float,
+) -> float:
+    """Mínimo real dual del Santo: max(ancla cruce, paso lineal, paso inverso)."""
+    from core import lote_bybit as lote
+
+    min_par = float(ancla.min_order_usd_cruce([frente_long, frente_short]) or 0)
+    px_l = float(ask_long or 0)
+    px_s = float(bid_short or 0)
+    alfa_lin = lote.paso_minimo_usd(frente_short, px_s) if px_s > 0 else 0.0
+    paso_inv = lote.paso_minimo_usd(frente_long, px_l) if px_l > 0 else 0.0
+    piso_cfg = float(getattr(config, "MIN_ORDER_USD_DEFAULT", 5.0) or 5.0)
+    return max(min_par, alfa_lin, paso_inv, piso_cfg)
 
 
 def masa_desde_usd(usd: float, precio: float) -> float:
@@ -414,7 +449,20 @@ def evaluar_puerta_se(
 
         meta_l = ojos.meta_libro(tank, frente_long, ahora=ahora)
         meta_s = ojos.meta_libro(tank, frente_short, ahora=ahora)
-        if meta_l.get("stale") or meta_s.get("stale"):
+        # Marcha: Asalto usa techo holgado (ruido 0.4–0.7% no castra peaje)
+        asalto_ojos = False
+        try:
+            from core import pase_director as pd
+
+            if getattr(config, "PASE_DIRECTOR_ACTIVO", True):
+                pm = pd.perfil_marcha()
+                asalto_ojos = bool(pm.get("force_market")) or str(pm.get("id")) == "asalto"
+        except Exception:
+            asalto_ojos = False
+        puerta_sin_ojos = asalto_ojos and getattr(
+            config, "IGRIS_ASALTO_PUERTA_SIN_OJOS", True
+        )
+        if (meta_l.get("stale") or meta_s.get("stale")) and not puerta_sin_ojos:
             return {
                 "ok": False,
                 "motivo": "libro_stale",
@@ -425,9 +473,14 @@ def evaluar_puerta_se(
                 "edad_libro_short_s": meta_s.get("edad_s"),
                 "stale_lim_s": meta_l.get("stale_lim_s"),
             }
+        lim_ojos = ojos.divergencia_max_pct(marcha_asalto=asalto_ojos)
         for fr in (frente_long, frente_short):
-            div = ojos.divergencia_libro_vs_ticker(tank, fr)
+            div = ojos.divergencia_libro_vs_ticker(
+                tank, fr, marcha_asalto=asalto_ojos, lim_pct=lim_ojos,
+            )
             if not div.get("ok") and div.get("motivo") == "divergencia_ticker":
+                if puerta_sin_ojos:
+                    break  # Market Asalto: peaje de ojos, no castrar
                 return {
                     "ok": False,
                     "motivo": "libro_divergente_ticker",
@@ -484,7 +537,11 @@ def evaluar_puerta_se(
     cero_info = ksi.cero_estructural_manto(base)
     cero = cero_info.get("cero_pct") if cero_info.get("ok") else None
     umbral_fees = float(umbral)
-    umbral = ksi.umbral_manto_con_cero(umbral_fees, cero)
+    # Asalto / force_market: peaje aceptado — no sumar cero estructural encima del 0
+    if urg.get("force_market") or str(urg.get("modo_paciencia") or "") == "marcha_asalto":
+        umbral = umbral_fees
+    else:
+        umbral = ksi.umbral_manto_con_cero(umbral_fees, cero)
     # Ojos sin muros: el ticker no mide edge real — no esperar spread vivo
     if fuente_libro == "ticker_sim":
         umbral = 0.0
@@ -498,7 +555,13 @@ def evaluar_puerta_se(
         "fuente_libro": fuente_libro,
     }
 
-    if spread < umbral:
+    # Asalto / force_market: peaje aceptado — spread negativo (askL > bidS) NO bloquea.
+    # Umbral 0 solo significa "no exigir edge"; exigir spread≥0 contradecía la ley Igris≠Greed.
+    asalto_peaje = bool(
+        urg.get("force_market")
+        or str(urg.get("modo_paciencia") or "") == "marcha_asalto"
+    )
+    if (not asalto_peaje) and spread < umbral:
         return {
             "ok": False,
             "motivo": "spread_bajo_umbral",
@@ -508,6 +571,10 @@ def evaluar_puerta_se(
             **urg,
         }
 
+    overshoot_ok = bool(
+        asalto_peaje and getattr(config, "IGRIS_ASALTO_OVERSHOOT_META", True)
+    )
+    piso_santo = piso_mordida_santo_usd(frente_long, frente_short, ask_l, bid_s)
     techo_info = techo_mision_usd(
         bids_long=bids_l,
         asks_long=asks_l,
@@ -516,6 +583,8 @@ def evaluar_puerta_se(
         frente_long=frente_long,
         frente_short=frente_short,
         restante_mision_usd=restante_usd,
+        permitir_overshoot_min=overshoot_ok,
+        piso_mordida_usd=piso_santo,
     )
     if not techo_info["ok_techo"]:
         return {
@@ -543,18 +612,20 @@ def evaluar_puerta_se(
         margen_ocupado_pct=margen_ocupado_pct,
     )
     fraccion = float(frac_info["fraccion"])
+    techo = float(techo_info["techo_usd"] or 0)
+    piso = float(techo_info.get("piso_mordida_usd") or piso_santo or techo_info.get("min_par_usd") or 0)
     if getattr(config, "ARENA_IGRIS_ACTIVA", False):
         mordida = float(getattr(config, "ARENA_IGRIS_MORDIDA_USD", 5.0))
-        mordida = min(mordida, float(techo_info["techo_usd"]), float(restante_usd))
+        mordida = min(mordida, techo, max(float(restante_usd), piso if overshoot_ok else 0.0))
     else:
-        mordida = round(float(techo_info["techo_usd"]) * fraccion, 4)
-    min_par = float(techo_info["min_par_usd"])
-    # Si la fracción queda bajo minBybit pero el techo alcanza → subir a min_par
-    if mordida + 1e-9 < min_par:
-        techo = float(techo_info["techo_usd"] or 0)
-        if techo + 1e-9 >= min_par:
-            mordida = round(min(techo, float(restante_usd), min_par), 4)
-    if mordida + 1e-9 < min_par:
+        mordida = round(techo * fraccion, 4)
+    # Mordida ≥ mínimo real del Santo (Alfa / qtyStep / ancla) — nunca $5 falso
+    if techo + 1e-9 >= piso > 0 and mordida + 1e-9 < piso:
+        mordida = round(piso, 4)
+    # Overshoot Asalto: techo ya es ≥ piso aunque restante < piso
+    if overshoot_ok and techo_info.get("overshoot_meta") and piso > 0:
+        mordida = round(max(mordida, piso), 4)
+    if mordida + 1e-9 < piso and piso > 0:
         return {
             "ok": False,
             "motivo": "mordida_bajo_min_order",
@@ -563,6 +634,7 @@ def evaluar_puerta_se(
             "spread_pct": round(spread, 6),
             "micro_usd": mordida,
             "fraccion": fraccion,
+            "piso_mordida_usd": piso,
             **urg,
             **techo_info,
             **{k: frac_info[k] for k in ("confianza", "calor") if k in frac_info},
@@ -620,11 +692,13 @@ def evaluar_puerta_se(
         "usd_long": float(ley["usd_a"]),
         "usd_short": float(ley["usd_b"]),
         "alfa_usd": float(ley["alfa_usd"]),
+        "piso_mordida_usd": piso,
+        "overshoot_meta": bool(techo_info.get("overshoot_meta")),
         "ley_masa": ley,
         "fraccion": fraccion,
         "confianza": frac_info.get("confianza"),
         "calor": frac_info.get("calor"),
-        "min_par_usd": min_par,
+        "min_par_usd": float(techo_info.get("min_par_usd") or 0),
         **techo_info,
         **urg,
     }

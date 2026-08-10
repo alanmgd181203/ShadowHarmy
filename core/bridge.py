@@ -213,8 +213,14 @@ class BybitBridge:
                 args.append(f"orderbook.50.{sym}")
 
         open_timeout = float(getattr(config, "BRIDGE_WS_OPEN_TIMEOUT_S", 45) or 45)
+        backoff_s = float(getattr(config, "BRIDGE_WS_RECONNECT_S", 5) or 5)
+        backoff_max = float(getattr(config, "BRIDGE_WS_RECONNECT_MAX_S", 30) or 30)
+        sleep_s = backoff_s
 
         while True:
+            # True solo si el socket abrió y estuvimos dentro del with (sesión viva).
+            # Handshake fallido → NO vaciar libros (conserva REST/muleta y fotos previas).
+            session_live = False
             try:
                 connect_kwargs = dict(
                     ssl=ssl_context,
@@ -229,6 +235,8 @@ class BybitBridge:
                     feed["url"],
                     **connect_kwargs,
                 ) as websocket:
+                    session_live = True
+                    sleep_s = backoff_s
                     for i in range(0, len(args), 10):
                         lote = args[i : i + 10]
                         await websocket.send(json.dumps({"op": "subscribe", "args": lote}))
@@ -244,22 +252,35 @@ class BybitBridge:
 
             except Exception as e:
                 label = feed.get("label") or feed["url"]
-                await self.bel.anotar("BRIDGE", "RECONEXIÓN", f"{label}: {str(e)}")
-                # Ojos: tirar libros de las bases de este feed — no operar con foto zombi
-                try:
-                    bases_clear = list(getattr(config, "BRIDGE_WS_BOOKS_BASES", None) or [])
-                    if not bases_clear:
-                        bases_clear = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
-                    n = 0
-                    if hasattr(self.tank, "invalidar_libros"):
-                        n = int(self.tank.invalidar_libros(bases_clear or None) or 0)
+                err = str(e)
+                await self.bel.anotar("BRIDGE", "RECONEXIÓN", f"{label}: {err}")
+                # Doctrina ojos: solo invalidar si hubo sesión WS viva y se cayó.
+                # Handshake timeout / fallo al abrir ≠ foto zombi de este feed.
+                if session_live and bool(
+                    getattr(config, "BRIDGE_WS_INVALIDAR_ON_DROP", True)
+                ):
+                    try:
+                        from core import igris_ojos as ojos
+
+                        frentes = ojos.frentes_de_feed(feed)
+                        n = ojos.invalidar_frentes_tank(self.tank, frentes)
+                        await self.bel.anotar(
+                            "BRIDGE", "LIBROS_INVALIDADOS",
+                            f"{label}: frentes_feed≈{n}/{len(frentes)} · "
+                            f"esperando snapshot WS (no wipe global)",
+                        )
+                    except Exception as e2:
+                        await self.bel.anotar(
+                            "BRIDGE", "LIBROS_INVALIDADOS", f"aviso: {e2}"
+                        )
+                else:
                     await self.bel.anotar(
-                        "BRIDGE", "LIBROS_INVALIDADOS",
-                        f"{label}: frentes≈{n} · esperando snapshot WS",
+                        "BRIDGE", "RECONEXIÓN_SIN_WIPE",
+                        f"{label}: handshake/no-live · libros intactos · "
+                        f"reintento {sleep_s:.0f}s",
                     )
-                except Exception as e2:
-                    await self.bel.anotar("BRIDGE", "LIBROS_INVALIDADOS", f"aviso: {e2}")
-                await asyncio.sleep(5)
+                await asyncio.sleep(sleep_s)
+                sleep_s = min(sleep_s * 1.5, backoff_max)
 
     async def _procesar_mensaje(self, payload, feed):
         topic = payload.get("topic", "")
@@ -347,9 +368,47 @@ class BybitBridge:
         uid = uuid.uuid4().hex[:24]
         return f"{prefijo}-{uid}"
 
+    async def asegurar_modo_hedge(
+        self, symbol: str, category: str = "inverse",
+    ) -> OrdenResultado:
+        """Bybit Both Sides (mode=3) — long y short aislados en el mismo símbolo."""
+        if not self.session:
+            return OrdenResultado(False, mensaje="Sin sesión API configurada")
+        try:
+            response = await asyncio.to_thread(
+                self.session.switch_position_mode,
+                category=category,
+                symbol=symbol,
+                mode=3,
+            )
+            code = response.get("retCode")
+            msg = str(response.get("retMsg") or "")
+            # 0 OK · ya hedge / sin cambio suele ser 0 o mensaje "not modified"
+            if code == 0 or "not modified" in msg.lower() or "same" in msg.lower():
+                await self.bel.anotar(
+                    "BRIDGE", "HEDGE_ON",
+                    f"{symbol} ({category}) modo bidireccional",
+                )
+                return OrdenResultado(True, mensaje=msg or "hedge")
+            # 110025 / position mode not modified — tratar como OK si ya es hedge
+            if code in (110025, 34040) or "110025" in msg:
+                await self.bel.anotar(
+                    "BRIDGE", "HEDGE_YA",
+                    f"{symbol}: {msg}",
+                )
+                return OrdenResultado(True, mensaje=msg)
+            await self.bel.anotar(
+                "BRIDGE", "HEDGE_FALLIDO",
+                f"{symbol} ret={code} {msg}",
+            )
+            return OrdenResultado(False, mensaje=msg or f"ret={code}")
+        except Exception as e:
+            await self.bel.anotar("BRIDGE", "HEDGE_ERROR", str(e))
+            return OrdenResultado(False, mensaje=str(e))
+
     async def place_order(self, symbol, side, qty, order_type="Market",
                           price=None, link_id=None, category="linear", market_unit=None,
-                          is_leverage=None):
+                          is_leverage=None, position_idx=None, reduce_only=None):
         if not self.session:
             return OrdenResultado(False, mensaje="Sin sesión API configurada")
 
@@ -372,18 +431,31 @@ class BybitBridge:
         if is_leverage is not None and category == "spot":
             params["isLeverage"] = int(is_leverage)
 
+        # Hedge: 1 = Buy/long · 2 = Sell/short. Nunca omitir si el símbolo es bidireccional.
+        if position_idx is not None:
+            params["positionIdx"] = int(position_idx)
+
+        # Abrir manto / bóveda segregada: reduceOnly=False explícito.
+        if reduce_only is not None:
+            params["reduceOnly"] = bool(reduce_only)
+
         if order_type == "Limit" and price is not None:
             params["price"] = str(price)
             params["timeInForce"] = "GTC"
 
         try:
-            response = self.session.place_order(**params)
+            response = await asyncio.to_thread(self.session.place_order, **params)
 
             if response.get("retCode") == 0:
                 order_id = response["result"].get("orderId", "")
+                extra = ""
+                if position_idx is not None:
+                    extra += f" idx={position_idx}"
+                if reduce_only is False:
+                    extra += " reduceOnly=0"
                 await self.bel.anotar(
                     "BRIDGE", "ORDEN_ENVIADA",
-                    f"{side} {qty} {symbol} @{order_type} | ID:{order_id} LINK:{link_id}",
+                    f"{side} {qty} {symbol} @{order_type} | ID:{order_id} LINK:{link_id}{extra}",
                 )
                 return OrdenResultado(True, order_id=order_id, link_id=link_id, datos=response["result"])
             else:
@@ -517,51 +589,177 @@ class BybitBridge:
         except Exception as e:
             return OrdenResultado(False, mensaje=str(e))
 
+    def _poll_fill_sync(self, symbol, order_id=None, link_id=None, category="linear"):
+        """HTTP sync (llamar vía to_thread): open → history → executions."""
+        if not self.session:
+            return {"ok": False, "mensaje": "Sin sesión API configurada"}
+
+        base = {"category": category, "symbol": symbol}
+        if order_id:
+            base["orderId"] = order_id
+        elif link_id:
+            base["orderLinkId"] = link_id
+        else:
+            return {"ok": False, "mensaje": "Se requiere orderId o linkId"}
+
+        def _match(orden: dict) -> bool:
+            oid = orden.get("orderId", "")
+            olid = orden.get("orderLinkId", "")
+            return bool(
+                (order_id and oid == order_id) or (link_id and olid == link_id)
+            )
+
+        def _filled_from_orden(orden: dict) -> dict | None:
+            status = str(orden.get("orderStatus") or "")
+            cum_qty = float(orden.get("cumExecQty") or 0)
+            if status == "Filled" or (
+                cum_qty > 0 and status in ("Filled", "PartiallyFilledCanceled")
+            ):
+                try:
+                    cum_fee = float(orden.get("cumExecFee") or 0)
+                except (TypeError, ValueError):
+                    cum_fee = 0.0
+                return {
+                    "ok": True,
+                    "order_id": orden.get("orderId", "") or (order_id or ""),
+                    "link_id": orden.get("orderLinkId", "") or (link_id or ""),
+                    "avgPrice": float(orden.get("avgPrice", 0) or 0),
+                    "cumExecQty": cum_qty,
+                    "cumExecFee": cum_fee,
+                    "orderStatus": status or "Filled",
+                }
+            if status in ("Cancelled", "Rejected", "Deactivated") and cum_qty <= 0:
+                return {
+                    "ok": False,
+                    "order_id": orden.get("orderId", ""),
+                    "link_id": orden.get("orderLinkId", ""),
+                    "mensaje": f"Orden {status}",
+                    "terminal": True,
+                }
+            return None
+
+        # 1) open / realtime (UTA a veces deja fills recientes aquí)
+        try:
+            r = self.session.get_open_orders(**base)
+            if r.get("retCode") == 0:
+                for orden in (r.get("result") or {}).get("list") or []:
+                    if not _match(orden):
+                        continue
+                    hit = _filled_from_orden(orden)
+                    if hit is not None:
+                        return hit
+        except Exception as e:
+            return {"ok": False, "mensaje": f"open_orders: {e}", "soft": True}
+
+        # 2) order history
+        try:
+            r = self.session.get_order_history(**base)
+            if r.get("retCode") == 0:
+                for orden in (r.get("result") or {}).get("list") or []:
+                    if not _match(orden):
+                        continue
+                    hit = _filled_from_orden(orden)
+                    if hit is not None:
+                        return hit
+            else:
+                return {
+                    "ok": False,
+                    "mensaje": f"history ret={r.get('retCode')} {r.get('retMsg')}",
+                    "soft": True,
+                }
+        except Exception as e:
+            return {"ok": False, "mensaje": f"history: {e}", "soft": True}
+
+        # 3) executions — Market a menudo aparece aquí antes que en history
+        try:
+            ex_params = {"category": category, "symbol": symbol, "limit": 20}
+            if order_id:
+                ex_params["orderId"] = order_id
+            r = self.session.get_executions(**ex_params)
+            if r.get("retCode") == 0:
+                rows = [
+                    x for x in ((r.get("result") or {}).get("list") or [])
+                    if (order_id and x.get("orderId") == order_id)
+                    or (link_id and x.get("orderLinkId") == link_id)
+                ]
+                if rows:
+                    qty = 0.0
+                    notional = 0.0
+                    fee = 0.0
+                    for x in rows:
+                        q = float(x.get("execQty") or 0)
+                        px = float(x.get("execPrice") or 0)
+                        qty += q
+                        notional += q * px
+                        try:
+                            fee += float(x.get("execFee") or 0)
+                        except (TypeError, ValueError):
+                            pass
+                    if qty > 0:
+                        return {
+                            "ok": True,
+                            "order_id": order_id or "",
+                            "link_id": link_id or "",
+                            "avgPrice": (notional / qty) if qty else 0.0,
+                            "cumExecQty": qty,
+                            "cumExecFee": fee,
+                            "orderStatus": "Filled",
+                            "via": "executions",
+                        }
+        except Exception as e:
+            return {"ok": False, "mensaje": f"executions: {e}", "soft": True}
+
+        return {"ok": False, "mensaje": "sin_fill_aun", "soft": True}
+
     async def esperar_fill(self, symbol, order_id=None, link_id=None,
-                           timeout_s=60, intervalo_s=2, category="linear"):
+                           timeout_s=60, intervalo_s=1.0, category="linear"):
         if not self.session:
             return OrdenResultado(False, mensaje="Sin sesión API configurada")
 
+        # HTTP fuera del loop: si bloquea aquí, los ojos (WS) se congelan.
         inicio = time.time()
+        ultimo_msg = ""
         while (time.time() - inicio) < timeout_s:
             try:
-                params = {"category": category, "symbol": symbol}
-                if order_id:
-                    params["orderId"] = order_id
-                elif link_id:
-                    params["orderLinkId"] = link_id
-
-                response = self.session.get_order_history(**params)
-                if response.get("retCode") == 0:
-                    for orden in response["result"].get("list", []):
-                        oid = orden.get("orderId", "")
-                        olid = orden.get("orderLinkId", "")
-                        if (order_id and oid == order_id) or (link_id and olid == link_id):
-                            status = orden.get("orderStatus", "")
-                            if status == "Filled":
-                                avg_price = float(orden.get("avgPrice", 0) or 0)
-                                cum_qty = float(orden.get("cumExecQty", 0) or 0)
-                                try:
-                                    cum_fee = float(orden.get("cumExecFee") or 0)
-                                except (TypeError, ValueError):
-                                    cum_fee = 0.0
-                                await self.bel.anotar(
-                                    "BRIDGE", "FILL_CONFIRMADO",
-                                    f"{symbol} {cum_qty}@{avg_price} fee={cum_fee}",
-                                )
-                                return OrdenResultado(
-                                    True, order_id=oid, link_id=olid,
-                                    datos={
-                                        "avgPrice": avg_price,
-                                        "cumExecQty": cum_qty,
-                                        "cumExecFee": cum_fee,
-                                        "orderStatus": status,
-                                    },
-                                )
-                            elif status in ("Cancelled", "Rejected", "Deactivated"):
-                                return OrdenResultado(False, order_id=oid, link_id=olid, mensaje=f"Orden {status}")
+                pack = await asyncio.to_thread(
+                    self._poll_fill_sync, symbol, order_id, link_id, category,
+                )
             except Exception as e:
                 await self.bel.anotar("BRIDGE", "FILL_POLL_ERROR", str(e))
+                await asyncio.sleep(intervalo_s)
+                continue
+
+            if pack.get("ok"):
+                oid = pack.get("order_id") or (order_id or "")
+                olid = pack.get("link_id") or (link_id or "")
+                avg_price = float(pack.get("avgPrice") or 0)
+                cum_qty = float(pack.get("cumExecQty") or 0)
+                cum_fee = float(pack.get("cumExecFee") or 0)
+                via = pack.get("via") or "order"
+                await self.bel.anotar(
+                    "BRIDGE", "FILL_CONFIRMADO",
+                    f"{symbol} {cum_qty}@{avg_price} fee={cum_fee}"
+                    + (f" via={via}" if via != "order" else ""),
+                )
+                return OrdenResultado(
+                    True, order_id=oid, link_id=olid,
+                    datos={
+                        "avgPrice": avg_price,
+                        "cumExecQty": cum_qty,
+                        "cumExecFee": cum_fee,
+                        "orderStatus": pack.get("orderStatus") or "Filled",
+                    },
+                )
+            if pack.get("terminal"):
+                return OrdenResultado(
+                    False,
+                    order_id=pack.get("order_id") or "",
+                    link_id=pack.get("link_id") or "",
+                    mensaje=str(pack.get("mensaje") or "Orden terminal"),
+                )
+            ultimo_msg = str(pack.get("mensaje") or "")
+            if ultimo_msg and "sin_fill" not in ultimo_msg:
+                await self.bel.anotar("BRIDGE", "FILL_POLL_ERROR", ultimo_msg[:180])
             await asyncio.sleep(intervalo_s)
 
         await self.bel.anotar("BRIDGE", "FILL_TIMEOUT", f"Timeout {timeout_s}s para {order_id or link_id}")

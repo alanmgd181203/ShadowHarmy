@@ -8,6 +8,7 @@ from core import igris_despliegue as ides
 from core import beru_capital as bc
 from core import manto_jurisdiccion as mj
 from core.manto_touch import limpiar_toques_expirados, rebalanceo_en_pausa_por_greed
+from core import igris_leverage as ilev
 import core.config as config
 
 
@@ -38,10 +39,14 @@ class IgrisEscudo:
         self._mision_beru_completa = False
         # Override temporal: engorde/bootstrap del lote en paralelo (varios Santos por latido)
         self._override_activo: str | None = None
+        # Densidad máxima: no re-martillar set_leverage en cada dual
+        self._lev_force_gate = ilev.LeverageForceGate()
         self._engorde_fail_until_por: dict[str, float] = {}
         # Aire entre duales OK (mismo Santo): no ametrallar libro / ensanchar spread
         self._engorde_ritmo_until_por: dict[str, float] = {}
         self._engorde_ritmo_until = 0.0
+        # Candado: no otro par Market hasta confirmar fills L+S del dual anterior
+        self._dual_fills_ok_por: dict[str, bool] = {}
 
         self._capital_pre_vuelo = 0.0
         self._rango_progresion: str | None = None
@@ -249,8 +254,8 @@ class IgrisEscudo:
         self._engorde_fail_until = until
 
     def _marcar_ritmo_engorde(self, activo: str | None = None) -> None:
-        """Tras dual OK: aire antes del siguiente dual del mismo Santo (Asalto / piso Igris)."""
-        wait = float(getattr(config, "IGRIS_ENGORDE_RITMO_S", 5.0) or 0.0)
+        """Tras dual OK con ambas piernas llenas: aire antes del siguiente dual."""
+        wait = float(getattr(config, "IGRIS_ENGORDE_RITMO_S", 15.0) or 0.0)
         if wait <= 0:
             return
         until = time.time() + wait
@@ -259,17 +264,33 @@ class IgrisEscudo:
             self._engorde_ritmo_until_por[act] = until
         self._engorde_ritmo_until = until
 
+    def _marcar_dual_fills(self, activo: str | None, ok_ambos: bool) -> None:
+        act = (activo or self._override_activo or self._activo_despliegue() or "").upper()
+        if not act:
+            return
+        self._dual_fills_ok_por[act] = bool(ok_ambos)
+
+    def _dual_previo_confirmado(self, activo: str | None = None) -> bool:
+        """True si no hay dual pendiente o ambas piernas Market del anterior llenaron."""
+        act = (activo or self._override_activo or self._activo_despliegue() or "").upper()
+        if not act:
+            return True
+        return bool(self._dual_fills_ok_por.get(act, True))
+
     def _engorde_en_espera(self, activo: str | None = None, ahora: float | None = None) -> bool:
-        """True si fallo de puerta o ritmo post-dual aún bloquean este Santo."""
+        """True si fallo de puerta, ritmo post-dual o dual previo incompleto bloquean."""
         now = float(ahora if ahora is not None else time.time())
         act = (activo or self._override_activo or self._activo_despliegue() or "").upper()
         if act:
+            if not self._dual_previo_confirmado(act):
+                return True
             if now < float(self._engorde_fail_until_por.get(act, 0.0)):
                 return True
             if now < float(self._engorde_ritmo_until_por.get(act, 0.0)):
                 return True
-            return False
-        return now < float(self._engorde_fail_until) or now < float(self._engorde_ritmo_until)
+        elif now < float(self._engorde_fail_until) or now < float(self._engorde_ritmo_until):
+            return True
+        return False
 
     async def auditar_manto_global(self):
         """Despliega el manto sobre TODO el lote en trabajo (paralelo), no de par en par."""
@@ -285,14 +306,15 @@ class IgrisEscudo:
         activos = self._activos_lote_trabajo()
         alertas = self._consumir_kaiser_lote(activos)
 
-        peso_l_total = sum(f["long"] for f in self.tusk.pesos.values())
-        peso_s_total = sum(f["short"] for f in self.tusk.pesos.values())
+        pesos_manto = self._pesos_canal_manto()
+        peso_l_total = sum(float((f or {}).get("long") or 0) for f in pesos_manto.values())
+        peso_s_total = sum(float((f or {}).get("short") or 0) for f in pesos_manto.values())
         masa_bruta = peso_l_total + peso_s_total
         # Polvo heredado de bóveda (p.ej. LTC 0.1/0.1): en sim no bloquea bootstrap del lote
         masa_trabajo = masa_bruta
         if getattr(config, "MODO_SIMULACION", False) and masa_bruta > 0:
             from core import manto_ventana as mv
-            usd_l0, usd_s0 = mv.usd_piernas_desde_pesos(self.tusk.pesos)
+            usd_l0, usd_s0 = mv.usd_piernas_desde_pesos(pesos_manto)
             if (usd_l0 + usd_s0) < float(getattr(config, "IGRIS_SIM_POLVO_USD_MAX", 2.0) or 2.0):
                 masa_trabajo = 0.0
         ahora = time.time()
@@ -350,7 +372,7 @@ class IgrisEscudo:
         if event_driven and not hay_eventos_lote:
             return
 
-        # Rebalanceo global UNA vez (ventana del ejército, no por par)
+        # Rebalanceo global (ventana). Monarca: no bloquea engorde dual Asalto.
         if (
             masa_bruta > 0
             and not en_cooldown_rebalance
@@ -358,30 +380,33 @@ class IgrisEscudo:
         ):
             from core import manto_ventana as mv
 
-            usd_l, usd_s = mv.usd_piernas_desde_pesos(self.tusk.pesos)
+            usd_l, usd_s = mv.usd_piernas_desde_pesos(pesos_manto)
             if usd_l + usd_s <= 0:
                 usd_l, usd_s = float(peso_l_total), float(peso_s_total)
             ratio_l = mv.ratio_long_usd(usd_l, usd_s)
             banda_min, banda_max = self.calcular_banda_delta()
+            no_bloquea = getattr(config, "IGRIS_VENTANA_NO_BLOQUEA_ENGORDE", True)
             if ratio_l > banda_max:
                 await self.bel.anotar(
                     "IGRIS", "REBALANCEO",
                     f"Delta long {ratio_l*100:.1f}% > techo {banda_max*100:.0f}% (ventana 48-52 USD)",
                 )
                 await self._ejecutar_maniobra("REBALANCEO_IGRIS", "SHORT", self.tusk.masa_autorizada)
-                return
-            if ratio_l < banda_min:
+                if not no_bloquea:
+                    return
+            elif ratio_l < banda_min:
                 await self.bel.anotar(
                     "IGRIS", "REBALANCEO",
                     f"Delta long {ratio_l*100:.1f}% < piso {banda_min*100:.0f}% (ventana 48-52 USD)",
                 )
                 await self._ejecutar_maniobra("REBALANCEO_IGRIS", "LONG", self.tusk.masa_autorizada)
-                return
+                if not no_bloquea:
+                    return
 
         from core import manto_ventana as mv
         from core import pase_director as pd
 
-        usd_l, usd_s = mv.usd_piernas_desde_pesos(self.tusk.pesos)
+        usd_l, usd_s = mv.usd_piernas_desde_pesos(pesos_manto)
         if usd_l + usd_s <= 0:
             usd_l, usd_s = float(peso_l_total), float(peso_s_total)
         dir_engorde = mv.direccion_engorde_preferida(usd_l, usd_s)
@@ -419,18 +444,17 @@ class IgrisEscudo:
                 f"{'mordida' if ok_engorde else 'sin fill'} · lote={len(activos)}",
             )
 
-        # Ley Marcial: poda si estamos sobre el horizonte y no hubo mordida
+        # ≥95%: solo aviso de oxígeno. Monarca 2026-08-09 — sin poda automática.
         margen_post = float(self.tusk.margen_ocupado)
         if mj.sobre_muro(margen_post) and not ok_engorde:
             await self.bel.anotar(
-                "IGRIS", "LEY_MARCIAL",
-                f"Colchón: margen {margen_post:.1f}% ≥ horizonte {mj.muro_marcial():.0f}% — poda táctica.",
+                "IGRIS", "OXIGENO_BAJO",
+                f"Colchón: margen {margen_post:.1f}% ≥ horizonte {mj.muro_marcial():.0f}% "
+                f"— sin poda (IGRIS_PODA_AUTO=off).",
             )
-            dir_poda = "LONG" if peso_l_total >= peso_s_total else "SHORT"
-            await self._ejecutar_maniobra("PODAR_MANTO", dir_poda, max(masa_bruta * 0.15, 0.0))
-   
+
     async def _ejecutar_maniobra_engorde(self, direccion: str) -> bool:
-        """Engorde dual; retorna True si materializó (para diferir poda)."""
+        """Engorde dual; retorna True si materializó."""
         masa = self.masa_paso_engorde()
         if masa <= 0:
             return False
@@ -489,14 +513,8 @@ class IgrisEscudo:
             sym = mercado.frente_a_symbol(frente)
             cat = mercado.frente_a_category(frente)
             from core import igris_proteccion as iprot
+            from core import mnt_manto_hedge as mmh
 
-            if iprot.simbolo_protegido(sym) or iprot.base_protegida(mercado.activo_de_frente(frente)):
-                await self.tusk.liberar_reserva(uid)
-                await self.bel.anotar(
-                    "IGRIS", "PROTEGIDO_COLATERAL",
-                    f"Abortado {frente}/{sym}: colateral intocable (Monarca).",
-                )
-                return {"ok": False, "masa": 0.0, "precio": 0.0}
             exclusivos = iprot.activos_exclusivos()
             if exclusivos and mercado.activo_de_frente(frente) not in exclusivos:
                 await self.tusk.liberar_reserva(uid)
@@ -505,6 +523,44 @@ class IgrisEscudo:
                     f"Abortado {frente}: canal exclusivo={exclusivos}",
                 )
                 return {"ok": False, "masa": 0.0, "precio": 0.0}
+
+            # MNT inverso: long manto en hedge; short inverso = bóveda (Tusk), no engorde Igris
+            hedge_ok = False
+            position_idx = None
+            reduce_only = None
+            if mmh.requiere_hedge_bidireccional(frente) or mmh.es_inverse_boveda(frente):
+                amenaza = mmh.amenaza_netting_boveda(frente, direccion, modo_hedge=False)
+                if amenaza == "short_inverso_es_boveda_no_manto":
+                    await self.tusk.liberar_reserva(uid)
+                    await self.bel.anotar(
+                        "IGRIS", "BOVEDA_NO_MANTO",
+                        f"Abortado {frente} SHORT: short inverso es colateral, no manto.",
+                    )
+                    return {"ok": False, "masa": 0.0, "precio": 0.0}
+                if getattr(config, "IGRIS_MNT_HEDGE_OBLIGATORIO", True):
+                    hr = await self.bridge.asegurar_modo_hedge(sym, category=cat or "inverse")
+                    hedge_ok = bool(hr.exito)
+                    if not hedge_ok:
+                        await self.tusk.liberar_reserva(uid)
+                        await self.bel.anotar(
+                            "IGRIS", "HEDGE_REQUERIDO",
+                            f"Sin modo bidireccional en {sym}: {hr.mensaje} — "
+                            f"abrir long comería el short de bóveda.",
+                        )
+                        return {"ok": False, "masa": 0.0, "precio": 0.0}
+                else:
+                    hedge_ok = True
+                amenaza = mmh.amenaza_netting_boveda(frente, direccion, modo_hedge=hedge_ok)
+                if amenaza:
+                    await self.tusk.liberar_reserva(uid)
+                    await self.bel.anotar(
+                        "IGRIS", "BOVEDA_NETTING",
+                        f"Abortado {frente}/{direccion}: {amenaza}",
+                    )
+                    return {"ok": False, "masa": 0.0, "precio": 0.0}
+                position_idx = mmh.position_idx_para(direccion, hedge=True)
+                reduce_only = False  # abrir carril aislado; nunca reduceOnly
+
             timeout = float(
                 fill_timeout_s
                 if fill_timeout_s is not None
@@ -585,6 +641,7 @@ class IgrisEscudo:
                 return {"ok": False, "masa": 0.0, "precio": 0.0}
             res = await self.bridge.place_order(
                 sym, side, masa_q, category=cat, order_type=order_type, price=price,
+                position_idx=position_idx, reduce_only=reduce_only,
             )
             if not res.exito:
                 await self.tusk.liberar_reserva(uid)
@@ -596,8 +653,22 @@ class IgrisEscudo:
                     )
                 return {"ok": False, "masa": 0.0, "precio": 0.0}
             fill = await self.bridge.esperar_fill(
-                sym, order_id=res.order_id, category=cat, timeout_s=timeout,
+                sym,
+                order_id=res.order_id,
+                link_id=getattr(res, "link_id", None) or None,
+                category=cat,
+                timeout_s=timeout,
             )
+            if not fill.exito and order_type == "Market":
+                # Reintento corto: history/exec a veces va detrás del Market ya hecho.
+                fill = await self.bridge.esperar_fill(
+                    sym,
+                    order_id=res.order_id,
+                    link_id=getattr(res, "link_id", None) or None,
+                    category=cat,
+                    timeout_s=min(8.0, max(3.0, float(timeout) * 0.25)),
+                    intervalo_s=0.8,
+                )
             if not fill.exito:
                 if order_type == "Limit" and res.order_id:
                     try:
@@ -681,11 +752,13 @@ class IgrisEscudo:
         """
         Ambas piernas a la vez con qty nativa por frente (Ley de la Masa).
         Equilibrio post-fill en USD, no en unidades de contrato mezcladas.
+        Solo True si ambas piernas llenaron (o salvavidas cerró el hueco).
         """
         from core import lote_bybit as lote
 
+        activo = (self._override_activo or self._activo_despliegue() or "").upper()
         timeout = float(getattr(config, "IGRIS_DUAL_FILL_TIMEOUT_S", 20))
-        lim = float(getattr(config, "IGRIS_MASA_ASIMETRIA_MAX_PCT", 0.05) or 0.05)
+        lim = lote.asim_masa_lim_activo()
         r_l, r_s = await asyncio.gather(
             self._materializar_en_frente(
                 uid_l, frente_l, "LONG", float(masa_l), ask_l, fill_timeout_s=timeout,
@@ -711,38 +784,47 @@ class IgrisEscudo:
             1e-9,
         )
 
+        async def _cerrar(ok: bool) -> bool:
+            self._marcar_dual_fills(activo, ok)
+            if not ok:
+                self._marcar_fail_cooldown(activo)
+                await self.bel.anotar(
+                    "IGRIS", "DUAL_FILLS_PENDIENTE",
+                    f"{activo}: no ambas piernas llenas — bloqueado nuevo par Market",
+                )
+            return ok
+
         if ok_l and ok_s:
             diff_usd = usd_fill_l - usd_fill_s
             tol = max(usd_ref * lim, 1e-6)
             salvavidas = bool(getattr(config, "IGRIS_DUAL_SALVAVIDAS_MARKET", True))
             if salvavidas and abs(diff_usd) > tol:
                 if diff_usd > 0:
-                    # Falta short (USD) → qty nativa del corto
                     conv = lote.qty_espejo_usd(abs(diff_usd), bid_s, frente_s, mode="ceil")
                     if not conv.get("ok") or float(conv.get("qty") or 0) <= 0:
                         await self.bel.anotar(
                             "IGRIS", "LEY_MASA_BLOQUEO",
                             f"Equilibrio S no cuantiza · diff=${diff_usd:.2f}",
                         )
-                        return False
+                        return await _cerrar(False)
                     uid_fix = f"{uid_s}_EQ"
                     r = await self._salvavidas_market_pierna(
                         uid_fix, frente_s, "SHORT", float(conv["qty"]), bid_s,
                     )
-                    return bool(r.get("ok"))
+                    return await _cerrar(bool(r.get("ok")))
                 conv = lote.qty_espejo_usd(abs(diff_usd), ask_l, frente_l, mode="ceil")
                 if not conv.get("ok") or float(conv.get("qty") or 0) <= 0:
                     await self.bel.anotar(
                         "IGRIS", "LEY_MASA_BLOQUEO",
                         f"Equilibrio L no cuantiza · diff=${diff_usd:.2f}",
                     )
-                    return False
+                    return await _cerrar(False)
                 uid_fix = f"{uid_l}_EQ"
                 r = await self._salvavidas_market_pierna(
                     uid_fix, frente_l, "LONG", float(conv["qty"]), ask_l,
                 )
-                return bool(r.get("ok"))
-            return True
+                return await _cerrar(bool(r.get("ok")))
+            return await _cerrar(True)
 
         salvavidas = bool(getattr(config, "IGRIS_DUAL_SALVAVIDAS_MARKET", True))
         if not salvavidas:
@@ -750,10 +832,9 @@ class IgrisEscudo:
                 "IGRIS", "DUAL_INCOMPLETO",
                 f"L={ok_l}(${usd_fill_l:.2f}) S={ok_s}(${usd_fill_s:.2f}) · salvavidas off",
             )
-            return False
+            return await _cerrar(False)
 
         if ok_l and not ok_s:
-            # Espejo USD de la pierna llena — no reusar qty en unidad ajena
             usd_target = usd_fill_l if usd_fill_l > 0 else float(usd_s or usd_l or 0)
             conv = lote.qty_espejo_usd(usd_target, bid_s, frente_s, mode="ceil")
             if not conv.get("ok"):
@@ -761,11 +842,11 @@ class IgrisEscudo:
                     "IGRIS", "LEY_MASA_BLOQUEO",
                     f"Salvavidas S bloqueado · no espejo ${usd_target:.2f}",
                 )
-                return False
+                return await _cerrar(False)
             r = await self._salvavidas_market_pierna(
                 uid_s, frente_s, "SHORT", float(conv["qty"]), bid_s,
             )
-            return bool(r.get("ok"))
+            return await _cerrar(bool(r.get("ok")))
         if ok_s and not ok_l:
             usd_target = usd_fill_s if usd_fill_s > 0 else float(usd_l or usd_s or 0)
             conv = lote.qty_espejo_usd(usd_target, ask_l, frente_l, mode="ceil")
@@ -774,17 +855,36 @@ class IgrisEscudo:
                     "IGRIS", "LEY_MASA_BLOQUEO",
                     f"Salvavidas L bloqueado · no espejo ${usd_target:.2f}",
                 )
-                return False
+                return await _cerrar(False)
             r = await self._salvavidas_market_pierna(
                 uid_l, frente_l, "LONG", float(conv["qty"]), ask_l,
             )
-            return bool(r.get("ok"))
+            return await _cerrar(bool(r.get("ok")))
 
+        # Market pudo llenar en Bybit aunque el Bridge no viera history a tiempo.
+        try:
+            if hasattr(self.tusk, "reconciliar_con_exchange") and self.bridge:
+                await self.tusk.reconciliar_con_exchange(self.bridge)
+        except Exception:
+            pass
+        try:
+            pesos = getattr(self.tusk, "pesos", None) or {}
+            masa_l2 = float((pesos.get(frente_l) or {}).get("long") or 0)
+            masa_s2 = float((pesos.get(frente_s) or {}).get("short") or 0)
+            if masa_l2 > 0 and masa_s2 > 0:
+                await self.bel.anotar(
+                    "IGRIS", "DUAL_OK_RECON",
+                    f"Bridge timeout pero Tusk ve L+S · L={masa_l2} S={masa_s2}",
+                )
+                self._marcar_ritmo_engorde(activo)
+                return await _cerrar(True)
+        except Exception:
+            pass
         await self.bel.anotar(
             "IGRIS", "DUAL_FALLIDO",
             f"Ninguna pierna llenó · L={frente_l} S={frente_s}",
         )
-        return False
+        return await _cerrar(False)
 
     async def _auditoria_pre_despliegue(self) -> bool:
         """Candado de bóveda — umbrales dinámicos desde motor X/A_base (rangos_activo)."""
@@ -883,24 +983,67 @@ class IgrisEscudo:
         ok = await self._inyectar_dual_paciente(origen=origen, restante_usd_cap=cap)
         return {"activo": activo_u, "ok": ok, "max_usd": cap}
 
-    async def _asegurar_apalancamiento_aspirante_eth(self) -> bool:
-        """Ejecución: apalancamiento MÁXIMO por contrato (no promedio)."""
+    async def _asegurar_apalancamiento_max(
+        self, activo: str | None = None, *, origen: str = "ENGORDE"
+    ) -> bool:
+        """Fuerza densidad máxima del Santo (inv+lin). Avisa si Bybit baja el techo.
+
+        No bloquea el manto: True salvo sim/sin bridge. Fallo parcial → aviso Bellion.
+        """
         if config.MODO_SIMULACION or not self.bridge:
             return True
-
-        pares = (
-            ("ETHUSD", "inverse", bc.apalancamiento_inverse_max("ETH")),
-            ("ETHUSDT", "linear", bc.apalancamiento_linear_max("ETH")),
-        )
-        for sym, cat, lev in pares:
-            res = await self.bridge.set_leverage(sym, lev, category=cat)
-            if not res.exito:
-                await self.bel.anotar(
-                    "IGRIS", "LEVERAGE_FALLIDO",
-                    f"No se pudo fijar {lev}x en {sym} ({cat}): {res.mensaje}",
-                )
-                return False
+        if not ilev.force_max_on():
+            return True
+        act = (activo or self._override_activo or self._activo_despliegue() or "").upper()
+        if not act:
+            return True
+        if not self._lev_force_gate.due(act):
+            return True
+        try:
+            await ilev.forzar_max_leverage_activo(self.bridge, self.bel, act)
+        except Exception as e:
+            await self.bel.anotar(
+                "IGRIS", "LEVERAGE_MAX_AVISO",
+                f"{act} · excepción forzando máx ({origen}): {e}",
+            )
+        self._lev_force_gate.mark(act)
         return True
+
+    async def _asegurar_apalancamiento_aspirante_eth(self) -> bool:
+        """Compat: ETH bootstrap usa el ritual general de densidad máxima."""
+        return await self._asegurar_apalancamiento_max("ETH", origen="BOOTSTRAP")
+
+    async def forzar_densidad_maxima_lote(self, activos: list[str] | None = None) -> dict:
+        """Arranque Arise / ritual Monarca: todo el lote a máx apalancamiento."""
+        if config.MODO_SIMULACION or not self.bridge:
+            return {"ok": True, "omitido": True}
+        return await ilev.forzar_max_leverage_lote(self.bridge, self.bel, activos)
+
+    def _pesos_canal_manto(self) -> dict:
+        """Pesos del manto operable: exclusivos o lote; short bóveda MNT = 0 en ventana."""
+        from core import mnt_manto_hedge as mmh
+        from core import igris_manto as im
+
+        pesos = getattr(self.tusk, "pesos", None) or {}
+        exclusivos = [
+            str(a).upper()
+            for a in (getattr(config, "IGRIS_ACTIVOS_EXCLUSIVOS", None) or [])
+            if a
+        ]
+        if exclusivos:
+            out = {}
+            for act in exclusivos:
+                try:
+                    fl, fs = im.frentes_bootstrap(act)
+                except Exception:
+                    continue
+                if fl in pesos:
+                    out[fl] = pesos[fl]
+                if fs in pesos:
+                    out[fs] = pesos[fs]
+            return mmh.pesos_sin_boveda_short(out)
+        # Sin exclusivos: todos los pesos, pero short inverso bóveda fuera de la ventana
+        return mmh.pesos_sin_boveda_short(dict(pesos))
 
     def _activos_lote_trabajo(self) -> list[str]:
         """Todos los Santos/activos del lote abierto (paralelo), no un solo foco."""
@@ -918,23 +1061,38 @@ class IgrisEscudo:
         trabajo = list(plan.get("trabajo") or [])
         if not trabajo:
             return iprot.filtrar_activos_trabajo([self._activo_despliegue()])
-        # Orden: más atrasados primero (mismo criterio que activo_manto_foco)
-        scored: list[tuple[float, int, str]] = []
+        # Orden: 1) sin espejo dual (reponer huérfanos/SOL) 2) más atrasados
+        scored: list[tuple[int, float, int, str]] = []
         for i, p in enumerate(trabajo):
             act = str(p["activo"]).upper()
-            need = max(float(p.get("delta_usd") or 0), 1.0)
+            need = max(
+                pd.need_notional_grado_usd(act, str(p.get("grado") or "SOLDADO")),
+                1.0,
+            )
             have = pd.notional_manto_usd(self.tusk, act)
-            scored.append((have / need, i, act))
+            sin_espejo = 0 if not self._espejo_dual_completo(act) else 1
+            scored.append((sin_espejo, have / need, i, act))
         scored.sort()
         # únicos preservando orden
         out: list[str] = []
         seen: set[str] = set()
-        for _, __, act in scored:
+        for _, __, ___, act in scored:
             if act not in seen:
                 seen.add(act)
                 out.append(act)
         # Canal exclusivo ETH + MNT fuera del engorde (colateral intocable)
         return iprot.filtrar_activos_trabajo(out)
+
+    def _espejo_dual_completo(self, activo: str) -> bool:
+        """True si el Santo ya tiene L inverso + S lineal vivos."""
+        try:
+            fl, fs = im.frentes_bootstrap(str(activo).upper())
+            pesos = getattr(self.tusk, "pesos", None) or {}
+            pl = float((pesos.get(fl) or {}).get("long") or 0)
+            ps = float((pesos.get(fs) or {}).get("short") or 0)
+            return pl > 0 and ps > 0
+        except Exception:
+            return True
 
     def _reset_bloque_mision(self) -> None:
         self._bloque_objetivo_usd = 0.0
@@ -1021,7 +1179,8 @@ class IgrisEscudo:
     def _asegurar_bloque_usd(self, activo: str, precio_ref: float) -> float:
         """
         Misión simétrica: objetivo = notional por pata ($L = $S).
-        Con director de pase: meta = delta_usd del paso × fill − ya desplegado.
+        Con director de pase: meta = nocional L+S del grado − ya desplegado
+        (p.ej. Soldado ETH ~1250 → ~625/pata). Capital delta_usd queda en el ranking.
         Sin director: Beru-grade + Doctrina B hacia horizonte 95%.
         """
         if self._bloque_objetivo_usd > 0 and self._bloque_inyectado_usd < self._bloque_objetivo_usd:
@@ -1029,7 +1188,7 @@ class IgrisEscudo:
 
         from core import pase_director as pd
 
-        # Ranking → meta USD (pase): no engordar de más el paso foco
+        # Ranking → meta nocional del grado: no engordar de más el paso foco
         if pd.director_activo():
             eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
             try:
@@ -1046,7 +1205,7 @@ class IgrisEscudo:
                 self._bloque_objetivo_usd = 0.0
                 self._bloque_inyectado_usd = 0.0
                 return 0.0
-            # Dual L+S: cada pata lleva la mitad del restante del paso
+            # Dual L+S: cada pata lleva la mitad del restante nocional del grado
             objetivo = restante_total / 2.0
             self._bloque_objetivo_usd = objetivo
             self._bloque_inyectado_usd = 0.0
@@ -1100,28 +1259,81 @@ class IgrisEscudo:
             f"{extra}",
         )
 
+    def _intentar_reconciliar_dual_fills(self, activo: str | None = None) -> bool:
+        """Si hubo dual incompleto pero Tusk ya muestra L y S, liberar candado."""
+        act = (activo or self._override_activo or self._activo_despliegue() or "").upper()
+        if not act or self._dual_previo_confirmado(act):
+            return True
+        try:
+            fl, fs = im.frentes_bootstrap(act)
+            pesos = getattr(self.tusk, "pesos", None) or {}
+            pl = pesos.get(fl) or {}
+            ps = pesos.get(fs) or {}
+            masa_l = float(pl.get("long") or 0)
+            masa_s = float(ps.get("short") or 0)
+            if masa_l > 0 and masa_s > 0:
+                self._marcar_dual_fills(act, True)
+                return True
+        except Exception:
+            pass
+        return False
+
     async def _inyectar_dual_paciente(self, *, origen: str, restante_usd_cap: float | None = None) -> bool:
         """
         Ritual único bootstrap/engorde: dual §E, Ask/Bid, fees±urgencia invertida,
         mordida = techo_misión × fracción(confianza) hasta 100%.
+        No dispara otro Market pair si el dual anterior no confirmó fills L+S.
         """
         activo = self._activo_despliegue()
+        self._intentar_reconciliar_dual_fills(activo)
         if self._engorde_en_espera(activo):
             return False
         frente_l, frente_s = im.frentes_bootstrap(activo)
 
-        if activo == "ETH" and origen == "BOOTSTRAP":
-            if not await self._asegurar_apalancamiento_aspirante_eth():
-                return False
+        # Densidad máxima siempre (Asalto/personalizado): no solo ETH bootstrap
+        await self._asegurar_apalancamiento_max(activo, origen=origen)
 
         ctx_map, estado = await self.tank.vision_especulativa()
         if not ctx_map:
+            await self._anotar_espera_spread(
+                "ENGORDE_ESPERA_SPREAD" if origen == "ENGORDE" else "BOOTSTRAP_ESPERA_SPREAD",
+                {"motivo": "tank_sin_vision", "spread_pct": "—", "umbral_pct": "—",
+                 "ask_long": 0, "bid_short": 0},
+            )
             return False
         if estado == "ROJO":
-            return False
+            asalto_sin_rojo = getattr(config, "IGRIS_ASALTO_SIN_TANK_ROJO", True)
+            if asalto_sin_rojo:
+                try:
+                    from core import pase_director as pd
+                    pm = pd.perfil_marcha() if pd.director_activo() else {}
+                    asalto_sin_rojo = bool(pm.get("force_market")) or str(pm.get("id")) == "asalto"
+                except Exception:
+                    asalto_sin_rojo = True
+            if not asalto_sin_rojo:
+                await self._anotar_espera_spread(
+                    "ENGORDE_ESPERA_SPREAD" if origen == "ENGORDE" else "BOOTSTRAP_ESPERA_SPREAD",
+                    {"motivo": "tank_rojo", "spread_pct": "—", "umbral_pct": "—",
+                     "ask_long": 0, "bid_short": 0, "modo_paciencia": estado},
+                )
+                return False
         # Sim: glitch de consenso (nodos congelados/divergentes) no bloquea fill ilusorio
         if estado == "GLITCH_DETECTADO" and not getattr(config, "MODO_SIMULACION", False):
-            return False
+            asalto_sin_rojo = getattr(config, "IGRIS_ASALTO_SIN_TANK_ROJO", True)
+            if asalto_sin_rojo:
+                try:
+                    from core import pase_director as pd
+                    pm = pd.perfil_marcha() if pd.director_activo() else {}
+                    asalto_sin_rojo = bool(pm.get("force_market")) or str(pm.get("id")) == "asalto"
+                except Exception:
+                    asalto_sin_rojo = True
+            if not asalto_sin_rojo:
+                await self._anotar_espera_spread(
+                    "ENGORDE_ESPERA_SPREAD" if origen == "ENGORDE" else "BOOTSTRAP_ESPERA_SPREAD",
+                    {"motivo": "tank_glitch", "spread_pct": "—", "umbral_pct": "—",
+                     "ask_long": 0, "bid_short": 0, "modo_paciencia": estado},
+                )
+                return False
 
 
         ask_guess = ides.best_ask(ides.libro_tank(self.tank, frente_l)[1])
@@ -1139,6 +1351,11 @@ class IgrisEscudo:
             ps = ides.precio_ticker_frente(self.tank, frente_s)
             precio_ref = (pl + ps) / 2.0 if pl > 0 and ps > 0 else max(pl, ps)
         if precio_ref <= 0:
+            await self._anotar_espera_spread(
+                "ENGORDE_ESPERA_SPREAD" if origen == "ENGORDE" else "BOOTSTRAP_ESPERA_SPREAD",
+                {"motivo": "sin_precio_ref", "spread_pct": "—", "umbral_pct": "—",
+                 "ask_long": 0, "bid_short": 0},
+            )
             return False
 
         restante = self._asegurar_bloque_usd(activo, precio_ref)
@@ -1214,22 +1431,62 @@ class IgrisEscudo:
 
         # Reserva Tusk en USD (unidad de paridad del manto), no en coin mezclado
         masa_reserva = max(micro_usd, usd_l, usd_s)
+        piso_min = float(puerta.get("piso_mordida_usd") or 0)
+        if getattr(config, "IGRIS_RESERVA_AJUSTAR_A_AUTH", True):
+            auth = float(getattr(self.tusk, "masa_autorizada", 0) or 0)
+            frac = float(getattr(config, "IGRIS_RESERVA_AUTH_FRAC", 0.92) or 0.92)
+            cap = max(0.0, auth * frac)
+            if masa_reserva > cap + 1e-9 and cap > 0:
+                if piso_min > 0 and cap + 1e-9 < piso_min:
+                    await self._anotar_espera_spread(
+                        "ENGORDE_ESPERA_SPREAD" if origen == "ENGORDE" else "BOOTSTRAP_ESPERA_SPREAD",
+                        {
+                            **puerta,
+                            "motivo": "reserva_auth_bajo_piso",
+                            "micro_usd": masa_reserva,
+                            "auth_cap": round(cap, 4),
+                            "piso_mordida_usd": piso_min,
+                        },
+                    )
+                    return False
+                scale = cap / masa_reserva
+                micro_usd = round(micro_usd * scale, 4)
+                usd_l = round(usd_l * scale, 4)
+                usd_s = round(usd_s * scale, 4)
+                masa_l = masa_l * scale
+                masa_s = masa_s * scale
+                masa_reserva = max(micro_usd, usd_l, usd_s)
+                await self.bel.anotar(
+                    "IGRIS", "RESERVA_AJUSTADA_AUTH",
+                    f"{activo}: mordida→${masa_reserva:.2f} (auth_cap=${cap:.2f})",
+                )
 
         # Sin abortar por horizonte 95%: la puerta de asimetría dispara aunque rebase.
-        margen = self.tusk.margen_ocupado
-        peso_l = sum(f["long"] for f in self.tusk.pesos.values())
-        peso_s = sum(f["short"] for f in self.tusk.pesos.values())
-        if not mercado.verificar_delta_post_maniobra(
-            margen, peso_l + masa_reserva, peso_s + masa_reserva,
-        ):
+        # Banda Δ en USD del Santo en foco (nunca qty inversa vs lineal mezclada —
+        # eso bloqueaba el lote completo con ETH "634 L / 0.33 S" en unidades distintas).
+        # Short bóveda MNT fuera vía pesos_sin_boveda_short.
+        from core import manto_ventana as mv
+        from core import mnt_manto_hedge as mmh
+
+        pesos = mmh.pesos_sin_boveda_short(getattr(self.tusk, "pesos", None) or {})
+        pesos_act = {
+            frente_l: pesos.get(frente_l) or {},
+            frente_s: pesos.get(frente_s) or {},
+        }
+        usd_l0, usd_s0 = mv.usd_piernas_desde_pesos(pesos_act)
+        banda_ok = mv.verificar_post_maniobra(
+            usd_l0 + float(usd_l), usd_s0 + float(usd_s), operativo=True,
+        )
+        if not banda_ok:
             if (
                 (
                     getattr(config, "ARENA_IGRIS_ACTIVA", False)
                     and getattr(config, "ARENA_IGRIS_SIN_BANDA_DELTA", True)
                 )
                 or getattr(config, "LIVE_IGRIS_TESTNET", False)
+                or getattr(config, "IGRIS_VENTANA_NO_BLOQUEA_ENGORDE", True)
             ):
-                pass  # arena/live verificación: no contaminar dual por delta global
+                pass  # Asalto: dual §E manda; ventana no castra mordida
             else:
                 await self._anotar_espera_spread(
                     "ENGORDE_ESPERA_SPREAD",
@@ -1241,9 +1498,20 @@ class IgrisEscudo:
         uid_s = f"IGRIS_{origen[:4]}_S_{str(uuid.uuid4())[:4]}"
 
         if not await self.tusk.solicitar_reserva(uid_l, masa_reserva, "IGRIS", "LONG"):
+            await self._anotar_espera_spread(
+                "ENGORDE_ESPERA_SPREAD" if origen == "ENGORDE" else "BOOTSTRAP_ESPERA_SPREAD",
+                {**puerta, "motivo": "reserva_long_denegada", "micro_usd": masa_reserva},
+            )
             return False
-        if not await self.tusk.solicitar_reserva(uid_s, masa_reserva, "IGRIS", "SHORT"):
+        # Espejo: misma masa ya cubierta por el corte L — no cobrar oxígeno 2×
+        if not await self.tusk.solicitar_reserva(
+            uid_s, masa_reserva, "IGRIS", "SHORT", consumir_auth=False,
+        ):
             await self.tusk.liberar_reserva(uid_l)
+            await self._anotar_espera_spread(
+                "ENGORDE_ESPERA_SPREAD" if origen == "ENGORDE" else "BOOTSTRAP_ESPERA_SPREAD",
+                {**puerta, "motivo": "reserva_short_denegada", "micro_usd": masa_reserva},
+            )
             return False
 
         # Disparo dual: qty nativa por pierna (Alfa Lineal → Espejo Inverso)
@@ -1251,6 +1519,10 @@ class IgrisEscudo:
             uid_l, uid_s, frente_l, frente_s, masa_l, masa_s, ask_l, bid_s,
             usd_l=usd_l, usd_s=usd_s,
         ):
+            await self._anotar_espera_spread(
+                "ENGORDE_ESPERA_SPREAD" if origen == "ENGORDE" else "BOOTSTRAP_ESPERA_SPREAD",
+                {**puerta, "motivo": "disparo_dual_fallido"},
+            )
             return False
 
         self._bloque_inyectado_usd += micro_usd
@@ -1259,7 +1531,7 @@ class IgrisEscudo:
             if pd.director_activo():
                 eq = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
                 try:
-                    marked = pd.marcar_foco_si_bloque_completo(eq, activo)
+                    marked = pd.marcar_foco_si_bloque_completo(eq, activo, tusk=self.tusk)
                     if marked:
                         await self.bel.anotar(
                             "IGRIS", "PASE_PASO",
@@ -1312,6 +1584,16 @@ class IgrisEscudo:
         if masa_req <= 0:
             return
 
+        # Poda/espejos auto desarmados de raíz (ley Monarca 2026-08-09)
+        if tipo in ("PODAR_MANTO", "LIMPIAR_ESPEJOS") and not getattr(
+            config, "IGRIS_PODA_AUTO", False
+        ):
+            await self.bel.anotar(
+                "IGRIS", "PODA_DESARMADA",
+                f"Maniobra {tipo} bloqueada · IGRIS_PODA_AUTO=false",
+            )
+            return
+
         uid = f"IGRIS_{tipo}_{str(uuid.uuid4())[:4]}"
         if tipo not in ("PODAR_MANTO", "LIMPIAR_ESPEJOS"):
             if not await self.tusk.solicitar_reserva(uid, masa_req, "IGRIS", direccion):
@@ -1352,7 +1634,30 @@ class IgrisEscudo:
             side = "Sell" if dir_key == "long" else "Buy"
             sym = mercado.frente_a_symbol(frente)
             cat = mercado.frente_a_category(frente)
-            res = await self.bridge.place_order(sym, side, extraida, category=cat)
+            from core import mnt_manto_hedge as mmh
+
+            # Nunca podar el short inverso de bóveda (colateral)
+            if mmh.es_inverse_boveda(frente) and dir_key == "short":
+                await self.tusk.liberar_reserva(uid)
+                await self.bel.anotar(
+                    "IGRIS", "BOVEDA_NO_PODA",
+                    f"No se poda short bóveda {frente}",
+                )
+                return False
+            position_idx = None
+            reduce_only = None
+            if mmh.requiere_hedge_bidireccional(frente):
+                hr = await self.bridge.asegurar_modo_hedge(sym, category=cat or "inverse")
+                if not hr.exito:
+                    await self.tusk.liberar_reserva(uid)
+                    return False
+                # Cerrar long manto = Sell en idx 1 reduceOnly
+                position_idx = 1 if dir_key == "long" else 2
+                reduce_only = True
+            res = await self.bridge.place_order(
+                sym, side, extraida, category=cat,
+                position_idx=position_idx, reduce_only=reduce_only,
+            )
             if not res.exito:
                 await self.tusk.liberar_reserva(uid)
                 return False

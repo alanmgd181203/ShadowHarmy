@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke luces matriz Kaiser 3.7.P1 + meta engorde pase → Igris."""
+"""Smoke luces matriz Kaiser 3.7.P1 + meta engorde pase → Igris (nocional grado)."""
 from __future__ import annotations
 
 import sys
@@ -13,7 +13,6 @@ from core import pase_director as pd
 
 
 def test_luces_matriz():
-    umbral = 0.25
     snap = {
         "filas": [
             {"base": "AAA", "tipo": "spot_vs_perp", "spread_pct": 0.10},
@@ -37,26 +36,24 @@ def test_meta_engorde():
     class FakeTusk:
         pesos = {}
 
-    # Equity con potencia ≥1, sin notional → restante = delta * fill
     eq = 14.0
     plan = pd.plan_lote(eq, marcha_id="asalto", pasos_logrados=[])
     assert plan["foco"]["activo"] == "ETH"
     fill = float(plan["fill_ratio"])
-    need = float(plan["foco"]["delta_usd"])
+    need = pd.need_notional_grado_usd("ETH", "SOLDADO")
     meta = pd.meta_engorde_usd(eq, "ETH", tusk=FakeTusk(), marcha_id="asalto", pasos_logrados=[])
     assert meta["ok"] is True
     assert abs(meta["need_usd"] - need) < 1e-6
     assert abs(meta["restante_usd"] - need * fill) < 1e-6
+    assert abs(float(meta["delta_paso_usd"]) - 14.0) < 1e-6
     assert meta["mitad_alcanzada"] is False
 
-    # Simular manto ya cubierto
     class FullTusk:
         pesos = {
             "ETHUSD_INVERSE": {"long": need * fill, "precio_medio_long": 1.0},
             "ETHUSDT_LINEAL": {"short": 0.0, "precio_medio_short": 1.0},
         }
 
-    # notional = masa * px; long masa = need*fill with px=1 → have = need*fill
     meta2 = pd.meta_engorde_usd(eq, "ETH", tusk=FullTusk(), marcha_id="asalto", pasos_logrados=[])
     assert meta2["restante_usd"] <= 1e-6
     print("  meta_engorde OK", meta["restante_usd"], "->", meta2["restante_usd"])

@@ -56,6 +56,22 @@ def test_resumen_manto():
     print("  resumen OK:", r["accion_heuristica"])
 
 
+def test_sin_poda_ley_marcial():
+    """≥95% no sugiere PODAR; flag IGRIS_PODA_AUTO off por default."""
+    assert getattr(config, "IGRIS_PODA_AUTO", False) is False
+    r = ie.resumen_manto(
+        margen_ocupado_pct=96,
+        peso_long=50,
+        peso_short=50,
+        banda_min=0.45,
+        banda_max=0.55,
+    )
+    assert r["fase_margen"] == "LEY_MARCIAL"
+    assert r["accion_heuristica"] == "VIGILAR_OXIGENO"
+    assert r["accion_heuristica"] != "PODAR_MANTO"
+    print("  sin poda ley marcial OK:", r["accion_heuristica"])
+
+
 def test_frentes_manto():
     frentes = getattr(config, "FRENTES_MANTO_ALL", [])
     assert len(frentes) >= 4
@@ -302,6 +318,7 @@ def main():
     test_fases_margen()
     test_banda_delta()
     test_resumen_manto()
+    test_sin_poda_ley_marcial()
     test_frentes_manto()
     test_bootstrap_se()
     test_despliegue_paciente()
