@@ -140,11 +140,15 @@ class IgrisEscudo:
         self._activo_beru = activo_m
 
         umbral = self._umbral_capital_grado(rangos, grado if grado != "BLOQUEADO" else "SOLDADO")
-        # Horizonte: usar hasta 95% del umbral como margen (oxígeno 5% del capital del grado)
+        # Horizonte capital→nocional: IM pierna a pierna (sin lev promedio)
         reserva = bc.colchon_tusk_pct()
         margen_usd = max(0.0, umbral * (1.0 - reserva))
-        lev = max(bc.apalancamiento_manto_promedio(activo_m), 1.0)
-        notional_pata = (margen_usd * lev) / 2.0
+        det = bc.margen_piernas_para_friccion(activo_m, bc.friccion_soldado_pct())
+        im_ref = float(det["im_total_usd"] or 0)
+        if im_ref > 0:
+            notional_pata = float(det["notional_pierna_usd"]) * (margen_usd / im_ref)
+        else:
+            notional_pata = 0.0
         masa_auth = float(self.tusk.masa_autorizada)
         if precio <= 0:
             return max(0.0, masa_auth)
@@ -1223,8 +1227,16 @@ class IgrisEscudo:
             horizonte = float(mj.techo_ideal())
             hueco_pct = max(0.0, horizonte - margen) / 100.0
             equity = float(self.tusk.masa_bruta_real or self.tusk.masa_bruta or 0.0)
-            lev = max(bc.apalancamiento_manto_promedio(activo), 1.0)
-            objetivo_h = max(objetivo, (equity * hueco_pct * lev) / 2.0) if hueco_pct > 0 else objetivo
+            det = bc.margen_piernas_para_friccion(activo, bc.friccion_soldado_pct())
+            im_ref = float(det["im_total_usd"] or 0)
+            # Hueco de margen → nocional de una pata (escala el manto Soldado)
+            if im_ref > 0 and hueco_pct > 0:
+                notional_pata_h = float(det["notional_pierna_usd"]) * (
+                    (equity * hueco_pct) / im_ref
+                )
+            else:
+                notional_pata_h = 0.0
+            objetivo_h = max(objetivo, notional_pata_h) if hueco_pct > 0 else objetivo
             if hueco_pct <= 0:
                 paso = self.masa_paso_engorde()
                 objetivo_h = max(objetivo * 0.1, paso * max(precio_ref, 0.0))

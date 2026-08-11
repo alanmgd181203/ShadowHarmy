@@ -14,15 +14,15 @@ from core import pase_director as pd
 def test_potencia():
     assert pd.potencia_n(13) == 0
     assert pd.potencia_n(14) == 1
-    assert pd.potencia_n(123) == 5
-    assert pd.potencia_n(1500) == 28
-    assert pd.potencia_n(3161) == 52
+    assert pd.potencia_n(143) == 5
+    assert pd.potencia_n(1500) == 24
+    assert pd.potencia_n(3735) == 52
     print("  potencia OK")
 
 
 def test_lote_reserva_1():
-    # 10 pasos potencia (~277), reserva 1 → lote 9
-    eq = 277.0
+    # 10 pasos potencia (acum~$326), reserva 1 → lote 9
+    eq = 326.0
     assert pd.potencia_n(eq) == 10
     assert set(pd.MARCHAS.keys()) == {"asalto", "personalizado"}
     assert pd.MARCHAS_UI == ("asalto", "personalizado")
@@ -112,13 +112,14 @@ def test_meta_fill_100():
     eq = 14.0
     meta = pd.meta_engorde_usd(eq, "ETH", tusk=FakeTusk(), marcha_id="asalto", pasos_logrados=[])
     assert meta["ok"]
-    assert abs(meta["restante_usd"] - 14.0) < 1e-6
+    # Igris planta nocional del grado (Soldado ETH L+S = $1250), no el peaje capital $14
+    assert abs(meta["restante_usd"] - 1250.0) < 1e-6
     assert abs(meta["fill_ratio"] - 1.0) < 1e-9
     print("  meta fill 100% OK")
 
 
 def test_resumen():
-    r = pd.resumen_director(411)
+    r = pd.resumen_director(478)
     assert r["marcha_id"] in pd.MARCHAS
     assert r["potencia_n"] == 13
     print("  resumen OK", r["marcha_titulo"], "potencia", r["potencia_n"])

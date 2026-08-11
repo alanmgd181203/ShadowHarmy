@@ -52,6 +52,7 @@ def _frente_hint(symbol: str, side: str) -> str | None:
 
 
 def _notional(size: float, avg_price: float, position_value: float | None) -> float:
+    """Linear/spot: positionValue o size×px. No usar para inverso (ver _leg_desde_pos)."""
     if position_value and position_value > 0:
         return position_value
     return size * avg_price if size > 0 and avg_price > 0 else 0.0
@@ -66,17 +67,28 @@ def _leg_desde_pos(pos: dict) -> dict[str, Any]:
     pv = _f(pos.get("positionValue"))
     symbol = pos.get("symbol")
     side = pos.get("side")
+    cat = str(pos.get("category") or pos.get("_category") or "").lower()
+    frente = _frente_hint(str(symbol or ""), str(side or ""))
+    # InversePerpetual Bybit: size = USD face; positionValue = coins settle (size/mark).
+    # positionIM suele venir en coin → USD = IM × mark. Nunca tratar value como USD.
+    es_inv = cat == "inverse" or (frente is not None and "INVERSE" in str(frente).upper())
+    if es_inv:
+        margen_usd = (im * mark) if im > 0 and mark > 0 else im
+        noc = abs(size)
+    else:
+        margen_usd = im
+        noc = _notional(size, avg, pv if pv > 0 else None)
     return {
         "symbol": symbol,
-        "frente": _frente_hint(str(symbol or ""), str(side or "")),
+        "frente": frente,
         "side": side,
         "size": size,
         "avg_price": avg,
         "mark_price": mark,
-        "margen_usd": im,
+        "margen_usd": margen_usd,
         "leverage": lev,
         "position_value": pv,
-        "_notional": _notional(size, avg, pv),
+        "_notional": noc,
     }
 
 

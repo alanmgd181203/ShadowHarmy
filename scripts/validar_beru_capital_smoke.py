@@ -139,6 +139,16 @@ def test_tiers_pasos():
     print("  PROTO1 pasos OK")
 
 
+def test_im_pierna_a_pierna_sin_promedio():
+    """LINK Mariscal: IM = 5000/20 + 5000/50 = 350 (no 10000/35)."""
+    det = bc.margen_piernas_para_friccion("LINK", bc.friccion_grado_pct("MARISCAL"))
+    assert abs(det["im_inverse_usd"] - 250.0) < 1e-6
+    assert abs(det["im_linear_usd"] - 100.0) < 1e-6
+    assert abs(det["im_total_usd"] - 350.0) < 1e-6
+    assert bc.costo_grado("LINK", "MARISCAL") == 368  # 350/0.95
+    print("  IM pierna-a-pierna LINK Mariscal=350 OK")
+
+
 def main():
     print("[SMOKE] Beru capital — fricción directa")
     test_eth_btc_friccion_directa()
@@ -149,6 +159,7 @@ def main():
     test_telemetria_cero()
     test_capitanes_config()
     test_tiers_pasos()
+    test_im_pierna_a_pierna_sin_promedio()
     print("OK beru capital smoke")
     return 0
 

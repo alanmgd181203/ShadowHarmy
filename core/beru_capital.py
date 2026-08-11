@@ -1,6 +1,9 @@
 """Beru — motor dinámico de capital (5 Reglas Universales del Monarca).
 
-Cálculo usa apalancamiento PROMEDIO (proyección de rangos).
+Peaje/IM del ranking: pierna a pierna con lev MÁX Bybit (L inverso + S lineal).
+Prohibido apalancamiento promedio para costos/pase (Monarca 2026-08-11).
+Bóveda MNT no se suma al presupuesto ofensivo (cubre la reserva 5%→muro 95%).
+
 Ejecución en exchange: Igris usa el MÁXIMO por contrato (inverse/lineal).
 
 Ley de Fricción (esfuerzo de mercado para extraer G_min):
@@ -49,7 +52,7 @@ def apalancamiento_inverse_max(asset: str) -> float:
 
 
 def apalancamiento_manto_promedio(asset: str) -> float:
-    """Cálculo de rangos — promedio inverso + lineal."""
+    """LEGADO — no usar para peaje/IM/ranking. Solo compat lecturas antiguas."""
     return (apalancamiento_linear_max(asset) + apalancamiento_inverse_max(asset)) / 2.0
 
 
@@ -123,10 +126,29 @@ def notional_manto_ls_grado(asset: str, grado: str) -> float:
     return 2.0 * notional_por_pierna_grado(asset, grado)
 
 
+def margen_piernas_para_friccion(asset: str, friccion: float) -> dict[str, float]:
+    """IM por pierna a lev máx Bybit (L inverso + S lineal).
+
+    Bóveda MNT short NO entra — presupuesto ofensivo del manto únicamente.
+    """
+    pierna = notional_por_pierna_para_friccion(asset, friccion)
+    lev_inv = max(apalancamiento_inverse_max(asset), 1.0)
+    lev_lin = max(apalancamiento_linear_max(asset), 1.0)
+    im_inv = pierna / lev_inv
+    im_lin = pierna / lev_lin
+    return {
+        "notional_pierna_usd": pierna,
+        "lev_inverse": lev_inv,
+        "lev_linear": lev_lin,
+        "im_inverse_usd": im_inv,
+        "im_linear_usd": im_lin,
+        "im_total_usd": im_inv + im_lin,
+    }
+
+
 def margen_bidireccional_para_friccion(asset: str, friccion: float) -> float:
-    """Margen L+S = 2 × (G_min / fricción) / apalancamiento."""
-    lev = max(apalancamiento_manto_promedio(asset), 1.0)
-    return 2.0 * notional_por_pierna_para_friccion(asset, friccion) / lev
+    """Margen L+S = IM_inverso(pata) + IM_lineal(pata) — sin promediar lev."""
+    return float(margen_piernas_para_friccion(asset, friccion)["im_total_usd"])
 
 
 def margen_volumen_base(asset: str) -> float:
@@ -135,7 +157,7 @@ def margen_volumen_base(asset: str) -> float:
 
 
 def capital_requerido_exacto(asset: str, friccion: float) -> float:
-    """capital = margen_LS / 0.95  (reserva Tusk ≥5%)."""
+    """capital = margen_LS / 0.95 (reserva 5%→muro 95%; bóveda dentro del colchón)."""
     margen = margen_bidireccional_para_friccion(asset, friccion)
     denom = max(1.0 - colchon_tusk_pct(), 1e-9)
     return margen / denom
@@ -163,6 +185,20 @@ def costo_base_x(asset: str) -> int:
     return costo_grado(asset, "SOLDADO")
 
 
+def delta_peaje_grado(asset: str, grado: str) -> int:
+    """Δ capital al subir a este grado (Soldado = costo pleno; resto = tope − anterior)."""
+    g = str(grado or "SOLDADO").upper()
+    order = ("SOLDADO", "CAPITAN", "GENERAL", "MARISCAL")
+    if g not in order:
+        g = "SOLDADO"
+    idx = order.index(g)
+    cost = costo_grado(asset, g)
+    if idx == 0:
+        return cost
+    prev = costo_grado(asset, order[idx - 1])
+    return max(0, cost - prev)
+
+
 def rangos_activo(asset: str, a_base: float | int = 0) -> dict[str, Any]:
     """Rangos por fricción independiente (prohibido ×2/×4/×8 sobre X)."""
     ab = int(a_base)
@@ -176,14 +212,19 @@ def rangos_activo(asset: str, a_base: float | int = 0) -> dict[str, Any]:
     tope_g = max(tope_g, tope_c)
     tope_m = max(tope_m, tope_g)
 
+    det = margen_piernas_para_friccion(asset, friccion_soldado_pct())
     mariscal = ab + tope_m
     return {
         "activo": asset.upper(),
         "X": x,
         "A_base": ab,
         "G_min": g_min_usd(asset),
-        "lev_promedio": round(apalancamiento_manto_promedio(asset), 2),
+        "lev_inverse": det["lev_inverse"],
+        "lev_linear": det["lev_linear"],
+        "lev_promedio": round(apalancamiento_manto_promedio(asset), 2),  # legado UI
         "margen_volumen_base_usd": round(margen_volumen_base(asset), 4),
+        "im_inverse_usd": round(det["im_inverse_usd"], 4),
+        "im_linear_usd": round(det["im_linear_usd"], 4),
         "reserva_garantizada_pct": round(colchon_tusk_pct() * 100, 2),
         "costos_friccion": {
             "SOLDADO": x,
@@ -362,10 +403,14 @@ def margen_manto_beru_100(asset: str) -> float:
 
 
 def pnl_por_1pct_con_margen(asset: str, margen_manto_usd: float) -> float:
-    lev = max(apalancamiento_manto_promedio(asset), 1.0)
-    por_pierna = max(margen_manto_usd, 0) / 2.0
-    notional = por_pierna * lev
-    return round(notional * 0.01, 2)
+    """Impacto 1% — escala el nocional L+S del manto Soldado al IM dado (sin lev promedio)."""
+    det = margen_piernas_para_friccion(asset, friccion_soldado_pct())
+    im_tot = float(det["im_total_usd"] or 0)
+    if im_tot <= 0:
+        return 0.0
+    scale = max(float(margen_manto_usd), 0.0) / im_tot
+    notional_ls = float(det["notional_pierna_usd"]) * 2.0 * scale
+    return round(notional_ls * 0.01, 2)
 
 
 def equity_minima_recomendada(

@@ -15,14 +15,14 @@ from core import beru_capital as bc
 def test_niveles():
     casos = [
         (15, "ASPIRANTE", list(pc.ESTRELLA_ASPIRANTE)),
-        (122, "ASPIRANTE", list(pc.ESTRELLA_ASPIRANTE)),
-        (123, "APRENDIZ", list(pc.SANTOS_GRIAL)),
-        (410, "APRENDIZ", list(pc.SANTOS_GRIAL)),
-        (411, "BRUJO", list(pc.SANTOS_GRIAL)),
-        (1450, "BRUJO", list(pc.SANTOS_GRIAL)),
-        (1451, "CHAMAN", list(pc.SANTOS_GRIAL)),
-        (3160, "CHAMAN", list(pc.SANTOS_GRIAL)),
-        (3161, "CAPITAN"),
+        (142, "ASPIRANTE", list(pc.ESTRELLA_ASPIRANTE)),
+        (143, "APRENDIZ", list(pc.SANTOS_GRIAL)),
+        (477, "APRENDIZ", list(pc.SANTOS_GRIAL)),
+        (478, "BRUJO", list(pc.SANTOS_GRIAL)),
+        (1672, "BRUJO", list(pc.SANTOS_GRIAL)),
+        (1673, "CHAMAN", list(pc.SANTOS_GRIAL)),
+        (3734, "CHAMAN", list(pc.SANTOS_GRIAL)),
+        (3735, "CAPITAN"),
         (15000, "GENERAL"),
         (150000, "SENOR_SOMBRAS"),
     ]
@@ -36,8 +36,8 @@ def test_niveles():
     assert pc.nivel_titulo("BRUJO") == "Brujo"
     assert pc.nivel_titulo("CHAMAN") == "Chamán"
     techos = pc.techos_pase_batalla()
-    assert techos["aspirante_usd"] == 123.0
-    assert techos["chaman_usd"] == 3161.0
+    assert techos["aspirante_usd"] == 143.0
+    assert techos["chaman_usd"] == 3735.0
     print("  niveles pase Aspirante-Chaman OK")
 
 

@@ -34,10 +34,11 @@ SANTOS_GRIAL: tuple[str, ...] = (
 ESTRELLA_ASPIRANTE: tuple[str, ...] = ("ETH", "HYPE", "XRP", "MNT", "LTC")
 
 # Techos acumulados Igris del pase (eq < umbral → ese rango)
-ASPIRANTE_TECHO_USD = 123.0
-APRENDIZ_TECHO_USD = 411.0
-BRUJO_TECHO_USD = 1451.0
-CHAMAN_TECHO_USD = 3161.0
+# Recalculados 2026-08-11: peaje IM pierna a pierna (sin lev promedio)
+ASPIRANTE_TECHO_USD = 143.0
+APRENDIZ_TECHO_USD = 478.0
+BRUJO_TECHO_USD = 1673.0
+CHAMAN_TECHO_USD = 3735.0
 
 # eq < umbral → ese nivel
 _NIVELES_MONARCA: tuple[tuple[float, NivelMonarca, list[str] | None, str], ...] = (

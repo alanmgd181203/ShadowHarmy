@@ -154,29 +154,84 @@ def cuantizar_qty(
     return round(out, dec + 2)
 
 
+def unidad_lote(filtros: dict[str, Any] | None) -> str:
+    """Unidad de la qty que Bybit espera en la orden.
+
+    Bybit InversePerpetual: la qty de la orden es **face USD** (`usd_contrato`).
+    El campo API `positionValue` en inverso es **coins de settle** (= size/mark),
+    NO dólares. Confundir value↔USD infla el manto (OP/ADA “glotones” fantasma).
+
+    Preferir `unidad_min_qty` de la BD; no aplastar con `clave==inverse` a ciegas
+    si la BD ya fijó otra unidad.
+    """
+    f = filtros or {}
+    raw = str(f.get("unidad_min_qty") or "").strip().lower()
+    if raw in ("usd_contrato", "base_coin", "quote_coin"):
+        return raw
+    if str(f.get("clave") or "").lower() == "inverse":
+        return "usd_contrato"
+    return "base_coin"
+
+
 def usd_a_qty(usd: float, precio: float, filtros: dict[str, Any]) -> float:
-    """Convierte presupuesto USD → qty de exchange según unidad del contrato."""
+    """Convierte presupuesto USD → qty de exchange según unidad del contrato.
+
+    - usd_contrato (InversePerpetual): qty = USD face (no multiplicar ni dividir px)
+    - base_coin (linear/spot): qty = USD / precio
+    """
     u = float(usd)
     px = float(precio)
     if u <= 0:
         return 0.0
-    unidad = str(filtros.get("unidad_min_qty") or "base_coin")
-    if unidad == "usd_contrato" or filtros.get("clave") == "inverse":
-        return u  # inverse: qty ≈ USD contrato
+    unidad = unidad_lote(filtros)
+    if unidad == "usd_contrato":
+        return u
     if px <= 0:
         return 0.0
     return u / px
 
 
 def qty_a_usd(qty: float, precio: float, filtros: dict[str, Any]) -> float:
+    """Qty de exchange → dólares de nocional económico.
+
+    Inverso: qty ya es USD. Nunca hacer qty/precio (eso son coins settle).
+    """
     q = float(qty)
     px = float(precio)
     if q <= 0:
         return 0.0
-    unidad = str(filtros.get("unidad_min_qty") or "base_coin")
-    if unidad == "usd_contrato" or filtros.get("clave") == "inverse":
+    unidad = unidad_lote(filtros)
+    if unidad == "usd_contrato":
         return q
     return q * max(px, 0.0)
+
+
+def nocional_usd_posicion_bybit(
+    *,
+    size: float,
+    mark_price: float = 0.0,
+    position_value: float | None = None,
+    category: str | None = None,
+    frente: str | None = None,
+) -> float:
+    """Nocional USD real para pase/hedge (anti-inflado por positionValue inverso).
+
+    linear/spot: |positionValue| o size×mark.
+    inverse: |size| (USD face). Ignora positionValue (coins).
+    """
+    cat = (category or "").lower()
+    if not cat and frente:
+        cat = clave_mercado_desde_frente(frente)
+    sz = abs(float(size or 0))
+    if cat == "inverse":
+        return sz
+    pv = abs(float(position_value)) if position_value is not None else 0.0
+    if pv > 0:
+        return pv
+    px = float(mark_price or 0)
+    if sz > 0 and px > 0:
+        return sz * px
+    return sz
 
 
 def cuantizar_presupuesto_usd(

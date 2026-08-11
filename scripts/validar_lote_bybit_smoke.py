@@ -39,6 +39,22 @@ def test_usd_a_qty_btc():
     print("  USD->qty BTC OK", r["qty"], r["usd"])
 
 
+def test_inverse_usd_face_no_infla():
+    """OPUSD inverso: qty = USD face. positionValue coins ≠ nocional USD."""
+    f = lote.filtros_lote("OPUSD_INVERSE")
+    assert lote.unidad_lote(f) == "usd_contrato", f
+    # $625 presupuesto → qty 625 (no 625/0.09 ≈ 6944)
+    q = lote.usd_a_qty(625.0, 0.09, f)
+    assert abs(q - 625.0) < 1e-9, q
+    assert abs(lote.qty_a_usd(625.0, 0.09, f) - 625.0) < 1e-9
+    # positionValue coins no debe usarse como USD
+    n = lote.nocional_usd_posicion_bybit(
+        size=628.0, mark_price=0.09, position_value=6977.0, category="inverse",
+    )
+    assert abs(n - 628.0) < 1e-9, n
+    print("  inverse USD-face OP OK (no infla size/precio)")
+
+
 def test_escalera_lote_btc():
     # 0.008 BTC → varios peldaños múltiplo de 0.001
     p = esc.armar_peldaños_lote(
@@ -68,6 +84,7 @@ def main():
     test_filtros_btc()
     test_cuantizar_btc()
     test_usd_a_qty_btc()
+    test_inverse_usd_face_no_infla()
     test_escalera_lote_btc()
     test_paso_minimo()
     print("[OK] lote_bybit smoke completo")
