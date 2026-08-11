@@ -454,7 +454,11 @@ def fila_capital(asset: str, tier_id: str | None = None, a_base: float | int = 0
             "GENERAL": r["GENERAL"],
             "MARISCAL": r["MARISCAL"],
         },
-        "lev_promedio": r["lev_promedio"],
+        "lev_inverse": r["lev_inverse"],
+        "lev_linear": r["lev_linear"],
+        "lev_promedio": r["lev_promedio"],  # legado UI — no es peaje
+        "im_inverse_usd": r.get("im_inverse_usd"),
+        "im_linear_usd": r.get("im_linear_usd"),
         "G_min": r["G_min"],
         "margen_manto_pleno_usd": margen_manto_pleno(asset),
         "margen_manto_tier_usd": margen_manto_por_tier(asset, tid),
@@ -493,12 +497,17 @@ def resumen_capital() -> dict[str, Any]:
         "semilla_rangos": sem,
         "semilla": {**(sem if isinstance(sem, dict) else {}), "G_min": g_sem},
         "cola_graduacion": cola,
+        # Una fila por Santo (tier default) — panel muestra lev_inv/lev_lin + IM, no promedio como peaje
+        "flota_por_tier": [fila_capital(c["activo"], a_base=c["A_base"]) for c in cola],
         "tiers": beru_tier.resumen_tiers(),
         "capitanes": {
             "ansiedad_vacio_pct": float(getattr(config, "BERU_VACIO_ANSIEDAD", 0.012)) * 100,
             "normal_vacio_pct": float(getattr(config, "BERU_VACIO_NORMAL", 0.016)) * 100,
         },
-        "nota_pase": "ranking/pase NO regenerado — pendiente tras mínimos reales + análisis Monarca",
+        "nota_pase": (
+            "Peaje IM pierna a pierna (lev_inv + lev_lin). "
+            "Corona Brujo acum $1673 · Chamán $3735. Promedio solo legado UI."
+        ),
     }
 
 

@@ -610,10 +610,12 @@ def meta_engorde_usd(
     pierna = need_notional_por_pierna_usd(act, grado)
     need_fill = need * fill
     have = notional_manto_usd(tusk, act) if tusk is not None else 0.0
-    restante = max(0.0, need_fill - have)
+    # Candado frío ranking: si already have > meta del grado → no proyectar engorde.
+    overshoot = have > need_fill + 1e-9
+    restante = 0.0 if overshoot else max(0.0, need_fill - have)
     return {
         "ok": True,
-        "motivo": "ok",
+        "motivo": "OVERSHOOT_RANKING" if overshoot else "ok",
         "activo": act,
         "need_usd": round(need, 4),
         "need_fill_usd": round(need_fill, 4),
@@ -628,6 +630,8 @@ def meta_engorde_usd(
         "fill_ratio": fill,
         "marcha_id": plan.get("marcha_id"),
         "meta_llena": restante <= 1e-9,
+        "overshoot_ranking": overshoot,
+        "telemetria": "OVERSHOOT_RANKING" if overshoot else None,
     }
 
 

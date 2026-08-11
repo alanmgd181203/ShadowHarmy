@@ -115,7 +115,7 @@ def test_cola_graduacion():
         cola = bc.cola_activos_con_a_base(["ETH", "SOL"])
         assert cola[0]["A_base"] == 0
         assert cola[1]["A_base"] == cola[0]["A_base_siguiente"] == 105
-        print("  cola A_base ETH→SOL OK", f"SOL X={cola[1]['X']} A_base={cola[1]['A_base']}")
+        print("  cola A_base ETH->SOL OK", f"SOL X={cola[1]['X']} A_base={cola[1]['A_base']}")
         gm.PATH_MINIMOS = old_path
         gm.invalidar_cache()
 
@@ -149,6 +149,17 @@ def test_im_pierna_a_pierna_sin_promedio():
     print("  IM pierna-a-pierna LINK Mariscal=350 OK")
 
 
+def test_im_avax_op_tabla():
+    """AVAX/OP Mariscal: IM = pierna/lev_inv + pierna/lev_lin (tabla)."""
+    for asset in ("AVAX", "OP", "LINK"):
+        fric = bc.friccion_grado_pct("MARISCAL")
+        det = bc.margen_piernas_para_friccion(asset, fric)
+        pierna = float(det["notional_pierna_usd"])
+        expect = pierna / float(det["lev_inverse"]) + pierna / float(det["lev_linear"])
+        assert abs(float(det["im_total_usd"]) - expect) < 1e-6
+        print(f"  IM tabla {asset}={expect:.1f} OK")
+
+
 def main():
     print("[SMOKE] Beru capital — fricción directa")
     test_eth_btc_friccion_directa()
@@ -160,6 +171,7 @@ def main():
     test_capitanes_config()
     test_tiers_pasos()
     test_im_pierna_a_pierna_sin_promedio()
+    test_im_avax_op_tabla()
     print("OK beru capital smoke")
     return 0
 

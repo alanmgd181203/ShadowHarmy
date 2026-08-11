@@ -147,7 +147,10 @@ def main():
                     {
                         "Tier": r.get("tier"),
                         "Activo": r.get("activo"),
-                        "Lev prom": r.get("lev_promedio"),
+                        "Lev inv": r.get("lev_inverse"),
+                        "Lev lin": r.get("lev_linear"),
+                        "IM inv $": r.get("im_inverse_usd"),
+                        "IM lin $": r.get("im_linear_usd"),
                         "Manto $": r.get("margen_manto_tier_usd"),
                         "Pleno $": r.get("margen_manto_pleno_usd"),
                         "Equity min $": r.get("equity_min_usd"),
@@ -156,6 +159,10 @@ def main():
                 ],
                 use_container_width=True,
                 hide_index=True,
+            )
+            st.caption(
+                "Peaje IM = notional/lev_inv + notional/lev_lin (sin promedio). "
+                "Lev promedio legacy no se muestra como peaje."
             )
 
     # --- DELTA Y BANDA ---

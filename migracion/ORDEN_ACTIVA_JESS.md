@@ -17,44 +17,48 @@ No busques otro pergamino como mandato principal.
 
 ---
 
-## 2) Misión actual — Sync mínimos Bybit (G_min por Santo)
+## 2) Misión actual — Sync techos de apalancamiento + smokes fríos
 
-**Qué es:** ritual de **ojos** — peaje real de cada Santo para Beru (`G_min`).  
-**Receta / detalle (anexo, no puerta):** [`PEGAR_JESS_SYNC_MINIMOS_BYBIT.md`](PEGAR_JESS_SYNC_MINIMOS_BYBIT.md)
+**Qué es:** ritual de **ojos** — confirmar que los techos L/I de Bybit coinciden con la tabla del ejército (peaje pierna a pierna). USA a menudo recibe 403; México sí puede mirar vivo.
+
+**Manos:** ATADAS. Ni arise, ni engorde, ni bisturí live.
+
+**Anexo (detalle, no puerta):** si hace falta el ritual de mínimos G_min, ver receta `PEGAR_JESS_SYNC_MINIMOS_BYBIT.md` — **no** es esta misión.
 
 ### Comandos exactos
 
 ```
-python scripts/sync_bybit_minimos_orden.py --also-parametros
-```
-
-Más rápido (solo flota manto/Beru):
-
-```
-python scripts/sync_bybit_minimos_orden.py --flota-only --also-parametros
-```
-
-Smoke frío (sin red), después del sync:
-
-```
-python scripts/validar_g_min_variable_smoke.py
-python scripts/validar_beru_capital_smoke.py
+python scripts/verificar_apalancamientos_bybit.py --json data/apalancamientos_bybit_vivo.json
 ```
 
 Si Bybit falla / timeout:
 
 ```
-python scripts/sync_bybit_minimos_orden.py --from-parametros --flota-only
+python scripts/verificar_apalancamientos_bybit.py --from-parametros --json data/apalancamientos_bybit_vivo.json
 ```
 
-(marca advertencia en el pergamino; avisar al Monarca).
+(usar BD local; avisar al Monarca que fue frío).
+
+Solo aplicar a config si el reporte marca **diff** claro y Monarca/USA lo pidió:
+
+```
+python scripts/verificar_apalancamientos_bybit.py --apply-config --json data/apalancamientos_bybit_vivo.json
+```
+
+Smokes fríos (obligatorios al terminar):
+
+```
+python scripts/validar_pase_im_ranking_smoke.py
+python scripts/validar_beru_capital_smoke.py
+```
 
 ---
 
 ## 3) Qué NO hacer
 
 - No `arise` / vigilante / manos / Beru live / Igris Asalto.
-- No regenerar pase ni ranking (aún pendiente del análisis Monarca).
+- No `nivelar_manto_pase.py` en LIVE / reduceOnly.
+- No regenerar pase ni ranking salvo orden escrita nueva.
 - No subir `.env`, `Ima/`, `tools/`, videos ni logs.
 - No mezclar con noche historial Coliseo en el mismo terminal.
 
@@ -62,10 +66,10 @@ python scripts/sync_bybit_minimos_orden.py --from-parametros --flota-only
 
 ## 4) Qué mirar al terminar
 
-1. **`data/bybit_minimos_orden.json`** — existe, fresco; G_min de flota (ETH, BTC, SOL, XRP, MNT…) y fuente (`spot_usdt` / `linear`).
-2. Si algún Santo sale con peaje spot &lt; 5 → anotar para el Monarca.
+1. **`data/apalancamientos_bybit_vivo.json`** — fresco; foco LINK / AVAX / OP / LTC / SOL / ETH L y I vs config.
+2. Si `n_diff_config` > 0 → anotar diffs al Monarca (no aplicar a ciegas).
 3. Smokes arriba en verde.
-4. Avisar al Monarca con **5–10 G_min** de flota (no el JSON entero).
+4. Avisar al Monarca: «techos OK» o lista corta de diffs + fuente (vivo / BD).
 5. Marcar **HECHO** abajo.
 
 ---
@@ -73,16 +77,13 @@ python scripts/sync_bybit_minimos_orden.py --from-parametros --flota-only
 ## 5) HECHO (Jess / Cursor marca)
 
 - [ ] `git pull origin master` hecho
-- [ ] Sync mínimos corrido (vivo o `--from-parametros` con aviso)
-- [ ] `data/bybit_minimos_orden.json` revisado (muestra G_min flota)
-- [ ] Smokes OK
-- [ ] Monarca avisado (5–10 peajes + si hubo advertencia)
-
-**Fecha / notas Jess:** _(vacío)_
+- [ ] Verificar apalancamientos corrido (vivo o `--from-parametros` con aviso)
+- [ ] `data/apalancamientos_bybit_vivo.json` revisado (foco flota)
+- [ ] Smokes OK (`validar_pase_im_ranking_smoke` + `validar_beru_capital_smoke`)
+- [ ] Monarca avisado (OK o diffs)
 
 ---
 
-## Plantilla próximas misiones
+## Nota
 
-Ver [`ORDEN_ACTIVA_JESS.plantilla.md`](ORDEN_ACTIVA_JESS.plantilla.md).  
-Índice de recetas: [`ordenes_jess/README.md`](ordenes_jess/README.md).
+Peaje IM = notional/lev_inv + notional/lev_lin. Corona Brujo \$1673 · Chamán \$3735. Candado engorde: `OVERSHOOT_RANKING` si el Santo ya pasa la meta del paso.

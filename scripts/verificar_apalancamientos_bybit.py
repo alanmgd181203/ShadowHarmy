@@ -259,6 +259,11 @@ def main() -> int:
     ap.add_argument("--apply-config", action="store_true", help="Escribir vivos en config.py")
     ap.add_argument("--regen-dict", action="store_true", help="Regenerar diccionario_beru tras verificar")
     ap.add_argument("--only", nargs="*", help="Solo estos activos (ej. LTC SOL ETH)")
+    ap.add_argument(
+        "--from-parametros",
+        action="store_true",
+        help="Sin red: comparar/aplicar desde data/bybit_parametros_mercado.json (si USA 403)",
+    )
     args = ap.parse_args()
 
     print("=" * 72)
@@ -266,30 +271,42 @@ def main() -> int:
     print(f"  {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC")
     print("=" * 72)
 
-    try:
-        probe_api()
-    except Exception as e:
-        print(f"\n  No se pudo contactar Bybit: {e}")
-        print("  -> Pedi a Jess que corra este mismo script en Mexico.")
-        return 2
-
     assets = args.only or assets_to_check()
     rows: list[dict[str, Any]] = []
     errors: list[str] = []
-    for a in assets:
-        a = a.upper()
+
+    if args.from_parametros:
+        print("  Modo --from-parametros (BD local; sin llamar instruments-info).")
+        for a in assets:
+            a = a.upper()
+            try:
+                rows.append(check_one_from_parametros(a))
+                print(f"  ok {a} (BD)")
+            except Exception as e:
+                errors.append(f"{a}: {e}")
+                print(f"  FAIL {a}: {e}")
+    else:
         try:
-            rows.append(check_one(a))
-            print(f"  ok {a}")
+            probe_api()
         except Exception as e:
-            errors.append(f"{a}: {e}")
-            print(f"  FAIL {a}: {e}")
+            print(f"\n  No se pudo contactar Bybit: {e}")
+            print("  -> Reintenta con --from-parametros o pide a Jess (Mexico).")
+            return 2
+
+        for a in assets:
+            a = a.upper()
+            try:
+                rows.append(check_one(a))
+                print(f"  ok {a}")
+            except Exception as e:
+                errors.append(f"{a}: {e}")
+                print(f"  FAIL {a}: {e}")
 
     diffs = print_report(rows)
 
     # Foco Monarca: LTC / SOL
     print("  FOCO:")
-    for a in ("LTC", "SOL", "BTC", "ETH", "XRP"):
+    for a in ("LTC", "SOL", "BTC", "ETH", "XRP", "LINK", "AVAX", "OP"):
         r = next((x for x in rows if x["activo"] == a), None)
         if not r:
             continue
@@ -302,10 +319,11 @@ def main() -> int:
 
     payload = {
         "ts_utc": datetime.now(timezone.utc).isoformat(),
-        "api": API,
+        "api": API if not args.from_parametros else "from-parametros",
         "rows": rows,
         "errors": errors,
         "n_diff_config": len(diffs),
+        "fuente": "parametros_local" if args.from_parametros else "instruments-info",
     }
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
@@ -322,6 +340,46 @@ def main() -> int:
         return int(regen() or 0)
 
     return 0 if not errors else 1
+
+
+PARAMETROS_PATH = ROOT / "data" / "bybit_parametros_mercado.json"
+
+
+def check_one_from_parametros(asset: str) -> dict[str, Any]:
+    """Techos desde BD local (mismo mapa que sync_bybit --also-parametros)."""
+    if not PARAMETROS_PATH.is_file():
+        raise FileNotFoundError(f"falta {PARAMETROS_PATH}")
+    raw = json.loads(PARAMETROS_PATH.read_text(encoding="utf-8"))
+    row = (raw.get("activos") or {}).get(asset.upper()) or {}
+    lev_l = float(row.get("max_leverage_linear") or 0) or None
+    lev_i = float(row.get("max_leverage_inverse") or 0) or None
+    avg = None
+    if lev_l and lev_i:
+        avg = (lev_l + lev_i) / 2.0
+    elif lev_l:
+        avg = lev_l
+    elif lev_i:
+        avg = lev_i
+    cfg_l = float((getattr(config, "MANTO_LEVERAGE_LINEAR_MAX_BY_ASSET", {}) or {}).get(asset, 0) or 0)
+    cfg_i = float((getattr(config, "MANTO_LEVERAGE_INVERSE_MAX_BY_ASSET", {}) or {}).get(asset, 0) or 0)
+    dict_row = load_dict_leverage().get(asset, {})
+    return {
+        "activo": asset,
+        "symbol_linear": f"{asset}USDT" if lev_l else None,
+        "symbol_inverse": f"{asset}USD" if lev_i else None,
+        "status_linear": "BD",
+        "status_inverse": "BD" if lev_i else None,
+        "vivo_linear": lev_l,
+        "vivo_inverse": lev_i,
+        "vivo_avg": avg,
+        "config_linear": cfg_l or None,
+        "config_inverse": cfg_i or None,
+        "dict_linear": dict_row.get("linear") or None,
+        "dict_inverse": dict_row.get("inverse") or None,
+        "dict_avg": dict_row.get("avg") or None,
+        "diff_config_linear": (None if lev_l is None or not cfg_l else lev_l - cfg_l),
+        "diff_config_inverse": (None if lev_i is None or not cfg_i else lev_i - cfg_i),
+    }
 
 
 if __name__ == "__main__":

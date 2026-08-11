@@ -127,27 +127,29 @@ Objetivo Mariscal: **PnL / 0,1 % = G_min del Santo**
 
 | Fórmula | Valor |
 |---------|--------|
-| Notional / pierna (PLENO) | (10×G_min) ÷ 0,01 |
-| Margen / pierna | notional ÷ lev_promedio |
-| **Manto L+S** | **2 × margen / pierna** |
+| Notional / pierna (PLENO / Mariscal) | (10×G_min) ÷ 0,01 |
+| IM pierna inversa | notional ÷ **lev_inv** (máx Bybit) |
+| IM pierna lineal | notional ÷ **lev_lin** (máx Bybit) |
+| **Manto L+S (peaje IM)** | **IM_inv + IM_lin** (prohibido promediar lev) |
 
-**Apalancamiento:** promedio de máx **inverse (long)** + **lineal stable (short)** por activo (`config.MANTO_LEVERAGE_*_BY_ASSET`).
+**Apalancamiento (2026-08-11):** peaje y ranking usan techos **por pierna** (`MANTO_LEVERAGE_INVERSE_MAX_BY_ASSET` + `MANTO_LEVERAGE_LINEAR_MAX_BY_ASSET`). El “promedio” es solo legado de UI — **no** es el peaje.
 
 Proto tiers dividen el manto: `margen_tier = margen_pleno ÷ escala_manto` (×2 → PROTO1, ×4 → PROTO2).
 
 ### Mordida Cazador
 
-Default = **G_min del Santo**. Override fijo solo si `BERU_CAZADOR_MORDIDA_USD > 0` (p.ej. live testnet). Engorde frontera: **+G_min / 0,1 %** sin techo artificial (oxígeno Tusk).
+Default = **G_min del Santo**. Override fijo solo si `BERU_CAZADOR_MORDIDA_USD > 0` (p.ej. live testnet). Engorde frontera: **+G_min / 0,1 %** sin techo artificial (oxígeno Tusk), con candado ranking: si `have > need` → `restante=0` / `OVERSHOOT_RANKING`.
 
 ### Ejemplos PLENO (manto solo, *con G_min=$5 legado*)
 
-| Activo | Lev prom | Margen manto PLENO (~) |
-|--------|----------|---------------------|
-| **ETH** | 100 | **$100** |
-| **BTC** | 100 | **$100** |
-| **LTC** | 62,5 | **$160** |
-| **SOL** | 50 | **$200** |
-| **WIF** | 20 | **$500** |
+| Activo | Lev inv / lin | IM manto PLENO (~) |
+|--------|---------------|---------------------|
+| **ETH** | 100 / 100 | **$100** (50+50) |
+| **BTC** | 100 / 100 | **$100** |
+| **LINK** | 20 / 50 | **$350** (250+100) |
+| **LTC** | 50 / 50 | **$200** |
+| **SOL** | 50 / 100 | **$150** |
+| **WIF** | 20 / 50 | **$350** (si hay inverso; si no, solo pierna lineal) |
 
 Con G_min real distinto, los $ del manto **escalan solos** (fricción fija).
 
@@ -158,9 +160,9 @@ Spot margen usa la misma equity; ganancias/pérdidas se compensan ahí.
 
 Ej. ETH **PROTO1** con G_min=$5: **~$50** equity (manto L+S a escala ×2).
 
-### Pase / ranking — PENDIENTE
+### Pase / ranking (vivo 2026-08-11)
 
-**No** regenerar `PASE_BATALLA` / ranking hasta tener mínimos verdaderos sincronizados **y** análisis del Monarca. El cableado lee G_min vivo; el orden de batalla sigue el pase firmado 2026-07-19.
+Peaje regenerado pierna a pierna: corona **Brujo \$1673** · **Chamán \$3735**. Smoke: `scripts/validar_pase_im_ranking_smoke.py`. Candado engorde: `OVERSHOOT_RANKING` si have > need.
 
 ---
 
