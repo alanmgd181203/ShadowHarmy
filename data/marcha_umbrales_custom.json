@@ -1,86 +1,16 @@
 {
-  "duracion_dias": 0.33,
-  "equity_usd": 1530.334,
-  "calibrado_ts": 1786067899.9905488,
-  "eta_h_target": 7.92,
+  "duracion_dias": 3.0,
+  "equity_usd": 277.0,
+  "calibrado_ts": 1786461383.871625,
+  "eta_h_target": 72.0,
   "por_base": {
-    "HYPE": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 28.0,
-      "ok": false
-    },
-    "XRP": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 18.0,
-      "ok": false
-    },
     "MNT": {
       "umbral_pct": 0.055,
       "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 281.0,
-      "ok": false
-    },
-    "LTC": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 211.0,
-      "ok": false
-    },
-    "SOL": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 140.0,
-      "ok": false
-    },
-    "LINK": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 301.0,
-      "ok": false
-    },
-    "ADA": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 42.0,
-      "ok": false
-    },
-    "BCH": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 38.0,
-      "ok": false
-    },
-    "AVAX": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 301.0,
-      "ok": false
-    },
-    "FIL": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 59.0,
-      "ok": false
-    },
-    "OP": {
-      "umbral_pct": 0.055,
-      "eta_h_est": null,
-      "eta_h_target": 7.92,
-      "meta_usd": 38.0,
+      "eta_h_target": 72.0,
+      "meta_usd": 40.0,
       "ok": false
     }
   },
-  "ts": 1786067900.0076783
+  "ts": 1786461383.876461
 }

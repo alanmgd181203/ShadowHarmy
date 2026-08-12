@@ -34,7 +34,7 @@ _DICT_CACHE: dict[str, Any] | None = None
 
 def _session():
     from pybit.unified_trading import HTTP
-    return HTTP(testnet=bool(getattr(config, "TESTNET", False)))
+    return HTTP(testnet=False)
 
 
 def _load_dict() -> dict[str, Any]:

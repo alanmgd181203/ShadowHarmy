@@ -55,9 +55,7 @@ class BeruCazador:
             pass
 
     def _activo_casa(self) -> str:
-        """Casa spot: preferido del pase / foco director; live testnet no toca."""
-        if getattr(config, "LIVE_BERU_TESTNET", False):
-            return beru_rail.activo_semilla()
+        """Casa spot: preferido del pase / foco director."""
         try:
             from core import pase_director as pd
             from core import plan_crecimiento as pc
@@ -77,8 +75,6 @@ class BeruCazador:
         return beru_rail.activo_semilla()
 
     def _beru_caza_permitida(self) -> bool:
-        if getattr(config, "LIVE_BERU_TESTNET", False):
-            return True
         try:
             from core import pase_director as pd
             if not pd.director_activo():
@@ -299,9 +295,7 @@ class BeruCazador:
             qty_orden = beru.masa
             is_lev = None
             if categoria == "spot":
-                if getattr(config, "BERU_SPOT_MARGEN_ENABLED", False) or getattr(
-                    config, "LIVE_BERU_TESTNET", False
-                ):
+                if getattr(config, "BERU_SPOT_MARGEN_ENABLED", False):
                     is_lev = 1
                 if is_long:
                     market_unit = "quoteCoin"
@@ -905,9 +899,7 @@ class BeruCazador:
             qty_orden = barco.masa
             is_lev = None
             if categoria == "spot":
-                if getattr(config, "BERU_SPOT_MARGEN_ENABLED", False) or getattr(
-                    config, "LIVE_BERU_TESTNET", False
-                ):
+                if getattr(config, "BERU_SPOT_MARGEN_ENABLED", False):
                     is_lev = 1
                 if barco.direccion == "LONG":
                     qty_orden = float(getattr(barco, "qty_base_ejecutada", 0) or 0)

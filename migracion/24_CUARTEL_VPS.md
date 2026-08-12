@@ -225,6 +225,6 @@ git push
 
 ## Relaciona
 
-- Ritual ojos: `18_ARRANQUE_TESTNET.md` § ritual ojos · `scripts/arise_ojos_tusk.py`
+- Ritual ojos: `scripts/arise_ojos_tusk.py`
 - Informes: `JESS_INFORME_SESGO.md` (mismos scripts; ahora desde VPS)
 - Geo Bybit: `14_ROADMAP.md` (VPS fuera USA)

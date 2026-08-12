@@ -28,7 +28,7 @@ def main() -> int:
     config.MODO_SIMULACION = False
 
     session = HTTP(
-        testnet=bool(config.TESTNET),
+        testnet=False,
         api_key=config.API_KEY,
         api_secret=config.API_SECRET,
     )

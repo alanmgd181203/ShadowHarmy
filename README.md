@@ -11,9 +11,9 @@ pip install -r requirements.txt
 # 2. Configurar secretos (crear archivo .env en la raíz)
 #    BYBIT_API_KEY=tu_clave
 #    BYBIT_API_SECRET=tu_secreto
-#    MODO_TESTNET=True
 #    MODO_SIMULACION=True
 #    TICKER_BASE=BTC
+#    (MODO_TESTNET abolido 2026-08-11 — solo mainnet; True → ABORT)
 
 # 3. Validar estado (opcional, recomendado)
 python scripts/validar_checklist.py
@@ -61,10 +61,9 @@ migracion/            ← Codex operativo (planos, checklist, doctrina)
 ## Documentación
 
 Todo el conocimiento del ejército vive en `migracion/`:
-- `18_ARRANQUE_TESTNET.md` — runbook arranque y validación
-- `16_CHECKLIST_MAESTRO.md` — checklist por fases (0–3 ✅, 4 siguiente)
-- `16_CHECKLIST_MAESTRO.md` — qué toca hacer
+- `16_CHECKLIST_MAESTRO.md` — checklist por fases / qué toca hacer
 - `17_GUIA_MONARCA.md` — cómo hablar con el agente
+- Arena / Arise = ensayo sim o mainnet (DEMO Bybit abolido 2026-08-11)
 
 ## Estado actual
 

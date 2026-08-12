@@ -435,7 +435,7 @@ class IgrisEscudo:
             self._override_activo = act
             self._reset_bloque_mision()
             try:
-                # Dual directo (sin reserva unilateral que abortaba por GLITCH)
+                # Dual: _inyectar_dual_paciente cura espejo stock antes de mordida
                 if await self._inyectar_dual_paciente(origen="ENGORDE"):
                     ok_engorde = True
             finally:
@@ -892,13 +892,10 @@ class IgrisEscudo:
 
     async def _auditoria_pre_despliegue(self) -> bool:
         """Candado de bóveda — umbrales dinámicos desde motor X/A_base (rangos_activo)."""
-        # Solo la arena (o live_testnet explícito) salta el grado Beru
+        # Solo la arena salta el grado Beru
         sin_rangos = (
-            (
-                getattr(config, "ARENA_IGRIS_ACTIVA", False)
-                and getattr(config, "ARENA_IGRIS_SIN_RANGOS", False)
-            )
-            or getattr(config, "LIVE_IGRIS_TESTNET", False)
+            getattr(config, "ARENA_IGRIS_ACTIVA", False)
+            and getattr(config, "ARENA_IGRIS_SIN_RANGOS", False)
         )
         if sin_rangos:
             self._rango_progresion = self._rango_progresion or "GENERAL"
@@ -968,10 +965,10 @@ class IgrisEscudo:
         activo: str,
         *,
         max_usd: float | None = None,
-        origen: str = "LIVE_TESTNET",
+        origen: str = "LIVE_MAINNET",
     ) -> dict:
         """
-        Dual §E en testnet real (Bridge place_order). Tope de notional por pata.
+        Dual §E mainnet (Bridge place_order) con tope de notional por pata.
         Requiere MODO_SIMULACION=False y ARENA_IGRIS_ACTIVA=False.
         """
         activo_u = (activo or "").upper()
@@ -982,7 +979,7 @@ class IgrisEscudo:
         cap = float(
             max_usd
             if max_usd is not None
-            else getattr(config, "LIVE_IGRIS_MORDIDA_MAX_USD", 12.0)
+            else float(getattr(config, "MIN_ORDER_USD_DEFAULT", 5.0) or 5.0)
         )
         ok = await self._inyectar_dual_paciente(origen=origen, restante_usd_cap=cap)
         return {"activo": activo_u, "ok": ok, "max_usd": cap}
@@ -1098,6 +1095,144 @@ class IgrisEscudo:
         except Exception:
             return True
 
+    def _diagnostico_espejo_stock(self, activo: str) -> dict:
+        """Stock manto L/S en USD (sin bóveda) vs techo de asimetría Asalto/personalizado."""
+        from core import lote_bybit as lote
+        from core import pase_director as pd
+
+        act = str(activo or "").upper()
+        usd_l, usd_s = pd.usd_piernas_manto_activo(self.tusk, act)
+        lim = float(lote.asim_masa_lim_activo())
+        piso = float(getattr(config, "IGRIS_ESPEJO_GAP_MIN_USD", 5.0) or 5.0)
+        gap = abs(float(usd_l) - float(usd_s))
+        ref = max(float(usd_l), float(usd_s), 1e-9)
+        asim = gap / ref
+        # Vacío total → OK (bootstrap sembrará dual)
+        if usd_l <= 1e-9 and usd_s <= 1e-9:
+            ok = True
+            thin = None
+        elif (usd_l <= 1e-9) ^ (usd_s <= 1e-9):
+            # Una sola pierna: lisiado si la gorda supera polvo
+            ok = max(usd_l, usd_s) <= piso
+            thin = "LONG" if usd_l < usd_s else "SHORT"
+        else:
+            ok = gap <= piso or asim <= lim + 1e-12
+            thin = "LONG" if usd_l + 1e-9 < usd_s else ("SHORT" if usd_s + 1e-9 < usd_l else None)
+        return {
+            "ok": bool(ok),
+            "activo": act,
+            "usd_long": round(float(usd_l), 4),
+            "usd_short": round(float(usd_s), 4),
+            "gap_usd": round(gap, 4),
+            "asim_pct": round(asim * 100.0, 4),
+            "lim_pct": round(lim * 100.0, 4),
+            "thin": thin,
+            "need_usd": round(gap, 4),
+        }
+
+    def _precio_ref_espejo(self, frente: str, direccion: str) -> float:
+        """Ask (LONG) / Bid (SHORT) del libro; fallback precio medio en pesos."""
+        from core import igris_despliegue as ides
+
+        d = str(direccion or "").upper()
+        try:
+            bids, asks = ides.libro_tank(self.tank, frente)
+            if d in ("LONG", "BUY") and asks:
+                return float(asks[0][0])
+            if d in ("SHORT", "SELL") and bids:
+                return float(bids[0][0])
+        except Exception:
+            pass
+        pesos = getattr(self.tusk, "pesos", None) or {}
+        row = pesos.get(frente) or {}
+        if d in ("LONG", "BUY"):
+            return float(row.get("precio_medio_long") or row.get("precio_medio_short") or 0)
+        return float(row.get("precio_medio_short") or row.get("precio_medio_long") or 0)
+
+    async def _asegurar_espejo_stock(self, activo: str) -> bool:
+        """Antes de engorde: si el stock L/S está lisiado, cura la pierna flaca (Market).
+
+        Ritmo Asalto: no abre dual nuevo hasta que el espejo del Santo esté dentro
+        del techo de asimetría. Nunca toca símbolos de bóveda (MNTPERP).
+        """
+        if not bool(getattr(config, "IGRIS_ESPEJO_STOCK_PRE_ENGORDE", True)):
+            return True
+        if not bool(getattr(config, "IGRIS_DUAL_SALVAVIDAS_MARKET", True)):
+            return True
+
+        from core import lote_bybit as lote
+
+        act = str(activo or "").upper()
+        diag = self._diagnostico_espejo_stock(act)
+        if diag.get("ok"):
+            return True
+
+        max_i = int(getattr(config, "IGRIS_ESPEJO_STOCK_MAX_INTENTOS", 3) or 3)
+        frente_l, frente_s = im.frentes_bootstrap(act)
+        await self.bel.anotar(
+            "IGRIS", "ESPEJO_STOCK_CURA",
+            f"{act}: L=${diag['usd_long']:.2f} S=${diag['usd_short']:.2f} "
+            f"gap=${diag['gap_usd']:.2f} asim={diag['asim_pct']:.1f}% "
+            f"(lim {diag['lim_pct']:.1f}%) → {diag.get('thin')}",
+        )
+
+        for _ in range(max(1, max_i)):
+            diag = self._diagnostico_espejo_stock(act)
+            if diag.get("ok"):
+                await self.bel.anotar(
+                    "IGRIS", "ESPEJO_STOCK_OK",
+                    f"{act}: espejo sano L=${diag['usd_long']:.2f} S=${diag['usd_short']:.2f}",
+                )
+                return True
+            thin = diag.get("thin")
+            need = float(diag.get("need_usd") or 0)
+            if not thin or need <= 0:
+                break
+            if thin == "LONG":
+                frente, direccion = frente_l, "LONG"
+            else:
+                frente, direccion = frente_s, "SHORT"
+            px = self._precio_ref_espejo(frente, direccion)
+            if px <= 0:
+                await self.bel.anotar(
+                    "IGRIS", "ESPEJO_STOCK_SIN_PX",
+                    f"{act}: sin precio libro para {frente}/{direccion}",
+                )
+                break
+            conv = lote.qty_espejo_usd(need, px, frente, mode="ceil")
+            qty = float(conv.get("qty") or 0)
+            if not conv.get("ok") or qty <= 0:
+                await self.bel.anotar(
+                    "IGRIS", "ESPEJO_STOCK_NO_QTY",
+                    f"{act}: no cuantiza ${need:.2f} en {frente}",
+                )
+                break
+            uid = f"IGRIS_ESPEJO_{act}_{thin}_{str(uuid.uuid4())[:6]}"
+            r = await self._salvavidas_market_pierna(uid, frente, direccion, qty, px)
+            if not r.get("ok"):
+                await self.bel.anotar(
+                    "IGRIS", "ESPEJO_STOCK_FALLIDO",
+                    f"{act}: salvavidas {direccion} {frente} falló",
+                )
+                self._marcar_fail_cooldown(act)
+                return False
+            await asyncio.sleep(0.35)
+
+        diag = self._diagnostico_espejo_stock(act)
+        if diag.get("ok"):
+            await self.bel.anotar(
+                "IGRIS", "ESPEJO_STOCK_OK",
+                f"{act}: espejo sano L=${diag['usd_long']:.2f} S=${diag['usd_short']:.2f}",
+            )
+            return True
+        await self.bel.anotar(
+            "IGRIS", "ESPEJO_STOCK_BLOQUEO",
+            f"{act}: sigue lisiado L=${diag['usd_long']:.2f} S=${diag['usd_short']:.2f} "
+            f"— no engorda hasta curar",
+        )
+        self._marcar_fail_cooldown(act)
+        return False
+
     def _reset_bloque_mision(self) -> None:
         self._bloque_objetivo_usd = 0.0
         self._bloque_inyectado_usd = 0.0
@@ -1144,11 +1279,8 @@ class IgrisEscudo:
             return exclusivos[0]
 
         sin_rangos = (
-            (
-                getattr(config, "ARENA_IGRIS_ACTIVA", False)
-                and getattr(config, "ARENA_IGRIS_SIN_RANGOS", False)
-            )
-            or getattr(config, "LIVE_IGRIS_TESTNET", False)
+            getattr(config, "ARENA_IGRIS_ACTIVA", False)
+            and getattr(config, "ARENA_IGRIS_SIN_RANGOS", False)
         )
         if sin_rangos:
             act = (self._activo_beru or config.TICKER_BASE or "ETH").upper()
@@ -1299,6 +1431,9 @@ class IgrisEscudo:
         activo = self._activo_despliegue()
         self._intentar_reconciliar_dual_fills(activo)
         if self._engorde_en_espera(activo):
+            return False
+        # Candado duro: no dual nuevo si el stock del Santo sigue lisiado
+        if not await self._asegurar_espejo_stock(activo):
             return False
         frente_l, frente_s = im.frentes_bootstrap(activo)
 
@@ -1495,7 +1630,6 @@ class IgrisEscudo:
                     getattr(config, "ARENA_IGRIS_ACTIVA", False)
                     and getattr(config, "ARENA_IGRIS_SIN_BANDA_DELTA", True)
                 )
-                or getattr(config, "LIVE_IGRIS_TESTNET", False)
                 or getattr(config, "IGRIS_VENTANA_NO_BLOQUEA_ENGORDE", True)
             ):
                 pass  # Asalto: dual §E manda; ventana no castra mordida

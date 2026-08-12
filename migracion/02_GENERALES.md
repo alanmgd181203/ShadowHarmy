@@ -165,7 +165,7 @@ Smoke: `python scripts/validar_tusk_tesoreria_smoke.py`
 
 **Ritual de ojos (sin disparos):** `python scripts/arise_ojos_tusk.py`  
 Despierta Tusk (bóveda/oxígeno) + Tank (mares) + Kaiser (indicadores). Igris/Greed/Beru hibernados.  
-Corte opcional: `--segundos 120`. Ver también `18_ARRANQUE_TESTNET.md` § ritual ojos.
+Corte opcional: `--segundos 120`. Ritual ojos: `scripts/arise_ojos_tusk.py`.
 
 **Bóveda MNT (checkpoint):** capital_mando = short×entrada → potencia del pase (frío).  
 Camino: Convert solo si conviene; si no, spot.  

@@ -24,7 +24,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 | Urgencia | Documento |
 |----------|-----------|
 | **Cómo hablar (agente)** | [`17_GUIA_MONARCA.md`](17_GUIA_MONARCA.md) — **siempre primero** |
-| Arrancar ojos / testnet | [`18_ARRANQUE_TESTNET.md`](18_ARRANQUE_TESTNET.md) |
+| Arrancar ojos / sim / Arise | [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md) · Arena / `arise_ojos_tusk` / `arise_igris` |
 | Siguiente paso | [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md) |
 | Doctrina Igris + checkpoint 48–52 | [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) |
 | Doctrina Beru | [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) |

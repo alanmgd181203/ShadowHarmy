@@ -15,7 +15,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-os.environ.setdefault("MODO_TESTNET", "False")
 os.environ.setdefault("MODO_SIMULACION", "False")
 
 import core.config as config
@@ -33,8 +32,8 @@ def main() -> int:
     if not args.confirmar_go or not args.permitir_mainnet:
         print("ABORT: exige --confirmar-go --permitir-mainnet")
         return 2
-    if config.TESTNET or getattr(config, "MODO_TESTNET", False):
-        print("ABORT: este ritual es mainnet (testnet activo)")
+    if bool(getattr(config, "TESTNET", False)):
+        print("ABORT: Mundo A / DEMO activo — imposible")
         return 2
     if not config.API_KEY or not config.API_SECRET:
         print("ABORT: sin API keys")

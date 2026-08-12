@@ -1,49 +1,34 @@
 {
-  "ts": 1786372628.566678,
+  "ts": 1786492824.826029,
   "checklist": "4.0.3",
   "sim": false,
   "manos_reales": true,
   "solo_ojos": false,
   "books_on": true,
-  "libros_eth": {
-    "ok": true,
-    "frentes": {
-      "ETHUSDT_LINEAL": {
-        "bids": 50,
-        "asks": 50,
-        "edad_s": 13.584,
-        "stale": false
-      },
-      "ETHUSD_INVERSE": {
-        "bids": 50,
-        "asks": 50,
-        "edad_s": 13.577,
-        "stale": false
-      }
-    },
-    "stale": false
-  },
-  "testnet": false,
+  "libros_eth": null,
+  "mainnet": true,
   "marcha_id": "asalto",
   "marcha_payload": {
     "fill_ratio": 1.0,
     "reserva_pasos": 1,
     "titulo": "Asalto Inmediato"
   },
-  "equity_usd": 1472.882,
-  "masa_autorizada": 90.8824,
+  "equity_usd": 2244.2122,
+  "masa_autorizada": 647.9571,
   "plan": {
-    "potencia_n": 28,
+    "potencia_n": 34,
     "foco": {
       "n": 4,
       "activo": "MNT",
       "grado": "SOLDADO",
-      "delta_usd": 36.0,
-      "acum_usd": 96.0,
+      "delta_usd": 40.0,
+      "acum_usd": 116.0,
       "logrado": false,
       "etiqueta": "MNT Soldado"
     },
     "activos_trabajo": [
+      "ADA",
+      "BCH",
       "MNT"
     ],
     "fill_ratio": 1.0,
@@ -57,26 +42,28 @@
     "need_fill_usd": 1250.0,
     "have_usd": 0.0,
     "restante_usd": 1250.0,
-    "need_capital_usd": 36.0,
+    "need_capital_usd": 40.0,
     "need_notional_pierna_usd": 625.0,
     "paso_n": 4,
     "grado": "SOLDADO",
-    "delta_paso_usd": 36.0,
+    "delta_paso_usd": 40.0,
     "mitad_alcanzada": false,
     "fill_ratio": 1.0,
     "marcha_id": "asalto",
-    "meta_llena": false
+    "meta_llena": false,
+    "overshoot_ranking": false,
+    "telemetria": null
   },
   "ventana_manto": {
-    "ratio_long": 0.484508,
-    "pct_long": 48.4508,
-    "pct_short": 51.5492,
+    "ratio_long": 0.499662,
+    "pct_long": 49.9662,
+    "pct_short": 50.0338,
     "banda_min": 0.49,
     "banda_max": 0.52,
-    "estado": "SHORT_EXCEDIDO",
-    "ok": false,
+    "estado": "OK",
+    "ok": true,
     "usd_long": 24410.0,
-    "usd_short": 25970.9843,
+    "usd_short": 24442.9843,
     "base_ratio": "desplegado_actual_usd_entrada",
     "ley": "ventana_48_52_long_primero"
   },
@@ -84,6 +71,6 @@
   "greed_hibernado": true,
   "beru_hibernado": true,
   "boveda_manos": false,
-  "duracion_s": 43369.7,
-  "veredicto_calentamiento": "OJOS_Y_LIBROS_OK"
+  "duracion_s": 266.9,
+  "veredicto_calentamiento": null
 }

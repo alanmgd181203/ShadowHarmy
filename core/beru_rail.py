@@ -10,8 +10,8 @@ STABLE_QUOTES = ("USDT", "USDC", "USDE", "USD1")
 
 
 def _quotes_activos() -> tuple[str, ...]:
-    """Live/USDT-only: solo USDT. Prod: todos los stables conocidos."""
-    if getattr(config, "BERU_RAIL_USDT_ONLY", False) or getattr(config, "LIVE_BERU_TESTNET", False):
+    """USDT-only si BERU_RAIL_USDT_ONLY; si no, todos los stables conocidos."""
+    if getattr(config, "BERU_RAIL_USDT_ONLY", False):
         return ("USDT",)
     return STABLE_QUOTES
 
@@ -21,7 +21,7 @@ def activo_semilla() -> str:
 
 
 def frentes_casa_estables(base: str | None = None) -> list[str]:
-    """Spot del activo semilla frente a stables (USDT-only si LIVE_BERU)."""
+    """Spot del activo semilla frente a stables."""
     b = (base or activo_semilla()).upper()
     quotes = _quotes_activos()
     out: list[str] = []

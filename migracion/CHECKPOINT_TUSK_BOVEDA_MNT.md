@@ -23,7 +23,7 @@
 | Catálogo fino de rarezas / ahorrar último céntimo sin cerrar | ❌ **aplazado** (ejército más pensante) |
 | Fundir Tusk al 100% con todas las herramientas | ❌ **no ahora** |
 
-**Decisión Monarca:** no inventariar todos los casos raros en código ahora. Si la bóveda está sucia → **cerrar/sanear y nacer limpio** (peaje = costo de inauguración). Manos solo con orden explícita + México/testnet.
+**Decisión Monarca:** no inventariar todos los casos raros en código ahora. Si la bóveda está sucia → **cerrar/sanear y nacer limpio** (peaje = costo de inauguración). Manos solo con orden explícita + mainnet (DEMO abolido).
 
 ---
 
@@ -143,7 +143,7 @@ Persistencia: `data/tusk_boveda_inauguracion.json` (`sellar` / `cargar`; **no** 
 1. ~~Casos especiales~~ → **cerrados por ley reset** (2026-08-02).  
 2. Sello duro capital + clima Kaiser (números/umbrales).  
 3. Opcional: capital_mando → masa Igris con gate explícito.  
-4. **Manos** ritual (incl. reset) solo con `TUSK_BOVEDA_MANOS` + orden Monarca + México/testnet.
+4. **Manos** ritual (incl. reset) solo con `TUSK_BOVEDA_MANOS` + orden Monarca + mainnet (no DEMO).
 
 ---
 

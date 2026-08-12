@@ -13,7 +13,6 @@ python3 scripts/set_marcha_cli.py --id asalto
 export IGRIS_LIBRO_STALE_S=45
 export IGRIS_LIBRO_REST_FALLBACK=true
 export ESCALERA_IGRIS_ACTIVA=false
-export MODO_TESTNET=False
 export MODO_SIMULACION=False
 export BRIDGE_WS_SUBSCRIBE_BOOKS=true
 echo "→ Asalto Igris mainnet hasta 2026-08-07T18:30"

@@ -24,7 +24,6 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-os.environ.setdefault("MODO_TESTNET", "False")
 os.environ.setdefault("MODO_SIMULACION", "False")
 
 import core.config as config
@@ -292,8 +291,8 @@ def main() -> int:
     import importlib
     importlib.reload(config)
 
-    if config.TESTNET or getattr(config, "MODO_TESTNET", False):
-        print("ABORT: ritual mainnet (testnet activo)")
+    if bool(getattr(config, "TESTNET", False)):
+        print("ABORT: Mundo A / DEMO activo — imposible")
         return 2
     if not config.API_KEY or not config.API_SECRET:
         print("ABORT: sin API keys")

@@ -3,6 +3,7 @@
     1,
     2,
     3,
+    4,
     5,
     6,
     7,
@@ -18,12 +19,17 @@
     17,
     18,
     19,
+    20,
     23,
     24,
     25,
     26,
     27,
     28,
+    29,
+    30,
+    31,
+    32,
     34,
     35
   ],
@@ -32,7 +38,7 @@
     34,
     35
   ],
-  "nota_forzados": "Monarca 2026-08-11: ADA Caballero (28) + OP Caballero/General (34/35) sellados por orden directa; no auto-desmarcar en sync aunque have USD face < meta. positionValue inverso ≠ USD.",
-  "ts": 1786377240.0,
-  "red": "mainnet"
+  "ts": 1786501058.2643359,
+  "red": "mainnet",
+  "nota_forzados": "Monarca 2026-08-11: ADA Caballero (28) + OP Caballero/General (34/35) sellados por orden directa; no auto-desmarcar en sync aunque have USD face < meta. positionValue inverso \u2260 USD."
 }

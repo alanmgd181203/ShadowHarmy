@@ -17,7 +17,7 @@
 
 - [x] **0.1** Copia `migracion/` vive en `ShadowHarmy/migracion/` (junto al código)
 - [x] **0.2** Leer `00_NORTE.md` + `13_ANALISIS_SHADOWHARMY.md` (estado actual)
-- [x] **0.3** `.env` con `BYBIT_API_KEY`, `BYBIT_API_SECRET`, `MODO_TESTNET=True`
+- [x] **0.3** `.env` con `BYBIT_API_KEY`, `BYBIT_API_SECRET` (mainnet; `MODO_TESTNET` abolido 2026-08-11)
 - [x] **0.4** Regla Cursor / prompt fijo: citar `migracion/` + protocolo `CODEX_VIVO.md`
 - [x] **0.5** Decisión registrada en `08`: solo ShadowHarmy para runtime (D-10)
 
@@ -101,7 +101,7 @@
 
 *Criterio fase:* 10 `MarketContext` con precio real; Greed USDT×USDC en LTC y BTC; ciclo ejército validado (3.6). **Beru doctrina 3.9** + **live 3.9.9 ✅**. **Igris §E v2 + live 3.10.7b ✅**. **3.5.8c** doctrina ventana 48–52 ✅ checkpoint · motor/ranking pendientes. **Pendiente:** 3.7.P*, Karmish.
 
-*Validación 2026-07-05:* `validar_m2.py` → **10/10 mares**. *Validación Beru 2026-07-09:* smokes + `validar_ciclo_beru_eth.py`. *Igris 2026-07-12:* `validar_igris_smoke.py` + `igris_despliegue`. Runbook: `18_ARRANQUE_TESTNET.md`.
+*Validación 2026-07-05:* `validar_m2.py` → **10/10 mares**. *Validación Beru 2026-07-09:* smokes + `validar_ciclo_beru_eth.py`. *Igris 2026-07-12:* `validar_igris_smoke.py` + `igris_despliegue`. *(Runbook DEMO `18` abolido 2026-08-11.)*
 
 ### 3.1 Tank — visión completa
 - [x] **3.1.0–3.1.4** — ✅ 10/10 mares dual LTC+BTC (USDC lineal = reflejo spot)
@@ -227,7 +227,7 @@
 - [x] **3.9.6** Diccionario Flota del Manto Inverse∩Linear — `config/diccionario_beru_flota_manto.json`
 - [x] **3.9.7** Engorde dual L/S estable + cooldown log `ENGORDE_BLOQUEADO`
 - [x] **3.9.8** Smokes: cazador, fusión, multiberu, mega_reset, capital, ciclo ETH
-- [x] **3.9.9** Ciclo Beru **live** testnet (`MODO_SIMULACION=False`) — ritual `scripts/beru_live_testnet.py` (Ansiedad 1.2%→gatillo 0.6%, Mariscal PLENO, CAZA ~\$20, flota 22 USDT, spot margen 10x); PASS México 2026-07-16 (`data/beru_live_testnet_report.json`); orden: `CURSOR_MEXICO_EJECUTAR_3_9_9.md`
+- [x] **3.9.9** Ciclo Beru **live** DEMO *(acta histórica; Mundo A abolido 2026-08-11)* — PASS México 2026-07-16
 
 ### 3.10 Igris — jurisdicción, despliegue y panel *(2026-07-11 → 07-12)*
 
@@ -238,7 +238,7 @@
 - [x] **3.10.5** Panel Pergamino — `dashboard_sombras.html` + `index.html` + scripts panel macOS
 - [x] **3.10.6** Smoke Igris actualizado (`validar_igris_smoke.py`)
 - [x] **3.10.7a** Arena aislada — `scripts/arena_igris_aislado.py` (Kaiser→Igris, fills virtuales, matriz forzada, Tusk limpio/activo, ~2 min)
-- [x] **3.10.7b** Validar despliegue §E en **live** testnet con manto real — `PASS_LIVE` México 2026-07-12 (ETH/BTC dual DEMO; ritual `igris_live_testnet.py`)
+- [x] **3.10.7b** Despliegue §E **live** DEMO *(acta histórica; Mundo A abolido 2026-08-11)* — `PASS_LIVE` México 2026-07-12 (ETH/BTC dual)
 - [x] **3.10.8** Modo `IGRIS_EVENT_DRIVEN` + alerta Kaiser `OPORTUNIDAD_MANTO` (morado Ask/Bid = Puerta §E) · arena micro / prod ≥ fees · lanzadores Win/Mac
 
 ### 3.11 Cuartel compartido (México) *(ops — 2026-07-09 → 07-12)*
@@ -266,7 +266,7 @@
 - [x] **4.0.1b** Checkpoint bóveda MNT — doctrina + capital_mando / foto / potencia_pase frío · Convert≠ley · **manos OFF** · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · smoke `validar_tusk_boveda_mnt_smoke.py`
 - [x] **4.0.1c** Ley bóveda: estado sucio → **reset a cero** → ritual ideal (peaje OK; no catalogar rarezas ahora) · firmada 2026-08-02 · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · manos aún OFF
 - [ ] **4.0.1c2** (opc) capital_mando → `masa_autorizada` Igris + sello duro vs clima Kaiser
-- [ ] **4.0.1d** Manos ritual bóveda (reset + ideal) — solo `TUSK_BOVEDA_MANOS` + orden Monarca + México/testnet
+- [ ] **4.0.1d** Manos ritual bóveda (reset + ideal) — solo `TUSK_BOVEDA_MANOS` + orden Monarca + mainnet
 - [x] **4.0.2** Igris sim/dry-run — `scripts/arise_igris_sim.py` · manos atadas + fills ilusorios · sin Beru/Greed · [`CHECKPOINT_IGRIS_SIM_4_0_2.md`](CHECKPOINT_IGRIS_SIM_4_0_2.md) · smoke `validar_arise_igris_sim_smoke.py` · **sello 2026-08-04** marcha forzada (~180s): ENGORDE_DUAL multi-Santo, masa~94, 15 frentes
 - [ ] **4.0.3** Igris live hasta manto 100% del paso (meta engorde)
   - **EN CURSO 2026-08-05** — ejército parcial oficial (Tusk·Tank·Kaiser·Igris; Greed/Beru hibernan) · marcha_forzada · books ON · manos sueltas mainnet (`arise_igris.py` + guardián `vigilar_arise_igris` hasta ~18:30) · smoke libros OK · **no PASS** hasta evidencia manto/meta · [`CHECKPOINT_IGRIS_LIVE_4_0_3.md`](CHECKPOINT_IGRIS_LIVE_4_0_3.md)
@@ -341,7 +341,7 @@
 
 *Criterio fase:* mainnet con capital límite, 7 días supervisados.
 
-- [ ] **6.1** `MODO_TESTNET=False` con tope de masa por Tusk (cap hard)
+- [~] **6.1** Mainnet-only ✅ (Mundo A abolido 2026-08-11) · tope de masa por Tusk (cap hard) pendiente
 - [ ] **6.2** IP whitelist Bybit verificada
 - [ ] **6.3** Rate limit / backoff en bridge
 - [ ] **6.4** Reconciliación periódica exchange ↔ Tusk.pesos
@@ -440,11 +440,13 @@ Núcleo Fases 0–3: fuerte (~95% operativo)
 **Última actualización checklist:** 2026-08-06 (noche historial Igris · panel cableado · Jess 4.0.3 Asalto aparte)
 **Próximo ítem recomendado:** Jess corre **4.0.3** bajo preferencia **Asalto** (ley 08-06) · noches: historial flota Igris (bóveda, manos OFF) · luego **4.0.4** Beru cuando manto sirva · **Greed al último**
  
-**Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
+**Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `validar_beru_asset_detail_smoke.py`
+
+**Ensayo:** Arena Igris / `MODO_SIMULACION` · Arise mainnet con `--permitir-mainnet-manos`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
 **Smokes Bellion:** `validar_bellion_oido_smoke.py`  
 **Smokes plan:** `validar_plan_crecimiento_smoke.py` · `validar_pase_director_smoke.py` · `validar_pase_metas_etapas_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_manto_frecuencia_smoke.py`  
-**Runbook testnet:** `18_ARRANQUE_TESTNET.md`  
+**Runbook DEMO:** abolido (`18_ARRANQUE_TESTNET` eliminado 2026-08-11).  
 **Validar estado:** `python scripts/validar_checklist.py`  
 **Validar sentidos Tank:** `python scripts/validar_panorama_tank.py --segundos 35`
 

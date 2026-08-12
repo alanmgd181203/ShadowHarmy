@@ -1,111 +1,247 @@
 {
-    "timestamp": 1786078982.5077682,
+    "timestamp": 1786492825.435758,
     "fase": "LILIT DE HIERRO V2.0.0",
     "boveda": {
         "pesos": {
             "LTCUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0,
+                "short": 109.5,
                 "precio_medio_long": 0.0,
-                "precio_medio_short": 0.0,
+                "precio_medio_short": 45.7329589,
                 "baseline_long": 0.0,
                 "baseline_short": 0.0,
                 "fees_paid_long": 0.0,
                 "fees_paid_short": 0.0
             },
             "ETHUSD_INVERSE": {
-                "long": 0.0,
-                "short": 0.0
+                "long": 634.0,
+                "short": 0.0,
+                "precio_medio_long": 1914.84063407,
+                "precio_medio_short": 0.0,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "ETHUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 0.33,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 1916.68787879,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "HYPEUSD_INVERSE": {
-                "long": 0.0,
-                "short": 0.0
+                "long": 631.0,
+                "short": 0.0,
+                "precio_medio_long": 54.83089189,
+                "precio_medio_short": 0.0,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "HYPEUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 11.49,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 54.62894778,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "XRPUSD_INVERSE": {
-                "long": 0.0,
-                "short": 0.0
+                "long": 629.0,
+                "short": 0.0,
+                "precio_medio_long": 1.03779088,
+                "precio_medio_short": 0.0,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "XRPUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 602.7,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 1.03870023,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "MNTUSD_INVERSE": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 0.0,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 0.0
             },
             "MNTUSDT_LINEAL": {
                 "long": 0.0,
                 "short": 0.0
             },
             "SOLUSD_INVERSE": {
-                "long": 0.0,
-                "short": 0.0
+                "long": 4970.0,
+                "short": 0.0,
+                "precio_medio_long": 76.66038543,
+                "precio_medio_short": 0.0,
+                "baseline_long": 76.4813,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.03565756999999999,
+                "fees_paid_short": 0.0
             },
             "SOLUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 65.7,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 76.72718417,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "LINKUSD_INVERSE": {
-                "long": 0.0,
-                "short": 0.0
+                "long": 5012.0,
+                "short": 0.0,
+                "precio_medio_long": 8.24834908,
+                "precio_medio_short": 0.0,
+                "baseline_long": 8.17888437,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.16841886000000003,
+                "fees_paid_short": 0.0
             },
             "LINKUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 604.8,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 8.26152001,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "ADAUSD_INVERSE": {
-                "long": 0.0,
-                "short": 0.0
+                "long": 627.0,
+                "short": 0.0,
+                "precio_medio_long": 0.1984394,
+                "precio_medio_short": 0.0,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "ADAUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 3152.0,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 0.19852265,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "BCHUSD_INVERSE": {
-                "long": 0.0,
-                "short": 0.0
+                "long": 633.0,
+                "short": 0.0,
+                "precio_medio_long": 214.89001498,
+                "precio_medio_short": 0.0,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "BCHUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 2.93,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 215.07406143,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "AVAXUSD_INVERSE": {
-                "long": 0.0,
-                "short": 0.0
+                "long": 5007.0,
+                "short": 0.0,
+                "precio_medio_long": 6.50836419,
+                "precio_medio_short": 0.0,
+                "baseline_long": 6.49066841,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.05613914,
+                "fees_paid_short": 0.0
             },
             "AVAXUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 768.1,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 6.50999453,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "OPUSD_INVERSE": {
-                "long": 0.0,
-                "short": 0.0
+                "long": 628.0,
+                "short": 0.0,
+                "precio_medio_long": 0.08879545,
+                "precio_medio_short": 0.0,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "OPUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 7062.0,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 0.08871734,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             },
             "LTCUSD_INVERSE": {
+                "long": 5008.0,
+                "short": 0.0,
+                "precio_medio_long": 45.69947623,
+                "precio_medio_short": 0.0,
+                "baseline_long": 45.3457,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.030337959999999997,
+                "fees_paid_short": 0.0
+            },
+            "FILUSDT_LINEAL": {
                 "long": 0.0,
-                "short": 0.0
+                "short": 883.4,
+                "precio_medio_long": 0.0,
+                "precio_medio_short": 0.71168746,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
+            },
+            "FILUSD_INVERSE": {
+                "long": 631.0,
+                "short": 0.0,
+                "precio_medio_long": 0.71176247,
+                "precio_medio_short": 0.0,
+                "baseline_long": 0.0,
+                "baseline_short": 0.0,
+                "fees_paid_long": 0.0,
+                "fees_paid_short": 0.0
             }
         },
-        "margen_ocupado": 2.02598348159708,
-        "masa_autorizada": 1452.1532,
-        "masa_bruta": 1528.58231379,
-        "masa_bruta_real": 1528.58231379,
+        "margen_ocupado": 71.11351892417697,
+        "masa_autorizada": 648.3843,
+        "masa_bruta": 2244.59434854,
+        "masa_bruta_real": 2244.59434854,
         "total_ciclos_consumados": 0,
-        "precio_perp": 1897.49,
+        "precio_perp": 0.0,
         "precio_spot": 0.0
     },
     "legion": [],
-    "metria_margen": 2.02598348159708
+    "metria_margen": 71.11351892417697
 }

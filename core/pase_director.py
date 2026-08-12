@@ -154,12 +154,14 @@ def _progreso_forzar_escritura() -> bool:
 
 
 def es_mainnet_pase() -> bool:
-    """True solo en cuenta de guerra real. Testnet / LIVE demo no cuentan."""
+    """True en cuenta de guerra real (no sim). Mundo A DEMO abolido."""
     if _progreso_forzar_escritura():
         return True
-    if bool(getattr(config, "TESTNET", True)):
+    if bool(getattr(config, "MODO_SIMULACION", True)):
         return False
-    if bool(getattr(config, "LIVE_IGRIS_TESTNET", False)):
+    if bool(getattr(config, "ARISE_IGRIS_SIM", False)):
+        return False
+    if bool(getattr(config, "ARENA_IGRIS_ACTIVA", False)):
         return False
     return True
 
@@ -735,8 +737,6 @@ def beru_puede_cazar(
     """Beru caza en un Santo solo si hay al menos un paso logrado de ese activo."""
     if not director_activo():
         return True
-    if getattr(config, "LIVE_BERU_TESTNET", False):
-        return True
     act = (activo or "").upper()
     logrados = set(_ordenar_logrados(pasos_logrados if pasos_logrados is not None else cargar_progreso()["pasos_logrados"]))
     if not logrados:
@@ -748,11 +748,10 @@ def beru_puede_cazar(
     return False
 
 
-def notional_manto_usd(tusk, activo: str) -> float:
-    """USD desplegados del *manto de ranking* L+S (no colateral bóveda).
+def usd_piernas_manto_activo(tusk, activo: str) -> tuple[float, float]:
+    """(USD long, USD short) del manto §E del Santo; excluye short bóveda.
 
-    MNT inverso short = bóveda → no suma al have del pase.
-    MNT inverso long + lineal short = manto Santo.
+    Unidades: inverso = size (cara USD); lineal = qty×entrada.
     """
     try:
         from core import igris_manto as im
@@ -761,10 +760,11 @@ def notional_manto_usd(tusk, activo: str) -> float:
 
         fl, fs = im.frentes_bootstrap(activo)
     except Exception:
-        return 0.0
+        return 0.0, 0.0
     act = str(activo or "").upper()
     pesos = getattr(tusk, "pesos", None) or {}
-    total = 0.0
+    usd_l = 0.0
+    usd_s = 0.0
     for frente, lado in ((fl, "long"), (fs, "short"), (fl, "short"), (fs, "long")):
         if not mmh.lado_cuenta_como_manto(act, frente, lado):
             continue
@@ -779,15 +779,33 @@ def notional_manto_usd(tusk, activo: str) -> float:
         fu = str(frente or "").upper()
         try:
             filt = lote.filtros_lote(frente)
-            total += float(lote.qty_a_usd(abs(masa), px if px > 0 else 1.0, filt))
+            usd = float(lote.qty_a_usd(abs(masa), px if px > 0 else 1.0, filt))
         except Exception:
-            if "INVERSE" in fu or lote.clave_mercado_desde_frente(frente) == "inverse":
-                total += abs(masa)
+            if "INVERSE" in fu or (
+                hasattr(lote, "clave_mercado_desde_frente")
+                and lote.clave_mercado_desde_frente(frente) == "inverse"
+            ):
+                usd = abs(masa)
             elif px > 0:
-                total += abs(masa) * px
+                usd = abs(masa) * px
             else:
-                total += abs(masa)
-    return total
+                usd = abs(masa)
+        if lado == "long":
+            usd_l += usd
+        else:
+            usd_s += usd
+    return usd_l, usd_s
+
+
+def notional_manto_usd(tusk, activo: str) -> float:
+    """USD desplegados del *manto de ranking* L+S (no colateral bóveda).
+
+    MNT inverso short = bóveda → no suma al have del pase.
+    MNT inverso long + lineal short = manto Santo.
+    """
+    usd_l, usd_s = usd_piernas_manto_activo(tusk, activo)
+    return float(usd_l) + float(usd_s)
+
 
 
 def sincronizar_logrados_desde_tusk(

@@ -140,7 +140,7 @@ def check_ciclo_ejercito(historial: str | None = None) -> CheckResult:
         "3.6.1", "3", "Ciclo CAZA → COSECHA en Bellion",
         "pending",
         f"{detalle} | CAZA={n_caza} COSECHA={n_cosecha}. "
-        "Simular: python scripts/probar_ciclo_beru.py | Live: arise.py testnet",
+        "Simular: python scripts/probar_ciclo_beru.py | Live: Arise mainnet con candados",
         {"caza": n_caza, "cosecha": n_cosecha},
     )
 
@@ -153,7 +153,7 @@ def check_modo_simulacion_gate() -> CheckResult:
             "3.6.2", "3", "Gate MODO_SIMULACION=False",
             "pass" if ciclo.status == "pass" else "pending",
             "MODO_SIMULACION=True (seguro). "
-            + ("Listo para probar live en testnet." if ciclo.status == "pass"
+            + ("Listo para mainnet/sim con ciclo validado." if ciclo.status == "pass"
                else "Esperar 3.6.1 antes de MODO_SIMULACION=False"),
         )
     if ciclo.status != "pass":
@@ -165,7 +165,7 @@ def check_modo_simulacion_gate() -> CheckResult:
     return CheckResult(
         "3.6.2", "3", "Gate MODO_SIMULACION=False",
         "pass",
-        "Live testnet habilitado (ciclo documentado)",
+        "Manos live habilitadas (ciclo documentado; DEMO Bybit abolido)",
     )
 
 
@@ -219,10 +219,7 @@ def check_safe_mode() -> CheckResult:
 
 def check_env_keys() -> CheckResult:
     ok = bool(config.API_KEY and config.API_SECRET)
-    if getattr(config, "TESTNET", False):
-        etiqueta = "BYBIT_TESTNET_API_KEY/SECRET"
-    else:
-        etiqueta = "BYBIT_API_KEY/SECRET (mainnet)"
+    etiqueta = "BYBIT_API_KEY/SECRET (mainnet)"
     return CheckResult(
         "0.3", "0", ".env BYBIT keys",
         "pass" if ok else "fail",
@@ -233,10 +230,13 @@ def check_env_keys() -> CheckResult:
 def check_m1_roundtrip() -> CheckResult:
     data = _leer_json(_ruta("data/m1_btc_roundtrip.json"))
     if not data:
-        return CheckResult("2.5.1", "2", "Trade redondo testnet M1", "pending", "Sin data/m1_btc_roundtrip.json")
+        return CheckResult(
+            "2.5.1", "2", "Trade redondo M1 (acta histórica DEMO)",
+            "pending", "Sin data/m1_btc_roundtrip.json",
+        )
     ok = data.get("open_positions_remaining") == 0 and data.get("buy_order_id")
     return CheckResult(
-        "2.5.1", "2", "Trade redondo testnet M1",
+        "2.5.1", "2", "Trade redondo M1 (acta histórica DEMO)",
         "pass" if ok else "fail",
         f"{data.get('symbol')} pnl={data.get('pnl_usd')}",
     )

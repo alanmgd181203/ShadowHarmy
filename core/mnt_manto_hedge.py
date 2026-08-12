@@ -14,14 +14,15 @@ import core.config as config
 
 
 def bases_boveda() -> set[str]:
-    """Activos cuya pierna inversa short es colateral, no manto del pase."""
+    """Activos cuya pierna inversa short es colateral, no manto del pase.
+
+    Vacío explícito (env '') = sin bases bóveda (Monarca: bóveda pasa a MNTPERP USDC).
+    """
     raw = getattr(config, "IGRIS_BOVEDA_BASES", None)
     if isinstance(raw, (list, tuple, set)):
-        out = {str(x).upper() for x in raw if str(x).strip()}
-    else:
-        s = str(raw or getattr(config, "IGRIS_PROTEGER_BASES", "MNT") or "MNT")
-        out = {x.strip().upper() for x in s.split(",") if x.strip()}
-    return out or {"MNT"}
+        return {str(x).upper() for x in raw if str(x).strip()}
+    s = str(raw if raw is not None else getattr(config, "IGRIS_PROTEGER_BASES", "") or "")
+    return {x.strip().upper() for x in s.split(",") if x.strip()}
 
 
 def activo_de_frente(frente: str | None) -> str:

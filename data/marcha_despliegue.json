@@ -1,11 +1,11 @@
 {
   "marcha_id": "asalto",
   "titulo": "Asalto Inmediato",
-  "ts": 1786079021.5672908,
+  "ts": 1786492553.363523,
   "reserva_pasos": 1,
   "umbral_fees_mult": 0.0,
   "force_market": true,
   "permite_urgencia": false,
   "fill_ratio": 1.0,
-  "equity_usd": 1528.5823
+  "equity_usd": 1472.882
 }

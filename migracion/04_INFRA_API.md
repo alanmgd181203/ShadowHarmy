@@ -11,7 +11,7 @@
 | REST place order | P0 | **Ausente en prototipo** |
 | REST cancel / amend | P1 | Grid / acordeón |
 | Private WS fills | P1 | REGLA-R07 |
-| Testnet vs mainnet | P0 | Híbrido "ojos mainnet, manos testnet" en prototipo |
+| Testnet vs mainnet | — | **Mundo A abolido 2026-08-11** — solo mainnet + Arena/sim |
 
 ### Bridge (`BybitBridge`)
 
@@ -19,7 +19,7 @@
 - `conectar()` — WS loop con reconexión automática.
 - `_procesar_latido` — actualizar Tank con last price + latencia.
 
-**Manos (Testnet por defecto — órdenes):**
+**Manos (mainnet — órdenes reales; sim = sin Bridge manos):**
 - `place_order(symbol, side, qty, order_type, price, link_id)` — envía orden con `orderLinkId` idempotente.
 - `cancel_order(symbol, order_id, link_id)` — cancela por ID o linkId.
 - `amend_order(symbol, order_id, link_id, new_qty, new_price)` — modifica precio/cantidad.
@@ -30,21 +30,23 @@
 
 **Clase `OrdenResultado`:** respuesta estandarizada con `exito`, `order_id`, `link_id`, `mensaje`, `datos`.
 
-**Arquitectura híbrida:**
+**Arquitectura (2026-08-11 — Mundo A DEMO abolido):**
 ```
 MAINNET ──precio WS──→ Tank (ojos)
-TESTNET ←──órdenes REST── Greed (manos)
+MAINNET ←──órdenes REST── Generales (manos; exige candados Arise)
         ──fill poll──→ Tusk confirma reserva
+SIM / Arena ── fills ilusorios (sin DEMO Bybit)
 ```
 
-Cuando `config.TESTNET=False`, las manos apuntan a mainnet (solo con validación completa Fase 6).
+`MODO_TESTNET=True` → **ABORT** al cargar `config`. Llaves solo `BYBIT_API_KEY` / `BYBIT_API_SECRET`.
 
 ### Configuración
 
 ```env
 BYBIT_API_KEY=
 BYBIT_API_SECRET=
-MODO_TESTNET=True
+MODO_SIMULACION=True
+# MODO_TESTNET abolido — no usar
 ```
 
 Cargador: `core/config.py` → `.env` en raíz del proyecto runtime.

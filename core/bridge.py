@@ -118,7 +118,7 @@ class BybitBridge:
             recv = int(getattr(config, "BYBIT_RECV_WINDOW_MS", 60000) or 60000)
             try:
                 self.session = HTTP(
-                    testnet=config.TESTNET,
+                    testnet=False,  # Mundo A abolido — solo mainnet
                     api_key=api_key,
                     api_secret=api_secret,
                     recv_window=recv,
@@ -126,7 +126,7 @@ class BybitBridge:
             except TypeError:
                 # pybit antiguo sin recv_window en ctor
                 self.session = HTTP(
-                    testnet=config.TESTNET,
+                    testnet=False,
                     api_key=api_key,
                     api_secret=api_secret,
                 )
@@ -361,7 +361,7 @@ class BybitBridge:
         return total
 
     # ================================================================
-    # MANOS — Órdenes (testnet por defecto)
+    # MANOS — Órdenes (mainnet; sim = no bridge real)
     # ================================================================
 
     def _generar_link_id(self, prefijo="SA"):

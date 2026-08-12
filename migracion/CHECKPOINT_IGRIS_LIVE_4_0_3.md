@@ -42,7 +42,7 @@ python3 scripts/vigilar_arise_igris.py --confirmar-go \
   --durar-hasta 2026-08-05T18:30:00 --permitir-mainnet-manos
 ```
 
-**Seguridad:** si `MODO_TESTNET=False`, manos Igris ABORTAN sin `--permitir-mainnet-manos` (o `ARISE_IGRIS_PERMITIR_MAINNET=true`). Preferible campo de entrenamiento.
+**Seguridad:** manos Igris ABORTAN sin `--permitir-mainnet-manos` (o `ARISE_IGRIS_PERMITIR_MAINNET=true`). DEMO Bybit abolido.
 
 ## Qué mirar (parte al Monarca)
 

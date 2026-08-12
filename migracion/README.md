@@ -55,7 +55,7 @@
 
 ## Doctrinas y runbooks (vivos)
 
-21. [`18_ARRANQUE_TESTNET.md`](18_ARRANQUE_TESTNET.md) — cómo despertar el ejército en testnet
+21. ~~`18_ARRANQUE_TESTNET.md`~~ — **abolido 2026-08-11** (Mundo A DEMO Bybit eliminado; mainnet + Arena/sim)
 22. [`19_BACKLOG_SENTIDOS.md`](19_BACKLOG_SENTIDOS.md) — sentidos Tank + pendientes estrategia
 23. [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md) — Kaiser (anclas, perfiles, manos)
 24. [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) — Igris manto · §E v2 despliegue

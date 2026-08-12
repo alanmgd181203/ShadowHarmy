@@ -14,19 +14,32 @@ def cargar_env():
                     except ValueError:
                         continue
 
-cargar_env()
 
-# Llaves duales: mainnet (batalla) vs testnet (entrenamiento). El puente usa un solo par.
+def _abort_si_modo_testnet() -> None:
+    """Mundo A abolido: cualquier MODO_TESTNET=True (shell o .env) mata la carga."""
+    raw = (os.getenv("MODO_TESTNET") or "False").strip().lower()
+    if raw in ("1", "true", "yes", "on"):
+        raise RuntimeError(
+            "MODO_TESTNET=True abolido — campo DEMO Bybit eliminado. "
+            "Quita MODO_TESTNET del .env (o pon False). "
+            "Batalla: BYBIT_API_KEY/SECRET · ensayo: MODO_SIMULACION / Arena."
+        )
+
+
+_abort_si_modo_testnet()
+cargar_env()
+_abort_si_modo_testnet()
+
+# Mundo A (DEMO / Bybit testnet) abolido Monarca 2026-08-11.
+# Solo mainnet (batalla) + Arena/sim (Mundo B). Llaves: BYBIT_API_KEY / BYBIT_API_SECRET.
+TESTNET = False  # fósil lecturas legado; siempre False
 API_KEY_MAINNET = os.getenv("BYBIT_API_KEY")
 API_SECRET_MAINNET = os.getenv("BYBIT_API_SECRET")
-API_KEY_TESTNET = os.getenv("BYBIT_TESTNET_API_KEY") or os.getenv("BYBIT_API_KEY_TESTNET")
-API_SECRET_TESTNET = os.getenv("BYBIT_TESTNET_API_SECRET") or os.getenv("BYBIT_API_SECRET_TESTNET")
-
-TESTNET = os.getenv("MODO_TESTNET", "True").lower() == "true"
-# Con testnet: SOLO llaves de entrenamiento (nunca caer a mainnet por error).
-# Con mainnet oficial: SOLO BYBIT_API_KEY / BYBIT_API_SECRET.
-API_KEY = API_KEY_TESTNET if TESTNET else API_KEY_MAINNET
-API_SECRET = API_SECRET_TESTNET if TESTNET else API_SECRET_MAINNET
+API_KEY = API_KEY_MAINNET
+API_SECRET = API_SECRET_MAINNET
+# Alias muertos (scripts viejos / grep): no hay llaves DEMO
+API_KEY_TESTNET = None
+API_SECRET_TESTNET = None
 
 MODO_SIMULACION = os.getenv("MODO_SIMULACION", "True").lower() == "true"
 SAFE_MODE = os.getenv("SAFE_MODE", "False").lower() == "true"
@@ -42,7 +55,7 @@ BELLION_OIDO_ANILLO = int(os.getenv("BELLION_OIDO_ANILLO", "80"))
 BELLION_OIDO_LIMIT = int(os.getenv("BELLION_OIDO_LIMIT", "40"))
 BELLION_OIDO_INCLUIR_RUIDO = os.getenv("BELLION_OIDO_INCLUIR_RUIDO", "false").lower() == "true"
 
-# Activo principal: Beru acecho + manos testnet (referencia operativa)
+# Activo principal: Beru acecho (referencia operativa)
 TICKER_BASE = os.getenv("TICKER_BASE", "BTC").upper()
 SIMBOLO_LINEAR = f"{TICKER_BASE}USDT"
 FRENTE_PRINCIPAL = f"{TICKER_BASE}USDT_LINEAL"
@@ -343,6 +356,13 @@ IGRIS_ENGORDE_RITMO_S = float(os.getenv("IGRIS_ENGORDE_RITMO_S", "15"))
 # Disparo dual §E: timeout fill inicial + salvavidas Market si una pierna queda huérfana
 IGRIS_DUAL_FILL_TIMEOUT_S = float(os.getenv("IGRIS_DUAL_FILL_TIMEOUT_S", "20"))
 IGRIS_DUAL_SALVAVIDAS_MARKET = os.getenv("IGRIS_DUAL_SALVAVIDAS_MARKET", "true").lower() == "true"
+# Antes de engorde/bootstrap: curar stock L/S del Santo si el espejo está lisiado
+IGRIS_ESPEJO_STOCK_PRE_ENGORDE = os.getenv(
+    "IGRIS_ESPEJO_STOCK_PRE_ENGORDE", "true"
+).lower() == "true"
+# Hueco absoluto mínimo (USD) para disparar cura (evita polvo de ticks)
+IGRIS_ESPEJO_GAP_MIN_USD = float(os.getenv("IGRIS_ESPEJO_GAP_MIN_USD", "5") or 5)
+IGRIS_ESPEJO_STOCK_MAX_INTENTOS = int(os.getenv("IGRIS_ESPEJO_STOCK_MAX_INTENTOS", "3") or 3)
 # Ley de la Masa: |USD_L − USD_S| / ref > este techo → disparo dual prohibido
 IGRIS_MASA_ASIMETRIA_MAX_PCT = float(os.getenv("IGRIS_MASA_ASIMETRIA_MAX_PCT", "0.05"))
 # Asalto (no cacería): asimetría más holgada — peaje de espejo aceptado
@@ -416,20 +436,7 @@ KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT = float(
     os.getenv("KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT", "0")
 )  # prod: piso extra; 0 = solo fees break-even Ask/Bid
 
-# Live Igris testnet — scripts/igris_live_testnet.py (checklist 3.10.7b)
-LIVE_IGRIS_TESTNET = os.getenv("LIVE_IGRIS_TESTNET", "false").lower() == "true"
-LIVE_IGRIS_SEGUNDOS_OJOS = float(os.getenv("LIVE_IGRIS_SEGUNDOS_OJOS", "90"))
-LIVE_IGRIS_ACTIVOS = os.getenv("LIVE_IGRIS_ACTIVOS", "ETH,BTC,LTC,SOL,OP")
-LIVE_IGRIS_MORDIDA_MAX_USD = float(os.getenv("LIVE_IGRIS_MORDIDA_MAX_USD", "12"))
-LIVE_IGRIS_REQUIRE_KAISER = os.getenv("LIVE_IGRIS_REQUIRE_KAISER", "false").lower() == "true"
-LIVE_IGRIS_SIN_PACIENCIA = os.getenv("LIVE_IGRIS_SIN_PACIENCIA", "false").lower() == "true"
-
-# Live Beru testnet — scripts/beru_live_testnet.py (checklist 3.9.9)
-# Ansiedad 1.2% → gatillo ±0.6% · Mariscal PLENO clon 0.1% · CAZA · ~$10
-LIVE_BERU_TESTNET = os.getenv("LIVE_BERU_TESTNET", "false").lower() == "true"
-LIVE_BERU_SEGUNDOS = float(os.getenv("LIVE_BERU_SEGUNDOS", "3600"))  # 1 h; 0 = Ctrl+C
-LIVE_BERU_ACTIVOS = os.getenv("LIVE_BERU_ACTIVOS", "flota")  # flota = 22 barcos USDT
-LIVE_BERU_MORDIDA_USD = float(os.getenv("LIVE_BERU_MORDIDA_USD", "20"))
+# Live DEMO Igris/Beru (Mundo A) abolido 2026-08-11 — no LIVE_*_TESTNET.
 BERU_SPOT_MARGEN_ENABLED = os.getenv("BERU_SPOT_MARGEN_ENABLED", "false").lower() == "true"
 BERU_SPOT_MARGEN_LEVERAGE = int(float(os.getenv("BERU_SPOT_MARGEN_LEVERAGE", "10")))
 BERU_RAIL_USDT_ONLY = os.getenv("BERU_RAIL_USDT_ONLY", "false").lower() == "true"
@@ -494,11 +501,11 @@ IGRIS_BOVEDA_BASES: list[str] = (
 )
 # Alias legado cleanup / símbolos
 IGRIS_PROTEGER_BASES: list[str] = list(IGRIS_BOVEDA_BASES)
-_IGRIS_PROT_SYMS = os.getenv("IGRIS_PROTEGER_SYMBOLS", "MNTUSD").strip()
+_IGRIS_PROT_SYMS = os.getenv("IGRIS_PROTEGER_SYMBOLS", "MNTPERP,MNTUSDC").strip()
 IGRIS_PROTEGER_SYMBOLS: list[str] = (
     [a.strip().upper() for a in _IGRIS_PROT_SYMS.split(",") if a.strip()]
     if _IGRIS_PROT_SYMS
-    else ["MNTUSD"]
+    else ["MNTPERP", "MNTUSDC"]
 )
 # Abrir manto MNT inverso: switch hedge + positionIdx (default ON)
 IGRIS_MNT_HEDGE_OBLIGATORIO = os.getenv("IGRIS_MNT_HEDGE_OBLIGATORIO", "true").lower() == "true"
@@ -513,7 +520,7 @@ IGRIS_EXCLUIR_BASES: list[str] = (
     else []
 )
 
-# Candado pase → Igris (activos por rango). Lives saltan con LIVE_IGRIS_TESTNET / ARENA SIN_RANGOS.
+# Candado pase → Igris (activos por rango). Arena salta con ARENA_IGRIS_SIN_RANGOS.
 MONARCA_RANK_GATE = os.getenv("MONARCA_RANK_GATE", "true").lower() == "true"
 # Director pase: lote/reserva + marcha operativa (asalto | personalizado)
 # Legado env tactico/marcha_forzada → normalizar_marcha las mapea a asalto

@@ -43,7 +43,9 @@ export ARENA_IGRIS_EQUITY_USD="${ARENA_IGRIS_EQUITY_USD:-500}"
 export ARENA_IGRIS_ACTIVOS="$ACTIVOS"
 export ARENA_IGRIS_SEGUNDOS_OJOS="$SEGUNDOS"
 export MODO_SIMULACION=true
-export MODO_TESTNET="${MODO_TESTNET:-True}"
+# Mundo A abolido: no DEMO Bybit; Arena = sim + ojos mainnet
+unset MODO_TESTNET 2>/dev/null || true
+export MODO_TESTNET=False
 
 STAMP="$(date +%Y%m%d_%H%M%S)"
 LOG_FILE="$LOG_DIR/arena_igris_${STAMP}.log"
