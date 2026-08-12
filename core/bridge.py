@@ -231,6 +231,14 @@ class BybitBridge:
                 if getattr(config, "BRIDGE_WS_FORCE_IPV4", True):
                     import socket
                     connect_kwargs["family"] = socket.AF_INET
+                # Proxy: por defecto directo (SOCKS de entorno/sandbox exige python-socks y ciega ojos).
+                proxy_mode = str(getattr(config, "BRIDGE_WS_PROXY", "direct") or "direct").strip().lower()
+                if proxy_mode in ("", "direct", "none", "false", "0", "off"):
+                    connect_kwargs["proxy"] = None
+                elif proxy_mode in ("env", "true", "1", "on", "auto"):
+                    pass  # websockets default: confiar en *_PROXY
+                else:
+                    connect_kwargs["proxy"] = str(getattr(config, "BRIDGE_WS_PROXY", proxy_mode))
                 async with websockets.connect(
                     feed["url"],
                     **connect_kwargs,

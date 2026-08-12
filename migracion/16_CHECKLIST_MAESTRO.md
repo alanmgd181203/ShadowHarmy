@@ -285,7 +285,7 @@
   - **Cadenas Asalto aflojadas (2026-08-09 noche):** ventana no bloquea engorde; tank rojo/ojos stale no castran Market; reserva encoge a O₂ libre; Santos sin espejo (p.ej. SOL) primero · ritmo dual Arise ~2s · smoke `validar_igris_cadenas_aflojadas_smoke.py`
   - **Panel cableado 2026-08-06:** estado_vivo publica marcha · ventana · meta engorde · ley_masa (lectura) · Tusk O₂/equity; Pergamino/Ascensión/Manto leen — **Jess corre 4.0.3 bajo Asalto; USA no ejecuta** · runbook [`PEGAR_JESS_IGRIS_LIVE_ASALTO.md`](PEGAR_JESS_IGRIS_LIVE_ASALTO.md)
   - **Noche historial flota Igris (≠ 4.0.3):** función ejército — bóveda velas 1m (spot + L/S manto) · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · motor [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · **manos OFF**
-- [ ] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)
+- [~] **4.0.4** Cablear Beru tras manto logrado — **reset-0 + ley neutro** · nivel 2 fantasma ✅ · **nivel 3 manos chiquitas** (`arise_beru_manos_chiquitas` · 1 Santo · techo · solo LONG · consola) · [`CHECKPOINT_BERU_MANOS_CHIQUITAS_2026-08-12.md`](CHECKPOINT_BERU_MANOS_CHIQUITAS_2026-08-12.md) · [`CHECKPOINT_BERU_FANTASMA_2026-08-12.md`](CHECKPOINT_BERU_FANTASMA_2026-08-12.md) · live a juicio Monarca
 
 ### 4.1 Notificaciones *(oído = Pergamino)*
 - [~] **4.1.1** `core/telegram.py` — stub ✅; **legado** (no prioridad de camino)

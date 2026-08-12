@@ -185,6 +185,7 @@ config.IGRIS_EXCLUIR_BASES = [
 from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402
 from core.dashboard import PanelDeControl  # noqa: E402
+from core import beru_wake  # noqa: E402
 from generales.igris import IgrisEscudo  # noqa: E402
 from generales.kaiser import KaiserVocero  # noqa: E402
 from generales.tank import TankCluster  # noqa: E402
@@ -382,6 +383,7 @@ def _snapshot_cierre(tusk, igris, *, solo_ojos: bool, libros: dict | None) -> di
         "n_frentes_peso": len(getattr(tusk, "pesos", {}) or {}),
         "greed_hibernado": True,
         "beru_hibernado": True,
+        "beru_cableado": beru_wake.resumen_cableado(),
         "boveda_manos": False,
     }
 

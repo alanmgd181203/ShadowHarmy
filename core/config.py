@@ -94,6 +94,28 @@ BERU_CAZADOR_SPAWN_CADA_PCT = float(os.getenv("BERU_CAZADOR_SPAWN_CADA_PCT", "0.
 BERU_CAZADOR_GATILLO_FRACCION = float(os.getenv("BERU_CAZADOR_GATILLO_FRACCION", "0.5"))
 BERU_CAZA_CAPA1_USD = float(os.getenv("BERU_CAZA_CAPA1_USD", "0"))  # 0 = mordida = G_min del activo
 BERU_CAZA_CAPA1_MAX_USD = float(os.getenv("BERU_CAZA_CAPA1_MAX_USD", "0"))  # 0 = sin techo engorde/masa (doctrina 2026-07-18)
+# Wake Monarca 2026-08-11: reset-0 @ precio · flota · Normal 1.6 · manos OFF (cableado dormido)
+BERU_WAKE_RESET_0 = os.getenv("BERU_WAKE_RESET_0", "true").lower() == "true"
+BERU_SIEMBRA_FLOTA = os.getenv("BERU_SIEMBRA_FLOTA", "true").lower() == "true"
+BERU_CAPITAN_WAKE = os.getenv("BERU_CAPITAN_WAKE", "NORMAL").upper()  # NORMAL=1.6 · ANSIEDAD=1.2
+BERU_MANOS = os.getenv("BERU_MANOS", "false").lower() == "true"  # órdenes spot reales
+BERU_HILO_ENABLED = os.getenv("BERU_HILO_ENABLED", "false").lower() == "true"  # hilo en arise; default OFF
+# Nivel 2 ensayo: ojos reales · dispara a bitácora (no place_order). Ritual arise_beru_fantasma.
+BERU_MANOS_FANTASMA = os.getenv("BERU_MANOS_FANTASMA", "false").lower() == "true"
+BERU_FANTASMA_ACTIVOS = os.getenv("BERU_FANTASMA_ACTIVOS", "ADA,BCH,MNT")  # Santos manto a mirar
+# Nivel 3 ensayo: manos chiquitas reales · techo · consola. Ritual arise_beru_manos_chiquitas.
+BERU_ENSAYO_NIVEL3 = os.getenv("BERU_ENSAYO_NIVEL3", "false").lower() == "true"
+BERU_ENSAYO_ACTIVOS = os.getenv("BERU_ENSAYO_ACTIVOS", "MNT")  # default 1 Santo
+BERU_ENSAYO_MAX_ORDENES = int(float(os.getenv("BERU_ENSAYO_MAX_ORDENES", "1") or 1))
+BERU_ENSAYO_SOLO_LONG = os.getenv("BERU_ENSAYO_SOLO_LONG", "true").lower() == "true"
+# Si WS muere: ticker spot REST → Tank (ensayo / fantasma)
+BERU_OJOS_REST_FALLBACK = os.getenv("BERU_OJOS_REST_FALLBACK", "true").lower() == "true"
+BERU_OJOS_REST_S = float(os.getenv("BERU_OJOS_REST_S", "10") or 10)
+# Ley códice: Beru no toca margen · no engorda · aborta solo ceguera (Monarca 2026-08-11)
+BERU_NEUTRO_MARGEN = os.getenv("BERU_NEUTRO_MARGEN", "true").lower() == "true"
+BERU_ENGORDE_PERMITIDO = os.getenv("BERU_ENGORDE_PERMITIDO", "false").lower() == "true"
+BERU_ABORTAR_SOLO_CEGUERA = os.getenv("BERU_ABORTAR_SOLO_CEGUERA", "true").lower() == "true"
+BERU_CEGUERA_COMA_S = float(os.getenv("BERU_CEGUERA_COMA_S", "15"))  # sin update = ciego
 # Peces / barcos — apalancamiento máx Bybit (promedio inverse+lineal en beru_capital)
 # Flota manto viva (Jess sync 2026-07-18): Inverse ∩ Linear USDT — ver diccionario_beru_flota_manto.json
 ACTIVOS_BERU_FLOTA = [
@@ -572,6 +594,9 @@ BRIDGE_WS_RECONNECT_MAX_S = float(os.getenv("BRIDGE_WS_RECONNECT_MAX_S", "30") o
 BRIDGE_WS_STAGGER_S = float(os.getenv("BRIDGE_WS_STAGGER_S", "0.45") or 0.45)
 # Preferir IPv4 en WS (evita handshakes muertos por IPv6 flaky en laps/hogar).
 BRIDGE_WS_FORCE_IPV4 = os.getenv("BRIDGE_WS_FORCE_IPV4", "true").lower() == "true"
+# Proxy WS: direct|env|<url>. direct = sin proxy (recomendado; SOCKS de sandbox rompe ojos).
+# env = confiar en HTTP(S)_PROXY / ALL_PROXY (VIP/túnel). URL = proxy explícito.
+BRIDGE_WS_PROXY = (os.getenv("BRIDGE_WS_PROXY", "direct") or "direct").strip()
 # orderbook.50 = muros (RAM/CPU altos). False = solo tickers (ojos estrechos / lap débil).
 BRIDGE_WS_SUBSCRIBE_BOOKS = os.getenv("BRIDGE_WS_SUBSCRIBE_BOOKS", "true").lower() == "true"
 # Si no vacío: solo esas bases (ETH,LTC,…) — CSV o lista mutada en runtime.

@@ -1,7 +1,19 @@
 # 22 — Doctrina Beru (caza spot + capital manto + ProtoBeru)
 
-**Estado:** Monarca 2026-07-09  
-**Código:** `generales/beru.py`, `core/beru_cazador.py`, `core/beru_fusion.py`, `core/beru_residual.py`, `core/beru_tier.py`
+**Estado:** Monarca 2026-07-09 · **ley vivo 2026-08-11**  
+**Código:** `generales/beru.py`, `core/beru_ley.py`, `core/beru_wake.py`, `core/beru_cazador.py`, …
+
+---
+
+## Ley dura (Monarca — no negociable)
+
+1. **Beru no toca el margen.** 0 % margen extra. No abre piernas de futuros ni suma IM.
+2. **Solo intercambia spot:** lo que una pierna gana ↔ lo que la otra pierde (acordeón sobre manto que ya plantó Igris).
+3. **No engorda.** Sin +G_min de frontera, sin capas nuevas de masa, sin crecer inventario “a costa del oxígeno”. (`BERU_ENGORDE_PERMITIDO=false`)
+4. **Abortar solo si está ciego:** sin precio / Tank en coma muchos segundos — no por ROJO ligero de latencia. (`BERU_ABORTAR_SOLO_CEGUERA`)
+5. **Wake = Mega-reset del 0** al precio actual · flota · Normal **1,6 %** · manos OFF hasta orden.
+
+Detalle: [`CHECKPOINT_BERU_LEY_NEUTRO_2026-08-11.md`](CHECKPOINT_BERU_LEY_NEUTRO_2026-08-11.md) · wake [`CHECKPOINT_BERU_WAKE_RESET0_2026-08-11.md`](CHECKPOINT_BERU_WAKE_RESET0_2026-08-11.md).
 
 ---
 
@@ -69,11 +81,15 @@ No fusionar en `ESPERANDO_ABISMO` ni sin grid desplegada.
 
 **Centro 0:** precio equilibrio del **manto** L/S (`centro_manto_desde_tusk` o `centro_manto` local tras Mega reset).
 
+**Wake / DESPIERTA (Monarca 2026-08-11):** como un Mega-reset de ciclo — al plantar, **ambos centros = precio actual** (`BERU_WAKE_RESET_0`). Flota completa (`BERU_SIEMBRA_FLOTA`), Capitán **Normal 1,6 %** (`BERU_CAPITAN_WAKE=NORMAL`). Manos spot solo con `BERU_MANOS=true` (default OFF). Ver [`CHECKPOINT_BERU_WAKE_RESET0_2026-08-11.md`](CHECKPOINT_BERU_WAKE_RESET0_2026-08-11.md).
+
+**Ensayo manos (2026-08-12):** nivel 2 = fantasma (ojos ON, cero órdenes) · nivel 3 = manos chiquitas (1 Santo, techo de cazas, solo LONG, consola `[BERU_LIVE]`). Rituales: `arise_beru_fantasma` / `arise_beru_manos_chiquitas`. Ver checkpoints del mismo día.
+
 | Regla | Valor |
 |-------|--------|
 | Gatillo Normal | ±**0,8 %** desde el 0 |
 | Al gatillar | oz **−0,1 %** del toque; red a **distancia de clon** del tier (Mariscal +0,1 % … Soldado +0,8 %) |
-| Toque de red (frontera) | Solo el Beru con la **red más extrema** engorda: oz/red **+0,1 %** juntas; **+G_min** · **sin techo artificial** (surf del movimiento; la oz va detrás) |
+| Toque de red (frontera) | Solo el Beru con la **red más extrema** **arrastra** oz/red +0,1 %; **sin sumar masa** si engorde OFF (ley 2026-08-11). Legado +G_min solo con `BERU_ENGORDE_PERMITIDO=true`. |
 | Peloteo en rangos intermedios | Caza fantasma / ciclo infinito **sin engorde** |
 | Cosecha (Hoz) | Pasa a **Negociador** · deja `red_residual` en memoria |
 | Clonación | Toque de `red_residual` → **Capa N+1** con **G_min** (legión paralela OK) |

@@ -188,7 +188,7 @@ Código: `core/pase_director.py` · UI altar · `data/marcha_despliegue.json`
 | `distribuir_botin` runtime | ❌ pendiente |
 | Mérito Bellion runtime | ❌ Fase 5 |
 | Tope 20% por barco enforced | ❌ pendiente |
-| Beru contabilidad neutra al margen | ❌ pendiente |
+| Beru contabilidad neutra al margen | ✅ ley `BERU_NEUTRO_MARGEN` + sin engorde (2026-08-11) |
 
 **Validar:** `python scripts/validar_pase_director_smoke.py` · `python scripts/validar_plan_crecimiento_smoke.py`
 

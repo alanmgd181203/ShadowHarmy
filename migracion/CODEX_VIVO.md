@@ -96,7 +96,7 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Kaiser memoria barcos (2026-07-19):** Tank horario → `data/kaiser/memoria/` · digest vivo · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 - **Oído Monarca:** **Pergamino** (app) + susurro Bellion; Telegram = legado (`06_NOTIFICACIONES.md` v2)
 - **Cuartel VPS (2026-08-02→03):** droplet SG · pivot **túnel VIP WireGuard** · [`27_VPS_TUNEL_WIREGUARD.md`](27_VPS_TUNEL_WIREGUARD.md)
-- **Próximo:** **Igris** bajo preferencia **Asalto** (4.0.3 / revisar despliegue) · **no** pedir edge Greed a Igris · Beru cuando manto sirva · Greed + laboratorio al último · indicadores/peinado Kaiser **después**
+- **Próximo:** **4.0.4 Beru** nivel 3 manos chiquitas (`arise_beru_manos_chiquitas` · MNT · techo 1 caza · solo LONG · consola `[BERU_LIVE]` · Igris OFF) · [`CHECKPOINT_BERU_MANOS_CHIQUITAS_2026-08-12.md`](CHECKPOINT_BERU_MANOS_CHIQUITAS_2026-08-12.md) · nivel 2 fantasma base · Greed al último
 - **Panel cableado (2026-08-06):** estado_vivo → marcha · ventana 48–52 · meta engorde · ley_masa lectura · Tusk O₂/equity; Jess corre 4.0.3 Asalto · USA no ejecuta · [`PEGAR_JESS_IGRIS_LIVE_ASALTO.md`](PEGAR_JESS_IGRIS_LIVE_ASALTO.md)
 - **Noche historial flota Igris (2026-08-06):** bóveda velas 1m spot+L+S de la flota manto · función ejército · **≠ 4.0.3** · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · motor Coliseo
 - **Jess runbook informe:** [`JESS_INFORME_SESGO.md`](JESS_INFORME_SESGO.md)

@@ -226,16 +226,17 @@ class TuskBoveda:
             if consumir_auth and self.masa_autorizada < masa_f:
                 return False
 
-            # 2. Materialización de la sombra
+            # 2. Materialización de la sombra (masa siempre registrada; auth aparte)
             if uid not in self.reservas_activas:
                 self.reservas_activas[uid] = type('Sombra', (object,), {
                     'uid': uid,
-                    'masa': masa_f if consumir_auth else 0.0,
+                    'masa': masa_f,
                     'direccion': direccion,
                     'estado': 'ACECHANDO',
+                    'consumio_auth': bool(consumir_auth),
                 })
 
-            # 3. Reserva de energía (una sola vez por espejo dual)
+            # 3. Reserva de energía (oxígeno) — Beru neutro no consume
             if consumir_auth:
                 self.masa_autorizada -= masa_f
                 self.masa_reservada_ltc += masa_f
@@ -276,20 +277,22 @@ class TuskBoveda:
                     key_fee = "fees_paid_long" if direccion == "LONG" else "fees_paid_short"
                     self.pesos[frente][key_fee] = float(self.pesos[frente].get(key_fee) or 0) + float(fee_usd)
                 self.pesos[frente][dir_key] += sombra.masa
-                # Ya anclada: sale del tránsito (la masa auth permanece consumida)
+                # Ya anclada: sale del tránsito
                 self.reservas_activas.pop(uid, None)
-                self.masa_reservada_ltc = max(0.0, self.masa_reservada_ltc - sombra.masa)
+                if getattr(sombra, "consumio_auth", True):
+                    self.masa_reservada_ltc = max(0.0, self.masa_reservada_ltc - sombra.masa)
                 await self.bel.anotar("TUSK", "ANCLAJE", f"Masa {sombra.masa:.4f} fijada en {frente}.")
                 return True
         return False
 
     async def liberar_reserva(self, uid: str):
-        """Devuelve la masa al cofre si la misión falla."""
+        """Devuelve la masa al cofre si la misión falla (solo si consumió oxígeno)."""
         async with self._lock:
             if uid in self.reservas_activas:
                 sombra = self.reservas_activas.pop(uid)
-                self.masa_autorizada += sombra.masa
-                self.masa_reservada_ltc = max(0.0, self.masa_reservada_ltc - sombra.masa)
+                if getattr(sombra, "consumio_auth", True):
+                    self.masa_autorizada += sombra.masa
+                    self.masa_reservada_ltc = max(0.0, self.masa_reservada_ltc - sombra.masa)
 
     async def consumar_cosecha_atomica(self, uid_reserva, frente_salida, barco_ref):
         """Cierra el ciclo y recupera la energía tras una victoria."""
