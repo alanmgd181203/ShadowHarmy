@@ -1,12 +1,9 @@
-"""Canal Igris + bóveda MNT (colateral ≠ exclusión permanente del ranking).
+"""Canal Igris — MNT es Santo (no saco).
 
-Doctrina Monarca 2026-08-08:
-- MNT *sí* es Santo del pase (puede recibir manto dual cuando el canal lo permite).
-- El short inverso MNT de *bóveda* no se mezcla con el long del manto.
-- `IGRIS_PROTEGER_*` / bases bóveda: no *reducir* colateral en cleanup.
-- `IGRIS_ACTIVOS_EXCLUSIVOS`: canal paralelo temporal (p.ej. solo ETH en Asalto).
-- `IGRIS_BOVEDA_EN_LOTE=false` (2026-08-09): pausa engorde de bases bóveda (MNT)
-  para no chambeár encima del short de colateral hasta hedge firme.
+- MNT entra al lote (default). Dual: long inverso + short lineal.
+- Short inverso MNT = legado sucio: no cuenta como manto, no se planta, no se poda auto.
+- `IGRIS_BOVEDA_EN_LOTE=false` = pausa explícita de engorde MNT (no es el default).
+- `IGRIS_ACTIVOS_EXCLUSIVOS`: canal paralelo temporal (p.ej. solo ETH).
 """
 from __future__ import annotations
 

@@ -15,7 +15,7 @@ from typing import Any
 import core.config as config
 
 _STABLES = frozenset({"USDT", "USDC", "USDE", "USD1", "USD"})
-_FEE_ASSETS = frozenset({"MNT"})  # descuento fees Bybit
+_FEE_ASSETS = frozenset({"MNT"})  # legado: ya no es saco; solo detectar sucio
 
 
 def _f(x: Any, default: float = 0.0) -> float:
@@ -224,26 +224,30 @@ def construir_tesoreria(
         "estado": estado,
         "nota": (
             "Oxígeno = min(disponible, equity×(1−reserva)). "
-            "El IM del hedge cuenta dentro del colchón Monarca, no encima."
+            "Caja de guerra = USDT. Hedge MNT si aparece = legado sucio."
         ),
     }
 
-    # Checkpoint bóveda MNT — solo cálculo; manos OFF
     if getattr(config, "TUSK_BOVEDA_MNT_DOCTRINA", True):
         try:
             from core import tusk_boveda_mnt as bm
 
             spot_mark = None
             if mnt and _f(mnt.get("equity")) > 0 and mnt_usd > 0:
-                # usd/qty aprox si wallet_balance ≈ qty
                 qty = _f(mnt.get("wallet_balance") or mnt.get("equity"))
                 if qty > 0:
                     spot_mark = mnt_usd / qty
+            caja_usdt = sum(
+                float(c.get("usd_value") or 0)
+                for c in coins
+                if str(c.get("coin") or "").upper() == "USDT"
+            )
             out["boveda_mnt"] = bm.construir_bloque_boveda_mnt(
                 mnt_usd=mnt_usd,
                 hedges=hedges,
                 spot_mark=spot_mark,
                 equity_vivo=equity,
+                caja_usdt=caja_usdt if caja_usdt > 0 else None,
             )
         except Exception as e:
             out["boveda_mnt"] = {"error": str(e)[:160], "manos_permitidas": False}

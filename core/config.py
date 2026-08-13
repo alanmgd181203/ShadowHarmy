@@ -14,32 +14,19 @@ def cargar_env():
                     except ValueError:
                         continue
 
-
-def _abort_si_modo_testnet() -> None:
-    """Mundo A abolido: cualquier MODO_TESTNET=True (shell o .env) mata la carga."""
-    raw = (os.getenv("MODO_TESTNET") or "False").strip().lower()
-    if raw in ("1", "true", "yes", "on"):
-        raise RuntimeError(
-            "MODO_TESTNET=True abolido — campo DEMO Bybit eliminado. "
-            "Quita MODO_TESTNET del .env (o pon False). "
-            "Batalla: BYBIT_API_KEY/SECRET · ensayo: MODO_SIMULACION / Arena."
-        )
-
-
-_abort_si_modo_testnet()
 cargar_env()
-_abort_si_modo_testnet()
 
-# Mundo A (DEMO / Bybit testnet) abolido Monarca 2026-08-11.
-# Solo mainnet (batalla) + Arena/sim (Mundo B). Llaves: BYBIT_API_KEY / BYBIT_API_SECRET.
-TESTNET = False  # fósil lecturas legado; siempre False
+# Llaves duales: mainnet (batalla) vs testnet (entrenamiento). El puente usa un solo par.
 API_KEY_MAINNET = os.getenv("BYBIT_API_KEY")
 API_SECRET_MAINNET = os.getenv("BYBIT_API_SECRET")
-API_KEY = API_KEY_MAINNET
-API_SECRET = API_SECRET_MAINNET
-# Alias muertos (scripts viejos / grep): no hay llaves DEMO
-API_KEY_TESTNET = None
-API_SECRET_TESTNET = None
+API_KEY_TESTNET = os.getenv("BYBIT_TESTNET_API_KEY") or os.getenv("BYBIT_API_KEY_TESTNET")
+API_SECRET_TESTNET = os.getenv("BYBIT_TESTNET_API_SECRET") or os.getenv("BYBIT_API_SECRET_TESTNET")
+
+TESTNET = os.getenv("MODO_TESTNET", "True").lower() == "true"
+# Con testnet: SOLO llaves de entrenamiento (nunca caer a mainnet por error).
+# Con mainnet oficial: SOLO BYBIT_API_KEY / BYBIT_API_SECRET.
+API_KEY = API_KEY_TESTNET if TESTNET else API_KEY_MAINNET
+API_SECRET = API_SECRET_TESTNET if TESTNET else API_SECRET_MAINNET
 
 MODO_SIMULACION = os.getenv("MODO_SIMULACION", "True").lower() == "true"
 SAFE_MODE = os.getenv("SAFE_MODE", "False").lower() == "true"
@@ -55,7 +42,7 @@ BELLION_OIDO_ANILLO = int(os.getenv("BELLION_OIDO_ANILLO", "80"))
 BELLION_OIDO_LIMIT = int(os.getenv("BELLION_OIDO_LIMIT", "40"))
 BELLION_OIDO_INCLUIR_RUIDO = os.getenv("BELLION_OIDO_INCLUIR_RUIDO", "false").lower() == "true"
 
-# Activo principal: Beru acecho (referencia operativa)
+# Activo principal: Beru acecho + manos testnet (referencia operativa)
 TICKER_BASE = os.getenv("TICKER_BASE", "BTC").upper()
 SIMBOLO_LINEAR = f"{TICKER_BASE}USDT"
 FRENTE_PRINCIPAL = f"{TICKER_BASE}USDT_LINEAL"
@@ -94,28 +81,26 @@ BERU_CAZADOR_SPAWN_CADA_PCT = float(os.getenv("BERU_CAZADOR_SPAWN_CADA_PCT", "0.
 BERU_CAZADOR_GATILLO_FRACCION = float(os.getenv("BERU_CAZADOR_GATILLO_FRACCION", "0.5"))
 BERU_CAZA_CAPA1_USD = float(os.getenv("BERU_CAZA_CAPA1_USD", "0"))  # 0 = mordida = G_min del activo
 BERU_CAZA_CAPA1_MAX_USD = float(os.getenv("BERU_CAZA_CAPA1_MAX_USD", "0"))  # 0 = sin techo engorde/masa (doctrina 2026-07-18)
-# Wake Monarca 2026-08-11: reset-0 @ precio · flota · Normal 1.6 · manos OFF (cableado dormido)
+# Cirugía Beru 2026-08-12 (Jess → USA): ley · wake · ojos · fantasma. Manos reales OFF.
 BERU_WAKE_RESET_0 = os.getenv("BERU_WAKE_RESET_0", "true").lower() == "true"
 BERU_SIEMBRA_FLOTA = os.getenv("BERU_SIEMBRA_FLOTA", "true").lower() == "true"
 BERU_CAPITAN_WAKE = os.getenv("BERU_CAPITAN_WAKE", "NORMAL").upper()  # NORMAL=1.6 · ANSIEDAD=1.2
 BERU_MANOS = os.getenv("BERU_MANOS", "false").lower() == "true"  # órdenes spot reales
 BERU_HILO_ENABLED = os.getenv("BERU_HILO_ENABLED", "false").lower() == "true"  # hilo en arise; default OFF
-# Nivel 2 ensayo: ojos reales · dispara a bitácora (no place_order). Ritual arise_beru_fantasma.
+# Nivel 2: ojos reales · bitácora · cero place_order. Ritual arise_beru_fantasma.
 BERU_MANOS_FANTASMA = os.getenv("BERU_MANOS_FANTASMA", "false").lower() == "true"
-BERU_FANTASMA_ACTIVOS = os.getenv("BERU_FANTASMA_ACTIVOS", "ADA,BCH,MNT")  # Santos manto a mirar
-# Nivel 3 ensayo: manos chiquitas reales · techo · consola. Ritual arise_beru_manos_chiquitas.
+BERU_FANTASMA_ACTIVOS = os.getenv("BERU_FANTASMA_ACTIVOS", "ADA,BCH,MNT")
+# Nivel 3: manos chiquitas (dormido hasta mandato). Ritual arise_beru_manos_chiquitas.
 BERU_ENSAYO_NIVEL3 = os.getenv("BERU_ENSAYO_NIVEL3", "false").lower() == "true"
-BERU_ENSAYO_ACTIVOS = os.getenv("BERU_ENSAYO_ACTIVOS", "MNT")  # default 1 Santo
+BERU_ENSAYO_ACTIVOS = os.getenv("BERU_ENSAYO_ACTIVOS", "MNT")
 BERU_ENSAYO_MAX_ORDENES = int(float(os.getenv("BERU_ENSAYO_MAX_ORDENES", "1") or 1))
 BERU_ENSAYO_SOLO_LONG = os.getenv("BERU_ENSAYO_SOLO_LONG", "true").lower() == "true"
-# Si WS muere: ticker spot REST → Tank (ensayo / fantasma)
 BERU_OJOS_REST_FALLBACK = os.getenv("BERU_OJOS_REST_FALLBACK", "true").lower() == "true"
 BERU_OJOS_REST_S = float(os.getenv("BERU_OJOS_REST_S", "10") or 10)
-# Ley códice: Beru no toca margen · no engorda · aborta solo ceguera (Monarca 2026-08-11)
 BERU_NEUTRO_MARGEN = os.getenv("BERU_NEUTRO_MARGEN", "true").lower() == "true"
 BERU_ENGORDE_PERMITIDO = os.getenv("BERU_ENGORDE_PERMITIDO", "false").lower() == "true"
 BERU_ABORTAR_SOLO_CEGUERA = os.getenv("BERU_ABORTAR_SOLO_CEGUERA", "true").lower() == "true"
-BERU_CEGUERA_COMA_S = float(os.getenv("BERU_CEGUERA_COMA_S", "15"))  # sin update = ciego
+BERU_CEGUERA_COMA_S = float(os.getenv("BERU_CEGUERA_COMA_S", "15"))
 # Peces / barcos — apalancamiento máx Bybit (promedio inverse+lineal en beru_capital)
 # Flota manto viva (Jess sync 2026-07-18): Inverse ∩ Linear USDT — ver diccionario_beru_flota_manto.json
 ACTIVOS_BERU_FLOTA = [
@@ -375,16 +360,39 @@ IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))
 # Ritmo entre duales OK de engorde/bootstrap (mismo Santo): default 15s.
 # No mandar otro par Market hasta confirmar fills L+S del dual anterior.
 IGRIS_ENGORDE_RITMO_S = float(os.getenv("IGRIS_ENGORDE_RITMO_S", "15"))
-# Disparo dual §E: timeout fill inicial + salvavidas Market si una pierna queda huérfana
+# Disparo dual §E: timeout fill inicial + salvavidas
 IGRIS_DUAL_FILL_TIMEOUT_S = float(os.getenv("IGRIS_DUAL_FILL_TIMEOUT_S", "20"))
-IGRIS_DUAL_SALVAVIDAS_MARKET = os.getenv("IGRIS_DUAL_SALVAVIDAS_MARKET", "true").lower() == "true"
-# Antes de engorde/bootstrap: curar stock L/S del Santo si el espejo está lisiado
-IGRIS_ESPEJO_STOCK_PRE_ENGORDE = os.getenv(
-    "IGRIS_ESPEJO_STOCK_PRE_ENGORDE", "true"
+# Legado: si true, empata USD al toque (cirugía: OFF — usar siguiente bocado)
+IGRIS_DUAL_SALVAVIDAS_EMPATE = os.getenv(
+    "IGRIS_DUAL_SALVAVIDAS_EMPATE", "false"
 ).lower() == "true"
-# Hueco absoluto mínimo (USD) para disparar cura (evita polvo de ticks)
-IGRIS_ESPEJO_GAP_MIN_USD = float(os.getenv("IGRIS_ESPEJO_GAP_MIN_USD", "5") or 5)
-IGRIS_ESPEJO_STOCK_MAX_INTENTOS = int(os.getenv("IGRIS_ESPEJO_STOCK_MAX_INTENTOS", "3") or 3)
+# Solo si falta una pierna tras el dual
+IGRIS_DUAL_SALVAVIDAS_EMERGENCIA = os.getenv(
+    "IGRIS_DUAL_SALVAVIDAS_EMERGENCIA", "true"
+).lower() == "true"
+# Compat: OR de emergencia (empate ya no entra por defecto)
+IGRIS_DUAL_SALVAVIDAS_MARKET = os.getenv(
+    "IGRIS_DUAL_SALVAVIDAS_MARKET",
+    "true" if IGRIS_DUAL_SALVAVIDAS_EMERGENCIA else "false",
+).lower() == "true"
+IGRIS_BOCADO_ASIMETRICO = os.getenv("IGRIS_BOCADO_ASIMETRICO", "true").lower() == "true"
+IGRIS_BOCADO_CORR_MIN_USD = float(os.getenv("IGRIS_BOCADO_CORR_MIN_USD", "1.0") or 1.0)
+# Sueño + misiones (mega-cirugía 2026-08-12)
+IGRIS_SUENO_MISION = os.getenv("IGRIS_SUENO_MISION", "true").lower() == "true"
+IGRIS_SARGENTO_AUTO = os.getenv("IGRIS_SARGENTO_AUTO", "true").lower() == "true"
+IGRIS_SUENO_POLL_S = float(os.getenv("IGRIS_SUENO_POLL_S", "2") or 2)
+IGRIS_SOLO_ASALTO = os.getenv("IGRIS_SOLO_ASALTO", "true").lower() == "true"
+IGRIS_REDUCIR_REQUIERE_CONFIRMA = os.getenv(
+    "IGRIS_REDUCIR_REQUIERE_CONFIRMA", "true"
+).lower() == "true"
+IGRIS_REDUCIR_CONFIRMADO = os.getenv("IGRIS_REDUCIR_CONFIRMADO", "false").lower() == "true"
+# Visión reducida (duda V1 — no castrar; sin precio usable no dispara)
+IGRIS_VISION_MODO = os.getenv("IGRIS_VISION_MODO", "last_price").strip().lower()
+IGRIS_VISION_LIBRO_NIVELES = int(os.getenv("IGRIS_VISION_LIBRO_NIVELES", "5") or 5)
+# §A no pilotéa engorde (congelado)
+IGRIS_OXIGENO_PILOTO = os.getenv("IGRIS_OXIGENO_PILOTO", "false").lower() == "true"
+# Bóveda MNT: quote preferido documentado (migración campo = duda V6)
+IGRIS_BOVEDA_SHORT_QUOTE = os.getenv("IGRIS_BOVEDA_SHORT_QUOTE", "USDC").strip().upper()
 # Ley de la Masa: |USD_L − USD_S| / ref > este techo → disparo dual prohibido
 IGRIS_MASA_ASIMETRIA_MAX_PCT = float(os.getenv("IGRIS_MASA_ASIMETRIA_MAX_PCT", "0.05"))
 # Asalto (no cacería): asimetría más holgada — peaje de espejo aceptado
@@ -458,8 +466,22 @@ KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT = float(
     os.getenv("KAISER_OPORTUNIDAD_MANTO_UMBRAL_PCT", "0")
 )  # prod: piso extra; 0 = solo fees break-even Ask/Bid
 
-# Live DEMO Igris/Beru (Mundo A) abolido 2026-08-11 — no LIVE_*_TESTNET.
-BERU_SPOT_MARGEN_ENABLED = os.getenv("BERU_SPOT_MARGEN_ENABLED", "false").lower() == "true"
+# Live Igris testnet — scripts/igris_live_testnet.py (checklist 3.10.7b)
+LIVE_IGRIS_TESTNET = os.getenv("LIVE_IGRIS_TESTNET", "false").lower() == "true"
+LIVE_IGRIS_SEGUNDOS_OJOS = float(os.getenv("LIVE_IGRIS_SEGUNDOS_OJOS", "90"))
+LIVE_IGRIS_ACTIVOS = os.getenv("LIVE_IGRIS_ACTIVOS", "ETH,BTC,LTC,SOL,OP")
+LIVE_IGRIS_MORDIDA_MAX_USD = float(os.getenv("LIVE_IGRIS_MORDIDA_MAX_USD", "12"))
+LIVE_IGRIS_REQUIRE_KAISER = os.getenv("LIVE_IGRIS_REQUIRE_KAISER", "false").lower() == "true"
+LIVE_IGRIS_SIN_PACIENCIA = os.getenv("LIVE_IGRIS_SIN_PACIENCIA", "false").lower() == "true"
+
+# Live Beru testnet — scripts/beru_live_testnet.py (checklist 3.9.9)
+# Ansiedad 1.2% → gatillo ±0.6% · Mariscal PLENO clon 0.1% · CAZA · ~$10
+LIVE_BERU_TESTNET = os.getenv("LIVE_BERU_TESTNET", "false").lower() == "true"
+LIVE_BERU_SEGUNDOS = float(os.getenv("LIVE_BERU_SEGUNDOS", "3600"))  # 1 h; 0 = Ctrl+C
+LIVE_BERU_ACTIVOS = os.getenv("LIVE_BERU_ACTIVOS", "flota")  # flota = 22 barcos USDT
+LIVE_BERU_MORDIDA_USD = float(os.getenv("LIVE_BERU_MORDIDA_USD", "20"))
+# Soldado frío listo: spot margen ON (permiso Bybit al 95%). Manos/hilo siguen OFF.
+BERU_SPOT_MARGEN_ENABLED = os.getenv("BERU_SPOT_MARGEN_ENABLED", "true").lower() == "true"
 BERU_SPOT_MARGEN_LEVERAGE = int(float(os.getenv("BERU_SPOT_MARGEN_LEVERAGE", "10")))
 BERU_RAIL_USDT_ONLY = os.getenv("BERU_RAIL_USDT_ONLY", "false").lower() == "true"
 
@@ -488,7 +510,7 @@ TUSK_RESERVA_MONARCA_EXTRA_PCT = float(os.getenv("TUSK_RESERVA_MONARCA_EXTRA_PCT
 # Tesorería UTA: oxígeno de guerra desde disponible real (MNT hedge visible)
 TUSK_TESORERIA_ACTIVA = os.getenv("TUSK_TESORERIA_ACTIVA", "true").lower() == "true"
 TUSK_TESORERIA_FETCH_POS = os.getenv("TUSK_TESORERIA_FETCH_POS", "true").lower() == "true"
-# Bóveda MNT (checkpoint): cálculo capital_mando / foto; MANOS default false
+# Tesorería: publica caja USDT + lectura legado MNT; MANOS default false
 TUSK_BOVEDA_MNT_DOCTRINA = os.getenv("TUSK_BOVEDA_MNT_DOCTRINA", "true").lower() == "true"
 TUSK_BOVEDA_MANOS = os.getenv("TUSK_BOVEDA_MANOS", "false").lower() == "true"
 TUSK_BOVEDA_EQUILIBRIO_TOL_PCT = float(os.getenv("TUSK_BOVEDA_EQUILIBRIO_TOL_PCT", "0.03") or 0.03)
@@ -510,8 +532,8 @@ IGRIS_ACTIVOS_EXCLUSIVOS: list[str] = (
     if _IGRIS_EXCL_RAW
     else []
 )
-# Bases de *bóveda* (short inverso = colateral). MNT sigue siendo Santo del ranking.
-# No banear del lote: solo segrega contable + exige hedge al abrir long inverso.
+# Lectura legado: short inverso MNT = sucio (no saco). MNT sí es Santo del ranking.
+# No banear del lote. No reconstruir hedge. No contar short inverso como manto.
 _IGRIS_BOVEDA = os.getenv(
     "IGRIS_BOVEDA_BASES",
     os.getenv("IGRIS_PROTEGER_BASES", "MNT"),
@@ -527,12 +549,12 @@ _IGRIS_PROT_SYMS = os.getenv("IGRIS_PROTEGER_SYMBOLS", "MNTPERP,MNTUSDC").strip(
 IGRIS_PROTEGER_SYMBOLS: list[str] = (
     [a.strip().upper() for a in _IGRIS_PROT_SYMS.split(",") if a.strip()]
     if _IGRIS_PROT_SYMS
-    else ["MNTPERP", "MNTUSDC"]
+    else ["MNTUSD"]
 )
 # Abrir manto MNT inverso: switch hedge + positionIdx (default ON)
-IGRIS_MNT_HEDGE_OBLIGATORIO = os.getenv("IGRIS_MNT_HEDGE_OBLIGATORIO", "true").lower() == "true"
-# False = no engordar bases de bóveda (MNT) hasta que hedge/segregación esté firme en vivo.
-# Monarca 2026-08-09: por ahora MNT fuera del canal (short bóveda intacto).
+# Mega-cirugía: no reconstruir short bóveda. MNT = Santo del manto.
+IGRIS_MNT_HEDGE_OBLIGATORIO = os.getenv("IGRIS_MNT_HEDGE_OBLIGATORIO", "false").lower() == "true"
+# True = MNT Santo entra al lote. False = pausa explícita (no es el default).
 IGRIS_BOVEDA_EN_LOTE = os.getenv("IGRIS_BOVEDA_EN_LOTE", "true").lower() == "true"
 # CSV extra a saltar del lote (además de bóveda si BOVEDA_EN_LOTE=false)
 _IGRIS_EXCLUIR = os.getenv("IGRIS_EXCLUIR_BASES", "").strip()
@@ -542,7 +564,7 @@ IGRIS_EXCLUIR_BASES: list[str] = (
     else []
 )
 
-# Candado pase → Igris (activos por rango). Arena salta con ARENA_IGRIS_SIN_RANGOS.
+# Candado pase → Igris (activos por rango). Lives saltan con LIVE_IGRIS_TESTNET / ARENA SIN_RANGOS.
 MONARCA_RANK_GATE = os.getenv("MONARCA_RANK_GATE", "true").lower() == "true"
 # Director pase: lote/reserva + marcha operativa (asalto | personalizado)
 # Legado env tactico/marcha_forzada → normalizar_marcha las mapea a asalto
@@ -594,8 +616,7 @@ BRIDGE_WS_RECONNECT_MAX_S = float(os.getenv("BRIDGE_WS_RECONNECT_MAX_S", "30") o
 BRIDGE_WS_STAGGER_S = float(os.getenv("BRIDGE_WS_STAGGER_S", "0.45") or 0.45)
 # Preferir IPv4 en WS (evita handshakes muertos por IPv6 flaky en laps/hogar).
 BRIDGE_WS_FORCE_IPV4 = os.getenv("BRIDGE_WS_FORCE_IPV4", "true").lower() == "true"
-# Proxy WS: direct|env|<url>. direct = sin proxy (recomendado; SOCKS de sandbox rompe ojos).
-# env = confiar en HTTP(S)_PROXY / ALL_PROXY (VIP/túnel). URL = proxy explícito.
+# env = confiar en HTTP(S)_PROXY / ALL_PROXY. direct = sin proxy (ojos estables en cuartel).
 BRIDGE_WS_PROXY = (os.getenv("BRIDGE_WS_PROXY", "direct") or "direct").strip()
 # orderbook.50 = muros (RAM/CPU altos). False = solo tickers (ojos estrechos / lap débil).
 BRIDGE_WS_SUBSCRIBE_BOOKS = os.getenv("BRIDGE_WS_SUBSCRIBE_BOOKS", "true").lower() == "true"

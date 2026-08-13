@@ -118,7 +118,7 @@ class BybitBridge:
             recv = int(getattr(config, "BYBIT_RECV_WINDOW_MS", 60000) or 60000)
             try:
                 self.session = HTTP(
-                    testnet=False,  # Mundo A abolido — solo mainnet
+                    testnet=config.TESTNET,
                     api_key=api_key,
                     api_secret=api_secret,
                     recv_window=recv,
@@ -126,7 +126,7 @@ class BybitBridge:
             except TypeError:
                 # pybit antiguo sin recv_window en ctor
                 self.session = HTTP(
-                    testnet=False,
+                    testnet=config.TESTNET,
                     api_key=api_key,
                     api_secret=api_secret,
                 )
@@ -231,7 +231,7 @@ class BybitBridge:
                 if getattr(config, "BRIDGE_WS_FORCE_IPV4", True):
                     import socket
                     connect_kwargs["family"] = socket.AF_INET
-                # Proxy: por defecto directo (SOCKS de entorno/sandbox exige python-socks y ciega ojos).
+                # Proxy: por defecto directo (SOCKS de entorno ciega ojos sin python-socks).
                 proxy_mode = str(getattr(config, "BRIDGE_WS_PROXY", "direct") or "direct").strip().lower()
                 if proxy_mode in ("", "direct", "none", "false", "0", "off"):
                     connect_kwargs["proxy"] = None
@@ -369,7 +369,7 @@ class BybitBridge:
         return total
 
     # ================================================================
-    # MANOS — Órdenes (mainnet; sim = no bridge real)
+    # MANOS — Órdenes (testnet por defecto)
     # ================================================================
 
     def _generar_link_id(self, prefijo="SA"):

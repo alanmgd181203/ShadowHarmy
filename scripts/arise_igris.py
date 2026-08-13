@@ -6,15 +6,15 @@ Despierta: Tusk (oxígeno) · Tank (orderbook real) · Kaiser · Igris (manto).
 NO despierta: Greed · Beru (hibernados hasta orden Monarca).
 Manos reales: ON (MODO_SIMULACION=False).
 Bóveda manos Convert: OFF. MNT short inverso = bóveda (hedge), no manto.
-Canal: lote completo de potencia (vacío exclusivos). ETH-only: IGRIS_FORZAR_EXCLUSIVOS=ETH.
-MNT: bóveda intocable = MNTPERP/MNTUSDC (USDC). MNTUSD libre para manto.
-Canal por Santo: IGRIS_FORZAR_EXCLUSIVOS=MNT|ADA|BCH (un Igris por moneda).
+Canal: lote completo de potencia (vacío exclusivos). Un Santo: IGRIS_FORZAR_EXCLUSIVOS=MNT|ADA|BCH.
+Bóveda: solo short USDC (MNTPERP/MNTUSDC); MNT del manto engordable.
+MNT Santo engordable (`IGRIS_BOVEDA_EN_LOTE=true`). Sueño+misión + solo Asalto (cirugía 2026-08-12).
 
   python scripts/arise_igris.py --solo-ojos --segundos 90
   python scripts/arise_igris.py --durar-hasta 2026-08-09T12:00:00 --permitir-mainnet-manos
 
 ABORTA mainnet manos sin --permitir-mainnet-manos / ARISE_IGRIS_PERMITIR_MAINNET.
-Respeta marcha en data/marcha_despliegue.json.
+Respeta marcha Asalto (IGRIS_SOLO_ASALTO).
 Logs: data/logs/arise_igris/<CANAL>/ · reporte: data/arise_igris_report_<CANAL>.json
 """
 from __future__ import annotations
@@ -43,6 +43,7 @@ for _stream in (sys.stdout, sys.stderr):
 os.environ["ARISE_IGRIS_LIVE"] = "true"
 os.environ["MODO_SIMULACION"] = "False"
 os.environ["BRIDGE_WS_SUBSCRIBE_BOOKS"] = "true"
+os.environ.setdefault("BRIDGE_WS_PROXY", "direct")
 os.environ.setdefault("TUSK_BOVEDA_MANOS", "false")
 os.environ.setdefault("ARENA_IGRIS_ACTIVA", "false")
 os.environ.setdefault("ARENA_IGRIS_FILLS_VIRTUALES", "false")
@@ -55,17 +56,25 @@ os.environ.setdefault("SAFE_MODE", "true")
 os.environ["IGRIS_EVENT_DRIVEN"] = "false"
 os.environ["IGRIS_BOOTSTRAP_ON_START"] = "true"
 os.environ["ARISE_BERU_ARMADO"] = "false"
-# Lote completo del pase (orden Monarca). Para canal ETH-only: export IGRIS_FORZAR_EXCLUSIVOS=ETH
+# Lote completo del pase. Canal 1 Santo: export IGRIS_FORZAR_EXCLUSIVOS=ADA
 _forzar_excl = (os.environ.get("IGRIS_FORZAR_EXCLUSIVOS") or "").strip().upper()
 os.environ["IGRIS_ACTIVOS_EXCLUSIVOS"] = _forzar_excl  # vacío = lote potencia
 os.environ.setdefault("TICKER_BASE", "ETH")
-# Bóveda USDC (MNTPERP): no castrar manto MNTUSD. Bases bóveda vacías = sin exclusiones extra.
+# Bóveda limpia (Jess campo): no pausar base MNT; proteger solo símbolos bóveda USDC
 os.environ.setdefault("IGRIS_BOVEDA_BASES", "")
 os.environ.setdefault("IGRIS_PROTEGER_BASES", "")
 os.environ.setdefault("IGRIS_PROTEGER_SYMBOLS", "MNTPERP,MNTUSDC")
 os.environ.setdefault("IGRIS_MNT_HEDGE_OBLIGATORIO", "false")
-# Monarca 2026-08-11: despausar MNT manto; intocable solo short USDC bóveda
 os.environ.setdefault("IGRIS_BOVEDA_EN_LOTE", "true")
+os.environ.setdefault("IGRIS_BOVEDA_SHORT_QUOTE", "USDC")
+os.environ.setdefault("IGRIS_SUENO_MISION", "true")
+os.environ.setdefault("IGRIS_SARGENTO_AUTO", "true")
+os.environ.setdefault("IGRIS_SOLO_ASALTO", "true")
+os.environ.setdefault("IGRIS_DUAL_SALVAVIDAS_EMPATE", "false")
+os.environ.setdefault("IGRIS_DUAL_SALVAVIDAS_EMERGENCIA", "true")
+os.environ.setdefault("IGRIS_BOCADO_ASIMETRICO", "true")
+os.environ.setdefault("IGRIS_OXIGENO_PILOTO", "false")
+os.environ.setdefault("IGRIS_VISION_MODO", "last_price")
 # Ojos Asalto: no castrar por ruido mid↔ticker 0.4–0.7%
 os.environ.setdefault("IGRIS_LIBRO_DIVERGENCIA_PCT", "1.0")
 os.environ.setdefault("IGRIS_LIBRO_DIVERGENCIA_ASALTO_PCT", "2.5")
@@ -90,13 +99,16 @@ os.environ.setdefault("IGRIS_ASALTO_SIN_TANK_ROJO", "true")
 os.environ.setdefault("IGRIS_ASALTO_PUERTA_SIN_OJOS", "true")
 os.environ.setdefault("IGRIS_RESERVA_AJUSTAR_A_AUTH", "true")
 os.environ.setdefault("IGRIS_PODA_AUTO", "false")
-# Mundo A abolido — Bridge siempre mainnet (config aborta si MODO_TESTNET=True)
+# Arise live: no DEMO Bybit (sim/arena son otro ritual)
+os.environ.setdefault("MODO_TESTNET", "False")
 
 import core.config as config  # noqa: E402
 
 config.MODO_SIMULACION = False
 config.ARISE_IGRIS_LIVE = True
 config.BRIDGE_WS_SUBSCRIBE_BOOKS = True
+if hasattr(config, "BRIDGE_WS_PROXY"):
+    config.BRIDGE_WS_PROXY = (os.environ.get("BRIDGE_WS_PROXY") or "direct").strip()
 if hasattr(config, "TUSK_BOVEDA_MANOS"):
     config.TUSK_BOVEDA_MANOS = False
 config.ARENA_IGRIS_ACTIVA = False
@@ -145,7 +157,9 @@ config.IGRIS_BOVEDA_BASES = (
 )
 _pb = (os.environ.get("IGRIS_PROTEGER_BASES") or "").strip()
 config.IGRIS_PROTEGER_BASES = (
-    [a.strip().upper() for a in _pb.split(",") if a.strip()] if _pb else list(config.IGRIS_BOVEDA_BASES)
+    [a.strip().upper() for a in _pb.split(",") if a.strip()]
+    if _pb
+    else list(config.IGRIS_BOVEDA_BASES)
 )
 _ps = (os.environ.get("IGRIS_PROTEGER_SYMBOLS") or "MNTPERP,MNTUSDC").strip()
 config.IGRIS_PROTEGER_SYMBOLS = [
@@ -157,6 +171,17 @@ config.IGRIS_MNT_HEDGE_OBLIGATORIO = (
 config.IGRIS_BOVEDA_EN_LOTE = (
     os.environ.get("IGRIS_BOVEDA_EN_LOTE", "true").lower() == "true"
 )
+config.IGRIS_SUENO_MISION = os.environ.get("IGRIS_SUENO_MISION", "true").lower() == "true"
+config.IGRIS_SARGENTO_AUTO = os.environ.get("IGRIS_SARGENTO_AUTO", "true").lower() == "true"
+config.IGRIS_SOLO_ASALTO = os.environ.get("IGRIS_SOLO_ASALTO", "true").lower() == "true"
+config.IGRIS_DUAL_SALVAVIDAS_EMPATE = (
+    os.environ.get("IGRIS_DUAL_SALVAVIDAS_EMPATE", "false").lower() == "true"
+)
+config.IGRIS_BOCADO_ASIMETRICO = (
+    os.environ.get("IGRIS_BOCADO_ASIMETRICO", "true").lower() == "true"
+)
+config.IGRIS_OXIGENO_PILOTO = False
+config.MARCHA_DESPLIEGUE = "asalto"
 config.IGRIS_LIBRO_DIVERGENCIA_PCT = float(
     os.environ.get("IGRIS_LIBRO_DIVERGENCIA_PCT", "1.0") or 1.0
 )
@@ -185,7 +210,6 @@ config.IGRIS_EXCLUIR_BASES = [
 from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402
 from core.dashboard import PanelDeControl  # noqa: E402
-from core import beru_wake  # noqa: E402
 from generales.igris import IgrisEscudo  # noqa: E402
 from generales.kaiser import KaiserVocero  # noqa: E402
 from generales.tank import TankCluster  # noqa: E402
@@ -196,7 +220,7 @@ _canal_log = (
     .strip()
     .upper()
     .replace(",", "_")
-    or "_lote"
+    or "lote"
 )
 LOG_DIR = ROOT / "data" / "logs" / "arise_igris" / _canal_log
 REPORT_PATH = ROOT / "data" / f"arise_igris_report_{_canal_log}.json"
@@ -282,7 +306,7 @@ def _aplicar_ojos_abiertos(tusk) -> list[str]:
     """Ojos del lote/canal: books ON; ETH siempre en evidencia de calentamiento."""
     eq = float(getattr(tusk, "masa_bruta_real", 0) or getattr(tusk, "masa_bruta", 0) or 0)
     out = _bases_lote_ojos(eq if eq > 0 else None)
-    # Canal exclusivo (ej. MNT): engorde en ese Santo; libros ETH siguen siendo el gate Asalto.
+    # Canal exclusivo: engorde en ese Santo; libros ETH siguen siendo gate Asalto.
     excl = list(getattr(config, "IGRIS_ACTIVOS_EXCLUSIVOS", None) or [])
     config.TICKER_BASE = str((excl[0] if excl else (out[0] if out else "ETH"))).upper()
     books = list(out)
@@ -362,7 +386,7 @@ def _snapshot_cierre(tusk, igris, *, solo_ojos: bool, libros: dict | None) -> di
         "solo_ojos": solo_ojos,
         "books_on": True,
         "libros_eth": libros,
-        "mainnet": True,
+        "testnet": bool(getattr(config, "TESTNET", True)),
         "marcha_id": mid,
         "marcha_payload": {
             "fill_ratio": payload.get("fill_ratio"),
@@ -383,7 +407,6 @@ def _snapshot_cierre(tusk, igris, *, solo_ojos: bool, libros: dict | None) -> di
         "n_frentes_peso": len(getattr(tusk, "pesos", {}) or {}),
         "greed_hibernado": True,
         "beru_hibernado": True,
-        "beru_cableado": beru_wake.resumen_cableado(),
         "boveda_manos": False,
     }
 
@@ -418,7 +441,7 @@ async def _cronica(tusk, tank, intervalo_s: float = 30.0):
             f"[LIVE] marcha={mid} | equity={eq:.2f} | O2={tes.get('oxigeno_guerra_usd')} | "
             f"masa_auth={getattr(tusk, 'masa_autorizada', None)} | pesos≈{n_pesos:.4f} | "
             f"books_eth={lib.get('ok')} stale={lib.get('stale')} | "
-            f"SIM={config.MODO_SIMULACION} | mainnet"
+            f"SIM={config.MODO_SIMULACION} | TN={config.TESTNET}"
         )
         _escribir_heartbeat(
             "cronica",
@@ -446,10 +469,7 @@ async def _esperar_ojos_y_libros(
 
     base = str(getattr(config, "TICKER_BASE", "ETH") or "ETH").upper()
     keys = (f"{base}USDT_LINEAL", f"{base}USD_INVERSE", "ETHUSDT_LINEAL", "ETHUSD_INVERSE")
-    # Gate Asalto = ETH; muleta también refresca el Santo del canal si no es ETH
-    frentes_rest = ["ETHUSDT_LINEAL", "ETHUSD_INVERSE"]
-    if base and base != "ETH":
-        frentes_rest.extend([f"{base}USDT_LINEAL", f"{base}USD_INVERSE"])
+    frentes_rest = [f"{base}USDT_LINEAL", f"{base}USD_INVERSE"]
     t0 = time.time()
     print(f"[OJOS] Calentamiento VERDE + libros ETH (hasta {timeout_s:.0f}s)…")
     verde_ok = False
@@ -579,7 +599,7 @@ def _gate_seguridad(*, solo_ojos: bool, permitir_mainnet: bool) -> None:
         raise SystemExit("ABORT: faltan BYBIT_API_KEY / BYBIT_API_SECRET en .env")
     if config.MODO_SIMULACION:
         raise SystemExit("ABORT: MODO_SIMULACION debe ser False en 4.0.3")
-    # Mainnet manos: exige bandera explícita (ojos-solo pueden mirar mainnet WS)
+    # Arise live = mainnet real; manos exigen flag explícito
     if not solo_ojos:
         if not permitir_mainnet:
             raise SystemExit(
@@ -587,6 +607,8 @@ def _gate_seguridad(*, solo_ojos: bool, permitir_mainnet: bool) -> None:
                 "  Usa --permitir-mainnet-manos o ARISE_IGRIS_PERMITIR_MAINNET=true"
             )
         print("[SEGURIDAD] Mainnet manos AUTORIZADAS por flag explícito.")
+    else:
+        print("[SEGURIDAD] Solo ojos — sin manos Igris.")
 
 
 async def ritual_igris_live(
@@ -606,14 +628,17 @@ async def ritual_igris_live(
     print("    4.0.3  RITUAL IGRIS LIVE (parcial)")
     print("    Kaiser · Tank · Tusk · Igris")
     print(f"    {modo}")
-    print(f"    Canal log: {LOG_DIR.name} · exclusivos={config.IGRIS_ACTIVOS_EXCLUSIVOS or 'lote'}")
     print(
-        "    MNT manto: "
+        f"    Canal log: {LOG_DIR.name} · exclusivos="
+        f"{config.IGRIS_ACTIVOS_EXCLUSIVOS or 'lote'}"
+    )
+    print(
+        "    MNT bóveda: "
         + ("en lote" if config.IGRIS_BOVEDA_EN_LOTE else "PAUSA engorde")
         + f" · proteger={config.IGRIS_PROTEGER_SYMBOLS}"
     )
-    print("    Greed/Beru hibernados · Convert OFF · no tocar bóveda USDC")
-    print(f"    Books ON · mainnet · SIM={config.MODO_SIMULACION}")
+    print("    Greed/Beru hibernados · Convert OFF · sueño+misión ON")
+    print(f"    Books ON · SIM={config.MODO_SIMULACION} · proxy={getattr(config, 'BRIDGE_WS_PROXY', 'direct')}")
     print(f"    Marcha: {mid} · fill={perfil.get('fill_ratio')} · reserva={perfil.get('reserva_pasos')}")
     print("═" * 52)
 
@@ -677,7 +702,7 @@ async def ritual_igris_live(
         if (
             not solo_ojos
             and getattr(config, "IGRIS_BOVEDA_EN_LOTE", True)
-            and getattr(config, "IGRIS_MNT_HEDGE_OBLIGATORIO", True)
+            and getattr(config, "IGRIS_MNT_HEDGE_OBLIGATORIO", False)
         ):
             from core import mnt_manto_hedge as mmh
 
@@ -770,7 +795,7 @@ async def ritual_igris_live(
             "IGRIS",
             "LIVE_START",
             f"4.0.3 arranque · marcha={mid} · solo_ojos={solo_ojos} · "
-            f"mainnet · books=ON · sin Greed/Beru",
+            f"testnet={config.TESTNET} · books=ON · sin Greed/Beru",
         )
 
         def _spawn(coro):
@@ -895,7 +920,7 @@ def main():
     ap.add_argument(
         "--permitir-mainnet-manos",
         action="store_true",
-        help="Obligatorio para soltar manos Igris en mainnet",
+        help="Obligatorio si MODO_TESTNET=False y se sueltan manos Igris",
     )
     args = ap.parse_args()
 

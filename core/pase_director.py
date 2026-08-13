@@ -3,7 +3,7 @@
 Sello mega-pre-Igris + sello 2 marchas (Monarca):
 - Engorde 100% del *nocional del grado* en foco (fill_ratio=1.0).
   Capital delta_usd = peaje IM pierna a pierna (lev máx Bybit L+S); abre potencia/ranking.
-  Bóveda MNT no suma al presupuesto ofensivo (colchón 5%→muro 95%).
+  Caja = USDT. Short MNT legado no suma al presupuesto ofensivo.
   Igris planta nocional L+S del grado.
 - Reserva = 1 en todas las marchas (lote hasta potencia−1).
 - Operativas: **asalto** (rápido / peaje) y **personalizado** (T días / calib).
@@ -154,7 +154,7 @@ def _progreso_forzar_escritura() -> bool:
 
 
 def es_mainnet_pase() -> bool:
-    """True en cuenta de guerra real (no sim). Mundo A DEMO abolido."""
+    """True en cuenta de guerra real (no sim). Mundo A DEMO no cuenta."""
     if _progreso_forzar_escritura():
         return True
     if bool(getattr(config, "MODO_SIMULACION", True)):
@@ -169,10 +169,19 @@ def es_mainnet_pase() -> bool:
 def normalizar_marcha(mid: str | None) -> MarchaId:
     raw = (mid or "").strip().lower()
     m = _MARCHA_ALIASES.get(raw, raw)
+    # Mega-cirugía Igris: solo Asalto gobierna el Escudo
+    if bool(getattr(config, "IGRIS_SOLO_ASALTO", True)):
+        if m == "personalizado":
+            return "asalto"
+        # cualquier desconocido → asalto
     if m in MARCHAS:
+        if bool(getattr(config, "IGRIS_SOLO_ASALTO", True)) and m != "asalto":
+            return "asalto"
         return m  # type: ignore[return-value]
     env = str(getattr(config, "MARCHA_DESPLIEGUE", MARCHA_DEFAULT) or MARCHA_DEFAULT).lower()
     env = _MARCHA_ALIASES.get(env, env)
+    if bool(getattr(config, "IGRIS_SOLO_ASALTO", True)):
+        return "asalto"
     if env in MARCHAS:
         return env  # type: ignore[return-value]
     return MARCHA_DEFAULT
@@ -181,6 +190,8 @@ def normalizar_marcha(mid: str | None) -> MarchaId:
 def perfil_marcha(mid: str | None = None) -> dict[str, Any]:
     """Perfil activo: si mid es None, lee data/marcha_despliegue.json."""
     m = cargar_marcha() if mid is None else normalizar_marcha(mid)
+    if bool(getattr(config, "IGRIS_SOLO_ASALTO", True)):
+        m = "asalto"
     return {"id": m, **MARCHAS[m]}
 
 
@@ -737,6 +748,8 @@ def beru_puede_cazar(
     """Beru caza en un Santo solo si hay al menos un paso logrado de ese activo."""
     if not director_activo():
         return True
+    if getattr(config, "LIVE_BERU_TESTNET", False):
+        return True
     act = (activo or "").upper()
     logrados = set(_ordenar_logrados(pasos_logrados if pasos_logrados is not None else cargar_progreso()["pasos_logrados"]))
     if not logrados:
@@ -749,9 +762,10 @@ def beru_puede_cazar(
 
 
 def usd_piernas_manto_activo(tusk, activo: str) -> tuple[float, float]:
-    """(USD long, USD short) del manto §E del Santo; excluye short bóveda.
+    """(USD long, USD short) del manto §E del Santo; excluye short inverso legado.
 
     Unidades: inverso = size (cara USD); lineal = qty×entrada.
+    Portado de Jess (campo 2026-08-12) — alimenta bocado / ranking.
     """
     try:
         from core import igris_manto as im
@@ -798,14 +812,13 @@ def usd_piernas_manto_activo(tusk, activo: str) -> tuple[float, float]:
 
 
 def notional_manto_usd(tusk, activo: str) -> float:
-    """USD desplegados del *manto de ranking* L+S (no colateral bóveda).
+    """USD desplegados del *manto de ranking* L+S.
 
-    MNT inverso short = bóveda → no suma al have del pase.
+    MNT inverso short = legado sucio → no suma al have.
     MNT inverso long + lineal short = manto Santo.
     """
     usd_l, usd_s = usd_piernas_manto_activo(tusk, activo)
     return float(usd_l) + float(usd_s)
-
 
 
 def sincronizar_logrados_desde_tusk(

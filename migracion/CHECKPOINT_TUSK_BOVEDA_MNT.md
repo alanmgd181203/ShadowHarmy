@@ -1,9 +1,13 @@
-# CHECKPOINT — Tusk / Iron: bóveda MNT (escenario ideal)
+# CHECKPOINT — Tusk / Iron: caja USDT (visión original)
 
-**Estado:** doctrina Monarca 2026-08-01 · **ley reset firmada 2026-08-02** · código: lectura / cálculo  
-**Manos:** **OFF** — no ejecutar ritual, no mainnet de preparación.  
+> **2026-08-12 — mega-cirugía:** el ritual “MNT + short + descuento fees” quedó **extirpado**.  
+> Caja = **USDT**. MNT = Santo de Igris, no saco. Ver [`CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md`](CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md).  
+> Lo de abajo que hable de comprar MNT / short de equilibrio = **legado**, no ley vigente.
+
+**Estado:** caja USDT · **manos OFF** · código: lectura / cálculo  
 **Código frío:** `core/tusk_boveda_mnt.py` + `tusk_tesoreria.boveda_mnt`  
-**Smoke:** `python scripts/validar_tusk_boveda_mnt_smoke.py`
+**Smoke:** `python scripts/validar_tusk_boveda_mnt_smoke.py`  
+**Dudas:** [`DUDAS_CIRUGIAS_MENORES_2026-08-12.md`](DUDAS_CIRUGIAS_MENORES_2026-08-12.md)
 
 ---
 
@@ -13,17 +17,17 @@
 |-------|--------|
 | Doctrina escenario ideal + Convert vs spot | ✅ pergamino + `plan_ritual_ideal()` |
 | **Ley: estado sucio → reset → ritual ideal** | ✅ **firmada Monarca 2026-08-02** (pergamino; manos aún OFF) |
-| Capital de mando = short×entrada (avg) *tras bóveda limpia* | ✅ cálculo en `boveda_mnt` |
-| Equilibrio spot/short + sesgo spot | ✅ cálculo |
-| Foto viva spot vs inverso (+ sellar inauguración API) | ✅ cálculo / persist opcional |
-| Potencia del **pase** desde capital_mando | ✅ cálculo frío (no mueve Igris) |
+| Capital de mando del short MNT | ⚠️ **legado** — solo diagnóstico de sucio |
+| Equilibrio spot/short + sesgo spot | ⚠️ lectura legado (no reconstruir) |
+| Foto viva spot vs inverso | ⚠️ lectura legado |
+| Potencia del **pase** desde **caja USDT** | ✅ cálculo frío (no mueve Igris) |
 | Oxígeno UTA / equity vivo | ✅ tesorería previa (sigue existiendo) |
 | Ritual manos (Funding→UTA, Convert/spot, shorts, **reset**) | ❌ **no** — `TUSK_BOVEDA_MANOS=false` |
 | capital_mando → `masa_autorizada` de Igris | ❌ pendiente (gate Monarca) |
 | Catálogo fino de rarezas / ahorrar último céntimo sin cerrar | ❌ **aplazado** (ejército más pensante) |
 | Fundir Tusk al 100% con todas las herramientas | ❌ **no ahora** |
 
-**Decisión Monarca:** no inventariar todos los casos raros en código ahora. Si la bóveda está sucia → **cerrar/sanear y nacer limpio** (peaje = costo de inauguración). Manos solo con orden explícita + mainnet (DEMO abolido).
+**Decisión Monarca:** no inventariar todos los casos raros en código ahora. Si la bóveda está sucia → **cerrar/sanear y nacer limpio** (peaje = costo de inauguración). Manos solo con orden explícita + México/testnet.
 
 ---
 
@@ -32,9 +36,9 @@
 **Tusk** (e **Iron** en el futuro) = amos / escribas del tesoro.
 
 - No solo “ver cuánto hay”.
-- **Preparar** la bóveda para que el ejército pueda usarla.
-- **Mantener** el equilibrio spot MNT ↔ short inverso.
-- Hoy el código **mira y calcula**; el ritual de manos es **futuro**.
+- **Preparar** la caja: lo que sea → UTA → **USDT**. Ya.
+- **No** comprar MNT. **No** abrir short de equilibrio.
+- Hoy el código **mira y calcula**; manos ritual OFF.
 
 **Tank** = extractor de datos (no analiza). Kaiser = indicadores (índice + sesgo). Generales leen Tank/Kaiser.  
 Metaverso / uso fino de datos = después. Mundos paralelos = posible Iron, no este checkpoint.  
@@ -64,54 +68,33 @@ Oído Monarca = Pergamino/Cascada (Telegram = legado a marcar, no reimplementar)
 
 ## Escenario ideal (cuenta nueva o tras reset limpio)
 
-Orden doctrinal (aún **sin** ejecutar en código):
+Orden vigente (aún **sin** ejecutar en código):
 
-1. **Funding → Trading unificado (UTA)** — el capital en financiamiento no sirve al ejército.  
-2. Activar **descuento de tarifa MNT** / MNT como colateral desde el minuto uno.  
-3. **Mejor camino** a MNT (ver § Camino Convert vs spot).  
-4. **Lote semilla** (~1–5% o mínimo para abrir short) → vía ese camino → **MNT spot**.  
-5. Abrir **short inverso MNT** ≈ ese spot.  
-6. Repetir **a poquitos** hasta casi todo el capital así.  
-7. Sesgo: un poco **más spot** que short (el spot paga fees y se gasta).  
-8. Tolerancia de equilibrio (no exigir igualdad al céntimo).  
-9. **Sellar** foto inauguración + fijar **capital de mando**.  
-10. Tusk pregunta al pase: **con este capital_mando, ¿hasta qué paso/rango hay potencia?** — antes de manto/Beru.
+1. **Funding → Trading unificado (UTA)**.  
+2. **Mejor camino a USDT** — Convert solo si conviene como atajo; si no, spot: crypto → USDT.  
+3. **STOP.** Caja = USDT. No comprar MNT. No short.  
+4. Tres cajones: caja USDT · manto Igris · casa Beru (no mezclar).  
+5. Potencia del pase = caja/equity USDT.
+
+Si hay MNT+short legado: **sucio**. Saneo a mano (peaje OK). El código no reconstruye.
 
 ### Camino Convert vs spot (ley Monarca)
 
-**Convert no es la ley** — es un atajo **solo si conviene**.
+**Convert no es la ley** — atajo **solo si conviene** para llegar a **USDT**.
 
-1. Evaluar si **Convert** (Bybit) ofrece buena oportunidad (precio/peaje vs mercado).  
-2. Si **sí** → se puede usar Convert para ese tramo.  
-3. Si **no** → **todo por spot**: p. ej. vender LTC/XRP/… → **USDT o USDC** (mejor peaje + spread) → comprar **MNT** spot.  
-4. USDT = casa natural del ejército; USDC = válido si el camino es claramente mejor.  
-5. El juicio (Tank/Kaiser/Ancla + Tusk) elige el **mejor camino** hacia MNT spot + short.
-
-**Porqués**
-
-- Poquitos: fees/spreads; el short se ata a lo **realmente** llegado a MNT.  
-- Más spot: comisiones consumen MNT spot → sin reposición gana el short.  
-- Convert vs spot: no regalar peaje.
+USDT = casa. USDC u otras estables = restos (duda C2: no mandan potencia).
 
 ---
 
-## Capital de mando → pase (después de preparar limpio)
+## Potencia del pase (caja USDT)
 
-Referencia del ejército = **pierna short (inverso)**:
+Referencia = **USDT en UTA** (caja), no el short MNT.
 
-`capital_mando_usd ≈ size_MNT × precio_entrada (avg)`
+Con ese número, el pase dice cuántos pasos caben.
 
-- Solo de confianza plena tras **bóveda limpia** (ideal o post-reset).  
-- Equity vivo puede ser un poco mayor (sesgo spot / polvo).  
-- Contrastar con clima Kaiser vs índice cuando el sello duro se firme (ver checkpoint índice).  
-- Ganancias/pérdidas mark-to-market: **capítulo aparte**.
+**Ejemplo:** ~100 USD de caja → potencia hasta paso **3** (acum 76); paso 4 pide acum 116.
 
-Con ese número, el **pase** (`pase_director.potencia_n`) dice cuántos pasos caben.
-
-**Ejemplo:** ~100 USD de capital_mando → potencia hasta paso **4** (acum 96); paso 5 pide acum 123.
-
-Hoy: el bloque `boveda_mnt.potencia_pase` publica ese cálculo.  
-Igris/masa_autorizada **aún no** se gobiernan solo por capital_mando.
+El número `capital_mando` del short, si aparece, es **sucio visible** — no gobierna.
 
 ---
 
@@ -132,9 +115,9 @@ Persistencia: `data/tusk_boveda_inauguracion.json` (`sellar` / `cargar`; **no** 
 
 ## Mantenimiento (futuro, sin manos ahora)
 
-- Contar MNT gastado en fees.  
-- Reponer spot cuando salga de banda / haya mínimo de orden.  
-- Si el short se ajusta en cada reposición: **pendiente de firmar**.
+- Vigilancia de sucio MNT (alerta, no auto-saneo).  
+- Reposición de spot **del molino Beru** ≠ reponer saco MNT.  
+- Ajuste de short legado: **prohibido reconstruir**; duda C1.
 
 ---
 
@@ -142,8 +125,8 @@ Persistencia: `data/tusk_boveda_inauguracion.json` (`sellar` / `cargar`; **no** 
 
 1. ~~Casos especiales~~ → **cerrados por ley reset** (2026-08-02).  
 2. Sello duro capital + clima Kaiser (números/umbrales).  
-3. Opcional: capital_mando → masa Igris con gate explícito.  
-4. **Manos** ritual (incl. reset) solo con `TUSK_BOVEDA_MANOS` + orden Monarca + mainnet (no DEMO).
+3. ~~capital_mando hedge → masa Igris~~ **cancelado** (tumor). Potencia = caja USDT.  
+4. **Manos** ritual caja USDT solo con `TUSK_BOVEDA_MANOS` + orden Monarca.
 
 ---
 

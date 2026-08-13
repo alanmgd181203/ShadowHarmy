@@ -210,6 +210,12 @@ class BellionAuditor:
                 "motivo": "sin_puerta_aun",
                 "bloqueado": None,
             }
+        try:
+            from core import igris_mision as imis
+
+            igris_resumen["mision"] = imis.snapshot_telemetria()
+        except Exception as e:
+            igris_resumen["mision"] = {"ok": False, "motivo": str(e)}
         # Libros del Santo en foco (meta engorde) → Pergamino; ETH queda como legado
         if tank is not None:
             try:

@@ -23,17 +23,20 @@ def main() -> int:
     _assert(bm.doctrina_activa(), "doctrina on")
 
     plan = bm.plan_ritual_ideal()
-    _assert(len(plan["fases"]) >= 9, "fases ritual")
+    _assert(plan["escenario"] == "caja_usdt_uta", "escenario caja USDT")
     _assert(plan["fases"][0]["id"] == "reset_si_sucio", "fase0 reset")
     _assert(plan.get("ley_reset_sucio"), "falta ley_reset_sucio")
     _assert(plan["fases"][1]["id"] == "funding_a_uta", "fase1")
-    _assert(plan["fases"][3]["id"] == "mejor_camino", "fase3 camino")
-    _assert("Convert" in plan["fases"][3]["desc"] and "spot" in plan["fases"][3]["desc"], "ley convert/spot")
+    _assert(plan["fases"][2]["id"] == "mejor_camino_usdt", "camino a USDT")
+    _assert(plan["fases"][3]["id"] == "stop_en_usdt", "stop USDT")
+    _assert("short_inverso_par" in (plan.get("extirpado") or []), "tumor short extirpado")
     _assert(plan.get("no_fundir_manos_aun") is True, "no manos aun")
+    libros = bm.libros_tres_cajones(caja_usdt=100, legado_mnt_short_usd=50)
+    _assert(libros["sucio_mnt"] is True, "sucio si hay short legado")
 
     pot100 = bm.potencia_pase_desde_mando(100.0)
-    _assert(pot100["potencia_n"] == 4, pot100)
-    _assert(pot100["ultimo_paso"] and pot100["ultimo_paso"]["n"] == 4, pot100)
+    _assert(pot100["potencia_n"] == 3, pot100)
+    _assert(pot100["ultimo_paso"] and pot100["ultimo_paso"]["n"] == 3, pot100)
 
     # Short 500 MNT @ 0.20 → capital mando 100
     hedges = [{
@@ -64,11 +67,14 @@ def main() -> int:
     _assert(not eq2["dentro_tolerancia"], eq2)
 
     bloque = bm.construir_bloque_boveda_mnt(
-        mnt_usd=100.01, hedges=hedges, spot_mark=0.2001, equity_vivo=100.5,
+        mnt_usd=100.01, hedges=hedges, spot_mark=0.2001, equity_vivo=100.5, caja_usdt=100.0,
     )
     _assert(bloque["manos_permitidas"] is False, "manos off en bloque")
+    _assert(bloque["doctrina"] == "CAJA_USDT", bloque["doctrina"])
     _assert(bloque["capital_mando"]["ok"], bloque["capital_mando"])
-    _assert(bloque["potencia_pase"]["potencia_n"] == 4, bloque["potencia_pase"])
+    _assert(bloque.get("capital_mando_es_legado") is True, "mando es legado")
+    _assert(bloque["potencia_pase"]["potencia_n"] == 3, bloque["potencia_pase"])
+    _assert(bloque["libros"]["sucio_mnt"] is True, bloque["libros"])
 
     # Integración tesorería simulada
     snap = tt.tesoreria_simulada(

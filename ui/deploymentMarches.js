@@ -1,19 +1,21 @@
 /**
- * Dos marchas de despliegue — ritmo del manto Igris + lote del pase.
- * Espejo backend: core/pase_director.py · data/marcha_despliegue.json
- * Sello 2 marchas: asalto (rápido) · personalizado (~T). Legado → asalto.
+ * Marchas de despliegue — ritmo del manto Igris + lote del pase.
+ * Cirugía 2026-08-12: Igris = solo Asalto. Personalizado se normaliza a asalto (UI no lo ofrece).
+ * Espejo backend: core/pase_director.py · IGRIS_SOLO_ASALTO
  */
 
-/** Legado no operativo: se mapea a asalto al hidratar / elegir. */
+/** Legado no operativo: todo → asalto. */
 export const MARCHA_LEGACY_MAP = {
   tactico: "asalto",
   marcha_forzada: "asalto",
   forzada: "asalto",
   inmediato: "asalto",
-  custom: "personalizado",
-  duracion: "personalizado",
+  custom: "asalto",
+  duracion: "asalto",
+  personalizado: "asalto",
 };
 
+/** Catálogo altar (solo Asalto operativo). */
 export const DEPLOYMENT_MARCHES = [
   {
     id: "asalto",
@@ -33,26 +35,19 @@ export const DEPLOYMENT_MARCHES = [
     forceMarket: true,
     fillRatio: 1.0,
   },
-  {
-    id: "personalizado",
-    titulo: "Marcha Personalizada",
-    tagline: "Por duracion",
-    voz: "El Monarca escribe ~T dias; cada par calibra umbral",
-    tiempoEstimado: "—",
-    tiempoNota: "obligatorio: dias",
-    impacto: {
-      label: "Calibracion viva",
-      valor: "T dias",
-      detalle: "reserva 1 · fill 100% · reajuste vivo",
-    },
-    ritmoMs: 900,
-    reservaPasos: 1,
-    umbralFeesMult: -1,
-    forceMarket: false,
-    fillRatio: 1.0,
-    requiereDuracion: true,
-  },
 ];
+
+/** Legado: perfil personalizado (oculto; normaliza a asalto). */
+export const MARCHA_PERSONALIZADO_LEGADO = {
+  id: "personalizado",
+  titulo: "Marcha Personalizada (legado)",
+  tagline: "Fuera del Escudo",
+  voz: "Paciencia fina = Greed despues. Igris solo Asalto.",
+  requiereDuracion: true,
+  forceMarket: false,
+  fillRatio: 1.0,
+  reservaPasos: 1,
+};
 
 export const MARCH_STORAGE_KEY = "shadow_marcha_despliegue";
 export const MARCHA_API_URL = "/data/marcha_despliegue.json";
@@ -62,6 +57,7 @@ export function normalizeMarchId(id) {
   const raw = String(id || "").toLowerCase().trim();
   if (!raw) return null;
   const mapped = MARCHA_LEGACY_MAP[raw] || raw;
+  if (mapped === "personalizado") return "asalto";
   return DEPLOYMENT_MARCHES.some((m) => m.id === mapped) ? mapped : null;
 }
 
@@ -120,10 +116,6 @@ export async function hydrateMarchFromBackend() {
 export async function persistMarchaBackend(marchaId, opts = {}) {
   const m = marchById(marchaId);
   if (!m) return false;
-  if (m.requiereDuracion) {
-    const d = Number(opts.duracionDias);
-    if (!(d > 0)) return false;
-  }
   const body = {
     marcha_id: m.id,
     titulo: m.titulo,

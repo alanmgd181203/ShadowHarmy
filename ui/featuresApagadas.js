@@ -18,13 +18,13 @@ export const FEATURES_APAGADAS = {
       "Pausado en WiFi (latencia). Encender cuando el Pergamino sea app y el MP4 vaya empaquetado en local.",
   },
 
-  /** Pantalla de las 2 marchas al despertar — cableada al director de pase. */
+  /** Altar de marcha al despertar — solo Asalto (cirugía Igris 2026-08-12). */
   altarTresMarchas: {
     encendido: true,
-    nombre: "Altar de dos marchas (asalto · personalizado)",
+    nombre: "Altar Asalto (solo marcha operativa)",
     donde: "ui/DeploymentAltar.jsx · core/pase_director.py · data/marcha_despliegue.json",
     porQue:
-      "Asalto (rápido) / Personalizado (~T). Legado táctico·forzada → asalto. Fill 100% · reserva 1.",
+      "Solo Asalto. Personalizado/legado → asalto. Fill 100% · reserva 1. Paciencia = Greed.",
   },
 };
 

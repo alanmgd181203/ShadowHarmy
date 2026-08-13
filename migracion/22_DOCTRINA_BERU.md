@@ -1,7 +1,8 @@
 # 22 — Doctrina Beru (caza spot + capital manto + ProtoBeru)
 
-**Estado:** Monarca 2026-07-09 · **ley vivo 2026-08-11**  
-**Código:** `generales/beru.py`, `core/beru_ley.py`, `core/beru_wake.py`, `core/beru_cazador.py`, …
+**Estado:** Monarca 2026-07-09 · **ley vivo 2026-08-11** · **molino 2026-08-12**  
+**Código:** `generales/beru.py`, `core/beru_ley.py`, `core/beru_wake.py`, `core/beru_cazador.py`, …  
+**Dudas finas:** [`DUDAS_CIRUGIAS_MENORES_2026-08-12.md`](DUDAS_CIRUGIAS_MENORES_2026-08-12.md)
 
 ---
 
@@ -12,8 +13,9 @@
 3. **No engorda.** Sin +G_min de frontera, sin capas nuevas de masa, sin crecer inventario “a costa del oxígeno”. (`BERU_ENGORDE_PERMITIDO=false`)
 4. **Abortar solo si está ciego:** sin precio / Tank en coma muchos segundos — no por ROJO ligero de latencia. (`BERU_ABORTAR_SOLO_CEGUERA`)
 5. **Wake = Mega-reset del 0** al precio actual · flota · Normal **1,6 %** · manos OFF hasta orden.
+6. **Molino (2026-08-12):** spot margen ON (permiso Bybit al 95 %). No pregunta si hay USDT. No descansa mientras haya manto. No planta futuros. Manos/hilo **OFF** hasta orden (cirugía ≠ despertar).
 
-Detalle: [`CHECKPOINT_BERU_LEY_NEUTRO_2026-08-11.md`](CHECKPOINT_BERU_LEY_NEUTRO_2026-08-11.md) · wake [`CHECKPOINT_BERU_WAKE_RESET0_2026-08-11.md`](CHECKPOINT_BERU_WAKE_RESET0_2026-08-11.md).
+Detalle: [`CHECKPOINT_BERU_LEY_NEUTRO_2026-08-11.md`](CHECKPOINT_BERU_LEY_NEUTRO_2026-08-11.md) · wake [`CHECKPOINT_BERU_WAKE_RESET0_2026-08-11.md`](CHECKPOINT_BERU_WAKE_RESET0_2026-08-11.md) · ejército [`CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md`](CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md).
 
 ---
 

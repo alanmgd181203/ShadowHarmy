@@ -407,8 +407,8 @@ export function mantoDesdeFuentes(snap, hb = null, nowSec = Date.now() / 1000) {
   const ley = igris.ley_masa || {};
   const freq = igris.frecuencia_manto || {};
 
-  // DESPIERTO = soldado arise_igris vivo (latido), no el ts global del pergamino
-  // (Bellion u otros pueden sellar estado_vivo mientras Igris duerme).
+  // DESPIERTO = misión activa o arise vivo. Preferir telemetría sueño (cirugía 2026-08-12).
+  const mis = igris.mision || {};
   const tsHb = hb?.ts ?? null;
   const tsIgrisSolo = igris.ts ?? igris.pulso_ts ?? igris.ultimo_latido_ts ?? null;
   const tsPulso =
@@ -417,7 +417,35 @@ export function mantoDesdeFuentes(snap, hb = null, nowSec = Date.now() / 1000) {
       : tsIgrisSolo != null && Number(tsIgrisSolo) > 0
         ? Number(tsIgrisSolo)
         : null;
-  const pulso = pulsoDesdeTs(tsPulso, nowSec);
+  let pulso = pulsoDesdeTs(tsPulso, nowSec);
+  if (mis.sueno_mision === true || mis.dormido === true || mis.dormido === false) {
+    const age =
+      tsPulso != null && Number(tsPulso) > 0
+        ? Math.max(0, nowSec - Number(tsPulso))
+        : null;
+    if (mis.dormido === true && !mis.mision_activa) {
+      pulso = {
+        tab: "DORMIDO",
+        estado: "DORMIDO",
+        label: "DORMIDO",
+        frescura: age != null && age <= FRESCO_S ? "fresco" : "viejo",
+        frescuraLabel: mis.sueno_mision ? "SUEÑO·MISIÓN" : "DORMIDO",
+        ageSec: age,
+        ageLabel: age != null ? fmtAge(age) : "—",
+      };
+    } else if (mis.dormido === false || mis.mision_activa) {
+      const tipo = mis.mision_activa?.tipo || "misión";
+      pulso = {
+        tab: "DESPIERTO",
+        estado: "DESPIERTO",
+        label: "DESPIERTO",
+        frescura: "fresco",
+        frescuraLabel: String(tipo).toUpperCase(),
+        ageSec: age,
+        ageLabel: age != null ? fmtAge(age) : "—",
+      };
+    }
+  }
 
   const usdL = Number(vent.usd_long ?? 0);
   const usdS = Number(vent.usd_short ?? 0);

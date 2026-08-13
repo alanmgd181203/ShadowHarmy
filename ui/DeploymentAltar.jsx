@@ -1,26 +1,10 @@
-import { useState } from "react";
 import { DEPLOYMENT_MARCHES, etaLoteLabel } from "./deploymentMarches.js";
 
 /**
- * Altar de decision — ritmo de despliegue (2 marchas: asalto · personalizado).
- * Personalizado: dias obligatorios + Calibrar.
+ * Altar de decision — ritmo de despliegue (solo Asalto; cirugía Igris 2026-08-12).
  */
 export default function DeploymentAltar({ onChoose, collapsing, onClose, frecuenciaManto }) {
-  const [diasCustom, setDiasCustom] = useState("");
-  const [errCustom, setErrCustom] = useState("");
-
   function choose(m) {
-    if (m.requiereDuracion) {
-      const d = Number(diasCustom);
-      if (!(d > 0)) {
-        setErrCustom("Escribe cuantos dias (~T). Sin default.");
-        return;
-      }
-      setErrCustom("");
-      onChoose(m, { duracionDias: d });
-      return;
-    }
-    setErrCustom("");
     onChoose(m, {});
   }
 
@@ -49,8 +33,8 @@ export default function DeploymentAltar({ onChoose, collapsing, onClose, frecuen
             Ritmo del ejercito
           </h2>
           <p className="text-[12px] text-[#5a6170] mt-2 max-w-[20rem] mx-auto leading-relaxed">
-            Asalto = entrar ya (peaje aceptado). Personalizado = escribe ~T dias y el umbral se
-            calibra. Fill 100% · reserva 1.
+            Solo Asalto: el ejercito entra ya (peaje aceptado). Fill 100% · reserva 1.
+            Paciencia fina = Greed despues, no el Escudo.
           </p>
         </header>
 
@@ -89,35 +73,6 @@ export default function DeploymentAltar({ onChoose, collapsing, onClose, frecuen
                     </div>
                   </div>
                 </button>
-
-                {m.requiereDuracion ? (
-                  <div className="mt-3 flex flex-col gap-2 border-t border-[#1a1d26] pt-3">
-                    <label className="text-[10px] uppercase tracking-[0.18em] text-[#6a5a40]">
-                      Duracion (~T dias) — obligatoria
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        min="0.1"
-                        step="0.1"
-                        value={diasCustom}
-                        onChange={(e) => setDiasCustom(e.target.value)}
-                        placeholder="ej. 7"
-                        className="flex-1 bg-black/60 border border-[#2a2f3a] px-2 py-2 font-mono text-sm text-[#e8e4d8]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => choose(m)}
-                        className="px-3 py-2 border border-[#3a3428] text-[11px] uppercase tracking-[0.15em] text-[#e8dcc0]"
-                      >
-                        Calibrar
-                      </button>
-                    </div>
-                    {errCustom ? (
-                      <p className="text-[11px] text-[#c07060]">{errCustom}</p>
-                    ) : null}
-                  </div>
-                ) : null}
               </div>
             );
           })}

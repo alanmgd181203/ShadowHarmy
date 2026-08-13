@@ -19,7 +19,11 @@ def test_defaults_ley():
     assert config.BERU_ENGORDE_PERMITIDO is False
     assert config.BERU_ABORTAR_SOLO_CEGUERA is True
     assert config.BERU_MANOS is False
+    assert config.BERU_HILO_ENABLED is False
+    assert config.BERU_SPOT_MARGEN_ENABLED is True
     assert beru_ley.consumir_auth_en_reserva() is False
+    assert beru_ley.nunca_descansa() is True
+    assert beru_ley.spot_margen_activo() is True
 
 
 def test_rojo_no_aborta_si_hay_precio():
@@ -61,7 +65,7 @@ def main() -> int:
     test_sin_precio_aborta()
     test_coma_aborta()
     test_engorde_off()
-    print("validar_beru_ley_neutro_smoke: OK (5 checks)")
+    print("validar_beru_ley_neutro_smoke: OK (molino + spot margen + manos OFF)")
     return 0
 
 

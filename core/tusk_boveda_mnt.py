@@ -1,9 +1,10 @@
-"""Tusk bóveda MNT — checkpoint doctrinal (cálculo frío, sin manos).
+"""Tusk — caja USDT (mega-cirugía 2026-08-12, frío, sin manos).
 
-Escenario ideal: Funding→UTA → descuento MNT → lotes spot+short inverso →
-capital de mando desde el short · foto inauguración spot/inverso.
+Ritual: lo que sea → Trading unificado → USDT → YA.
+NO comprar MNT. NO abrir short de equilibrio.
+Hedge/spot MNT que quede en cuenta = legado sucio (solo lectura).
 
-Manos (Convert, transfer, shorts): SOLO si TUSK_BOVEDA_MANOS=true (default false).
+Manos: SOLO si TUSK_BOVEDA_MANOS=true (default false).
 Este módulo no llama Bridge ni coloca órdenes.
 """
 from __future__ import annotations
@@ -29,52 +30,56 @@ def doctrina_activa() -> bool:
 
 
 def plan_ritual_ideal() -> dict[str, Any]:
-    """Fases del escenario ideal — especificación, no ejecución."""
+    """Fases de la caja USDT — especificación, no ejecución."""
     return {
-        "escenario": "ideal_cuenta_nueva_o_capital_suelto",
+        "escenario": "caja_usdt_uta",
         "manos": "OFF_por_default",
         "fases": [
             {
                 "n": 0,
                 "id": "reset_si_sucio",
                 "desc": (
-                    "Si bóveda sucia/heredada: sanear capa bóveda a cero "
-                    "(peaje OK) y luego ritual ideal — ley Monarca 2026-08-02"
+                    "Si hay MNT spot+short legado: sanear a mano (peaje OK) "
+                    "hacia USDT. El código NO reconstruye ese hedge."
                 ),
             },
             {"n": 1, "id": "funding_a_uta", "desc": "Mover capital de Funding a Trading unificado"},
-            {"n": 2, "id": "activar_descuento_mnt", "desc": "Activar descuento tarifa MNT / colateral"},
             {
-                "n": 3,
-                "id": "mejor_camino",
+                "n": 2,
+                "id": "mejor_camino_usdt",
                 "desc": (
-                    "Convert solo si buena oportunidad; si no, todo por spot: "
-                    "crypto→USDT o USDC (mejor peaje/spread)→MNT"
+                    "Convert solo si conviene como atajo a USDT; si no, spot: "
+                    "crypto → USDT. STOP. No comprar MNT. No short de equilibrio."
                 ),
             },
-            {"n": 4, "id": "lote_semilla", "desc": "1–5% o mínimo → mejor camino → MNT spot"},
-            {"n": 5, "id": "short_inverso_par", "desc": "Short inverso MNT ≈ spot del lote"},
-            {"n": 6, "id": "cascada_poquitos", "desc": "Repetir a poquitos con la misma ley de camino"},
-            {"n": 7, "id": "sesgo_spot", "desc": "Tolerancia con preferencia a más spot que short"},
-            {"n": 8, "id": "sellar_inauguracion", "desc": "Foto precios spot/inverso + capital_mando"},
+            {"n": 3, "id": "stop_en_usdt", "desc": "Caja = USDT en UTA. Ya."},
             {
-                "n": 9,
-                "id": "potencia_pase",
-                "desc": "Con capital_mando, preguntar al pase hasta qué paso/rango hay potencia (antes de manto/Beru)",
+                "n": 4,
+                "id": "libros_tres_cajones",
+                "desc": "Registrar caja USDT · manto Igris · casa Beru (no mezclar)",
             },
-            {"n": 10, "id": "mantenimiento_fees", "desc": "Reponer spot cuando fees desgasten (futuro)"},
+            {
+                "n": 5,
+                "id": "potencia_pase",
+                "desc": "Potencia del pase desde caja/equity USDT — no desde short MNT",
+            },
+        ],
+        "extirpado": [
+            "activar_descuento_mnt",
+            "lote_semilla_mnt",
+            "short_inverso_par",
+            "sesgo_spot_short",
         ],
         "meta_final": (
-            "Máximo capital útil en MNT spot como colateral + short inverso "
-            "casi 1:1 (sesgo spot). Capital de mando = short×entrada → potencia pase."
+            "Caja de guerra = USDT en UTA. MNT si queda = legado sucio. "
+            "Potencia pase = caja, no hedge."
         ),
         "manos_ley": (
-            "Convert solo si buena oportunidad; si no, todo por spot "
-            "(crypto→USDT|USDC→MNT). Manos OFF hasta orden Monarca."
+            "Convert solo atajo a USDT. Manos OFF hasta orden Monarca. "
+            "Saneo MNT vivo = mano del Monarca, no auto."
         ),
         "ley_reset_sucio": (
-            "Estado sucio/heredado → sanear bóveda a cero (fees=peaje) → ritual ideal. "
-            "No catalogar todas las rarezas ahora. Excepción solo con orden Monarca."
+            "MNT+short legado → sanear a USDT (peaje OK). No reconstruir bóveda MNT."
         ),
         "no_fundir_manos_aun": True,
     }
@@ -89,14 +94,38 @@ def _f(x: Any, default: float = 0.0) -> float:
         return default
 
 
+def libros_tres_cajones(
+    *,
+    caja_usdt: float = 0.0,
+    manto_usd: float = 0.0,
+    casa_beru_usd: float = 0.0,
+    legado_mnt_spot_usd: float = 0.0,
+    legado_mnt_short_usd: float = 0.0,
+) -> dict[str, Any]:
+    """Peras vs manzanas: caja · manto · casa Beru. MNT = sucio, no saco."""
+    sucio = float(legado_mnt_spot_usd or 0) > 0.5 or float(legado_mnt_short_usd or 0) > 0.5
+    return {
+        "caja_usdt": round(float(caja_usdt or 0), 4),
+        "manto_usd": round(float(manto_usd or 0), 4),
+        "casa_beru_usd": round(float(casa_beru_usd or 0), 4),
+        "legado_mnt_spot_usd": round(float(legado_mnt_spot_usd or 0), 4),
+        "legado_mnt_short_usd": round(float(legado_mnt_short_usd or 0), 4),
+        "sucio_mnt": sucio,
+        "nota": (
+            "Caja=USDT libre. Manto=piernas Igris. Casa=spot del molino Beru. "
+            "MNT spot/short = tumor legado (no reconstruir)."
+        ),
+    }
+
+
 def capital_mando_desde_hedge(
     hedges: list[dict[str, Any]] | None,
     *,
     preferir_inverse: bool = True,
 ) -> dict[str, Any]:
-    """Capital de mando = size × precio_entrada (avg) del short MNT.
+    """LECTURA legado: size × entrada del short MNT (si aún existe).
 
-    Doctrina: lo más seguro tras preparar la bóveda (post-fees), antes de manto/Beru.
+    Ya NO gobierna potencia ni ritual. Solo diagnóstico de sucio.
     """
     hedges = [h for h in (hedges or []) if str(h.get("base") or "").upper() == "MNT"]
     if not hedges:
@@ -302,8 +331,8 @@ def potencia_pase_desde_mando(capital_mando_usd: float) -> dict[str, Any]:
         ),
         "n_pasos_en_potencia": len(pasos),
         "nota": (
-            "Solo lectura: no despliega manto. "
-            "Ej. ~100 USD → potencia hasta paso 4 (acum 96)."
+            "Solo lectura: potencia desde caja/equity USDT, no desde short MNT. "
+            "Ej. ~100 USD → potencia hasta paso 3 (acum 76); paso 4 pide 116."
         ),
     }
 
@@ -314,8 +343,11 @@ def construir_bloque_boveda_mnt(
     hedges: list[dict[str, Any]] | None,
     spot_mark: float | None = None,
     equity_vivo: float | None = None,
+    caja_usdt: float | None = None,
+    manto_usd: float = 0.0,
+    casa_beru_usd: float = 0.0,
 ) -> dict[str, Any]:
-    """Bloque para estado_vivo / tesorería — solo lectura."""
+    """Bloque tesorería — caja USDT manda; MNT hedge = sucio legado."""
     hedges = list(hedges or [])
     mando = capital_mando_desde_hedge(hedges)
     short_usd = sum(_f(h.get("notional_usd")) for h in hedges if str(h.get("base") or "").upper() == "MNT")
@@ -324,7 +356,6 @@ def construir_bloque_boveda_mnt(
     else:
         short_ref = short_usd
 
-    # Precios desde hedges si no vienen
     inv_mark = None
     inv_avg = None
     for h in hedges:
@@ -343,29 +374,38 @@ def construir_bloque_boveda_mnt(
     )
     eq = equilibrio_spot_short(float(mnt_usd or 0), short_ref)
     inaug = cargar_inauguracion()
-    capital_para_pase = float(mando["capital_mando_usd"]) if mando.get("ok") else 0.0
-    potencia = potencia_pase_desde_mando(capital_para_pase)
+    caja = float(caja_usdt) if caja_usdt is not None else (
+        float(equity_vivo) if equity_vivo is not None else 0.0
+    )
+    potencia = potencia_pase_desde_mando(caja)
+    libros = libros_tres_cajones(
+        caja_usdt=caja,
+        manto_usd=manto_usd,
+        casa_beru_usd=casa_beru_usd,
+        legado_mnt_spot_usd=float(mnt_usd or 0),
+        legado_mnt_short_usd=short_ref,
+    )
 
     return {
-        "doctrina": "CHECKPOINT_TUSK_BOVEDA_MNT",
+        "doctrina": "CAJA_USDT",
         "manos_permitidas": manos_permitidas(),
         "manos_nota": (
-            "Ritual de preparación NO ejecuta órdenes (TUSK_BOVEDA_MANOS=false)."
+            "Ritual NO ejecuta órdenes (TUSK_BOVEDA_MANOS=false)."
             if not manos_permitidas()
             else "MANOS ON — peligro; solo con orden Monarca."
         ),
         "plan_ideal": plan_ritual_ideal(),
+        "libros": libros,
         "capital_mando": mando,
+        "capital_mando_es_legado": True,
         "potencia_pase": potencia,
         "equity_vivo_usd": round(float(equity_vivo), 4) if equity_vivo is not None else None,
         "equilibrio": eq,
         "foto_viva": foto,
         "inauguracion": inaug,
         "nota_monarca": (
-            "Capital de mando = short×entrada tras preparar bóveda. "
-            "Con ese número → potencia_pase (qué pasos caben). "
-            "Equity vivo puede ser un poco mayor (sesgo spot). "
-            "Manos del ritual OFF. Casos especiales: siguiente pergamino."
+            "Caja = USDT UTA. Potencia pase desde caja, no desde short MNT. "
+            "Si hay MNT+short = sucio (saneo a mano). Manos ritual OFF."
         ),
     }
 

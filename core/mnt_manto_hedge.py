@@ -1,10 +1,11 @@
-"""MNT bóveda vs manto — hedge bidireccional (doctrina Monarca 2026-08-08).
+"""MNT Santo vs legado sucio (mega-cirugía 2026-08-12).
 
-Bóveda (Tusk): spot margen + short inverso MNT (colateral).
-Manto (Igris / ranking): long inverso + short lineal — mismos frentes §E.
+Manto (Igris): long inverso + short lineal. MNT es Santo, no saco.
+Short inverso MNT si aparece = tumor legado (Tusk no lo reconstruye).
+Igris no planta ese short. El have del pase no lo cuenta.
 
-En modo una-vía (netting), Buy del manto COMERÍA el short de bóveda.
-Por eso MNTUSD inverso exige modo hedge + positionIdx y nunca reduceOnly al abrir.
+Si queda sucio en cuenta: modo hedge aísla el long del manto para no
+comérselo. No es mandato de volver a abrir el short.
 """
 from __future__ import annotations
 
@@ -14,15 +15,14 @@ import core.config as config
 
 
 def bases_boveda() -> set[str]:
-    """Activos cuya pierna inversa short es colateral, no manto del pase.
-
-    Vacío explícito (env '') = sin bases bóveda (Monarca: bóveda pasa a MNTPERP USDC).
-    """
+    """Activos cuyo short inverso NO es manto (legado sucio, no saco)."""
     raw = getattr(config, "IGRIS_BOVEDA_BASES", None)
     if isinstance(raw, (list, tuple, set)):
-        return {str(x).upper() for x in raw if str(x).strip()}
-    s = str(raw if raw is not None else getattr(config, "IGRIS_PROTEGER_BASES", "") or "")
-    return {x.strip().upper() for x in s.split(",") if x.strip()}
+        out = {str(x).upper() for x in raw if str(x).strip()}
+    else:
+        s = str(raw or getattr(config, "IGRIS_PROTEGER_BASES", "MNT") or "MNT")
+        out = {x.strip().upper() for x in s.split(",") if x.strip()}
+    return out or {"MNT"}
 
 
 def activo_de_frente(frente: str | None) -> str:
@@ -72,7 +72,7 @@ def lado_cuenta_como_manto(activo: str, frente: str, lado: str) -> bool:
     """
     Qué pierna entra al nocional/ventana del *pase* (no bóveda).
 
-    MNT inverso: solo LONG = manto; SHORT inverso = bóveda (excluido).
+    MNT inverso: solo LONG = manto; SHORT inverso = legado sucio (excluido).
     Resto: L en inverse + S en lineal del par §E (y lo desplegado en ese frente).
     """
     act = str(activo or "").upper()
@@ -113,8 +113,8 @@ def amenaza_netting_boveda(
     modo_hedge: bool,
 ) -> str | None:
     """
-    Si no hay hedge: abrir LONG en inverso bóveda nettea el short → prohibido.
-    Con hedge: OK (carril long aislado). Igris no abre SHORT inverso (eso es bóveda/Tusk).
+    Si queda short legado y no hay hedge: abrir LONG lo nettea → prohibido.
+    Con hedge: OK. Igris no abre SHORT inverso (no reconstruir el tumor).
     """
     if not es_inverse_boveda(frente):
         return None
@@ -147,7 +147,7 @@ def pares_hedge_boveda() -> list[tuple[str, str]]:
 
 async def asegurar_hedge_bases_boveda(bridge) -> dict[str, Any]:
     """Activa modo bidireccional (mode=3) en todos los pares de bóveda."""
-    if not getattr(config, "IGRIS_MNT_HEDGE_OBLIGATORIO", True):
+    if not getattr(config, "IGRIS_MNT_HEDGE_OBLIGATORIO", False):
         return {"ok": True, "skipped": True, "pares": []}
     resultados: list[dict[str, Any]] = []
     ok_all = True
