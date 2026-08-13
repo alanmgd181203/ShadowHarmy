@@ -37,7 +37,7 @@ Manos / Arise / despertar Beru: **no** se encienden por este pergamino.
 
 ### C3 — Modo Both Sides en MNT inverso
 
-**Hecho:** no se fuerza hedge al despertar.
+**Hecho:** no se fuerza hedge al despertar. Lanzador `asegurar_mnt_hedge` = **fósil** (purga de mapa 2026-08-12): corre y se niega; no hace switch.
 
 **Abierto:** si queda short sucio, ¿Igris exige hedge solo al abrir el long del Santo, o reporta y duerme?
 

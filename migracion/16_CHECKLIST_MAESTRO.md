@@ -440,7 +440,7 @@ TOTAL checklist:  125 / 184  [x]  →  ~68%
 Núcleo Fases 0–3: fuerte (~95% operativo)
 ```
 
-**Última actualización checklist:** 2026-08-06 (noche historial Igris · panel cableado · Jess 4.0.3 Asalto aparte)
+**Última actualización checklist:** 2026-08-12 (mega-cirugía caja USDT · purga de mapa Codex/Resumen/Tusk)
 **Próximo ítem recomendado:** cirugías menores **una a una** desde [`DUDAS_CIRUGIAS_MENORES_2026-08-12.md`](DUDAS_CIRUGIAS_MENORES_2026-08-12.md) · **4.0.4** Beru (despertar aparte) · **Greed al último**
  
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  

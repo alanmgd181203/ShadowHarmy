@@ -1,6 +1,6 @@
-"""Libros Tusk — bóveda / guerra / testigo (sello mega-pre-Igris).
+"""Libros Tusk — caja / guerra / testigo (sello mega-pre-Igris).
 
-MtM de bóveda MNT ≠ riqueza Beru.
+MtM de MNT legado (sucio) ≠ riqueza Beru. Caja = USDT.
 Equity UTA = testigo (no veredicto de riqueza).
 Guerra = reportes (stub hasta sim).
 Aporte guerra→bóveda = transferencia explícita entre libros (asiento futuro).
@@ -62,7 +62,7 @@ def snapshot_libros(
                 equity = v
                 break
 
-    # MtM bóveda MNT (si existe en snapshot) — NO es riqueza Beru
+    # MtM MNT legado (si existe en snapshot) — NO es riqueza Beru
     mtm_mnt = None
     for k in ("boveda_mnt_mtm_usd", "mnt_mtm_usd", "mtm_boveda_usd"):
         if boveda_live.get(k) is not None:
@@ -77,7 +77,7 @@ def snapshot_libros(
         "boveda": {
             "mtm_mnt_usd": mtm_mnt,
             "mtm_no_es_riqueza_beru": True,
-            "nota": "MtM bóveda MNT ≠ riqueza Beru",
+            "nota": "MtM MNT legado ≠ riqueza Beru",
         },
         "guerra": {
             "reportes_vivos": False,

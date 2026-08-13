@@ -22,4 +22,6 @@ Estos pergaminos/lanzadores **todavía pueden enseñar la ley vieja** en este se
 
 La purga que sigue es **corta**: alinear el mapa con la ley ya soldada. No es incineración (no se tiran ensayos Beru ni rituales Arise; eso sigue en el cajón V12 / B2).
 
+**Después de este sello:** Codex · Resumen · Generales Tusk · encabezado Arise · lanzador hedge fósil. Revertir a este commit si algo de eso sale mal.
+
 — Shadow Army · pre-fuego · revertir aquí si la purga sale mal —

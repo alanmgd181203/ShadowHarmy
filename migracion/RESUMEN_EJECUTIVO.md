@@ -1,6 +1,6 @@
 # Resumen ejecutivo — Migración Shadow Army
 
-**Actualizado:** 2026-08-02 (Kaiser índice+sesgo · bóveda MNT)
+**Actualizado:** 2026-08-12 (mega-cirugía fría · caja USDT · purga de mapa)
 
 ## Código canónico
 
@@ -9,7 +9,7 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 
 ## Veredicto en una frase
 
-**Norte de precios:** índice Bybit. Kaiser etiquetará sesgos históricos de cada mar vs ese índice ([`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md)). Bóveda MNT sigue en frío / manos OFF. **Siguiente:** casos especiales bóveda o cablear tag 3.8.P5 cuando digas.
+**Norte:** caja de guerra = **USDT**. MNT es Santo del manto, no saco. Beru molino dormido. Manos OFF. Índice Bybit sigue siendo el norte de precios ([`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md)). **Siguiente:** una cirugía menor del cajón de dudas, o 4.0.4 cuando el Monarca despierte a Beru.
 
 ## Progreso checklist (16)
 
@@ -24,8 +24,8 @@ Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jes
 | Urgencia | Documento |
 |----------|-----------|
 | **Cómo hablar (agente)** | [`17_GUIA_MONARCA.md`](17_GUIA_MONARCA.md) — **siempre primero** |
-| Arrancar ojos / sim / Arise | [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md) · Arena / `arise_ojos_tusk` / `arise_igris` |
-| Siguiente paso | [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md) |
+| Arrancar ojos / testnet | [`18_ARRANQUE_TESTNET.md`](18_ARRANQUE_TESTNET.md) |
+| Siguiente paso | [`16_CHECKLIST_MAESTRO.md`](16_CHECKLIST_MAESTRO.md) · dudas [`DUDAS_CIRUGIAS_MENORES_2026-08-12.md`](DUDAS_CIRUGIAS_MENORES_2026-08-12.md) |
 | Doctrina Igris + checkpoint 48–52 | [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) |
 | Doctrina Beru | [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) |
 | Doctrina Greed/Kaiser | [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md) |

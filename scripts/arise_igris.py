@@ -5,10 +5,9 @@
 Despierta: Tusk (oxígeno) · Tank (orderbook real) · Kaiser · Igris (manto).
 NO despierta: Greed · Beru (hibernados hasta orden Monarca).
 Manos reales: ON (MODO_SIMULACION=False).
-Bóveda manos Convert: OFF. MNT short inverso = bóveda (hedge), no manto.
+Convert ritual Tusk: OFF. MNT = Santo (long inverso + short lineal). Short inverso = sucio legado, no plantar.
 Canal: lote completo de potencia (vacío exclusivos). Un Santo: IGRIS_FORZAR_EXCLUSIVOS=MNT|ADA|BCH.
-Bóveda: solo short USDC (MNTPERP/MNTUSDC); MNT del manto engordable.
-MNT Santo engordable (`IGRIS_BOVEDA_EN_LOTE=true`). Sueño+misión + solo Asalto (cirugía 2026-08-12).
+No reconstruir hedge de saco. Sueño+misión + solo Asalto (cirugía 2026-08-12).
 
   python scripts/arise_igris.py --solo-ojos --segundos 90
   python scripts/arise_igris.py --durar-hasta 2026-08-09T12:00:00 --permitir-mainnet-manos
