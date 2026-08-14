@@ -1,41 +1,39 @@
-"""Beru Negociador — abismo -2%, vacío Adán 0.5%, reciclaje sin engorde."""
+"""Beru Negociador — ping-pong 2026-08-13 (cirugía acordeón OFF).
+
+TODOS los grados:
+  Tras Hoz del cazador → llamado del oro ±1.6% (SOLO detona).
+  Al detonar → UNA trailing con toda la masa (sin acordeón).
+  Al llenarse → oro al otro lado del vacío → otra trailing.
+  Así hasta Mega / nuevo 0.
+
+Cosechador ya no es vida aparte: es el mismo oficio.
+Funeral entre orillas: holgado (1.6% de camino).
+"""
 from __future__ import annotations
 
 from core import beru_cazador
-from core import beru_tier
 import core.config as config
 
-FaseNeg = str  # ESPERANDO_CONDICIONAL | ARMADO_ADAN | ACORDEON | RECICLANDO
+FaseNeg = str  # ESPERANDO_ORO | TRAILING_ACTIVA | PING_PONG
+
+
+def vacio_adan_pct() -> float:
+    return float(getattr(config, "BERU_VACIO_NORMAL", 0.016))
 
 
 def abismo_salida_pct() -> float:
-    """Distancia fija de salida tras caza (−2% doctrina Monarca)."""
-    return float(getattr(config, "BERU_ABISMO_SALIDA_PCT", 0.02))
-
-
-def adan_armado_pct() -> float:
-    """Vacío Adán: armar bracket en memoria cuando el precio está a ≤0.5% del trigger."""
-    return float(getattr(config, "BERU_ADAN_ARMADO_PCT", 0.005))
+    return float(getattr(config, "BERU_ABISMO_SALIDA_PCT", vacio_adan_pct()))
 
 
 def abismo_pct(vacio_adan: float | None = None) -> float:
-    """Preferir abismo de salida fijo 2%; vacio_adan queda como fallback legacy."""
     fijo = abismo_salida_pct()
     if fijo > 0:
         return fijo
-    return float(vacio_adan or getattr(config, "BERU_VACIO_NORMAL", 0.016))
-
-
-def lado_desde_ancla(ancla_pct: float) -> int:
-    if ancla_pct > 0:
-        return -1
-    if ancla_pct < 0:
-        return 1
-    return -1
+    return float(vacio_adan or vacio_adan_pct())
 
 
 def oz_condicional_pct(ancla_pct: float, vacio: float | None = None) -> float:
-    """Trigger de salida: ancla − 2% (hacia el 0 / retroceso)."""
+    """Llamado del oro: ancla ± 1.6% al otro lado del vacío."""
     abismo = abismo_pct(vacio)
     if ancla_pct > 0:
         return ancla_pct - abismo
@@ -44,8 +42,114 @@ def oz_condicional_pct(ancla_pct: float, vacio: float | None = None) -> float:
     return -abismo
 
 
+def oro_orilla_opuesta(fill_pct: float, vacio: float | None = None) -> float:
+    """Tras fill de trailing: nuevo oro al otro lado (ping-pong)."""
+    return oz_condicional_pct(fill_pct, vacio)
+
+
+def paso_trailing_pct() -> float:
+    return float(getattr(config, "BERU_NEG_PASO_OZ_PCT", beru_cazador.paso_pct()))
+
+
+def pasos_negociador(tier_id: str | None = None) -> tuple[float, float]:
+    """Compat: una sola trailing — oz y red el mismo paso (sin acordeón 0.05)."""
+    _ = tier_id
+    p = paso_trailing_pct()
+    return p, p
+
+
+def sincronizar_grid(centro: float, oz_pct: float, red_pct: float) -> tuple[float, float]:
+    return beru_cazador.sincronizar_precios_grid(centro, oz_pct, red_pct)
+
+
+def activar_trailing_unica(oro_pct: float, paso: float | None = None) -> tuple[float, float]:
+    """Al detonar oro: UNA trailing en el nivel del oro (misma masa ya congelada).
+
+    neg_oz = gatillo trailing; neg_red = 0 → no hay segunda carta / acordeón.
+    """
+    _ = paso
+    return float(oro_pct), 0.0
+
+
+def activar_primera_vez(oz_cond_pct: float, paso_oz: float) -> tuple[float, float]:
+    """Alias: detonar oro → trailing única (acordeón extirpado)."""
+    return activar_trailing_unica(oz_cond_pct, paso_oz)
+
+
+def mover_trailing(trailing_pct: float, extremo_pct: float, paso: float | None = None) -> float:
+    """Persigue el extremo a `paso` detrás (memoria; Bybit trailing = B-TRAIL)."""
+    p = paso if paso is not None else paso_trailing_pct()
+    if extremo_pct >= trailing_pct:
+        # extremo más arriba / más positivo → trailing sube detrás
+        return extremo_pct - p if extremo_pct > 0 else extremo_pct + p
+    # extremo más abajo
+    if extremo_pct < 0:
+        return extremo_pct + p
+    return extremo_pct - p
+
+
+def avanzar_toque_oz(
+    oz_pct: float,
+    red_pct: float,
+    paso_oz: float,
+    paso_red: float,
+) -> tuple[float, float]:
+    """LEGADO acordeón — no usar. Ping-pong no avanza dos cartas."""
+    _ = paso_red
+    return activar_trailing_unica(oz_pct, paso_oz)
+
+
+def resorte_sexto_toque(oz_pct: float, paso_oz: float) -> tuple[float, float]:
+    """LEGADO — acordeón extirpado. Devuelve trailing única."""
+    return activar_trailing_unica(oz_pct, paso_oz)
+
+
+def toques_hasta_resorte() -> int:
+    return 0  # sin acordeón
+
+
+def es_sexto_toque(toques_ciclo: int) -> bool:
+    _ = toques_ciclo
+    return False
+
+
+def toca_condicional(precio: float, centro: float, oz_cond_pct: float) -> bool:
+    p_oz = beru_cazador.precio_desde_pct(centro, oz_cond_pct)
+    if oz_cond_pct < 0:
+        return precio <= p_oz + 1e-9
+    return precio >= p_oz - 1e-9
+
+
+def toca_trailing(precio: float, centro: float, trailing_pct: float) -> bool:
+    """Fill de la única trailing (negociación de esa orilla cerrada)."""
+    return toca_condicional(precio, centro, trailing_pct)
+
+
+def toca_red_negociador(precio: float, centro: float, red_pct: float) -> bool:
+    """Sin Red de acordeón: red_pct==0 → nunca. Compat legado."""
+    if red_pct == 0.0:
+        return False
+    p_red = beru_cazador.precio_desde_pct(centro, red_pct)
+    if red_pct < 0:
+        return precio >= p_red - 1e-9
+    return precio <= p_red + 1e-9
+
+
+def toca_oz_negociador(precio: float, centro: float, oz_pct: float) -> bool:
+    return toca_trailing(precio, centro, oz_pct)
+
+
+def distancia_hoz_a_red(ancla_pct: float, red_pct: float) -> float:
+    return abs(ancla_pct - red_pct)
+
+
+# --- Legado API (smokes / reciclaje viejo) ---
+
+def adan_armado_pct() -> float:
+    return float(getattr(config, "BERU_ADAN_ARMADO_PCT", 0.005))
+
+
 def trigger_salida_precio(precio_entrada: float, direccion: str) -> float:
-    """Precio absoluto de salida: −2% respecto a entrada (LONG baja; SHORT sube para cubrir)."""
     ab = abismo_salida_pct()
     if direccion == "LONG":
         return precio_entrada * (1.0 - ab)
@@ -53,7 +157,6 @@ def trigger_salida_precio(precio_entrada: float, direccion: str) -> float:
 
 
 def trigger_recompra_precio(precio_venta: float, direccion: str) -> float:
-    """Tras soltar: recompra +2% arriba del precio de venta (mismo volumen)."""
     ab = abismo_salida_pct()
     if direccion == "LONG":
         return precio_venta * (1.0 + ab)
@@ -67,14 +170,11 @@ def distancia_pct_a_trigger(precio: float, trigger: float) -> float:
 
 
 def precio_cerca_de_trigger(precio: float, trigger: float, umbral: float | None = None) -> bool:
-    """Vacío Adán: True si el precio está a ≤ umbral del trigger (default 0.5%)."""
     u = adan_armado_pct() if umbral is None else float(umbral)
     return distancia_pct_a_trigger(precio, trigger) <= u + 1e-12
 
 
 def toca_trigger_precio(precio: float, trigger: float, direccion: str, modo: str = "SALIDA") -> bool:
-    """modo SALIDA: LONG vende si precio≤trigger; SHORT cubre si precio≥trigger.
-    modo RECOMPRA: inverso."""
     if modo == "RECOMPRA":
         if direccion == "LONG":
             return precio >= trigger - 1e-9
@@ -82,82 +182,6 @@ def toca_trigger_precio(precio: float, trigger: float, direccion: str, modo: str
     if direccion == "LONG":
         return precio <= trigger + 1e-9
     return precio >= trigger - 1e-9
-
-
-def pasos_negociador(tier_id: str | None) -> tuple[float, float]:
-    t = beru_tier.tier_por_id(tier_id)
-    return t.pasos("NEGOCIADOR")
-
-
-def sincronizar_grid(centro: float, oz_pct: float, red_pct: float) -> tuple[float, float]:
-    return beru_cazador.sincronizar_precios_grid(centro, oz_pct, red_pct)
-
-
-def activar_primera_vez(
-    oz_cond_pct: float,
-    paso_oz: float,
-) -> tuple[float, float]:
-    """Primera activación: oz y red avanzan paso_oz; red queda más cerca del 0."""
-    if oz_cond_pct < 0:
-        oz_n = oz_cond_pct - paso_oz
-        red_n = oz_cond_pct + paso_oz
-    else:
-        oz_n = oz_cond_pct + paso_oz
-        red_n = oz_cond_pct - paso_oz
-    return oz_n, red_n
-
-
-def bracket_desde_trigger_precio(
-    trigger: float,
-    centro: float,
-    direccion: str,
-    paso_oz: float,
-) -> tuple[float, float, float, float]:
-    """Devuelve (oz_pct, red_pct, oz_precio, red_precio) alrededor del trigger."""
-    if centro <= 0:
-        centro = trigger
-    oz_pct = beru_cazador.pct_desde_precio(centro, trigger)
-    oz_n, red_n = activar_primera_vez(oz_pct, paso_oz)
-    oz_p, red_p = sincronizar_grid(centro, oz_n, red_n)
-    return oz_n, red_n, oz_p, red_p
-
-
-def avanzar_toque_oz(
-    oz_pct: float,
-    red_pct: float,
-    paso_oz: float,
-    paso_red: float,
-) -> tuple[float, float]:
-    if oz_pct < 0:
-        return oz_pct - paso_oz, red_pct - paso_red
-    return oz_pct + paso_oz, red_pct + paso_red
-
-
-def resorte_sexto_toque(oz_pct: float, paso_oz: float) -> tuple[float, float]:
-    if oz_pct < 0:
-        condicional = oz_pct - paso_oz
-        oz_n = condicional - paso_oz
-        red_n = condicional + paso_oz
-    else:
-        condicional = oz_pct + paso_oz
-        oz_n = condicional + paso_oz
-        red_n = condicional - paso_oz
-    return oz_n, red_n
-
-
-def toques_hasta_resorte() -> int:
-    return 5
-
-
-def es_sexto_toque(toques_ciclo: int) -> bool:
-    return toques_ciclo >= toques_hasta_resorte()
-
-
-def toca_condicional(precio: float, centro: float, oz_cond_pct: float) -> bool:
-    p_oz = beru_cazador.precio_desde_pct(centro, oz_cond_pct)
-    if oz_cond_pct < 0:
-        return precio <= p_oz + 1e-9
-    return precio >= p_oz - 1e-9
 
 
 def cerca_condicional(
@@ -170,23 +194,23 @@ def cerca_condicional(
     return precio_cerca_de_trigger(precio, p_oz, umbral)
 
 
-def toca_red_negociador(precio: float, centro: float, red_pct: float) -> bool:
-    p_red = beru_cazador.precio_desde_pct(centro, red_pct)
-    if red_pct < 0:
-        return precio >= p_red - 1e-9
-    return precio <= p_red + 1e-9
+def bracket_desde_trigger_precio(
+    trigger: float,
+    centro: float,
+    direccion: str,
+    paso_oz: float,
+) -> tuple[float, float, float, float]:
+    if centro <= 0:
+        centro = trigger
+    oz_pct = beru_cazador.pct_desde_precio(centro, trigger)
+    oz_n, red_n = activar_trailing_unica(oz_pct, paso_oz)
+    oz_p, red_p = sincronizar_grid(centro, oz_n, red_n if red_n != 0 else oz_n)
+    return oz_n, red_n, oz_p, red_p
 
 
 def gatillo_caza_pct(vacio_adan: float, direccion_caza: str) -> float:
     g = beru_cazador.gatillo_pct(vacio_adan)
     return g if direccion_caza == "SHORT" else -g
-
-
-def toca_oz_negociador(precio: float, centro: float, oz_pct: float) -> bool:
-    p_oz = beru_cazador.precio_desde_pct(centro, oz_pct)
-    if oz_pct < 0:
-        return precio <= p_oz + 1e-9
-    return precio >= p_oz - 1e-9
 
 
 def cruzo_gatillo_caza(precio: float, centro: float, vacio: float, direccion_caza: str) -> bool:

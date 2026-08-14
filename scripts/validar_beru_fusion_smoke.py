@@ -40,15 +40,21 @@ def _barco(
 
 
 def test_mega_beru_promedio():
-    anclas = [0.0, 0.02, 0.04, 0.06, 0.08, 0.10]
-    barcos = [_barco(f"B{i}", a) for i, a in enumerate(anclas)]
+    """Promedio de llamados del oro donde esperan; fusiona los bajo el promedio."""
+    oros = [0.0, 0.02, 0.04, 0.06, 0.08, 0.10]
+    barcos = []
+    for i, oro in enumerate(oros):
+        # ancla Hoz = oro + 1.6%; neg_oz = llamado del oro (donde esperan)
+        b = _barco(f"B{i}", ancla=oro + 0.016, masa=35.0, neg_oz=oro)
+        barcos.append(b)
     grupos = beru_fusion.grupos_mega_beru(barcos)
     assert len(grupos) == 1
     lider, victimas, prom = grupos[0]
     assert abs(prom - 0.05) < 1e-9
-    assert len(victimas) == 2
+    assert len(victimas) == 2  # bajo 0.05: tres barcos → 1 líder + 2 víctimas
     beru_fusion.aplicar_mega_beru(lider, victimas, prom, 0.016)
     assert lider.masa_congelada == 35.0 * 3
+    assert abs(lider.neg_oz_pct - 0.05) < 1e-9  # mega oro = promedio
     assert lider.estado == "ESPERANDO_CONDICIONAL"
     assert lider.es_super_beru
 
@@ -58,11 +64,11 @@ def test_fusion_colision_misma_hoz():
     oz_p = beru_cazador.precio_desde_pct(centro, -0.01)
     b1 = _barco(
         "N1", 0.01, estado="NEGOCIANDO", masa=35.0,
-        neg_oz=-0.01, neg_red=-0.008,
+        neg_oz=-0.01, neg_red=0.0,
     )
     b2 = _barco(
         "N2", 0.012, estado="NEGOCIANDO", masa=40.0,
-        neg_oz=-0.009, neg_red=-0.007,
+        neg_oz=-0.01, neg_red=0.0,
     )
     b1.oz_adan = oz_p
     b2.oz_adan = oz_p
@@ -71,6 +77,7 @@ def test_fusion_colision_misma_hoz():
     lider, victimas = beru_fusion.fusionar_colision_oz(grupos[0])
     assert lider.masa_congelada == 75.0
     assert len(victimas) == 1
+    assert lider.neg_red_pct == 0.0  # ping-pong: sin Red acordeón
 
 
 def test_sin_colision_no_fusiona():

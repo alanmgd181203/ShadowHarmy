@@ -36,8 +36,12 @@ os.environ.setdefault("ARISE_OJOS_TUSK", "true")
 # Sin manos: si .env tenía sim=false por error, este ritual fuerza sim salvo override
 if os.getenv("ARISE_OJOS_PERMITIR_MANOS", "").lower() not in ("1", "true", "yes"):
     os.environ["MODO_SIMULACION"] = "true"
+# Ojos flacos por defecto (Santos last price · sin orderbook) — override: ARISE_OJOS_COMPLETOS=true
+if os.getenv("ARISE_OJOS_COMPLETOS", "").lower() not in ("1", "true", "yes"):
+    os.environ.setdefault("BRIDGE_WS_SUBSCRIBE_BOOKS", "false")
 
 import core.config as config  # noqa: E402
+from core import ojos_estrechos  # noqa: E402
 from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402
 from core.dashboard import PanelDeControl  # noqa: E402
@@ -116,6 +120,17 @@ async def ritual_ojos(segundos: float = 0.0):
     print(f"    FASE: {config.FASE_ACTUAL} | SIM={config.MODO_SIMULACION}")
     print("═" * 48)
 
+    # Tank estrecho: Santos last price · sin orderbook (hasta Greed / orden Monarca)
+    if os.getenv("ARISE_OJOS_COMPLETOS", "").lower() not in ("1", "true", "yes"):
+        bases = ojos_estrechos.aplicar_ojos_last_price_santos()
+        print(
+            f"[OJOS] Estrechos · {len(bases)} Santos · books=OFF · "
+            f"Binance ref={'ON' if getattr(config, 'BINANCE_REF_ENABLED', False) else 'OFF'}"
+        )
+        print(f"[OJOS] Bases: {', '.join(bases)}")
+    else:
+        print("[OJOS] Modo COMPLETOS (catálogo ancho) — ARISE_OJOS_COMPLETOS")
+
     shutdown_event = asyncio.Event()
     _senales(asyncio.get_running_loop(), shutdown_event)
 
@@ -147,12 +162,12 @@ async def ritual_ojos(segundos: float = 0.0):
         panel = PanelDeControl(tusk, igris, tank)
 
         print("\n[TUSK] Tesorería UTA → oxígeno de guerra (masa_autorizada).")
-        print("[TANK] Ojos de mercado (matriz / funding / sentidos).")
-        print("[KAISER] Indicadores / perfiles / frecuencia manto — sin cola a Greed viva.")
+        print("[TANK] Ojos last price Santos (sin muros / sin Greed).")
+        print("[KAISER] Indicadores / perfiles — sin cola a Greed viva.")
         print("[IGRIS/GREED/BERU] Hibernados en este ritual.")
         print("Ctrl+C para sellar.\n")
 
-        tareas = [
+        coros = [
             tusk.latido_persistencia([]),
             tusk.hilo_reconciliacion(bridge),
             tank.vigilar_aguas(),
@@ -163,13 +178,23 @@ async def ritual_ojos(segundos: float = 0.0):
             _refrescar_panel(panel),
             _publicar_estado(bellion, tusk, igris, tank, kaiser),
             _cronica_tesoreria(tusk),
-            _apagado(shutdown_event, bellion, tusk),
             _corte_tiempo(shutdown_event, segundos),
         ]
         if binance_ref:
-            tareas.append(binance_ref.conectar())
+            coros.append(binance_ref.conectar())
 
-        await asyncio.gather(*tareas)
+        tasks = [asyncio.create_task(c) for c in coros]
+        # Apagado limpio: al corte/señal cancela el río (evita cuelgue eterno)
+        await shutdown_event.wait()
+        print("\n[OJOS] Sellando ojos…")
+        await bellion.ley_de_sucesion(tusk.export_for_bellion(), [])
+        await bellion.anotar(
+            "BELLION", "SUCESION",
+            "Ritual ojos sellado — Tusk/Tank/Kaiser vuelven a sombra (sin disparos).",
+        )
+        for t in tasks:
+            t.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
 
     except Exception:
         print("\n[!] ERROR EN RITUAL DE OJOS:")
@@ -187,6 +212,9 @@ def main():
     # Config ya importada; refuerza flags leídos
     if not getattr(config, "TUSK_TESORERIA_ACTIVA", True):
         print("[!] TUSK_TESORERIA_ACTIVA=false — activa en .env para ver oxígeno real.")
+    # Forzar sim en runtime (dotenv a veces pisa el environ previo)
+    if os.getenv("ARISE_OJOS_PERMITIR_MANOS", "").lower() not in ("1", "true", "yes"):
+        config.MODO_SIMULACION = True
     asyncio.run(ritual_ojos(segundos=args.segundos))
 
 

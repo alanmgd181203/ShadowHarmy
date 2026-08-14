@@ -35,15 +35,15 @@ def activos_ensayo() -> list[str]:
 
 
 def ampliar_ojos_spot(activos: list[str] | None = None) -> list[str]:
-    """Añade frentes spot (+ lineal respaldo) a vigilancia Tank / resonancia."""
+    """Añade solo frentes spot a vigilancia Beru (ciego a lineal/inverso)."""
     acts = list(activos or activos_ensayo())
     frentes: list[str] = []
     for a in acts:
-        for f in (f"{a}USDT_SPOT", f"{a}USDT_LINEAL", f"{a}USD_INVERSE"):
+        for f in (f"{a}USDT_SPOT", f"{a}USDC_SPOT"):
             if f not in frentes:
                 frentes.append(f)
     sem = str(getattr(config, "BERU_ACTIVO_SEMILLA", "ETH") or "ETH").upper()
-    for f in (f"{sem}USDT_SPOT", f"{sem}USDT_LINEAL"):
+    for f in (f"{sem}USDT_SPOT", f"{sem}USDC_SPOT"):
         if f not in frentes:
             frentes.insert(0, f)
 

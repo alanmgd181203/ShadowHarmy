@@ -13,9 +13,11 @@ Manos / Arise / despertar Beru: **no** se encienden por este pergamino.
 - Caja de guerra = **USDT** en Trading unificado. Tusk para en USDT. No comprar MNT. No short de equilibrio. Descuento fees MNT por API = abortado.
 - MNT = **Santo** del manto (long inverso + short lineal). No es saco.
 - Potencia del pase = caja/equity USDT. No el short MNT.
-- Beru = molino spot-margen al máximo. No pregunta USDT. No descansa si hay manto. No engorda Igris. Manos/hilo **OFF** hasta orden.
+- Beru = molino: **cazar** + **ping-pong** + **Mega purga**. **0 = manto Igris vivo** (promedio L+S; Mega no lo inventa; Igris engorda → Beru refresca). Llamados solo detonan. Engorde = Hoz en caza. Manos **OFF**.
+- **Ojos Beru = last spot solo.** Sin fallback lineal/inverso. Sin spot → ciego. Basis sobrante → **Greed** (no milímetro Beru).
+- Sangre **0,9** (o \|purga\|+0,9 post-Mega) · Hoz detrás · Oro **1,6** ping-pong.
 - Igris no reconstruye hedge de bóveda. Short inverso MNT si aparece = sucio (lectura).
-- Greed sigue congelado.
+- Greed sigue congelado (cuando despierte: basis / sobras, no el metro de Beru).
 
 ---
 
@@ -60,11 +62,9 @@ Manos / Arise / despertar Beru: **no** se encienden por este pergamino.
 
 ### V1 — Visión / “qué es ver”
 
-**Sello:** no castrar Asalto por libro imperfecto.
-
-**Abierto:** ¿oficial `last_price` · `index` · `libro_5` · `libro_full`? ¿umbral ciego vs visión reducida?
-
-**Default:** `IGRIS_VISION_MODO=last_price` · libro 5. Sin precio usable → no dispara.
+**Sello parcial 2026-08-13:** ritual ojos = Santos **last price** · **sin orderbook** (`ojos_estrechos`). Spot sin muros hasta Greed. Asalto Market no exige libro.  
+**Abierto:** ¿oficial permanente `last_price` · `libro_5` · `libro_full` al despertar Greed?  
+**Default:** `IGRIS_VISION_MODO=last_price` · libros OFF en `arise_ojos_tusk` salvo `ARISE_OJOS_COMPLETOS`.
 
 ### V2 — Ritmo exacto (segundos)
 
@@ -159,11 +159,10 @@ Superseded 2026-08-12: no hay saco MNT. No migrar short a USDC. Saneo = C1.
 **Abierto:** ¿mismo permiso si Beru entra al ejército libre, o solo ritual aislado?  
 **Default:** solo con flags fantasma/ensayo.
 
-### B4 — Reabrir engorde (legado capa1)
+### B4 — Engorde de Hoz en caza — **CERRADA 2026-08-13**
 
-**Sello:** engorde OFF.  
-**Abierto:** ¿alguna vez, solo tras manto 100 %?  
-**Default:** bajo llave.
+**Sello:** engorde de Hoz en CAZA **ON** (por grado). No engorda escudo Igris.  
+Supersede: “engorde OFF” de 2026-08-11 aplicaba al tumor / escudo.
 
 ### B5 — Beru ON dentro de Arise Igris
 
@@ -177,8 +176,13 @@ Superseded 2026-08-12: no hay saco MNT. No migrar short a USDC. Saneo = C1.
 
 ### B7 — Abortar solo ceguera vs Tank ROJO
 
+**Sello parcial 2026-08-13:** ciego = **sin last spot** del Santo (no cuenta lineal/inverso).  
 **Default:** abortar solo si ciego / coma.  
-**Abierto:** umbral exacto de “ciego de verdad”.
+**Abierto:** umbral exacto de segundos / coma Tank.
+
+### B-OJOS — **CERRADA 2026-08-13** (cirugía precisión)
+
+**Sello:** ojos = last price spot. 0 = manto Igris (libros), no ticker. Refresco de 0 al engorde. Basis → Greed.
 
 ### B8 — Tamaño mordida ensayo vs G_min vivo
 
@@ -194,6 +198,44 @@ Superseded 2026-08-12: no hay saco MNT. No migrar short a USDC. Saneo = C1.
 **Sello:** no hiberna por oxígeno del escudo.  
 **Abierto:** si Tank entra en coma, ¿cuántos segundos hasta parar el molino? (hoy: tolerancia de coma).
 
+### B-TRAIL — Mariscal 2.0: rebaño de trailing $5 en Bybit
+
+**Sello parcial 2026-08-13:** masa inicial Mariscal = **8×G_min (~$40)**; hermanas $5 en doctrina. Negociador ping-pong = **una trailing** (todos los grados).  
+**Abierto:** cablear trailing **nativas** Bybit en caza (rebaño) vs memoria.  
+**Default:** flag `BERU_MARISCAL_TRAILING_REBANO=false`.
+
+### B-ACORDEON — **CERRADA 2026-08-13**
+
+**Sello:** acordeón negociador **extirpado**. Ping-pong oro ↔ una trailing. Cosechador fusionado. Todos los grados.
+
+### B-ALTAR — Stop/conditional reales en Bybit
+
+**Abierto:** hoy grid/trailing en memoria hasta manos ON.  
+**Default:** niveles en memoria; place_order solo con manos.
+
+### B-FUNERAL — Cancelar carta vieja en exchange
+
+**Sello parcial:** entre orillas del ping-pong el funeral es **holgado** (1,6 %).  
+**Abierto:** ritual cancel→confirmar en altar cuando haya manos.  
+**Default:** sin manos → no funeral real.
+
+### B-MEGA-RITMO — Cuándo calcular el promedio Mega
+
+**Abierto:** ¿cada pulso · cada N s · solo si hay negociador atrasado?  
+**Default:** lógica existe; ritmo = aquí.
+
+### B-HOZ35 — **CERRADA 2026-08-13** (ahora $40)
+
+**Sello:** Hoz en 0,8 % → **8 peldaños** × engorde grado. Mariscal ≈ **$40** si G_min=$5. Soldado ≈ G_min.
+
+### B-COSECHA-FLIP — **CERRADA 2026-08-13**
+
+**Sello:** cosechador = negociador ping-pong. Fill trailing → oro orilla opuesta.
+
+### B-ACTIVAR-SPOT — Toggle spot margen en cuenta al wake
+
+**Abierto:** `activar_spot_margen` no se llama. ¿Al primer wake con manos?  
+**Default:** no llamar hasta manos ON.
 ---
 
 ## Cómo usar este pergamino

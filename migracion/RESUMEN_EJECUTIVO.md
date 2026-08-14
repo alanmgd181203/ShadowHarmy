@@ -1,15 +1,15 @@
 # Resumen ejecutivo — Migración Shadow Army
 
-**Actualizado:** 2026-08-12 (mega-cirugía fría · caja USDT · purga de mapa)
+**Actualizado:** 2026-08-13 (ojos Beru last spot · 0 manto vivo · manos OFF)
 
 ## Código canónico
 
 `C:\Users\alans\Desktop\ShadowHarmy` — **Lilit de Hierro v2.0**, fase HIERRO.  
 Remoto: https://github.com/alanmgd181203/ShadowHarmy (público; colaboradora Jessica-Reyes06).
 
-## Veredicto en una frase
+**Veredicto en una frase**
 
-**Norte:** caja de guerra = **USDT**. MNT es Santo del manto, no saco. Beru molino dormido. Manos OFF. Índice Bybit sigue siendo el norte de precios ([`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md)). **Siguiente:** una cirugía menor del cajón de dudas, o 4.0.4 cuando el Monarca despierte a Beru.
+**Norte:** caja = **USDT**. MNT = Santo. Beru: caza + ping-pong + Mega **purga** — **ojos last spot** · **0 = manto Igris vivo**. Manos OFF.
 
 ## Progreso checklist (16)
 

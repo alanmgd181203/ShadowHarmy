@@ -1,4 +1,11 @@
-"""Beru Cazador — doctrina capas: 0 manto, ±vacio/2 gatillo, trailing 0.1%, G_min/escalón."""
+"""Beru Cazador — doctrina sellada Monarca 2026-08-13.
+
+Llamado de sangre (±0.9%) SOLO detona — cero fill.
+Hoz productiva en ±0.8% (número del manto / ranking / Igris).
+Mientras caza: Red de 0.1 en 0.1; Hoz engorda lo del grado por peldaño.
+Relevo: desde la ÚLTIMA Red TOCADA (+0.9 / +0.5 / +0.3), no desde la plantada.
+Mariscal 2.0 (trailing rebaño $5) = duda B-TRAIL — no cableado aquí.
+"""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -9,9 +16,29 @@ from core import beru_tier
 if TYPE_CHECKING:
     from generales.tusk import TuskBoveda
 
+# Vacío Normal 1.6% → Hoz sagrada 0.8%; llamado = Hoz + 0.1%
+HOZ_PRODUCTIVA_PCT = 0.008
+LLAMADO_SANGRE_OFFSET = 0.001  # llamado = hoz + 0.1%
+
 
 def paso_pct() -> float:
     return beru_tier.PASO_TRAILING_CAZA
+
+
+def llamado_sangre_pct() -> float:
+    """Primera caza: ±0.9% desde el 0 del manto."""
+    return float(getattr(config, "BERU_LLAMADO_SANGRE_PCT", HOZ_PRODUCTIVA_PCT + LLAMADO_SANGRE_OFFSET))
+
+
+def hoz_productiva_pct() -> float:
+    """Primera Hoz: ±0.8% — no tocar (manto / ranking)."""
+    return float(getattr(config, "BERU_HOZ_PRODUCTIVA_PCT", HOZ_PRODUCTIVA_PCT))
+
+
+def gatillo_pct(vacio_adan: float | None = None) -> float:
+    """Alias: el 'gatillo' del cazador ES el llamado de sangre (0.9), no vacío/2."""
+    _ = vacio_adan  # vacío manda el 0.8 sagrado; el llamado lleva +0.1
+    return llamado_sangre_pct()
 
 
 def mordida_usd(asset: str | None = None) -> float:
@@ -25,24 +52,62 @@ def mordida_usd(asset: str | None = None) -> float:
     return float(g_min_usd(activo))
 
 
-def gatillo_pct(vacio_adan: float) -> float:
-    """Normal 1.6% → gatillo ±0.8% desde centro manto."""
-    fraccion = float(getattr(config, "BERU_CAZADOR_GATILLO_FRACCION", 0.5))
-    return float(vacio_adan) * fraccion
+def engorde_paso_usd(asset: str | None = None, grado: str | None = None) -> float:
+    """Cuánto engorda la Hoz por cada 0.1% de frontera (fricción del grado).
+
+    Soldado ~G_min/8 · Capitán /4 · General /2 · Mariscal = G_min.
+    """
+    from core.beru_capital import friccion_grado_pct, g_min_usd, grado_desde_tier
+
+    activo = (asset or str(getattr(config, "BERU_ACTIVO_SEMILLA", "ETH"))).upper()
+    g = g_min_usd(activo)
+    if grado:
+        fr = friccion_grado_pct(str(grado).upper())
+    else:
+        tid = str(getattr(config, "BERU_TIER_DEFAULT", "PROTO1")).upper()
+        fr = friccion_grado_pct(grado_desde_tier(tid))
+    paso = paso_pct()
+    if fr <= 0:
+        return float(g)
+    return float(g) * (paso / fr)
 
 
-def capa1_masa_usd(masa_autorizada: float, asset: str | None = None) -> float:
-    """Masa inicial al gatillar capa 1.
+def grado_de_barco(beru) -> str:
+    from core.beru_capital import grado_desde_tier
 
-    Default: mordida = G_min del Santo. Engorde frontera (+G_min / 0.1%) sin techo
-    artificial — solo el oxígeno que Tusk reserve (doctrina Monarca 2026-07-18).
+    tid = str(getattr(beru, "tier_id", None) or getattr(config, "BERU_TIER_DEFAULT", "PROTO1")).upper()
+    return grado_desde_tier(tid)
 
-    BERU_CAZA_CAPA1_USD > 0 → fuerza masa inicial fija.
-    BERU_CAZA_CAPA1_MAX_USD > 0 → techo legacy opcional (0 = sin techo).
+
+def relevo_llamado_pct(grado_o_tier: str) -> float:
+    """Silbato del siguiente cazador desde la última Red TOCADA."""
+    g = str(grado_o_tier or "SOLDADO").upper()
+    # Si llega tier id, mapear
+    from core.beru_capital import grado_desde_tier
+
+    if g in ("PLENO", "PROTO1", "PROTO2", "BERUBBY"):
+        g = grado_desde_tier(g)
+    tabla = {
+        "SOLDADO": 0.009,
+        "CAPITAN": 0.005,
+        "GENERAL": 0.003,
+        "MARISCAL": 0.001,
+    }
+    return float(tabla.get(g, 0.009))
+
+
+def capa1_masa_usd(masa_autorizada: float, asset: str | None = None, grado: str | None = None) -> float:
+    """Masa inicial al detonar: peldaños desde 0 hasta Hoz 0.8% × engorde del grado.
+
+    Soldado ≈ G_min · Mariscal ≈ 8×G_min ($40 si G_min=$5). Oxígeno Tusk acota.
     """
     fijo = float(getattr(config, "BERU_CAZA_CAPA1_USD", 0.0))
     cap = float(getattr(config, "BERU_CAZA_CAPA1_MAX_USD", 0.0))
-    masa = fijo if fijo > 0 else mordida_usd(asset)
+    if fijo > 0:
+        masa = fijo
+    else:
+        peldaños = hoz_productiva_pct() / max(paso_pct(), 1e-12)
+        masa = engorde_paso_usd(asset, grado) * peldaños
     auth = float(masa_autorizada or 0.0)
     if auth > 0:
         masa = min(masa, auth)
@@ -51,20 +116,66 @@ def capa1_masa_usd(masa_autorizada: float, asset: str | None = None) -> float:
     return max(0.0, float(masa))
 
 
-def centro_manto_desde_tusk(tusk: TuskBoveda) -> float:
+def centro_manto_desde_tusk(tusk: TuskBoveda, activo: str | None = None) -> float:
+    """0 de Beru = promedio de entrada L+S del manto (Igris/Tusk).
+
+    Si hay activo, prioriza pesos de ese Santo; si no, promedio de todos los medios.
+    No usa spot/last como 0 (eso son ojos, no el metro).
+    """
     precios: list[float] = []
-    for p in (tusk.pesos or {}).values():
+    act = str(activo or "").upper()
+    pesos = tusk.pesos or {}
+    for frente, p in pesos.items():
+        if act:
+            fu = str(frente or "").upper()
+            # ETHUSDT_LINEAL / ETHUSD_INVERSE / … — activo debe aparecer en la clave
+            if act not in fu:
+                continue
         pm_l = float(p.get("precio_medio_long") or 0)
         pm_s = float(p.get("precio_medio_short") or 0)
         if pm_l > 0:
             precios.append(pm_l)
         if pm_s > 0:
             precios.append(pm_s)
+    if not precios and act:
+        # Sin filtro si el activo no matcheó claves
+        for p in pesos.values():
+            pm_l = float(p.get("precio_medio_long") or 0)
+            pm_s = float(p.get("precio_medio_short") or 0)
+            if pm_l > 0:
+                precios.append(pm_l)
+            if pm_s > 0:
+                precios.append(pm_s)
     if precios:
         return sum(precios) / len(precios)
-    if tusk.precio_spot > 0:
-        return float(tusk.precio_spot)
-    return float(tusk.ultimo_precio or 0)
+    return 0.0
+
+
+def aplicar_nuevo_cero(beru, nuevo_centro: float, *, umbral_rel: float = 1e-6) -> bool:
+    """Si el 0 del manto se movió (Igris engordó), refresca centro y re-sincroniza precios absolutos.
+
+    Los % (oz_pct, red_pct, neg_*) se conservan — solo cambian oz_adan/red_adan.
+    """
+    nuevo = float(nuevo_centro or 0)
+    if nuevo <= 0:
+        return False
+    viejo = float(getattr(beru, "centro_manto", 0) or 0)
+    if viejo > 0 and abs(nuevo - viejo) / viejo < umbral_rel:
+        return False
+    beru.centro_manto = nuevo
+    if float(getattr(beru, "centro_local", 0) or 0) <= 0 or viejo <= 0:
+        beru.centro_local = nuevo
+    # Reproyectar cartas desde %
+    oz_p = float(getattr(beru, "oz_pct", 0) or 0)
+    red_p = float(getattr(beru, "red_pct", 0) or 0)
+    if oz_p != 0.0 or red_p != 0.0:
+        beru.oz_adan, beru.red_adan = sincronizar_precios_grid(nuevo, oz_p, red_p)
+    neg_oz = float(getattr(beru, "neg_oz_pct", 0) or 0)
+    if neg_oz != 0.0 and str(getattr(beru, "modo_combate", "")).upper() == "NEGOCIADOR":
+        # Trailing única: oz_adan = precio del gatillo
+        beru.oz_adan = precio_desde_pct(nuevo, neg_oz)
+        beru.red_adan = 0.0
+    return True
 
 
 def pct_desde_precio(centro: float, precio: float) -> float:
@@ -77,20 +188,57 @@ def precio_desde_pct(centro: float, pct: float) -> float:
     return centro * (1.0 + pct)
 
 
+def niveles_desde_llamado_sangre(signo: int) -> tuple[float, float]:
+    """Al detonar sangre: oz = ±0.8, red = ±0.9 (primera frontera)."""
+    s = 1 if signo >= 0 else -1
+    oz = s * hoz_productiva_pct()
+    red = s * llamado_sangre_pct()
+    return oz, red
+
+
+def niveles_desde_sangre_abs(sangre_pct: float) -> tuple[float, float]:
+    """Sangre absoluta sobre 0 Igris (ej. +30.9%) → Hoz un peldaño detrás, Red en sangre."""
+    signo = 1 if sangre_pct >= 0 else -1
+    if sangre_pct == 0:
+        return niveles_desde_llamado_sangre(1)
+    oz = sangre_pct - signo * LLAMADO_SANGRE_OFFSET
+    red = sangre_pct
+    return oz, red
+
+
 def niveles_desde_toque(
     touch_pct: float,
     paso_oz: float | None = None,
     paso_red_clon: float | None = None,
 ) -> tuple[float, float]:
-    """Al gatillar: oz 0.1% hacia el 0; red a distancia de clonación del tier."""
-    p_oz = paso_oz if paso_oz is not None else paso_pct()
-    p_red = paso_red_clon if paso_red_clon is not None else p_oz
-    if touch_pct >= 0:
-        return touch_pct - p_oz, touch_pct + p_red
-    return touch_pct + p_oz, touch_pct - p_red
+    """Si |touch|≈0.9 → primera caza; si mayor (post-Mega) → sangre absoluta."""
+    _ = paso_oz, paso_red_clon
+    if abs(touch_pct) <= llamado_sangre_pct() + 1e-9:
+        signo = 1 if touch_pct >= 0 else -1
+        return niveles_desde_llamado_sangre(signo)
+    return niveles_desde_sangre_abs(touch_pct)
 
 
-def mover_niveles_cazador(direccion: str, oz_pct: float, red_pct: float, paso: float | None = None) -> tuple[float, float]:
+def ultima_red_tocada_pct(red_plantada_pct: float, direccion: str) -> float:
+    """Si la Red plantada está en X, la última tocada fue X − 0.1% (hacia el 0)."""
+    p = paso_pct()
+    if direccion == "SHORT" or red_plantada_pct > 0:
+        return red_plantada_pct - p
+    return red_plantada_pct + p
+
+
+def llamado_relevo_pct(red_plantada_pct: float, direccion: str, grado_o_tier: str) -> float:
+    """Nuevo llamado = última Red tocada + offset de grado."""
+    tocada = ultima_red_tocada_pct(red_plantada_pct, direccion)
+    off = relevo_llamado_pct(grado_o_tier)
+    if direccion == "SHORT" or red_plantada_pct > 0:
+        return tocada + off
+    return tocada - off
+
+
+def mover_niveles_cazador(
+    direccion: str, oz_pct: float, red_pct: float, paso: float | None = None,
+) -> tuple[float, float]:
     """Cada toque de red (frontera): oz y red avanzan 0.1% juntas."""
     p = paso if paso is not None else paso_pct()
     if direccion == "SHORT":
@@ -120,8 +268,12 @@ def toca_oz(precio: float, direccion: str, oz_precio: float) -> bool:
     return precio >= oz_precio - eps
 
 
-def distancia_gatillo_cumplida(pct: float, vacio_adan: float) -> bool:
+def distancia_gatillo_cumplida(pct: float, vacio_adan: float | None = None) -> bool:
     return abs(pct) >= gatillo_pct(vacio_adan) - 1e-9
+
+
+def toca_llamado_sangre(pct: float) -> bool:
+    return abs(pct) >= llamado_sangre_pct() - 1e-9
 
 
 def es_frontera_red(beru, legion: list, modo_caza_fn) -> bool:

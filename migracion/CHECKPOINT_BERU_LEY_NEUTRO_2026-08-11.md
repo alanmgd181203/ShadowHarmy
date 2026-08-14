@@ -1,6 +1,8 @@
 # Checkpoint — Beru ley neutro (revisión profunda 2026-08-11)
 
-**Mandato Monarca:** Beru **no toca margen**. Solo intercambia en spot lo que una pierna gana por lo que la otra pierde. **No engorda.** Abortar solo si está **ciego** (sin precio / coma de muchos segundos), no por ROJO ligero de Tank. Manos OFF hasta que el Monarca despierte.
+> **Superseded parcial 2026-08-13:** engorde de **Hoz en caza** quedó **ON** (por grado). Neutro margen / manos OFF / aborto ceguera **siguen**. Canon: [`CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md`](CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md).
+
+**Mandato Monarca (histórico 08-11):** Beru **no toca margen** del escudo. Solo intercambia en spot. Abortar solo si está **ciego**. Manos OFF hasta que el Monarca despierte.
 
 ## Flags (default)
 

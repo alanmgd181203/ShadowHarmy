@@ -72,15 +72,22 @@ G_MIN_USD_PISO = float(os.getenv("G_MIN_USD_PISO", "1"))  # nunca por debajo (sa
 # Legado estático — solo si el Santo no está en archivo de mínimos
 G_MIN_USD_BY_ASSET: dict[str, float] = {}
 BERU_FRICCION_SOLDADO_PCT = float(os.getenv("BERU_FRICCION_SOLDADO_PCT", "0.008"))  # 0.8%
-BERU_ABISMO_SALIDA_PCT = float(os.getenv("BERU_ABISMO_SALIDA_PCT", "0.02"))         # -2% salida
-BERU_ADAN_ARMADO_PCT = float(os.getenv("BERU_ADAN_ARMADO_PCT", "0.005"))           # 0.5% vacío Adán
-# Beru Cazador — 0 = usar G_min del Santo; >0 override fijo (p.ej. live testnet $20)
+# Vacío Adán 1.6% — llamado oro/tiempo (tumor 2% extirpado 2026-08-13)
+BERU_ABISMO_SALIDA_PCT = float(os.getenv("BERU_ABISMO_SALIDA_PCT", "0.016"))
+BERU_ADAN_ARMADO_PCT = float(os.getenv("BERU_ADAN_ARMADO_PCT", "0.005"))  # legado
+# Cazador sellado: sangre 0.9 → Hoz 0.8
+BERU_HOZ_PRODUCTIVA_PCT = float(os.getenv("BERU_HOZ_PRODUCTIVA_PCT", "0.008"))
+BERU_LLAMADO_SANGRE_PCT = float(os.getenv("BERU_LLAMADO_SANGRE_PCT", "0.009"))
 BERU_CAZADOR_MORDIDA_USD = float(os.getenv("BERU_CAZADOR_MORDIDA_USD", "0"))
 BERU_CAZADOR_PASO_PCT = float(os.getenv("BERU_CAZADOR_PASO_PCT", "0.001"))
-BERU_CAZADOR_SPAWN_CADA_PCT = float(os.getenv("BERU_CAZADOR_SPAWN_CADA_PCT", "0.003"))
-BERU_CAZADOR_GATILLO_FRACCION = float(os.getenv("BERU_CAZADOR_GATILLO_FRACCION", "0.5"))
-BERU_CAZA_CAPA1_USD = float(os.getenv("BERU_CAZA_CAPA1_USD", "0"))  # 0 = mordida = G_min del activo
-BERU_CAZA_CAPA1_MAX_USD = float(os.getenv("BERU_CAZA_CAPA1_MAX_USD", "0"))  # 0 = sin techo engorde/masa (doctrina 2026-07-18)
+BERU_CAZADOR_SPAWN_CADA_PCT = float(os.getenv("BERU_CAZADOR_SPAWN_CADA_PCT", "0.003"))  # legado
+BERU_CAZADOR_GATILLO_FRACCION = float(os.getenv("BERU_CAZADOR_GATILLO_FRACCION", "0.5"))  # legado
+BERU_CAZA_CAPA1_USD = float(os.getenv("BERU_CAZA_CAPA1_USD", "0"))
+BERU_CAZA_CAPA1_MAX_USD = float(os.getenv("BERU_CAZA_CAPA1_MAX_USD", "0"))
+BERU_NEG_PASO_OZ_PCT = float(os.getenv("BERU_NEG_PASO_OZ_PCT", "0.001"))
+BERU_NEG_PASO_RED_PCT = float(os.getenv("BERU_NEG_PASO_RED_PCT", "0.0005"))
+BERU_COSECHA_PASO_PCT = float(os.getenv("BERU_COSECHA_PASO_PCT", "0.001"))
+BERU_MARISCAL_TRAILING_REBANO = os.getenv("BERU_MARISCAL_TRAILING_REBANO", "false").lower() == "true"
 # Cirugía Beru 2026-08-12 (Jess → USA): ley · wake · ojos · fantasma. Manos reales OFF.
 BERU_WAKE_RESET_0 = os.getenv("BERU_WAKE_RESET_0", "true").lower() == "true"
 BERU_SIEMBRA_FLOTA = os.getenv("BERU_SIEMBRA_FLOTA", "true").lower() == "true"
@@ -98,7 +105,8 @@ BERU_ENSAYO_SOLO_LONG = os.getenv("BERU_ENSAYO_SOLO_LONG", "true").lower() == "t
 BERU_OJOS_REST_FALLBACK = os.getenv("BERU_OJOS_REST_FALLBACK", "true").lower() == "true"
 BERU_OJOS_REST_S = float(os.getenv("BERU_OJOS_REST_S", "10") or 10)
 BERU_NEUTRO_MARGEN = os.getenv("BERU_NEUTRO_MARGEN", "true").lower() == "true"
-BERU_ENGORDE_PERMITIDO = os.getenv("BERU_ENGORDE_PERMITIDO", "false").lower() == "true"
+# Engorde de Hoz en CAZA (por grado). No engorda escudo Igris. Manos siguen OFF.
+BERU_ENGORDE_PERMITIDO = os.getenv("BERU_ENGORDE_PERMITIDO", "true").lower() == "true"
 BERU_ABORTAR_SOLO_CEGUERA = os.getenv("BERU_ABORTAR_SOLO_CEGUERA", "true").lower() == "true"
 BERU_CEGUERA_COMA_S = float(os.getenv("BERU_CEGUERA_COMA_S", "15"))
 # Peces / barcos — apalancamiento máx Bybit (promedio inverse+lineal en beru_capital)

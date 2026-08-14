@@ -17,73 +17,83 @@ No busques otro pergamino como mandato principal.
 
 ---
 
-## 2) Misión actual — Sync techos de apalancamiento + smokes fríos
+## 2) Misión actual — MNT inverso: modo posición + re-equilibrar pierna larga
 
-**Qué es:** ritual de **ojos** — confirmar que los techos L/I de Bybit coinciden con la tabla del ejército (peaje pierna a pierna). USA a menudo recibe 403; México sí puede mirar vivo.
+**Qué es:** el Monarca soltó Arise Igris (ojos estrechos · Asalto · canal MNT). El **short lineal** llenó; el **long inverso** falló con Bybit `position idx not match position mode`. El manto quedó más torcido (más short). Ritual **apagado**. Hay que dejar el **MNTUSD inverso en Both Sides / hedge** y luego equilibrar el long que faltó.
 
-**Manos:** ATADAS. Ni arise, ni engorde, ni bisturí live.
+**Contexto (no reabrir debate):**
+- Ojos = Santos last price · **books OFF** (`ojos_estrechos` · Arise Igris igual).
+- Beru/Greed **dormidos**.
+- Ranking: foco MNT General ~\$537 de nocional; tras el short unilateral el Δ puede haber cambiado — reconciliar antes de plantar.
 
-**Anexo (detalle, no puerta):** si hace falta el ritual de mínimos G_min, ver receta `PEGAR_JESS_SYNC_MINIMOS_BYBIT.md` — **no** es esta misión.
+**Manos:** solo las que hacen falta para **arreglar modo** + **equilibrar long MNT inverso** (o dual limpio). No Beru. No Greed. No engorde de otros Santos.
 
 ### Comandos exactos
 
 ```
-python scripts/verificar_apalancamientos_bybit.py --json data/apalancamientos_bybit_vivo.json
+git pull origin master
+
+# Fríos primero
+python scripts/validar_ojos_estrechos_smoke.py
+python scripts/validar_beru_ojos_smoke.py
+
+# Ojos (sin manos) — confirmar Tank VERDE estrecho
+python scripts/arise_ojos_tusk.py --segundos 90
+
+# En Bybit (UI o API): MNTUSD inverso = Both Sides / hedge mode
+# (mismo espíritu que el lineal). Confirmar que positionIdx 1 = long hedge funciona.
+
+# Solo-ojos Igris (plan, sin plantar) — canal MNT
+set IGRIS_FORZAR_EXCLUSIVOS=MNT
+python scripts/arise_igris.py --solo-ojos --segundos 90
+
+# Si el modo ya es hedge OK y el Monarca/esta orden autoriza equilibrar:
+# (tope corto — no 12 min a ciegas)
+set IGRIS_FORZAR_EXCLUSIVOS=MNT
+python scripts/arise_igris.py --permitir-mainnet-manos --segundos 180
 ```
 
-Si Bybit falla / timeout:
+Si PowerShell:
 
 ```
-python scripts/verificar_apalancamientos_bybit.py --from-parametros --json data/apalancamientos_bybit_vivo.json
-```
-
-(usar BD local; avisar al Monarca que fue frío).
-
-Solo aplicar a config si el reporte marca **diff** claro y Monarca/USA lo pidió:
-
-```
-python scripts/verificar_apalancamientos_bybit.py --apply-config --json data/apalancamientos_bybit_vivo.json
-```
-
-Smokes fríos (obligatorios al terminar):
-
-```
-python scripts/validar_pase_im_ranking_smoke.py
-python scripts/validar_beru_capital_smoke.py
+$env:IGRIS_FORZAR_EXCLUSIVOS='MNT'
+python scripts/arise_igris.py --solo-ojos --segundos 90
 ```
 
 ---
 
 ## 3) Qué NO hacer
 
-- No `arise` / vigilante / manos / Beru live / Igris Asalto.
-- No `nivelar_manto_pase.py` en LIVE / reduceOnly.
-- No regenerar pase ni ranking salvo orden escrita nueva.
-- No subir `.env`, `Ima/`, `tools/`, videos ni logs.
-- No mezclar con noche historial Coliseo en el mismo terminal.
+- No despertar Beru ni Greed.
+- No `ARISE_IGRIS_BOOKS=true` salvo que Tank muera otra vez y el Monarca lo pida.
+- No engordar flota completa / otros Santos — solo **MNT** hasta equilibrar.
+- No regenerar pase/ranking.
+- No subir `.env`, `Ima/`, secretos ni logs gordos.
+- Si el long inverso sigue con ErrCode 10001 → **parar** y avisar; no martillar shorts.
 
 ---
 
 ## 4) Qué mirar al terminar
 
-1. **`data/apalancamientos_bybit_vivo.json`** — fresco; foco LINK / AVAX / OP / LTC / SOL / ETH L y I vs config.
-2. Si `n_diff_config` > 0 → anotar diffs al Monarca (no aplicar a ciegas).
-3. Smokes arriba en verde.
-4. Avisar al Monarca: «techos OK» o lista corta de diffs + fuente (vivo / BD).
-5. Marcar **HECHO** abajo.
+1. Bybit: MNT inverso en **hedge/Both Sides**; long avanza o dual L+S limpio.
+2. Short lineal no se dispara solo otra vez.
+3. Parte al Monarca: ¿modo OK? ¿cuánto long plantó? ¿restante MNT del pase?
+4. Marcar **HECHO** abajo.
 
 ---
 
 ## 5) HECHO (Jess / Cursor marca)
 
 - [ ] `git pull origin master` hecho
-- [ ] Verificar apalancamientos corrido (vivo o `--from-parametros` con aviso)
-- [ ] `data/apalancamientos_bybit_vivo.json` revisado (foco flota)
-- [ ] Smokes OK (`validar_pase_im_ranking_smoke` + `validar_beru_capital_smoke`)
-- [ ] Monarca avisado (OK o diffs)
+- [ ] Smokes ojos OK
+- [ ] Modo posición MNT inverso corregido / confirmado
+- [ ] Solo-ojos o equilibrado (según pudo)
+- [ ] Monarca avisado (modo + nocional L/S MNT + restante)
+
+**Fecha / notas Jess:** _(vacío)_
 
 ---
 
 ## Nota
 
-Peaje IM = notional/lev_inv + notional/lev_lin. Corona Brujo \$1673 · Chamán \$3735. Candado engorde: `OVERSHOOT_RANKING` si el Santo ya pasa la meta del paso.
+Tumor visto USA 2026-08-13: `ORDEN_ERROR position idx not match position mode` en `MNTUSD` Buy Market `positionIdx=1`. Short `MNTUSDT` sí fill. No repetir engorde a una pierna.

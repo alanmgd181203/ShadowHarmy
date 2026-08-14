@@ -11,11 +11,12 @@ ModoCombate = Literal["CAZA", "NEGOCIADOR"]
 # Trailing simétrico caza: siempre 0.1% (doctrina Monarca 2026-07)
 PASO_TRAILING_CAZA = 0.001
 
-# Rangos — distancia inicial red_residual / clonación por tier
-RANGO_MARISCAL = 0.001   # PLENO — Comandante
-RANGO_GENERAL = 0.002    # PROTO1 — Guerrero
-RANGO_CABALLERO = 0.004  # PROTO2 — Aprendiz
-RANGO_SOLDADO = 0.008    # BERUBBY — Aspirante
+# Relevo (silbato del siguiente cazador) — NO distancia de Red en caza
+# Soldado +0.9 · Capitán +0.5 · General +0.3 · Mariscal +0.1 (desde última Red tocada)
+RANGO_MARISCAL = 0.001   # PLENO
+RANGO_GENERAL = 0.003    # PROTO1
+RANGO_CABALLERO = 0.005  # PROTO2 = Capitán
+RANGO_SOLDADO = 0.009    # BERUBBY
 
 
 @dataclass(frozen=True)

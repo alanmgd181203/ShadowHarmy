@@ -16,14 +16,18 @@ from core import beru_ley
 
 def test_defaults_ley():
     assert config.BERU_NEUTRO_MARGEN is True
-    assert config.BERU_ENGORDE_PERMITIDO is False
+    assert config.BERU_ENGORDE_PERMITIDO is True  # engorde Hoz en caza
     assert config.BERU_ABORTAR_SOLO_CEGUERA is True
     assert config.BERU_MANOS is False
     assert config.BERU_HILO_ENABLED is False
     assert config.BERU_SPOT_MARGEN_ENABLED is True
+    assert abs(config.BERU_ABISMO_SALIDA_PCT - 0.016) < 1e-9
+    assert abs(config.BERU_LLAMADO_SANGRE_PCT - 0.009) < 1e-9
     assert beru_ley.consumir_auth_en_reserva() is False
     assert beru_ley.nunca_descansa() is True
     assert beru_ley.spot_margen_activo() is True
+    assert beru_ley.llamados_solo_detonan() is True
+    assert beru_ley.engorde_escudo_prohibido() is True
 
 
 def test_rojo_no_aborta_si_hay_precio():
@@ -55,8 +59,8 @@ def test_coma_aborta():
     assert motivo == "tank_coma"
 
 
-def test_engorde_off():
-    assert beru_ley.engorde_permitido() is False
+def test_engorde_caza_on():
+    assert beru_ley.engorde_permitido() is True
 
 
 def main() -> int:
@@ -64,8 +68,8 @@ def main() -> int:
     test_rojo_no_aborta_si_hay_precio()
     test_sin_precio_aborta()
     test_coma_aborta()
-    test_engorde_off()
-    print("validar_beru_ley_neutro_smoke: OK (molino + spot margen + manos OFF)")
+    test_engorde_caza_on()
+    print("validar_beru_ley_neutro_smoke: OK (molino · engorde caza · manos OFF)")
     return 0
 
 

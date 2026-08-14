@@ -287,8 +287,9 @@
   - **Noche historial flota Igris (≠ 4.0.3):** función ejército — bóveda velas 1m (spot + L/S manto) · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · motor [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · **manos OFF**
 - [~] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)
   - **Cirugía USA 2026-08-12 (injerto Jess útil):** ley neutro · wake reset-0 · ojos muleta · fantasma nivel 2 + smokes OK · [`CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-12.md`](CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-12.md)
-  - **Mega-cirugía ejército 2026-08-12 (frío):** caja USDT · Beru molino spot-margen ON / manos OFF · Igris MNT Santo · un solo cajón de dudas [`DUDAS_CIRUGIAS_MENORES_2026-08-12.md`](DUDAS_CIRUGIAS_MENORES_2026-08-12.md) · [`CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md`](CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md)
-  - **Aún no:** Beru ON dentro de arise Igris · nivel 3 manos reales (dormido; fill pendiente) · 4.0.4 completo = después de manto sirva
+  - **Mega-cirugía ejército 2026-08-12 (frío):** caja USDT · Igris MNT Santo · [`CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md`](CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md)
+  - **Mega-cirugía Beru 2026-08-13 (frío):** tres vidas + Mega · sangre 0.9/Hoz 0.8 · oro 1.6 · engorde caza ON · manos OFF · [`CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md`](CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md) · [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) · dudas B-TRAIL/B-ALTAR/…
+  - **Aún no:** Beru ON dentro de arise Igris · nivel 3 manos reales · trailing Mariscal 2.0 · 4.0.4 completo = después de manto sirva
 
 ### 4.1 Notificaciones *(oído = Pergamino)*
 - [~] **4.1.1** `core/telegram.py` — stub ✅; **legado** (no prioridad de camino)

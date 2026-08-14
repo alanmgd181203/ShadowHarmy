@@ -1,12 +1,9 @@
-"""Ley Beru — visión original (mega-cirugía 2026-08-12).
+"""Ley Beru — mega-cirugía 2026-08-13 (visión Monarca).
 
-Beru es el molino: spot margen al máximo, transmuta USDT ↔ Santo.
-No pregunta si hay USDT. No descansa mientras haya manto.
-No planta futuros (eso es Igris). No engorda el escudo.
-
-Spot margen ON = permiso de Bybit cuando el mantenimiento ya está feo.
-La caja USDT la pone Tusk/Monarca — Beru no la chequea.
-Manos/hilo: OFF hasta orden (cirugía ≠ despertar).
+Beru = molino spot-margen: tres vidas (cazar / negociar / cosechar) + Mega.
+No pregunta USDT. No descansa si hay manto. No planta futuros (Igris).
+Engorde = engorde de Hoz en CAZA (por grado). No engorda el escudo Igris.
+Manos/hilo OFF hasta orden (cirugía ≠ despertar).
 """
 from __future__ import annotations
 
@@ -16,8 +13,13 @@ import core.config as config
 
 
 def engorde_permitido() -> bool:
-    """No sumar capas / +G_min al manto. El molino recicla, no engorda escudo."""
-    return bool(getattr(config, "BERU_ENGORDE_PERMITIDO", False))
+    """Engorde de Hoz en caza (por peldaño de grado). Default ON tras cirugía 2026-08-13."""
+    return bool(getattr(config, "BERU_ENGORDE_PERMITIDO", True))
+
+
+def engorde_escudo_prohibido() -> bool:
+    """Nunca engordar el manto/pase de Igris desde Beru."""
+    return True
 
 
 def neutro_margen() -> bool:
@@ -35,7 +37,6 @@ def ceguera_coma_s() -> float:
 
 
 def spot_margen_activo() -> bool:
-    """Permiso Bybit para transmutar con ocupación/mantenimiento altos."""
     return bool(getattr(config, "BERU_SPOT_MARGEN_ENABLED", True))
 
 
@@ -44,12 +45,15 @@ def spot_margen_leverage() -> int:
 
 
 def nunca_descansa() -> bool:
-    """Hay manto → Beru patrulla. No hiberna por oxígeno del escudo."""
+    return True
+
+
+def llamados_solo_detonan() -> bool:
+    """Sangre / oro / tiempo: cero fill. Solo detonan la condicional ya armada."""
     return True
 
 
 def consumir_auth_en_reserva() -> bool:
-    """Neutro: no restar masa_autorizada de Igris."""
     if neutro_margen():
         return False
     return True
@@ -62,11 +66,6 @@ def debe_abortar_por_vision(
     precio_casa: float = 0.0,
     tank=None,
 ) -> tuple[bool, str]:
-    """True = abortar caza.
-
-    Solo ciego de verdad (sin precio / coma). ROJO con precio vivo → sigue.
-    No abortar por 'no hay margen de Igris'.
-    """
     if precio_casa is not None and float(precio_casa or 0) <= 0:
         return True, "sin_precio_casa"
     if not ctx_map:
@@ -104,28 +103,24 @@ def _tank_en_coma(tank) -> bool:
     return vivos == 0
 
 
-def masa_unidad_intercambio_usd(asset: str | None = None) -> float:
-    """Bocado del molino (G_min) — no es engorde de margen."""
+def masa_unidad_intercambio_usd(asset: str | None = None, grado: str | None = None) -> float:
+    """Bocado inicial de caza = peldaños hasta Hoz × engorde del grado."""
     from core import beru_cazador as bc
 
-    return float(bc.mordida_usd(asset))
+    return float(bc.capa1_masa_usd(0.0, asset, grado))
 
 
 def resumen_ley() -> dict[str, Any]:
     return {
         "engorde_permitido": engorde_permitido(),
+        "engorde_escudo_prohibido": engorde_escudo_prohibido(),
         "neutro_margen": neutro_margen(),
         "abortar_solo_ceguera": abortar_solo_ceguera(),
         "ceguera_coma_s": ceguera_coma_s(),
         "consumir_auth": consumir_auth_en_reserva(),
         "spot_margen": spot_margen_activo(),
-        "spot_margen_lev": spot_margen_leverage(),
         "nunca_descansa": nunca_descansa(),
+        "llamados_solo_detonan": llamados_solo_detonan(),
         "manos": bool(getattr(config, "BERU_MANOS", False)),
         "hilo": bool(getattr(config, "BERU_HILO_ENABLED", False)),
-        "ley": (
-            "Beru: molino spot-margen · no descansa si hay manto · "
-            "no pregunta USDT · no engorda Igris · aborta solo si ciego · "
-            "manos OFF hasta orden"
-        ),
     }

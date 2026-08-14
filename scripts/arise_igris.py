@@ -41,7 +41,10 @@ for _stream in (sys.stdout, sys.stderr):
 # --- Sesión 4.0.3 (antes de importar config) — no reescribe .env ---
 os.environ["ARISE_IGRIS_LIVE"] = "true"
 os.environ["MODO_SIMULACION"] = "False"
-os.environ["BRIDGE_WS_SUBSCRIBE_BOOKS"] = "true"
+# Ojos estrechos (sello 2026-08-13): last price Santos · sin orderbook.
+# Override: ARISE_IGRIS_BOOKS=true
+_books_on = os.getenv("ARISE_IGRIS_BOOKS", "").lower() in ("1", "true", "yes")
+os.environ["BRIDGE_WS_SUBSCRIBE_BOOKS"] = "true" if _books_on else "false"
 os.environ.setdefault("BRIDGE_WS_PROXY", "direct")
 os.environ.setdefault("TUSK_BOVEDA_MANOS", "false")
 os.environ.setdefault("ARENA_IGRIS_ACTIVA", "false")
@@ -81,11 +84,14 @@ os.environ.setdefault("IGRIS_MASA_ASIMETRIA_ASALTO_PCT", "0.12")
 os.environ.setdefault("IGRIS_ASALTO_OVERSHOOT_META", "true")
 os.environ.setdefault("IGRIS_FORCE_MAX_LEVERAGE", "true")
 os.environ.setdefault("IGRIS_ESPERA_COOLDOWN_S", "3")
-# Con books reales: puerta §E no debe depender del ticker sintético
-os.environ.setdefault("IGRIS_TICKER_PUERTA_SI_SIN_LIBRO", "false")
+# Sin libros: puerta §E usa ticker (Asalto Market)
+os.environ.setdefault(
+    "IGRIS_TICKER_PUERTA_SI_SIN_LIBRO",
+    "true" if not _books_on else "false",
+)
 os.environ.setdefault("BYBIT_RECV_WINDOW_MS", "60000")
 os.environ.setdefault("BRIDGE_WS_FORCE_IPV4", "true")
-os.environ.setdefault("IGRIS_LIBRO_REST_FALLBACK", "true")
+os.environ.setdefault("IGRIS_LIBRO_REST_FALLBACK", "true" if _books_on else "false")
 # Muleta REST más a menudo cuando WS tiembla (Asalto)
 os.environ.setdefault("IGRIS_LIBRO_REST_COOLDOWN_S", "8")
 os.environ.setdefault("BRIDGE_WS_OPEN_TIMEOUT_S", "60")
@@ -102,10 +108,11 @@ os.environ.setdefault("IGRIS_PODA_AUTO", "false")
 os.environ.setdefault("MODO_TESTNET", "False")
 
 import core.config as config  # noqa: E402
+from core import ojos_estrechos  # noqa: E402
 
 config.MODO_SIMULACION = False
 config.ARISE_IGRIS_LIVE = True
-config.BRIDGE_WS_SUBSCRIBE_BOOKS = True
+config.BRIDGE_WS_SUBSCRIBE_BOOKS = bool(_books_on)
 if hasattr(config, "BRIDGE_WS_PROXY"):
     config.BRIDGE_WS_PROXY = (os.environ.get("BRIDGE_WS_PROXY") or "direct").strip()
 if hasattr(config, "TUSK_BOVEDA_MANOS"):
@@ -122,12 +129,14 @@ config.IGRIS_EVENT_DRIVEN = False
 if hasattr(config, "IGRIS_BOOTSTRAP_ON_START"):
     config.IGRIS_BOOTSTRAP_ON_START = True
 config.IGRIS_ENGORDE_RITMO_S = float(os.getenv("IGRIS_ENGORDE_RITMO_S", "2") or 2)
-config.IGRIS_TICKER_PUERTA_SI_SIN_LIBRO = "false"
+config.IGRIS_TICKER_PUERTA_SI_SIN_LIBRO = "true" if not _books_on else "false"
 config.BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))
 if hasattr(config, "BRIDGE_WS_FORCE_IPV4"):
     config.BRIDGE_WS_FORCE_IPV4 = True
 if hasattr(config, "IGRIS_LIBRO_REST_FALLBACK"):
-    config.IGRIS_LIBRO_REST_FALLBACK = True
+    config.IGRIS_LIBRO_REST_FALLBACK = bool(_books_on)
+if not _books_on and hasattr(config, "BINANCE_REF_ENABLED"):
+    config.BINANCE_REF_ENABLED = False
 if hasattr(config, "IGRIS_LIBRO_REST_COOLDOWN_S"):
     config.IGRIS_LIBRO_REST_COOLDOWN_S = float(
         os.environ.get("IGRIS_LIBRO_REST_COOLDOWN_S", "8") or 8
@@ -301,27 +310,53 @@ def _bases_lote_ojos(equity_usd: float | None = None) -> list[str]:
     return iprot.filtrar_activos_trabajo(bases)
 
 
+def _books_requeridos() -> bool:
+    return bool(getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", False))
+
+
 def _aplicar_ojos_abiertos(tusk) -> list[str]:
-    """Ojos del lote/canal: books ON; ETH siempre en evidencia de calentamiento."""
+    """Ojos del canal Igris.
+
+    Default (2026-08-13): Santos last price · books OFF (Asalto Market).
+    ARISE_IGRIS_BOOKS=true → books ON (legado calentamiento con muros).
+    """
     eq = float(getattr(tusk, "masa_bruta_real", 0) or getattr(tusk, "masa_bruta", 0) or 0)
     out = _bases_lote_ojos(eq if eq > 0 else None)
-    # Canal exclusivo: engorde en ese Santo; libros ETH siguen siendo gate Asalto.
     excl = list(getattr(config, "IGRIS_ACTIVOS_EXCLUSIVOS", None) or [])
     config.TICKER_BASE = str((excl[0] if excl else (out[0] if out else "ETH"))).upper()
-    books = list(out)
-    if "ETH" not in {b.upper() for b in books}:
-        books = ["ETH"] + books
-    config.BRIDGE_WS_BASES = list(books)
-    config.BRIDGE_WS_SUBSCRIBE_BOOKS = True
-    config.BRIDGE_WS_BOOKS_BASES = list(books)
+    # Unión: lote del pase + Santos canónicos (MNT foco no se queda ciego)
+    bases = ojos_estrechos.bases_santos(extra=out)
+    if excl:
+        bases = [b for b in bases if b in {str(x).upper() for x in excl}] or list(excl)
+
+    books_on = _books_requeridos()
+    if books_on:
+        books = list(bases)
+        if "ETH" not in {b.upper() for b in books}:
+            books = ["ETH"] + books
+        config.BRIDGE_WS_BASES = list(books)
+        config.BRIDGE_WS_SUBSCRIBE_BOOKS = True
+        if hasattr(config, "BRIDGE_WS_BOOKS_BASES"):
+            config.BRIDGE_WS_BOOKS_BASES = list(books)
+        modo_ojos = "books=ON"
+    else:
+        ojos_estrechos.aplicar_ojos_last_price_santos(
+            bases, apagar_binance_ref=True,
+        )
+        books = []
+        modo_ojos = "books=OFF · last_price"
+
     modo = f"exclusivos={excl}" if excl else "lote_completo_pase"
     boveda = "ON" if getattr(config, "IGRIS_BOVEDA_EN_LOTE", True) else "OFF(pausa MNT)"
     print(
-        f"[OJOS] Canal Igris · {modo} · books=ON · Beru hibernado · "
+        f"[OJOS] Canal Igris · {modo} · {modo_ojos} · Beru hibernado · "
         f"bóveda_en_lote={boveda}"
     )
-    print(f"[OJOS] Bases engorde ({len(out)}): {', '.join(out)} · books={', '.join(books)}")
-    return out
+    print(
+        f"[OJOS] Bases ({len(bases)}): {', '.join(bases)}"
+        + (f" · books={', '.join(books)}" if books else "")
+    )
+    return bases
 
 
 def _libros_eth(tank) -> dict:
@@ -383,7 +418,7 @@ def _snapshot_cierre(tusk, igris, *, solo_ojos: bool, libros: dict | None) -> di
         "sim": False,
         "manos_reales": not solo_ojos,
         "solo_ojos": solo_ojos,
-        "books_on": True,
+        "books_on": bool(getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", False)),
         "libros_eth": libros,
         "testnet": bool(getattr(config, "TESTNET", True)),
         "marcha_id": mid,
@@ -463,16 +498,28 @@ async def _esperar_ojos_y_libros(
     timeout_s: float = 120.0,
     shutdown_event: asyncio.Event | None = None,
 ) -> tuple[bool, bool, dict]:
-    """Calentamiento: Tank VERDE + libros ETH (bids/asks). REST si WS falla un frente."""
+    """Calentamiento: Tank VERDE + last price (o libros ETH si books ON)."""
     from core import igris_ojos as ojos
 
+    books_on = _books_requeridos()
     base = str(getattr(config, "TICKER_BASE", "ETH") or "ETH").upper()
-    keys = (f"{base}USDT_LINEAL", f"{base}USD_INVERSE", "ETHUSDT_LINEAL", "ETHUSD_INVERSE")
+    keys = (
+        f"{base}USDT_LINEAL",
+        f"{base}USD_INVERSE",
+        f"{base}USDT_SPOT",
+        "ETHUSDT_LINEAL",
+        "ETHUSD_INVERSE",
+        "MNTUSDT_LINEAL",
+        "MNTUSD_INVERSE",
+    )
     frentes_rest = [f"{base}USDT_LINEAL", f"{base}USD_INVERSE"]
     t0 = time.time()
-    print(f"[OJOS] Calentamiento VERDE + libros ETH (hasta {timeout_s:.0f}s)…")
+    if books_on:
+        print(f"[OJOS] Calentamiento VERDE + libros (hasta {timeout_s:.0f}s)…")
+    else:
+        print(f"[OJOS] Calentamiento VERDE + last price (hasta {timeout_s:.0f}s) · sin muros…")
     verde_ok = False
-    libros: dict = {"ok": False, "frentes": {}}
+    libros: dict = {"ok": False, "frentes": {}, "stale": True}
     ultimo_rest = 0.0
     while time.time() - t0 < timeout_s:
         if shutdown_event is not None and shutdown_event.is_set():
@@ -487,37 +534,53 @@ async def _esperar_ojos_y_libros(
             lider = tank._obtener_lider_verde()
         except Exception:
             lider = None
+        px = {}
         if lider and getattr(lider, "estado_foco", "") == "VERDE":
             px = lider.precios_con_reflejo() or {}
             if any(float(px.get(k) or 0) > 0 for k in keys):
                 verde_ok = True
-        libros = _libros_eth(tank)
-        if verde_ok and libros.get("ok"):
-            print(
-                f"[OJOS] VERDE+libros OK lat={getattr(lider, 'latencia_ms', 0):.0f}ms · "
-                f"{libros.get('frentes')}"
-            )
-            return True, True, libros
-        # Muleta REST si falta un muro (p.ej. linear vacío / inverse OK)
-        ahora = time.time()
-        if bridge is not None and ahora - ultimo_rest >= 8.0 and not libros.get("ok"):
-            ultimo_rest = ahora
-            try:
-                diag = await ojos.asegurar_libros_frescos(tank, bridge, frentes_rest)
-                if any(r.get("ok") for r in (diag.get("rest") or [])):
-                    print(
-                        f"[OJOS] REST muleta · "
-                        f"{[r.get('frente') for r in diag.get('rest') or [] if r.get('ok')]}"
-                    )
-                libros = _libros_eth(tank)
-                if verde_ok and libros.get("ok"):
-                    print(f"[OJOS] VERDE+libros OK tras REST · {libros.get('frentes')}")
-                    return True, True, libros
-            except Exception as e:
-                print(f"[OJOS] REST muleta falló: {e}")
+        if books_on:
+            libros = _libros_eth(tank)
+            if verde_ok and libros.get("ok"):
+                print(
+                    f"[OJOS] VERDE+libros OK lat={getattr(lider, 'latencia_ms', 0):.0f}ms · "
+                    f"{libros.get('frentes')}"
+                )
+                return True, True, libros
+            ahora = time.time()
+            if bridge is not None and ahora - ultimo_rest >= 8.0 and not libros.get("ok"):
+                ultimo_rest = ahora
+                try:
+                    diag = await ojos.asegurar_libros_frescos(tank, bridge, frentes_rest)
+                    if any(r.get("ok") for r in (diag.get("rest") or [])):
+                        print(
+                            f"[OJOS] REST muleta · "
+                            f"{[r.get('frente') for r in diag.get('rest') or [] if r.get('ok')]}"
+                        )
+                    libros = _libros_eth(tank)
+                    if verde_ok and libros.get("ok"):
+                        print(f"[OJOS] VERDE+libros OK tras REST · {libros.get('frentes')}")
+                        return True, True, libros
+                except Exception as e:
+                    print(f"[OJOS] REST muleta falló: {e}")
+        else:
+            # Sin books: VERDE + ticker basta (Asalto Market)
+            vivos = {k: float(px.get(k) or 0) for k in keys if float(px.get(k) or 0) > 0}
+            libros = {
+                "ok": bool(vivos),
+                "frentes": {k: {"last": v, "modo": "ticker"} for k, v in vivos.items()},
+                "stale": not bool(vivos),
+                "modo": "last_price",
+            }
+            if verde_ok and vivos:
+                print(
+                    f"[OJOS] VERDE+last OK lat={getattr(lider, 'latencia_ms', 0):.0f}ms · "
+                    f"tickers={list(vivos.keys())[:6]}"
+                )
+                return True, True, libros
         await asyncio.sleep(1.0)
     print(
-        f"[OJOS] Timeout calentamiento — verde={verde_ok} libros={libros.get('ok')} "
+        f"[OJOS] Timeout calentamiento — verde={verde_ok} ojos={libros.get('ok')} "
         f"detalle={libros.get('frentes')}"
     )
     return verde_ok, bool(libros.get("ok")), libros
@@ -637,7 +700,10 @@ async def ritual_igris_live(
         + f" · proteger={config.IGRIS_PROTEGER_SYMBOLS}"
     )
     print("    Greed/Beru hibernados · Convert OFF · sueño+misión ON")
-    print(f"    Books ON · SIM={config.MODO_SIMULACION} · proxy={getattr(config, 'BRIDGE_WS_PROXY', 'direct')}")
+    print(
+        f"    Books={'ON' if _books_requeridos() else 'OFF(last_price)'} · "
+        f"SIM={config.MODO_SIMULACION} · proxy={getattr(config, 'BRIDGE_WS_PROXY', 'direct')}"
+    )
     print(f"    Marcha: {mid} · fill={perfil.get('fill_ratio')} · reserva={perfil.get('reserva_pasos')}")
     print("═" * 52)
 
@@ -750,16 +816,26 @@ async def ritual_igris_live(
             pd.sincronizar_logrados_desde_tusk(tusk, eq0)
         except Exception as e:
             print(f"[PASE] sync logrados arranque: {e}")
-        meta0 = pd.meta_engorde_usd(eq0, "ETH", tusk=tusk, marcha_id=pd.cargar_marcha())
+        meta0 = pd.meta_engorde_usd(eq0, tusk=tusk, marcha_id=pd.cargar_marcha())
         have0 = float(meta0.get("have_usd") or 0)
         need0 = float(meta0.get("need_usd") or 0)
         rest0 = float(meta0.get("restante_usd") or 0)
         pierna0 = float(meta0.get("need_notional_pierna_usd") or 0)
+        act0 = str(meta0.get("activo") or "?")
         print(
-            f"[PASE] ETH meta · have=${have0:.2f} need=${need0:.2f} "
-            f"restante=${rest0:.2f} pierna≈${pierna0:.2f} "
-            f"capΔ={meta0.get('delta_paso_usd')} paso={meta0.get('paso_n')}"
+            f"[PASE] Foco {act0} · paso={meta0.get('paso_n')} {meta0.get('grado')} · "
+            f"have=${have0:.2f} need=${need0:.2f} restante=${rest0:.2f} "
+            f"pierna≈${pierna0:.2f} capΔ={meta0.get('delta_paso_usd')}"
         )
+        plan0 = pd.plan_lote(eq0, marcha_id=pd.cargar_marcha())
+        trab = plan0.get("trabajo") or []
+        if trab:
+            print(
+                "[PASE] Trabajo: "
+                + ", ".join(
+                    f"{p.get('n')}:{p.get('activo')} {p.get('grado')}" for p in trab
+                )
+            )
 
         kaiser = KaiserVocero(tank, bellion)
         igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge, kaiser=kaiser)
@@ -794,7 +870,7 @@ async def ritual_igris_live(
             "IGRIS",
             "LIVE_START",
             f"4.0.3 arranque · marcha={mid} · solo_ojos={solo_ojos} · "
-            f"testnet={config.TESTNET} · books=ON · sin Greed/Beru",
+            f"testnet={config.TESTNET} · books={'ON' if _books_requeridos() else 'OFF'} · sin Greed/Beru",
         )
 
         def _spawn(coro):
@@ -849,40 +925,63 @@ async def ritual_igris_live(
             return
 
         if not libros_ok:
+            if _books_requeridos():
+                await bellion.anotar(
+                    "TANK",
+                    "LIBROS_AUSENTES",
+                    f"4.0.3 sin evidencia books ETH: {libros}",
+                )
+                print("[!] BLOQUEO: sin libros ETH (bids/asks). No se suelta Igris.")
+                print("[!] Documentando y sellando — no zombie.")
+                snap = _snapshot_cierre(tusk, igris, solo_ojos=True, libros=libros)
+                snap["duracion_s"] = round(time.time() - started, 1)
+                snap["veredicto_calentamiento"] = libros_ref["veredicto"]
+                snap["bloqueo"] = "sin_libros_eth"
+                REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+                REPORT_PATH.write_text(json.dumps(snap, indent=2, ensure_ascii=False), encoding="utf-8")
+                _escribir_heartbeat("bloqueo_sin_libros", {"sellado": True, "bloqueo": True})
+                shutdown_event.set()
+                for t in running:
+                    if not t.done():
+                        t.cancel()
+                await asyncio.gather(*running, return_exceptions=True)
+                raise SystemExit(2)
+            # Modo last_price: sin muros no es bloqueo duro si hay VERDE flojo
             await bellion.anotar(
                 "TANK",
-                "LIBROS_AUSENTES",
-                f"4.0.3 sin evidencia books ETH: {libros}",
+                "OJOS_LAST_DEBIL",
+                f"calentamiento sin ticker fuerte · verde={verde_ok} · {libros}",
             )
-            print("[!] BLOQUEO: sin libros ETH (bids/asks). No se suelta Igris.")
-            print("[!] Documentando y sellando — no zombie.")
-            # Escribir reporte de bloqueo y salir limpio
-            snap = _snapshot_cierre(tusk, igris, solo_ojos=True, libros=libros)
-            snap["duracion_s"] = round(time.time() - started, 1)
-            snap["veredicto_calentamiento"] = libros_ref["veredicto"]
-            snap["bloqueo"] = "sin_libros_eth"
-            REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-            REPORT_PATH.write_text(json.dumps(snap, indent=2, ensure_ascii=False), encoding="utf-8")
-            _escribir_heartbeat("bloqueo_sin_libros", {"sellado": True, "bloqueo": True})
-            shutdown_event.set()
-            for t in running:
-                if not t.done():
-                    t.cancel()
-            await asyncio.gather(*running, return_exceptions=True)
-            raise SystemExit(2)
+            print("[!] Aviso: last price flojo — continuo en solo observación / Asalto holgado.")
 
-        # Tras ojos+libros: Kaiser / sentidos
+        # Tras ojos: Kaiser / sentidos (Binance OFF en ojos estrechos)
         _spawn(kaiser.vigilar_indicadores())
         _spawn(bridge.hilo_sentidos_extra())
-        if binance_ref:
+        if binance_ref and getattr(config, "BINANCE_REF_ENABLED", True):
             _spawn(binance_ref.conectar())
 
         if segundos > 0:
             _spawn(_corte_tiempo(shutdown_event, segundos))
 
         if solo_ojos:
-            print("[OJOS] Smoke solo-ojos — Igris no arranca. Observando libros…")
+            print("[OJOS] Smoke solo-ojos — Igris no arranca. Observando plan/restante…")
             await bellion.anotar("IGRIS", "SOLO_OJOS", "calentamiento OK · sin manos Igris")
+            # Parte claro al Monarca: qué mordiría si soltara manos
+            try:
+                eqv = float(
+                    getattr(tusk, "masa_bruta_real", 0)
+                    or getattr(tusk, "masa_bruta", 0)
+                    or 0
+                )
+                mid = pd.cargar_marcha()
+                meta = pd.meta_engorde_usd(eqv, tusk=tusk, marcha_id=mid)
+                print(
+                    f"[PLAN] Si manos ON → {meta.get('activo')} paso {meta.get('paso_n')} "
+                    f"{meta.get('grado')} · restante≈${float(meta.get('restante_usd') or 0):.2f} "
+                    f"(have ${float(meta.get('have_usd') or 0):.2f} / need ${float(meta.get('need_usd') or 0):.2f})"
+                )
+            except Exception as e:
+                print(f"[PLAN] no disponible: {e}")
         else:
             print("[IGRIS] vigilar_manto_operativo — manos reales ON.")
             if not verde_ok:
@@ -902,7 +1001,9 @@ async def ritual_igris_live(
 
 
 def main():
-    ap = argparse.ArgumentParser(description="4.0.3 Igris live parcial — books ON, manos sueltas")
+    ap = argparse.ArgumentParser(
+        description="4.0.3 Igris — ojos Santos last price (books OFF) · manos con flag"
+    )
     ap.add_argument("--segundos", type=float, default=0.0, help="Corte tras N s (post-arranque total)")
     ap.add_argument("--horas", type=float, default=0.0, help="Duración en horas")
     ap.add_argument(
@@ -914,7 +1015,7 @@ def main():
     ap.add_argument(
         "--solo-ojos",
         action="store_true",
-        help="Calentamiento books sin Igris manos (smoke)",
+        help="Calentamiento + plan restante sin Igris manos",
     )
     ap.add_argument(
         "--permitir-mainnet-manos",

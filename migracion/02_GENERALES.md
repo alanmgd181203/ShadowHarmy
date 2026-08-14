@@ -75,19 +75,17 @@ Cada General = **un módulo Python** con un hilo async y contratos claros hacia 
 
 ---
 
-## Beru — Cazador / Espada del Manto
+## Beru — Cazador / Negociador / Cosechador / Mega
 
-**Rol:** Spot margen (casa); legión `BeruShip`; acordeón; cosecha.
+**Rol:** Molino spot-margen sobre el manto. Tres vidas + Mega. Llamados solo detonan.
 
 **Capitanes (solo 2):** Ansiedad **1,2 %** vacío | Normal **1,6 %**.
 
-**ProtoBeru:** tiers PLENO / PROTO1 / PROTO2 — pasos oz/red y manto escalado; arranque **ETH + PROTO1 + Negociador** (~**$50** manto).
+**Sellado 2026-08-13:** sangre **0,9** → Hoz **0,8** · oro/tiempo **1,6** · engorde Hoz por grado · Mega promedio + misma carta → nuevo 0. Manos OFF.
 
-**Rail casa:** elige USDT/USDC/USDE/USD1 vía `beru_rail.py` + Ancla. **No** multicruce (Greed).
+Ver [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) · [`CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md`](CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md).
 
-Ver [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md).
-
-**Código:** `generales/beru.py`, `core/beru_capital.py`, `core/beru_tier.py`, `scripts/validar_beru_capital_smoke.py`
+**Código:** `generales/beru.py`, `core/beru_cazador.py`, `beru_negociador.py`, `beru_cosechador.py`, `beru_fusion.py`, `beru_capital.py`
 
 ---
 
