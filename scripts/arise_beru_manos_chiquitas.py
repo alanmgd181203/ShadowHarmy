@@ -231,7 +231,7 @@ async def _corte_tiempo(shutdown_event, segundos: float):
 async def _muleta_ojos_rest(bridge, tank, activos: list[str], shutdown_event):
     from core import beru_ojos
 
-    await asyncio.sleep(8)
+    await asyncio.sleep(1.0 if bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False)) else 8)
     while not shutdown_event.is_set():
         if beru_ojos.rest_fallback_activo():
             try:

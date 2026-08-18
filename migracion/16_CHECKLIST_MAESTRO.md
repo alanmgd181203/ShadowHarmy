@@ -263,6 +263,7 @@
 ### 4.0 Despliegue por capas (ojos → manto → Beru)
 *Ley Monarca 2026-08-06:* etapa = **Igris**; preferencia operativa = **Asalto** (peaje aceptado). Igris ≠ Greed — no pedir edge/arbitraje fino a Igris. Indicadores / peinado Kaiser / Greed laboratorio = **después**. Orden: Igris → Beru (manto sirva) → Greed último. Sello: [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md). Disco marcha no se fuerza en este sello.
 - [x] **4.0.1** Ritual ojos — `scripts/arise_ojos_tusk.py` (Tusk tesorería + Tank + Kaiser; sin Igris/Greed/Beru) · runbook `18` · smoke `validar_arise_ojos_smoke.py`
+- [x] **4.0.1-beru-spot** Ritual Beru: Tank/puente **solo last spot Santos** (ciego lineal/inverso/futuros) · llamado ahogado a bitácora · muleta REST de emergencia 2 s · 2026-08-18
 - [x] **4.0.1b** Tesorería Tusk — **caja USDT** (mega-cirugía 2026-08-12) · potencia pase desde caja, no short MNT · MNT+short = sucio lectura · **manos OFF** · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · smoke `validar_tusk_boveda_mnt_smoke.py`
 - [x] **4.0.1c** Sucio → saneo a **USDT** (peaje OK; no reconstruir saco MNT) · firmada 2026-08-02 + recorte 2026-08-12 · manos aún OFF
 - [x] **4.0.1c2** ~~capital_mando hedge → masa Igris~~ **cancelado** (tumor). Potencia = caja USDT.
@@ -301,7 +302,8 @@
 - [~] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)
   - **Beru cazador puro + relevo (2026-08-16):** los cuatro grados mueven Hoz CONDICIONAL y acumulan masa por peldaño · tras fill/funeral Soldado/Capitán/General dejan hijo desde última Red tocada (0,9/0,5/0,3); Mariscal cierra su recorrido · sin negociador/residual/capas/fusión/Mega · teatro viejo 1,6 bloqueado · manos OFF · [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md)
   - **Altar unificado (2026-08-16):** Soldado/Capitán/General/Mariscal = CONDICIONAL que sigue la Red; engorde aproximado G_min/8, /4, /2, /1 · 400 recorridos y 3.800 Hoces movidas en stress frío · fósiles inertes · smoke `validar_beru_altar_cazador_smoke.py`
-  - **Manos nativas fase 1 (2026-08-16):** puente condicional spot para los cuatro grados + sello idempotente + query-before-create + cancelación confirmada · cero fallback Market · smoke `validar_beru_altar_nativo_smoke.py` ✅ frío
+  - **Manos nativas fase 1 (2026-08-16):** puente condicional spot para los cuatro grados + sello idempotente + query-before-create + cancelación confirmada · smoke `validar_beru_altar_nativo_smoke.py` ✅ frío
+  - **Red de ráfaga (2026-08-18):** si Bybit ahoga la Hoz gorda → carta mínima + resto acecha; si ni el mínimo cabe → radar interno. Bocados ≥ lote, uno tras otro, 0,25 s. Camino feliz sigue sin Market. Polvo no se planta. Smoke `validar_beru_rafaga_smoke.py`
   - **Vacío 1,1 desde wake (2026-08-17 noche):** primer silbato **±1,1 / Hoz 1,0** para los cuatro grados · 0 local = precio de wake · metro = manto · Mariscal $50 (10 peldaños) · relevo 0,9/0,5/0,3 intacto · Igris no pisa el 0 de acecho · Market sigue bloqueado (`ALTAR_NATIVO_PENDIENTE`) · **manos/hilo OFF**
   - **Pre-fuego Mariscal HYPE (2026-08-17):** el ensayo de la mañana usó Sangre
     fundida y persiguió el precio; esa ley quedó cortada. No despertar HYPE

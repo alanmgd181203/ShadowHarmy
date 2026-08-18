@@ -373,8 +373,18 @@ def plantar_orejas_post_hoz(
 
 
 def restaurar_acecho_tras_fallo_armado(beru: Any) -> None:
-    """Relevo: si reserva/plan falló, revive orejas; no tratar al hijo como semilla."""
+    """Si reserva/plan falló: vuelve a acechar. Semilla conserva el 0 de wake."""
     if not bool(getattr(beru, "es_relevo_cazador", False)):
+        beru.estado = "ACECHANDO"
+        beru.masa = 0.0
+        beru.masa_tramo_usd = 0.0
+        beru.oz_pct = 0.0
+        beru.red_pct = 0.0
+        beru.oz_adan = 0.0
+        beru.red_adan = 0.0
+        beru.llamado_tramo_pct = 0.0
+        beru.arma_cazador = ""
+        beru.sangre_vista_dentro = True
         return
     hoz = float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0)
     red = float(getattr(beru, "ultima_red_tocada_precio", 0) or 0)

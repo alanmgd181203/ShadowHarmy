@@ -1,6 +1,8 @@
 """Manos nativas del altar Beru, dormidas hasta integrarlas al pulso live.
 
-No existe fallback Market:
+Camino feliz: Hoz condicional. Cero Market de entrada.
+La ráfaga Market (bocados mínimos, uno tras otro) vive en ``beru_rafaga``
+y solo dispara si Bybit escupe la carta gorda — o la mínima — por ahogo.
 - Los cuatro grados usan condicional spot sellada por ``orderLinkId``.
 - Mariscal emula su trailing: Beru cancela y replanta la Hoz como los demás.
 - Mover una Hoz exige cancelación confirmada antes de plantar la siguiente.

@@ -121,11 +121,19 @@ no se convierte a ciegas.
 ## Ojos y manos
 
 - Ojos = **last price spot** del Santo. Sin spot, Beru está ciego.
+- En ritual de Beru, Tank y el puente **solo** oyen ese last spot (ciegos a
+  lineal, inverso y futuros). La muleta REST es pozo de emergencia, no el oído.
 - Sin fallback lineal/inverso ni orderbook.
 - Basis y sobrantes pertenecen a Greed.
 - Manos reales continúan **OFF** (candado `BERU_MANOS` / hilo). El pulso del
   General ya cablea el altar nativo: armar · mover · fill confirmado · funeral.
-  Market de Hoz/salida sigue bloqueado con `ALTAR_NATIVO_PENDIENTE`.
+  Camino feliz = **una Hoz condicional con toda la masa**. Cero Market de entrada.
+  Si Bybit escupe esa carta por **ahogo de bóveda** (no por lote/símbolo):
+  1. planta una Hoz **mínima** y el resto acecha; al fill, ráfaga de bocados
+     (≥ lote de la casa, uno tras otro, un cuarto de segundo entre ellos);
+  2. si ni el mínimo cabe: **cero carta** y radar interno — al tocar oz, Beru
+     dispara esa misma ráfaga. Polvo menor al mínimo no se planta. No hay
+     cuatro condicionales a la vez ni escalera de precios.
 - Ensayo de un Santo: uniforme exigible desde foto fresca del manto; Vacío
   ±1,1 / Hoz ±1,0; 0 local = wake; si el manto no dicta el rango pedido, la
   siembra aborta.
@@ -136,7 +144,8 @@ no se convierte a ciegas.
   nativa usa la misma condicional spot sellada y el propio Beru la cancela y
   replanta al avanzar la Red.
 - Bitácora única (papel y Mariscales vivos): silbato Vacío/Red/relevo, Hoz
-  plantada o fallo, fill o carta aún colgada, engorde y sello por Santo. El
+  plantada o fallo, **llamado ahogado** (oreja sí / garganta no), fill o carta
+  aún colgada, engorde y sello por Santo. El
   sello no dice «cero órdenes reales» si hubo Mariscales con manos.
 - Flota viva 100%: los 22 Santos plantan Hoz real; el uniforme de cada uno
   lo dicta su manto (no se exige Mariscal a toda la flota). Igris hiberna.
@@ -165,5 +174,6 @@ python scripts/validar_beru_relevo_cazador_smoke.py
 python scripts/validar_beru_relevo_stress.py
 python scripts/validar_beru_sin_tumores_smoke.py
 python scripts/validar_beru_altar_nativo_smoke.py
+python scripts/validar_beru_rafaga_smoke.py
 python scripts/validar_beru_cuatro_grados_stress.py
 ```

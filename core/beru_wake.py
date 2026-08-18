@@ -155,7 +155,20 @@ def tier_siembra_activo(
     from core import beru_capital as bc
     from core import pase_director as pd
 
-    if not pd.director_activo() or getattr(config, "LIVE_BERU_TESTNET", False):
+    if (
+        siembra_sin_candado_pase()
+        or not pd.director_activo()
+        or getattr(config, "LIVE_BERU_TESTNET", False)
+    ):
+        grado = None
+        if tusk is not None:
+            grado = pd.grado_beru_para_caza(
+                activo,
+                tusk=tusk,
+                pasos_logrados=pasos_logrados,
+            )
+        if grado:
+            return bc.tier_id_desde_grado(grado)
         return str(getattr(config, "BERU_TIER_DEFAULT", "PROTO1") or "PROTO1").upper()
     grado = pd.grado_beru_para_caza(
         activo,

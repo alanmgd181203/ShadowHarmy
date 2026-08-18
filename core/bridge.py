@@ -97,22 +97,28 @@ def _feeds_completos():
         linear_tuples = _filtrar_tuples_por_bases(linear_tuples, bases)
         inverse_tuples = _filtrar_tuples_por_bases(inverse_tuples, bases)
 
+    solo_spot = bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False))
+    if solo_spot:
+        linear_tuples = []
+        inverse_tuples = []
+
     spot_shard = getattr(config, "SPOT_WS_SHARD_SIZE", 150)
     deriv_shard = getattr(config, "DERIV_WS_SHARD_SIZE", 150)
 
     feeds = []
-    feeds.extend(_feeds_sharded(
-        "wss://stream.bybit.com/v5/public/linear",
-        linear_tuples,
-        "linear",
-        deriv_shard,
-    ))
-    feeds.extend(_feeds_sharded(
-        "wss://stream.bybit.com/v5/public/inverse",
-        inverse_tuples,
-        "inverse",
-        deriv_shard,
-    ))
+    if not solo_spot:
+        feeds.extend(_feeds_sharded(
+            "wss://stream.bybit.com/v5/public/linear",
+            linear_tuples,
+            "linear",
+            deriv_shard,
+        ))
+        feeds.extend(_feeds_sharded(
+            "wss://stream.bybit.com/v5/public/inverse",
+            inverse_tuples,
+            "inverse",
+            deriv_shard,
+        ))
     feeds.extend(_feeds_sharded(
         "wss://stream.bybit.com/v5/public/spot",
         spot_tuples,
@@ -167,8 +173,12 @@ class BybitBridge:
         self.feeds = _feeds_completos()
         bases = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
         books_on = bool(getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", True))
+        solo_spot = bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False))
         # Expandir solo frentes que vamos a escuchar (menos RAM en Tank).
-        if bases:
+        if solo_spot:
+            from core import beru_ojos
+            frentes = beru_ojos.frentes_spot_tank(bases)
+        elif bases:
             frentes = [
                 f for f in (getattr(config, "FRENTES_TANK", None) or [])
                 if any(f.startswith(f"{b}USD") or f.startswith(f"{b}USDT") or f.startswith(f"{b}USDC") for b in bases)
@@ -179,13 +189,18 @@ class BybitBridge:
             frentes = list(getattr(config, "FRENTES_TANK", None) or [])
         self.tank.expandir_frentes(frentes)
         nspot = len(getattr(config, "FRENTES_SPOT_ALL", []))
-        nlin = len(getattr(config, "FRENTES_LINEAR_PERP", []))
-        nlinf = len(getattr(config, "FRENTES_LINEAR_FUTURES", []))
-        ninv = len(getattr(config, "FRENTES_INVERSE_PERP", []))
-        ninvf = len(getattr(config, "FRENTES_INVERSE_FUTURES", []))
+        nlin = 0 if solo_spot else len(getattr(config, "FRENTES_LINEAR_PERP", []))
+        nlinf = 0 if solo_spot else len(getattr(config, "FRENTES_LINEAR_FUTURES", []))
+        ninv = 0 if solo_spot else len(getattr(config, "FRENTES_INVERSE_PERP", []))
+        ninvf = 0 if solo_spot else len(getattr(config, "FRENTES_INVERSE_FUTURES", []))
         nshards = sum(1 for f in self.feeds if f.get("label"))
         n_tick = sum(len(f.get("tickers") or []) for f in self.feeds)
-        modo = "estrecho" if bases or not books_on else "completo"
+        if solo_spot:
+            modo = "beru_spot"
+        elif bases or not books_on:
+            modo = "estrecho"
+        else:
+            modo = "completo"
         await self.bel.anotar(
             "BRIDGE", "TRINIDAD",
             f"Sentidos[{modo}]: catalog {nlin}+{nlinf} lin | {ninv}+{ninvf} inv | {nspot} spot · "
@@ -532,7 +547,10 @@ class BybitBridge:
             else:
                 msg = response.get("retMsg", "Error desconocido")
                 await self.bel.anotar("BRIDGE", "ORDEN_RECHAZADA", f"{msg} | LINK:{link_id}")
-                return OrdenResultado(False, link_id=link_id, mensaje=msg)
+                return OrdenResultado(
+                    False, link_id=link_id, mensaje=msg,
+                    datos={"retCode": response.get("retCode"), "retMsg": msg},
+                )
 
         except Exception as e:
             await self.bel.anotar("BRIDGE", "ORDEN_ERROR", f"{str(e)} | LINK:{link_id}")

@@ -47,6 +47,12 @@ def test_siembra_nivel3_sin_candado_pase():
         bel = BellionAuditor()
         tusk = TuskBoveda(bel)
         tusk.masa_bruta_real = 2200.0
+        tusk.pesos = {
+            "MNTUSD_INVERSE": {
+                "long": 1, "short": 0,
+                "precio_medio_long": 0.45, "precio_medio_short": 0,
+            }
+        }
         tank = MagicMock()
         tank.capitan_activo = CapitanNormal
         tank.nodos = []

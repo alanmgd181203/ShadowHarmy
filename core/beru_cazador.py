@@ -118,6 +118,21 @@ def capa1_masa_usd(masa_autorizada: float, asset: str | None = None, grado: str 
     return max(0.0, float(masa))
 
 
+def frente_es_santo(frente: str, activo: str) -> bool:
+    """HYPE ≠ HYPER. El Santo es prefijo de la clave (HYPEUSDT… / HYPEUSD_…)."""
+    fu = str(frente or "").upper()
+    act = str(activo or "").upper()
+    if not fu or not act:
+        return False
+    return (
+        fu.startswith(f"{act}USDT")
+        or fu.startswith(f"{act}USDC")
+        or fu.startswith(f"{act}USDE")
+        or fu.startswith(f"{act}USD1")
+        or fu.startswith(f"{act}USD_")
+    )
+
+
 def centro_manto_desde_tusk(
     tusk: TuskBoveda,
     activo: str | None = None,
@@ -133,11 +148,8 @@ def centro_manto_desde_tusk(
     act = str(activo or "").upper()
     pesos = tusk.pesos or {}
     for frente, p in pesos.items():
-        if act:
-            fu = str(frente or "").upper()
-            # ETHUSDT_LINEAL / ETHUSD_INVERSE / … — activo debe aparecer en la clave
-            if act not in fu:
-                continue
+        if act and not frente_es_santo(frente, act):
+            continue
         pm_l = float(p.get("precio_medio_long") or 0)
         pm_s = float(p.get("precio_medio_short") or 0)
         if pm_l > 0:
@@ -169,7 +181,7 @@ def manto_vivo(tusk, activo: str) -> bool:
     pesos = getattr(tusk, "pesos", None) or {}
     masa = 0.0
     for frente, p in pesos.items():
-        if act not in str(frente or "").upper():
+        if not frente_es_santo(frente, act):
             continue
         masa += float((p or {}).get("long") or 0) + float((p or {}).get("short") or 0)
     return masa > 1e-12

@@ -10,6 +10,8 @@ ModoCombate = Literal["CAZA", "NEGOCIADOR"]
 
 # Trailing simétrico caza: siempre 0.1% (doctrina Monarca 2026-07)
 PASO_TRAILING_CAZA = 0.001
+# Alias del peldaño de Hoz/Red (0.1%). Sin esto el armado del llamado explota.
+PASO_HOZ_CAZA = PASO_TRAILING_CAZA
 
 # Relevo (silbato del siguiente cazador) — NO distancia de Red en caza
 # Soldado +0.9 · Capitán +0.5 · General +0.3 · Mariscal +0.1 (desde última Red tocada)

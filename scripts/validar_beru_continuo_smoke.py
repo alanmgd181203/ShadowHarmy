@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT))
 
 from core.models import BeruShip
 from core import beru_continuo as bc
+from core import beru_tier
 from generales.capitanes import CapitanNormal
 
 
@@ -30,6 +31,8 @@ def _beru(local: float = 100.0, manto: float = 100.0) -> BeruShip:
 
 
 def main() -> int:
+    assert abs(bc.paso_pct() - beru_tier.PASO_HOZ_CAZA) < 1e-12
+    assert abs(beru_tier.PASO_HOZ_CAZA - 0.001) < 1e-12
     b = _beru()
     assert bc.es_primer_tramo(b)
     assert abs(bc.distancia_llamado_pct(b) - 0.011) < 1e-9
@@ -103,6 +106,19 @@ def main() -> int:
     b.precio_entrada_real = 0.0
     b.oz_adan = 58.19
     assert abs(bc.beneficio_desde_manto_pct(b, 58.19) - (58.19 - 57.5) / 57.5) < 1e-9
+
+    sem = _beru()
+    sem.direccion = "SHORT"
+    sem.oz_adan = 101.0
+    sem.masa = 12.0
+    sem.es_relevo_cazador = False
+    bc.restaurar_acecho_tras_fallo_armado(sem)
+    assert sem.estado == "ACECHANDO"
+    assert sem.oz_adan == 0.0
+    assert sem.masa == 0.0
+    assert sem.direccion == "SHORT"
+    assert sem.sangre_vista_dentro is True
+    assert sem.ancla_tramo == 100.0
 
     print("OK validar_beru_continuo_smoke (Vacío 1.1 · Hoz 1.0 · 0 de wake · metro manto)")
     return 0

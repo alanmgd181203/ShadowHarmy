@@ -124,4 +124,5 @@ def resumen_ley() -> dict[str, Any]:
         "llamados_solo_detonan": llamados_solo_detonan(),
         "manos": bool(getattr(config, "BERU_MANOS", False)),
         "hilo": bool(getattr(config, "BERU_HILO_ENABLED", False)),
+        "solo_spot_ws": bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False)),
     }

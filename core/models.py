@@ -79,6 +79,15 @@ class BeruShip:
     altar_order_status: str = ""
     altar_trigger_price: float = 0.0
     altar_cancel_confirmado: bool = False
+    # Red de ráfaga: "" = Hoz gorda · MINIMA = carta chica + resto acecha · RADAR = sin carta
+    hoz_modo: str = ""
+    masa_carta_usd: float = 0.0
+    masa_rafaga_usd: float = 0.0
+    rafaga_en_curso: bool = False
+    rafaga_hecha: bool = False
+    rafaga_ultimo_ts: float = 0.0
+    qty_rafaga_acum: float = 0.0
+    qty_base_ejecutada: float = 0.0
     capa: int = 1
     # Post-Mega: sangre absoluta sobre 0 de Igris (ej. +0.309 si purga en +30%)
     piso_sangre_pct: float = 0.0

@@ -30,6 +30,7 @@ def test_ampliar_ojos():
 def test_estrechar_ojos_bridge():
     prev_bases = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
     prev_books = bool(getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", True))
+    prev_solo = bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False))
     prev_sem = getattr(config, "BERU_ACTIVO_SEMILLA", None)
     prev_tick = getattr(config, "TICKER_BASE", None)
     try:
@@ -39,12 +40,15 @@ def test_estrechar_ojos_bridge():
         assert bases == ["ADA", "BCH", "MNT"]
         assert config.BRIDGE_WS_BASES == ["ADA", "BCH", "MNT"]
         assert config.BRIDGE_WS_SUBSCRIBE_BOOKS is False
+        assert config.BRIDGE_WS_SOLO_SPOT is True
         src = (ROOT / "scripts" / "arise_beru_fantasma.py").read_text(encoding="utf-8")
         assert "estrechar_ojos_bridge" in src
         assert "BRIDGE_WS_SUBSCRIBE_BOOKS" in src
+        assert "BRIDGE_WS_SOLO_SPOT" in src or "solo last spot" in src.lower() or "ciego a lineal" in src
     finally:
         config.BRIDGE_WS_BASES = prev_bases
         config.BRIDGE_WS_SUBSCRIBE_BOOKS = prev_books
+        config.BRIDGE_WS_SOLO_SPOT = prev_solo
         if prev_sem is not None:
             config.BERU_ACTIVO_SEMILLA = prev_sem
         if prev_tick is not None:

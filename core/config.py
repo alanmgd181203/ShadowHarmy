@@ -110,6 +110,11 @@ BERU_ENSAYO_SOLO_LONG = os.getenv("BERU_ENSAYO_SOLO_LONG", "true").lower() == "t
 BERU_OJOS_REST_FALLBACK = os.getenv("BERU_OJOS_REST_FALLBACK", "true").lower() == "true"
 BERU_OJOS_REST_S = float(os.getenv("BERU_OJOS_REST_S", "10") or 10)
 BERU_NEUTRO_MARGEN = os.getenv("BERU_NEUTRO_MARGEN", "true").lower() == "true"
+# Ráfaga de seguridad (solo si Bybit escupe la Hoz gorda por ahogo de bóveda)
+BERU_RAFAGA_LATENCIA_S = float(os.getenv("BERU_RAFAGA_LATENCIA_S", "0.25") or 0.25)
+BERU_RAFAGA_MAX_BOCADOS = int(float(os.getenv("BERU_RAFAGA_MAX_BOCADOS", "24") or 24))
+BERU_RAFAGA_FILL_TIMEOUT_S = float(os.getenv("BERU_RAFAGA_FILL_TIMEOUT_S", "2") or 2)
+BERU_RAFAGA_COOLDOWN_S = float(os.getenv("BERU_RAFAGA_COOLDOWN_S", "3") or 3)
 # Engorde de Hoz en CAZA (por grado). No engorda escudo Igris. Manos siguen OFF.
 BERU_ENGORDE_PERMITIDO = os.getenv("BERU_ENGORDE_PERMITIDO", "true").lower() == "true"
 BERU_ABORTAR_SOLO_CEGUERA = os.getenv("BERU_ABORTAR_SOLO_CEGUERA", "true").lower() == "true"
@@ -694,6 +699,8 @@ BRIDGE_WS_BASES: list[str] = (
     if _BRIDGE_WS_BASES_RAW
     else []
 )
+# Ritual Beru: Tank/puente ciegos a lineal, inverso y futuros — solo last spot.
+BRIDGE_WS_SOLO_SPOT = os.getenv("BRIDGE_WS_SOLO_SPOT", "false").lower() == "true"
 
 # Bybit HTTP: recv_window (ms). Skew ~5s del Mac→10002; 60s da colchón.
 BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))

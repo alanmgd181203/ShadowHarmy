@@ -9,6 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from core import beru_ley
 from core.beru_altar_nativo import (
     armar_condicional,
     consultar_fill,
@@ -145,7 +146,7 @@ async def _probar() -> None:
     assert plan.side == "Buy"
     assert plan.qty > 0
     assert plan.market_unit is None
-    assert plan.is_leverage == 0
+    assert plan.is_leverage == (1 if beru_ley.spot_margen_activo() else 0)
     assert plan.trigger_direction == 1
 
     short = _beru("SHORT")

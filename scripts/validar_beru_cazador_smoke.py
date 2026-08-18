@@ -86,6 +86,25 @@ def test_manto_vivo_exige_ls():
     }
     assert beru_cazador.manto_vivo(t, "ETH") is True
     assert beru_cazador.manto_vivo(t, "APT") is False
+    # HYPE no bebe HYPER
+    t.pesos["HYPERUSDT_LINEAL"] = {
+        "long": 0.0,
+        "short": 50.0,
+        "precio_medio_long": 0.0,
+        "precio_medio_short": 0.12,
+    }
+    t.pesos["HYPEUSD_INVERSE"] = {
+        "long": 10.0,
+        "short": 0.0,
+        "precio_medio_long": 57.5,
+        "precio_medio_short": 0.0,
+    }
+    assert beru_cazador.frente_es_santo("HYPEUSDT_LINEAL", "HYPE") is True
+    assert beru_cazador.frente_es_santo("HYPERUSDT_LINEAL", "HYPE") is False
+    c = beru_cazador.centro_manto_desde_tusk(t, "HYPE", fallback_global=False)
+    assert abs(c - 57.5) < 1e-9
+    assert beru_cazador.manto_vivo(t, "HYPER") is True
+    assert beru_cazador.manto_vivo(t, "HYPE") is True
 
 
 def test_manos_mixtas_solo_lista():

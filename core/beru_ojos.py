@@ -1,8 +1,8 @@
 """Ojos Beru — solo last price spot (cirugía precisión 2026-08-13).
 
 Beru es ciego a lineal, inverso, índice y orderbook como cerebro.
-Tank puede seguir pidiendo eso para Igris/Kaiser; Beru solo lee …USDT_SPOT.
-Muleta REST: ticker spot lastPrice cuando cae el WS.
+En ritual Beru, Tank y el puente también: solo last spot de los Santos.
+Muleta REST: ticker spot lastPrice cuando cae el WS (pozo de emergencia).
 """
 from __future__ import annotations
 
@@ -28,6 +28,30 @@ def claves_spot(activo: str) -> tuple[str, ...]:
     if not u:
         return ()
     return tuple(f"{u}{suf}" for suf in _CLAVES_SPOT)
+
+
+def frentes_spot_tank(bases: list[str] | None) -> list[str]:
+    """Solo last spot de esos Santos. Ciego a lineal/inverso/futuros."""
+    from core import beru_cazador as bc
+
+    acts = [str(a or "").strip().upper() for a in (bases or []) if str(a or "").strip()]
+    out: list[str] = []
+    seen: set[str] = set()
+    for act in acts:
+        for clave in claves_spot(act):
+            if clave not in seen:
+                seen.add(clave)
+                out.append(clave)
+    for f in list(getattr(config, "FRENTES_TANK", None) or []):
+        fu = str(f or "").upper()
+        if not fu.endswith("_SPOT"):
+            continue
+        if acts and not any(bc.frente_es_santo(fu, a) for a in acts):
+            continue
+        if fu not in seen:
+            seen.add(fu)
+            out.append(fu)
+    return out
 
 
 def last_spot_desde_precios(precios: dict | None, activo: str) -> float:

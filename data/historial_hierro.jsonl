@@ -77428,3 +77428,1296 @@ Request → GET https://api.bybit.com/v5/position/list: category=inverse.
 [2026-08-12 17:02:42] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
 [2026-08-12 17:02:42] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
 [2026-08-12 17:02:42] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:03:36] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:03:36] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:03:36] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:03:36] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:03:36] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:03:36] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:04:45] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:04:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:04:45] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:04:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:04:45] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:04:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:05:53] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:05:53] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:05:53] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:05:53] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:05:53] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:05:53] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:06:39] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:06:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:06:39] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:06:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:06:39] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:06:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:07:22] [BRIDGE] NAV_EXCEPCIÓN: Error #49: HTTPSConnectionPool(host='api.bybit.com', port=443): Max retries exceeded with url: /v5/account/wallet-balance?accountType=UNIFIED (Caused by ProxyError('Unable to connect to proxy', NewConnectionError("HTTPSConnection(host='127.0.0.1', port=54303): Failed to establish a new connection: [Errno 61] Connection refused")))
+[2026-08-12 17:07:22] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:07:22] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:07:22] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:07:22] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:07:22] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:07:22] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:08:18] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:08:18] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:08:18] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:08:18] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:08:18] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:08:18] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:09:01] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:09:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:09:01] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:09:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:09:01] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:09:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:09:44] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:09:44] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:09:44] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:09:44] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:09:44] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:09:44] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:10:39] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:10:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:10:39] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:10:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:10:39] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:10:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:11:22] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:11:22] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:11:22] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:11:22] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:11:22] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:11:22] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:12:06] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:12:06] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:12:06] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:12:06] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:12:06] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:12:06] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:13:01] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:13:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:13:01] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:13:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:13:01] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:13:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:13:01] [BRIDGE] NAV_EXCEPCIÓN: Error #50: HTTPSConnectionPool(host='api.bybit.com', port=443): Max retries exceeded with url: /v5/account/wallet-balance?accountType=UNIFIED (Caused by ProxyError('Unable to connect to proxy', NewConnectionError("HTTPSConnection(host='127.0.0.1', port=54303): Failed to establish a new connection: [Errno 61] Connection refused")))
+[2026-08-12 17:14:20] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:14:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:14:20] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:14:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:14:20] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:14:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:15:45] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:15:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:15:45] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:15:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:15:45] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:15:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:16:38] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:16:38] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:16:38] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:16:38] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:16:38] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:16:38] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:17:26] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:17:26] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:17:26] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:17:26] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:17:26] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:17:26] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:18:20] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:18:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:18:20] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:18:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:18:20] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:18:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:18:49] [BRIDGE] NAV_EXCEPCIÓN: Error #51: HTTPSConnectionPool(host='api.bybit.com', port=443): Max retries exceeded with url: /v5/account/wallet-balance?accountType=UNIFIED (Caused by ProxyError('Unable to connect to proxy', NewConnectionError("HTTPSConnection(host='127.0.0.1', port=54303): Failed to establish a new connection: [Errno 61] Connection refused")))
+[2026-08-12 17:19:04] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:19:04] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:19:04] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:19:04] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:19:04] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:19:04] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:19:50] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:19:50] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:19:50] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:19:50] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 17:19:50] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 17:19:50] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:53:37] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:53:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:53:37] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:53:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:53:37] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:53:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:54:33] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:54:33] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:54:33] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:54:33] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:54:33] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:54:33] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:55:39] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:55:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:55:39] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:55:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:55:39] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:55:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:56:42] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:56:42] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:56:42] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:56:42] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:56:42] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:56:42] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:57:08] [BRIDGE] NAV_EXCEPCIÓN: Error #52: HTTPSConnectionPool(host='api.bybit.com', port=443): Max retries exceeded with url: /v5/account/wallet-balance?accountType=UNIFIED (Caused by ProxyError('Unable to connect to proxy', NewConnectionError("HTTPSConnection(host='127.0.0.1', port=54303): Failed to establish a new connection: [Errno 61] Connection refused")))
+[2026-08-12 20:57:47] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:57:47] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:57:47] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:57:47] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:57:47] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:57:47] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:58:39] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:58:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:58:39] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:58:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:58:39] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:58:39] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:59:30] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:59:30] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:59:30] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:59:30] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 20:59:31] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 20:59:31] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:00:35] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:00:35] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:00:35] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:00:35] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:00:35] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:00:35] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:01:28] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:01:28] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:01:28] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:01:28] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:01:28] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:01:28] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:02:16] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:02:16] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:02:16] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:02:16] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:02:16] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:02:16] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:02:41] [BRIDGE] NAV_EXCEPCIÓN: Error #53: HTTPSConnectionPool(host='api.bybit.com', port=443): Max retries exceeded with url: /v5/account/wallet-balance?accountType=UNIFIED (Caused by ProxyError('Unable to connect to proxy', NewConnectionError("HTTPSConnection(host='127.0.0.1', port=54303): Failed to establish a new connection: [Errno 61] Connection refused")))
+[2026-08-12 21:03:25] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:03:25] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:03:25] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:03:25] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:03:25] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:03:25] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:04:34] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:04:34] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:04:34] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:04:34] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:04:34] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:04:34] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:05:37] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:05:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:05:37] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:05:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:05:37] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:05:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:06:32] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:06:32] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:06:32] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:06:32] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:06:32] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:06:32] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:07:20] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:07:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:07:20] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:07:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:07:20] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:07:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:08:27] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:08:27] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:08:27] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:08:27] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:08:27] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:08:27] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:08:27] [BRIDGE] NAV_EXCEPCIÓN: Error #54: HTTPSConnectionPool(host='api.bybit.com', port=443): Max retries exceeded with url: /v5/account/wallet-balance?accountType=UNIFIED (Caused by ProxyError('Unable to connect to proxy', NewConnectionError("HTTPSConnection(host='127.0.0.1', port=54303): Failed to establish a new connection: [Errno 61] Connection refused")))
+[2026-08-12 21:09:23] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:09:23] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:09:23] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:09:23] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:09:23] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:09:23] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:10:14] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:10:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:10:14] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:10:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:10:14] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:10:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:11:20] [BRIDGE] RECONEXIÓN: linear-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:11:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:11:20] [BRIDGE] RECONEXIÓN: inverse-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:11:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-12 21:11:20] [BRIDGE] RECONEXIÓN: spot-1: connecting through a SOCKS proxy requires python-socks
+[2026-08-12 21:11:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:13:54] [BRIDGE] SPOT_MARGEN_ON: Spot margen activo · leverage 10x
+[2026-08-18 08:13:54] [KAISER] DESPERTAR: Vocero activo — Ancla + perfiles + metaverso + memoria barcos (Tank horario); no disparo.
+[2026-08-18 08:14:33] [TANK] SENTIDOS_EXTRA: Ojos REST: spread producto, alpha, convert.
+[2026-08-18 08:14:33] [TUSK] NAV_SYNC: Capital: 4048.68 | Masa auth: 69.63 | Margen: 98.28% | O2 guerra: 69.6302 (ahogada)
+[2026-08-18 08:14:33] [BRIDGE] TRINIDAD: Sentidos[estrecho]: catalog 784+40 lin | 22+4 inv | 555 spot · WS 3 shards · tickers=88 · books=OFF · bases=BTC,ETH,SOL,XRP,ADA,DOGE,DOT,LTC,AAVE,HYPE,MNT,APT,AVAX,BCH,ETC,LINK,NEAR,OP,SUI,UNI,XLM,FIL
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: LINKUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:604.800000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: XLMUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:15979.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: HYPEUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:86.660000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: BCHUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:23.360000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: OPUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:7062.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: SUIUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:3720.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: ADAUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:26620.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: NEARUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:1556.700000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: LTCUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:109.500000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: DOGEUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:36864.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: MNTUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:11333.600000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: AAVEUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:30.110000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: DOTUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:3964.100000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: ETHUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:2.660000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: XRPUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:5003.800000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: AVAXUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:768.100000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: SOLUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:65.700000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: UNIUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:762.500000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: FILUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:3675.700000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: SOLUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:4970.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: HYPEUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:4990.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: LINKUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5012.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: MNTUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5063.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: UNIUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2501.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: AAVEUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2594.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: AVAXUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5007.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: BCHUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5003.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: DOGEUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2571.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: FILUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2501.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: NEARUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2501.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: OPUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:628.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: LTCUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5008.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: XLMUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2501.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: DOTUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:3072.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: SUIUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2507.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: ETHUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5007.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: ADAUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5009.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN: XRPUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5001.000000/S:0.000000
+[2026-08-18 08:14:35] [TUSK] RECONCILIACIÓN_OK: 38 frentes alineados con exchange
+[2026-08-18 08:16:00] [TUSK] NAV_SYNC: Capital: 4030.57 | Masa auth: 49.29 | Margen: 98.78% | O2 guerra: 49.2891 (ahogada)
+[2026-08-18 08:16:13] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:16:13] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 5s
+[2026-08-18 08:17:37] [TUSK] NAV_SYNC: Capital: 4009.77 | Masa auth: 28.05 | Margen: 99.30% | O2 guerra: 28.0516 (ahogada)
+[2026-08-18 08:17:54] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:17:54] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 8s
+[2026-08-18 08:25:12] [BRIDGE] SPOT_MARGEN_ON: Spot margen activo · leverage 10x
+[2026-08-18 08:25:12] [BRIDGE] TRINIDAD: Sentidos[estrecho]: catalog 784+40 lin | 22+4 inv | 555 spot · WS 3 shards · tickers=88 · books=OFF · bases=BTC,ETH,SOL,XRP,ADA,DOGE,DOT,LTC,AAVE,HYPE,MNT,APT,AVAX,BCH,ETC,LINK,NEAR,OP,SUI,UNI,XLM,FIL
+[2026-08-18 08:25:12] [KAISER] DESPERTAR: Vocero activo — Ancla + perfiles + metaverso + memoria barcos (Tank horario); no disparo.
+[2026-08-18 08:25:50] [TANK] SENTIDOS_EXTRA: Ojos REST: spread producto, alpha, convert.
+[2026-08-18 08:25:50] [TUSK] NAV_SYNC: Capital: 4001.35 | Masa auth: 0.00 | Margen: 100.07% | O2 guerra: 0.0 (ahogada)
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: LINKUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:604.800000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: XLMUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:15979.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: HYPEUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:86.660000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: BCHUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:23.360000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: OPUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:7062.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: SUIUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:3720.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: ADAUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:26620.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: NEARUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:1556.700000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: LTCUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:109.500000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: DOGEUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:36864.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: MNTUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:11333.600000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: AAVEUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:30.110000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: DOTUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:3964.100000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: ETHUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:2.660000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: XRPUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:5003.800000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: AVAXUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:768.100000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: SOLUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:65.700000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: UNIUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:762.500000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: FILUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:3675.700000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: SOLUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:4970.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: HYPEUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:4990.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: LINKUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5012.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: MNTUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5063.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: UNIUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2501.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: AAVEUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2594.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: AVAXUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5007.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: BCHUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5003.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: DOGEUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2571.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: FILUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2501.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: NEARUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2501.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: OPUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:628.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: LTCUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5008.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: XLMUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2501.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: DOTUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:3072.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: SUIUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:2507.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: ETHUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5007.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: ADAUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5009.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN: XRPUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:5001.000000/S:0.000000
+[2026-08-18 08:25:52] [TUSK] RECONCILIACIÓN_OK: 38 frentes alineados con exchange
+[2026-08-18 08:27:18] [TUSK] NAV_SYNC: Capital: 4012.35 | Masa auth: 5.14 | Margen: 99.87% | O2 guerra: 5.1445 (ahogada)
+[2026-08-18 08:28:56] [BRIDGE] RECONEXIÓN: linear-1: sent 1011 (internal error) keepalive ping timeout; no close frame received
+[2026-08-18 08:28:56] [BRIDGE] LIBROS_INVALIDADOS: linear-1: frentes_feed≈0/22 · esperando snapshot WS (no wipe global)
+[2026-08-18 08:28:56] [TUSK] NAV_SYNC: Capital: 4010.45 | Masa auth: 7.12 | Margen: 99.82% | O2 guerra: 7.1157 (ahogada)
+[2026-08-18 08:29:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:29:45] [BRIDGE] RECONEXIÓN: spot-1: sent 1011 (internal error) keepalive ping timeout; no close frame received
+[2026-08-18 08:29:45] [BRIDGE] LIBROS_INVALIDADOS: spot-1: frentes_feed≈0/44 · esperando snapshot WS (no wipe global)
+[2026-08-18 08:29:45] [BRIDGE] RECONEXIÓN: inverse-1: sent 1011 (internal error) keepalive ping timeout; no close frame received
+[2026-08-18 08:29:45] [BRIDGE] LIBROS_INVALIDADOS: inverse-1: frentes_feed≈0/22 · esperando snapshot WS (no wipe global)
+[2026-08-18 08:30:42] [TUSK] NAV_SYNC: Capital: 4010.82 | Masa auth: 17.50 | Margen: 99.56% | O2 guerra: 17.4962 (ahogada)
+[2026-08-18 08:30:42] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:30:42] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 8s
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.856% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.741% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.649% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SOL: 0.599% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ETH: 0.585% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SOL: 0.564% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.551% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.551% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ETH: 0.545% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.543% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index XLM: 0.532% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:32:10] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:32:10] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 8s
+[2026-08-18 08:32:10] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:32:10] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 8s
+[2026-08-18 08:32:10] [TUSK] NAV_SYNC: Capital: 4064.50 | Masa auth: 81.20 | Margen: 98.00% | O2 guerra: 81.1968 (ahogada)
+[2026-08-18 08:32:10] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:32:10] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 11s
+[2026-08-18 08:33:51] [TUSK] NAV_SYNC: Capital: 4059.79 | Masa auth: 77.14 | Margen: 98.10% | O2 guerra: 77.1357 (ahogada)
+[2026-08-18 08:33:51] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:33:51] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 11s
+[2026-08-18 08:33:51] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:33:51] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 17s
+[2026-08-18 08:33:51] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:33:51] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 11s
+[2026-08-18 08:34:07] [BELLION] SUCESION: Ritual flota viva sellado — 22 Santos con manos; cartas colgadas=0; cazando=0.
+[2026-08-18 08:36:23] [BRIDGE] SPOT_MARGEN_ON: Spot margen activo · leverage 10x
+[2026-08-18 08:36:23] [BRIDGE] TRINIDAD: Sentidos[estrecho]: catalog 784+40 lin | 22+4 inv | 555 spot · WS 3 shards · tickers=88 · books=OFF · bases=BTC,ETH,SOL,XRP,ADA,DOGE,DOT,LTC,AAVE,HYPE,MNT,APT,AVAX,BCH,ETC,LINK,NEAR,OP,SUI,UNI,XLM,FIL
+[2026-08-18 08:36:23] [KAISER] DESPERTAR: Vocero activo — Ancla + perfiles + metaverso + memoria barcos (Tank horario); no disparo.
+[2026-08-18 08:37:01] [TANK] SENTIDOS_EXTRA: Ojos REST: spread producto, alpha, convert.
+[2026-08-18 08:37:01] [TUSK] NAV_SYNC: Capital: 4041.01 | Masa auth: 61.98 | Margen: 98.47% | O2 guerra: 61.9831 (ahogada)
+[2026-08-18 08:37:43] [KAISER] MATRIZ_SPREAD: Spread inverse_vs_index OP: 0.507% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:38:26] [TUSK] NAV_SYNC: Capital: 4058.15 | Masa auth: 78.19 | Margen: 98.07% | O2 guerra: 78.1937 (ahogada)
+[2026-08-18 08:39:18] [BRIDGE] RECONEXIÓN: inverse-1: sent 1011 (internal error) keepalive ping timeout; no close frame received
+[2026-08-18 08:39:18] [BRIDGE] LIBROS_INVALIDADOS: inverse-1: frentes_feed≈0/22 · esperando snapshot WS (no wipe global)
+[2026-08-18 08:40:02] [TUSK] NAV_SYNC: Capital: 4073.00 | Masa auth: 92.94 | Margen: 97.72% | O2 guerra: 92.9361 (ahogada)
+[2026-08-18 08:40:42] [BRIDGE] RECONEXIÓN: spot-1: sent 1011 (internal error) keepalive ping timeout; no close frame received
+[2026-08-18 08:40:42] [BRIDGE] LIBROS_INVALIDADOS: spot-1: frentes_feed≈0/44 · esperando snapshot WS (no wipe global)
+[2026-08-18 08:40:42] [BRIDGE] RECONEXIÓN: linear-1: sent 1011 (internal error) keepalive ping timeout; no close frame received
+[2026-08-18 08:40:42] [BRIDGE] LIBROS_INVALIDADOS: linear-1: frentes_feed≈0/22 · esperando snapshot WS (no wipe global)
+[2026-08-18 08:41:37] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:41:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 8s
+[2026-08-18 08:41:37] [TUSK] NAV_SYNC: Capital: 4067.88 | Masa auth: 85.49 | Margen: 97.90% | O2 guerra: 85.4893 (ahogada)
+[2026-08-18 08:43:01] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:43:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 8s
+[2026-08-18 08:43:01] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:43:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 8s
+[2026-08-18 08:43:01] [TUSK] NAV_SYNC: Capital: 4036.38 | Masa auth: 53.28 | Margen: 98.68% | O2 guerra: 53.2832 (ahogada)
+[2026-08-18 08:43:16] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:43:16] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 11s
+[2026-08-18 08:44:34] [TUSK] NAV_SYNC: Capital: 4023.72 | Masa auth: 37.91 | Margen: 99.06% | O2 guerra: 37.9092 (ahogada)
+[2026-08-18 08:45:14] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:45:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 11s
+[2026-08-18 08:45:14] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:45:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 11s
+[2026-08-18 08:45:14] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:45:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 17s
+[2026-08-18 08:46:10] [TUSK] NAV_SYNC: Capital: 4025.26 | Masa auth: 39.32 | Margen: 99.02% | O2 guerra: 39.3226 (ahogada)
+[2026-08-18 08:47:34] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:47:34] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 17s
+[2026-08-18 08:47:34] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:47:34] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 17s
+[2026-08-18 08:47:34] [TUSK] NAV_SYNC: Capital: 4024.73 | Masa auth: 38.23 | Margen: 99.05% | O2 guerra: 38.2309 (ahogada)
+[2026-08-18 08:47:34] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:47:34] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 25s
+[2026-08-18 08:49:07] [TUSK] NAV_SYNC: Capital: 4044.39 | Masa auth: 58.30 | Margen: 98.56% | O2 guerra: 58.3026 (ahogada)
+[2026-08-18 08:50:01] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:50:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 25s
+[2026-08-18 08:50:01] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:50:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 25s
+[2026-08-18 08:50:01] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:50:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:50:43] [TUSK] NAV_SYNC: Capital: 4014.15 | Masa auth: 27.72 | Margen: 99.31% | O2 guerra: 27.7239 (ahogada)
+[2026-08-18 08:52:07] [TUSK] NAV_SYNC: Capital: 4022.99 | Masa auth: 38.76 | Margen: 99.04% | O2 guerra: 38.764 (ahogada)
+[2026-08-18 08:52:21] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:52:21] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:52:21] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:52:21] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:52:21] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:52:21] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:53:40] [TUSK] NAV_SYNC: Capital: 4048.89 | Masa auth: 57.44 | Margen: 98.58% | O2 guerra: 57.4382 (ahogada)
+[2026-08-18 08:54:21] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.510% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:54:35] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:54:35] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:54:35] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:54:35] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:54:35] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:54:35] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:55:18] [TUSK] NAV_SYNC: Capital: 4010.59 | Masa auth: 17.11 | Margen: 99.57% | O2 guerra: 17.1077 (ahogada)
+[2026-08-18 08:56:26] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:56:26] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:56:26] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:56:26] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:56:26] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:56:26] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:57:07] [TUSK] NAV_SYNC: Capital: 4032.43 | Masa auth: 36.99 | Margen: 99.08% | O2 guerra: 36.986 (ahogada)
+[2026-08-18 08:58:12] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 08:58:12] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:58:12] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 08:58:12] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:58:12] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 08:58:12] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 08:59:04] [TUSK] NAV_SYNC: Capital: 4030.24 | Masa auth: 36.11 | Margen: 99.10% | O2 guerra: 36.1106 (ahogada)
+[2026-08-18 08:59:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index OP: 0.761% | perfil [EVENTOS_RAROS]
+[2026-08-18 08:59:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.535% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:00:13] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:00:13] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:00:13] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:00:13] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:00:13] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:00:13] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:01:00] [TUSK] NAV_SYNC: Capital: 4027.44 | Masa auth: 32.35 | Margen: 99.20% | O2 guerra: 32.3496 (ahogada)
+[2026-08-18 09:02:03] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:02:03] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:02:03] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:02:03] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:02:03] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:02:03] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:02:30] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index OP: 0.616% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:02:30] [TUSK] NAV_SYNC: Capital: 4030.49 | Masa auth: 36.81 | Margen: 99.09% | O2 guerra: 36.8087 (ahogada)
+[2026-08-18 09:04:18] [TUSK] NAV_SYNC: Capital: 4025.51 | Masa auth: 31.17 | Margen: 99.23% | O2 guerra: 31.1741 (ahogada)
+[2026-08-18 09:04:18] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:04:18] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:04:18] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:04:18] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:04:18] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:04:18] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:05:14] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index OP: 0.580% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:06:19] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:06:19] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:06:19] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:06:19] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:06:19] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:06:19] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:06:19] [TUSK] NAV_SYNC: Capital: 4014.64 | Masa auth: 22.70 | Margen: 99.43% | O2 guerra: 22.7002 (ahogada)
+[2026-08-18 09:08:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index OP: 0.543% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:08:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.516% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:08:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.510% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:08:02] [TUSK] NAV_SYNC: Capital: 4022.06 | Masa auth: 30.20 | Margen: 99.25% | O2 guerra: 30.2021 (ahogada)
+[2026-08-18 09:08:20] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:08:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:08:20] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:08:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:08:20] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:08:20] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:10:01] [TUSK] NAV_SYNC: Capital: 4047.83 | Masa auth: 52.60 | Margen: 98.70% | O2 guerra: 52.6013 (ahogada)
+[2026-08-18 09:10:19] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:10:19] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:10:19] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:10:19] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:10:19] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:10:19] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:10:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:10:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index OP: 0.676% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:10:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.657% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:10:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:10:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ETC: 0.608% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:10:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.606% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:10:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SUI: 0.588% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:10:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.519% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:10:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 0.503% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:11:59] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:11:59] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:11:59] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:11:59] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:11:59] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:11:59] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:11:59] [TUSK] NAV_SYNC: Capital: 4029.82 | Masa auth: 30.20 | Margen: 99.25% | O2 guerra: 30.1959 (ahogada)
+[2026-08-18 09:13:42] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.612% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:13:42] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.567% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:13:42] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.561% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:13:42] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index OP: 0.555% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:13:42] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SUI: 0.542% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:13:42] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:13:42] [TUSK] NAV_SYNC: Capital: 4029.18 | Masa auth: 35.65 | Margen: 99.12% | O2 guerra: 35.6534 (ahogada)
+[2026-08-18 09:14:01] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:14:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:14:01] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:14:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:14:01] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:14:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:15:42] [TUSK] NAV_SYNC: Capital: 4022.24 | Masa auth: 28.96 | Margen: 99.28% | O2 guerra: 28.9615 (ahogada)
+[2026-08-18 09:16:00] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:16:00] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:16:00] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:16:00] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:16:00] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:16:00] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:16:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:16:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:16:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.613% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:16:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.561% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:16:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.539% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:17:58] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:17:58] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:17:58] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:17:58] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:17:58] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:17:58] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:17:58] [TUSK] NAV_SYNC: Capital: 4013.85 | Masa auth: 22.40 | Margen: 99.44% | O2 guerra: 22.4019 (ahogada)
+[2026-08-18 09:19:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:19:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:19:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.613% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:19:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.561% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:19:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.539% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:19:23] [TUSK] NAV_SYNC: Capital: 4027.82 | Masa auth: 35.57 | Margen: 99.12% | O2 guerra: 35.5747 (ahogada)
+[2026-08-18 09:19:41] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:19:41] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:19:41] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:19:41] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:19:41] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:19:41] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:20:29] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.528% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:20:29] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.516% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:21:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:21:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:21:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.561% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:21:25] [TUSK] NAV_SYNC: Capital: 4008.81 | Masa auth: 16.07 | Margen: 99.60% | O2 guerra: 16.0695 (ahogada)
+[2026-08-18 09:21:43] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:21:43] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:21:43] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:21:43] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:21:43] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:21:43] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:23:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.567% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:23:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.538% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:23:10] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:23:11] [TUSK] NAV_SYNC: Capital: 4023.50 | Masa auth: 31.96 | Margen: 99.21% | O2 guerra: 31.9568 (ahogada)
+[2026-08-18 09:23:25] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:23:25] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:23:25] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:23:25] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:23:25] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:23:25] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:23:52] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:23:52] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:23:52] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.561% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:24:33] [TUSK] NAV_SYNC: Capital: 4026.23 | Masa auth: 34.85 | Margen: 99.13% | O2 guerra: 34.8453 (ahogada)
+[2026-08-18 09:25:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.516% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:25:25] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:25:25] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:25:25] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:25:25] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:25:25] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:25:25] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:26:08] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:26:08] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:26:21] [TUSK] NAV_SYNC: Capital: 4009.08 | Masa auth: 18.36 | Margen: 99.54% | O2 guerra: 18.356 (ahogada)
+[2026-08-18 09:27:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:27:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:27:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.532% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:27:48] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:27:48] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:27:48] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:27:48] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:27:48] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:27:48] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:27:48] [TUSK] NAV_SYNC: Capital: 4019.09 | Masa auth: 30.07 | Margen: 99.25% | O2 guerra: 30.07 (ahogada)
+[2026-08-18 09:28:18] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.589% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:28:18] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.551% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:28:18] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.539% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:28:58] [TUSK] NAV_SYNC: Capital: 4015.56 | Masa auth: 25.25 | Margen: 99.37% | O2 guerra: 25.251 (ahogada)
+[2026-08-18 09:29:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:29:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:30:01] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:30:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:30:01] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:30:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:30:01] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:30:01] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:30:30] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.741% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:30:30] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.703% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:30:30] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.674% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:30:30] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.668% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:30:30] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.592% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:30:30] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.517% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:30:30] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.508% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:30:31] [TUSK] NAV_SYNC: Capital: 4011.19 | Masa auth: 20.00 | Margen: 99.50% | O2 guerra: 20.005 (ahogada)
+[2026-08-18 09:32:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.665% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:32:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:32:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.571% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:32:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:32:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.510% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:32:00] [TUSK] NAV_SYNC: Capital: 4014.36 | Masa auth: 23.09 | Margen: 99.42% | O2 guerra: 23.0894 (ahogada)
+[2026-08-18 09:32:13] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:32:13] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:32:13] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:32:13] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:32:13] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:32:13] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:32:39] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.858% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:32:39] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.852% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:32:39] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.583% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:32:39] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.581% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:32:39] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.507% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:33:18] [TUSK] NAV_SYNC: Capital: 4031.08 | Masa auth: 38.83 | Margen: 99.04% | O2 guerra: 38.8271 (ahogada)
+[2026-08-18 09:33:57] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.567% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:33:57] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.551% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:33:57] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:33:57] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:33:57] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.507% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:34:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.858% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:34:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.852% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:34:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:34:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.532% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:34:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.528% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:34:50] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:34:50] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:34:50] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:34:50] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:34:50] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:34:50] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:34:50] [TUSK] NAV_SYNC: Capital: 4010.84 | Masa auth: 17.86 | Margen: 99.55% | O2 guerra: 17.8644 (ahogada)
+[2026-08-18 09:36:09] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.567% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:36:09] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:36:09] [TUSK] NAV_SYNC: Capital: 4022.72 | Masa auth: 30.21 | Margen: 99.25% | O2 guerra: 30.2122 (ahogada)
+[2026-08-18 09:36:47] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.920% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:36:47] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.913% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:36:47] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.655% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:36:47] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.589% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:36:47] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.581% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:36:47] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.561% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:36:47] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.551% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:36:47] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:37:00] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:37:00] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:37:00] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:37:00] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:37:00] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:37:00] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:37:39] [TUSK] NAV_SYNC: Capital: 4029.89 | Masa auth: 37.50 | Margen: 99.07% | O2 guerra: 37.5022 (ahogada)
+[2026-08-18 09:38:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.797% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:38:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.793% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:38:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.791% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:38:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.718% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:38:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.561% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:38:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:38:54] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.510% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:38:54] [TUSK] NAV_SYNC: Capital: 4039.67 | Masa auth: 46.99 | Margen: 98.84% | O2 guerra: 46.9885 (ahogada)
+[2026-08-18 09:39:05] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:39:05] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:39:05] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:39:05] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:39:05] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:39:05] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:40:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.846% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:40:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.771% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:40:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.562% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:40:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:40:16] [TUSK] NAV_SYNC: Capital: 4035.71 | Masa auth: 41.46 | Margen: 98.97% | O2 guerra: 41.4553 (ahogada)
+[2026-08-18 09:40:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.930% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:40:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.856% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:40:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.736% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:40:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.730% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:40:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.603% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:40:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.583% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:41:30] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:41:30] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:41:30] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:41:30] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:41:30] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:41:30] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:41:30] [TUSK] NAV_SYNC: Capital: 4024.46 | Masa auth: 28.55 | Margen: 99.29% | O2 guerra: 28.5456 (ahogada)
+[2026-08-18 09:43:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 1.015% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:43:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.940% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:43:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.803% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:43:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.797% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:43:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.791% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:43:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.696% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:43:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.673% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:43:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.587% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:43:00] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.510% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:43:00] [TUSK] NAV_SYNC: Capital: 4032.27 | Masa auth: 35.99 | Margen: 99.11% | O2 guerra: 35.9926 (ahogada)
+[2026-08-18 09:43:14] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:43:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:43:14] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:43:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:43:14] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:43:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:44:26] [TUSK] NAV_SYNC: Capital: 4049.86 | Masa auth: 56.59 | Margen: 98.60% | O2 guerra: 56.5872 (ahogada)
+[2026-08-18 09:45:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.817% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:45:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.709% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:45:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.673% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:45:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.624% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:45:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.589% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:45:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.587% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:45:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.551% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:45:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.549% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:45:37] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:45:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:45:37] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:45:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:45:37] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:45:37] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:46:10] [TUSK] NAV_SYNC: Capital: 4067.05 | Masa auth: 75.25 | Margen: 98.15% | O2 guerra: 75.2469 (ahogada)
+[2026-08-18 09:47:53] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.645% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:47:53] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.613% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:47:53] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.607% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:47:53] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.589% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:47:53] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.583% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:47:53] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:47:53] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.562% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:47:53] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.551% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:47:53] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:47:53] [TUSK] NAV_SYNC: Capital: 4023.21 | Masa auth: 30.00 | Margen: 99.25% | O2 guerra: 30.0043 (ahogada)
+[2026-08-18 09:48:06] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:48:06] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:48:06] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:48:06] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:48:06] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:48:06] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:49:22] [TUSK] NAV_SYNC: Capital: 4022.83 | Masa auth: 28.61 | Margen: 99.29% | O2 guerra: 28.6104 (ahogada)
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.834% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.737% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.673% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.616% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.587% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.552% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.546% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.532% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.508% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:50:27] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:50:27] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:50:27] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:50:27] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:50:27] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:50:27] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:50:51] [TUSK] NAV_SYNC: Capital: 4055.92 | Masa auth: 58.88 | Margen: 98.55% | O2 guerra: 58.8757 (ahogada)
+[2026-08-18 09:51:27] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 1.059% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:51:27] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.962% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:51:27] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.875% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:51:27] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.792% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:51:27] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.646% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:51:27] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:51:27] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.608% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:51:27] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.583% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:51:27] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:52:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.866% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:52:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.785% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:52:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.769% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:52:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.701% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:52:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.684% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:52:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.647% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:52:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.646% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:52:02] [TUSK] NAV_SYNC: Capital: 4010.83 | Masa auth: 13.51 | Margen: 99.66% | O2 guerra: 13.5064 (ahogada)
+[2026-08-18 09:52:52] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:52:52] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:52:52] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:52:52] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:52:52] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:52:52] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:53:27] [TUSK] NAV_SYNC: Capital: 4033.01 | Masa auth: 37.82 | Margen: 99.06% | O2 guerra: 37.8182 (ahogada)
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.882% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.807% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.785% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.724% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp APT: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.617% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index APT: 0.589% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.583% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SOL: 0.534% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.509% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:54:41] [TUSK] NAV_SYNC: Capital: 4023.96 | Masa auth: 27.15 | Margen: 99.33% | O2 guerra: 27.1496 (ahogada)
+[2026-08-18 09:54:53] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:54:53] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:54:53] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:54:53] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:54:53] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:54:53] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:55:28] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.593% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:56:03] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.830% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:56:03] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.746% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:56:03] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.605% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:56:03] [TUSK] NAV_SYNC: Capital: 4022.06 | Masa auth: 26.73 | Margen: 99.34% | O2 guerra: 26.7317 (ahogada)
+[2026-08-18 09:56:43] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.882% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:56:43] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.785% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:56:43] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.583% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:56:54] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:56:54] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:56:54] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:56:54] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:56:54] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:56:54] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:57:21] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.852% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:57:21] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.769% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:57:21] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:57:21] [TUSK] NAV_SYNC: Capital: 4027.73 | Masa auth: 33.24 | Margen: 99.17% | O2 guerra: 33.2391 (ahogada)
+[2026-08-18 09:58:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.834% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:58:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.737% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:58:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.581% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:58:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.567% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:58:16] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:58:31] [TUSK] NAV_SYNC: Capital: 4024.85 | Masa auth: 30.92 | Margen: 99.23% | O2 guerra: 30.9218 (ahogada)
+[2026-08-18 09:59:08] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 09:59:08] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:59:08] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 09:59:08] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:59:08] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 09:59:08] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 09:59:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.852% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:59:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.769% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:59:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 09:59:44] [TUSK] NAV_SYNC: Capital: 4024.76 | Masa auth: 30.35 | Margen: 99.25% | O2 guerra: 30.3479 (ahogada)
+[2026-08-18 10:00:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.914% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:00:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.830% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:00:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.817% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:00:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.746% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:00:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.653% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:00:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.510% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:00:56] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:00:56] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:00:56] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:00:56] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:00:56] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:00:56] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:01:09] [TUSK] NAV_SYNC: Capital: 4022.64 | Masa auth: 27.16 | Margen: 99.32% | O2 guerra: 27.1558 (ahogada)
+[2026-08-18 10:01:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.995% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:01:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.897% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:01:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SOL: 0.625% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:01:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.593% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:01:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SOL: 0.563% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:01:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:02:24] [TUSK] NAV_SYNC: Capital: 4023.82 | Masa auth: 27.87 | Margen: 99.31% | O2 guerra: 27.873 (ahogada)
+[2026-08-18 10:02:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.807% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:02:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.724% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:02:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:02:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SOL: 0.612% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:02:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:02:50] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SOL: 0.550% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:03:02] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:03:02] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:03:02] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:03:02] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:03:02] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:03:02] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:03:41] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.834% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:03:41] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.737% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:03:41] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SOL: 0.573% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:03:41] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.569% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:03:41] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp XLM: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:03:41] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SOL: 0.511% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:03:54] [TUSK] NAV_SYNC: Capital: 4029.77 | Masa auth: 33.35 | Margen: 99.17% | O2 guerra: 33.3454 (ahogada)
+[2026-08-18 10:04:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.830% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:04:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.770% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:04:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.746% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:04:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.673% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:04:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SOL: 0.599% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:04:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.567% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:04:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SOL: 0.537% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:04:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp OP: 0.532% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:04:55] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:05:07] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:05:07] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:05:07] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:05:07] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:05:07] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:05:07] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:05:07] [TUSK] NAV_SYNC: Capital: 4031.99 | Masa auth: 35.90 | Margen: 99.11% | O2 guerra: 35.9007 (ahogada)
+[2026-08-18 10:05:32] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.786% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:05:32] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.763% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:05:32] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.689% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:05:32] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.678% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:05:32] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:05:32] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:05:32] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SOL: 0.547% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:06:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SOL: 0.625% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:06:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SOL: 0.563% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:06:36] [TUSK] NAV_SYNC: Capital: 4022.48 | Masa auth: 27.57 | Margen: 99.31% | O2 guerra: 27.5709 (ahogada)
+[2026-08-18 10:07:38] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.786% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:07:38] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.763% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:07:38] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.689% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:07:38] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.678% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:07:38] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:07:38] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:07:38] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:07:38] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:07:38] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:07:38] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:07:38] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:07:38] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:07:49] [TUSK] NAV_SYNC: Capital: 4037.99 | Masa auth: 41.74 | Margen: 98.97% | O2 guerra: 41.7429 (ahogada)
+[2026-08-18 10:08:15] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.914% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:08:15] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.817% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:08:15] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.603% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:08:15] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.583% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:08:15] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.510% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:09:07] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.898% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:09:07] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.801% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:09:07] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.737% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:09:07] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.685% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:09:07] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.650% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:09:07] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.565% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:09:07] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.536% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:09:19] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:09:19] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:09:19] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:09:19] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:09:19] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:09:19] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:09:19] [TUSK] NAV_SYNC: Capital: 4036.59 | Masa auth: 40.36 | Margen: 99.00% | O2 guerra: 40.361 (ahogada)
+[2026-08-18 10:10:20] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.793% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:10:20] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.742% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:10:20] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.606% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:10:20] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.519% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:10:31] [TUSK] NAV_SYNC: Capital: 4049.20 | Masa auth: 51.49 | Margen: 98.73% | O2 guerra: 51.4916 (ahogada)
+[2026-08-18 10:10:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.786% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:10:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.689% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:10:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.673% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:10:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.587% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:11:47] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:11:47] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:11:47] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:11:47] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:11:47] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:11:47] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:11:58] [TUSK] NAV_SYNC: Capital: 4042.43 | Masa auth: 43.64 | Margen: 98.92% | O2 guerra: 43.6439 (ahogada)
+[2026-08-18 10:12:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.793% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:12:23] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.742% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:13:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.786% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:13:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.718% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:13:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.689% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:13:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.633% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:13:14] [TUSK] NAV_SYNC: Capital: 4032.31 | Masa auth: 33.14 | Margen: 99.18% | O2 guerra: 33.1395 (ahogada)
+[2026-08-18 10:13:50] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:13:50] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:13:50] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:13:50] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:13:50] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:13:50] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:14:26] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.793% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:14:26] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.754% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:14:26] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.742% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:14:26] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.695% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:14:26] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index FIL: 0.657% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:14:26] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.610% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:14:37] [TUSK] NAV_SYNC: Capital: 4032.96 | Masa auth: 33.92 | Margen: 99.16% | O2 guerra: 33.9216 (ahogada)
+[2026-08-18 10:15:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.718% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:15:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:15:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.633% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:15:02] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:15:53] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:15:53] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:15:53] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:15:53] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:15:53] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:15:53] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:15:53] [TUSK] NAV_SYNC: Capital: 4030.34 | Masa auth: 30.30 | Margen: 99.25% | O2 guerra: 30.2962 (ahogada)
+[2026-08-18 10:17:08] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.740% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:17:08] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:17:08] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.679% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:17:08] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.655% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:17:21] [TUSK] NAV_SYNC: Capital: 4027.11 | Masa auth: 28.32 | Margen: 99.30% | O2 guerra: 28.316 (ahogada)
+[2026-08-18 10:17:57] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:17:57] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:17:57] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:17:57] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:17:57] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:17:57] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:18:21] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.619% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:18:21] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.617% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:18:21] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.578% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:18:21] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.567% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:18:21] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:18:32] [TUSK] NAV_SYNC: Capital: 4048.29 | Masa auth: 46.51 | Margen: 98.85% | O2 guerra: 46.5077 (ahogada)
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.074% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 0.969% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.793% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.763% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.742% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.679% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.678% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.608% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.535% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:19:45] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:19:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:19:45] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:19:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:19:45] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:19:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:19:57] [TUSK] NAV_SYNC: Capital: 4046.34 | Masa auth: 43.41 | Margen: 98.93% | O2 guerra: 43.4089 (ahogada)
+[2026-08-18 10:20:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.091% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:20:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 0.986% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:20:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.785% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:20:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.701% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:20:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:20:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:20:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.566% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:21:09] [TUSK] NAV_SYNC: Capital: 4039.58 | Masa auth: 37.67 | Margen: 99.07% | O2 guerra: 37.6689 (ahogada)
+[2026-08-18 10:21:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.740% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:21:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.655% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:21:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.619% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:21:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.617% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:21:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.562% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:21:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.517% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:21:33] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.505% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:21:44] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:21:44] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:21:44] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:21:44] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:21:44] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:21:44] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.393% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.296% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.673% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.616% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.587% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.529% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:22] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.508% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:22:34] [TUSK] NAV_SYNC: Capital: 4040.42 | Masa auth: 37.18 | Margen: 99.08% | O2 guerra: 37.1834 (ahogada)
+[2026-08-18 10:23:43] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.619% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:23:43] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.617% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:23:43] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.517% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:23:43] [TUSK] NAV_SYNC: Capital: 4040.49 | Masa auth: 36.24 | Margen: 99.10% | O2 guerra: 36.2408 (ahogada)
+[2026-08-18 10:23:56] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:23:56] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:23:56] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:23:56] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:23:56] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:23:56] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.578% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.486% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.696% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.695% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.669% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.610% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.589% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.566% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp UNI: 0.551% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:24:25] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp FIL: 0.529% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:25:24] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:25:24] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:25:24] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:25:24] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:25:24] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:25:24] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:25:24] [TUSK] NAV_SYNC: Capital: 4035.82 | Masa auth: 30.03 | Margen: 99.26% | O2 guerra: 30.0307 (ahogada)
+[2026-08-18 10:26:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.619% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:06] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.617% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.780% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.694% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.723% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.638% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.628% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.615% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.542% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.520% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp UNI: 0.520% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.510% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:26:56] [TUSK] NAV_SYNC: Capital: 4034.53 | Masa auth: 28.55 | Margen: 99.29% | O2 guerra: 28.5468 (ahogada)
+[2026-08-18 10:27:11] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:27:11] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:27:11] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:27:11] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:27:11] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:27:11] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:28:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.619% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:28:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.617% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:28:34] [TUSK] NAV_SYNC: Capital: 4037.31 | Masa auth: 30.77 | Margen: 99.24% | O2 guerra: 30.7681 (ahogada)
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.696% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.607% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.851% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.803% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.803% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp UNI: 0.736% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.723% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.650% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.642% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.623% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.615% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SUI: 0.573% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.570% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.565% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:19] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index AVAX: 0.534% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:29:33] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:29:33] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:29:33] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:29:33] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:29:33] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:29:33] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:30:19] [TUSK] NAV_SYNC: Capital: 4033.51 | Masa auth: 25.84 | Margen: 99.36% | O2 guerra: 25.8353 (ahogada)
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.831% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.747% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.943% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp UNI: 0.829% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.803% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.803% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.710% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.688% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SUI: 0.619% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.602% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.583% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index AVAX: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.510% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:31:34] [TUSK] NAV_SYNC: Capital: 4036.50 | Masa auth: 29.08 | Margen: 99.28% | O2 guerra: 29.0847 (ahogada)
+[2026-08-18 10:31:45] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:31:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:31:45] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:31:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:31:45] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:31:45] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.915% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.834% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.991% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.987% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.973% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp UNI: 0.860% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.764% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.737% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SUI: 0.696% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.650% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index AVAX: 0.644% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.629% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp AVAX: 0.569% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.565% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:32:56] [TUSK] NAV_SYNC: Capital: 4036.38 | Masa auth: 26.31 | Margen: 99.35% | O2 guerra: 26.3089 (ahogada)
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.898% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.816% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 1.053% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 1.048% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.882% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.779% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp UNI: 0.767% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.737% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.723% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SUI: 0.711% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.685% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.628% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.615% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:33:31] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LTC: 0.542% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:34:11] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:34:11] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:34:11] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:34:11] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:34:11] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:34:11] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:34:11] [TUSK] NAV_SYNC: Capital: 4033.92 | Masa auth: 26.58 | Margen: 99.34% | O2 guerra: 26.5758 (ahogada)
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.595% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.503% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 1.031% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 0.991% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 0.987% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.923% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.699% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp UNI: 0.582% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index SUI: 0.581% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LTC: 0.538% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index AVAX: 0.518% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp SUI: 0.511% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:35:36] [TUSK] NAV_SYNC: Capital: 4037.20 | Masa auth: 30.33 | Margen: 99.25% | O2 guerra: 30.3331 (ahogada)
+[2026-08-18 10:35:49] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:35:49] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:35:49] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:35:49] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:35:49] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:35:49] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.646% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.555% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 1.053% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 1.048% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 1.018% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.910% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.760% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp UNI: 0.643% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.567% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index AVAX: 0.550% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.513% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:36:48] [TUSK] NAV_SYNC: Capital: 4036.54 | Masa auth: 31.37 | Margen: 99.22% | O2 guerra: 31.3655 (ahogada)
+[2026-08-18 10:37:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.545% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:37:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.451% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:37:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 1.116% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:37:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 1.110% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:37:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.911% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:37:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.803% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:37:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index AVAX: 0.534% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:37:24] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.507% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:14] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 10:38:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:38:14] [BRIDGE] RECONEXIÓN: linear-1: timed out during opening handshake
+[2026-08-18 10:38:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: linear-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:38:14] [BRIDGE] RECONEXIÓN: inverse-1: timed out during opening handshake
+[2026-08-18 10:38:14] [BRIDGE] RECONEXIÓN_SIN_WIPE: inverse-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 10:38:14] [TUSK] NAV_SYNC: Capital: 4026.78 | Masa auth: 21.46 | Margen: 99.47% | O2 guerra: 21.4624 (ahogada)
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index HYPE: 1.427% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp HYPE: 1.330% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp NEAR: 1.053% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index NEAR: 1.048% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index UNI: 0.760% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp DOT: 0.750% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index ADA: 0.680% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp UNI: 0.643% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index DOT: 0.642% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp ADA: 0.627% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp LINK: 0.592% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index AVAX: 0.581% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_index LINK: 0.517% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [KAISER] MATRIZ_SPREAD: Spread spot_vs_perp AVAX: 0.506% | perfil [EVENTOS_RAROS]
+[2026-08-18 10:38:51] [BELLION] SUCESION: Ritual flota viva sellado — 22 Santos con manos; cartas colgadas=0; cazando=0.
+[2026-08-18 11:24:30] [TUSK] ANCLAJE: Qty 19.978024 fijada en ADAUSDT_SPOT (masa $10.0000).
+[2026-08-18 11:24:30] [BERU] CAZA: Anclado en ADAUSDT_SPOT @ 0.50
+[2026-08-18 11:24:30] [TUSK] ANCLAJE: Qty 0.024973 fijada en BCHUSDT_SPOT (masa $5.0000).
+[2026-08-18 11:24:30] [BERU] CAZA: Anclado en BCHUSDT_SPOT @ 200.22
+[2026-08-18 11:25:38] [TUSK] ANCLAJE: Qty 19.978024 fijada en ADAUSDT_SPOT (masa $10.0000).
+[2026-08-18 11:25:38] [BERU] CAZA: Anclado en ADAUSDT_SPOT @ 0.50
+[2026-08-18 11:25:38] [TUSK] ANCLAJE: Qty 0.024973 fijada en BCHUSDT_SPOT (masa $5.0000).
+[2026-08-18 11:25:38] [BERU] CAZA: Anclado en BCHUSDT_SPOT @ 200.22
+[2026-08-18 13:15:46] [BRIDGE] SPOT_MARGEN_ON: Spot margen activo · leverage 10x
+[2026-08-18 13:15:46] [BRIDGE] TRINIDAD: Sentidos[beru_spot]: catalog 0+0 lin | 0+0 inv | 555 spot · WS 1 shards · tickers=44 · books=OFF · bases=BTC,ETH,SOL,XRP,ADA,DOGE,DOT,LTC,AAVE,HYPE,MNT,APT,AVAX,BCH,ETC,LINK,NEAR,OP,SUI,UNI,XLM,FIL
+[2026-08-18 13:15:46] [KAISER] DESPERTAR: Vocero activo — Ancla + perfiles + metaverso + memoria barcos (Tank horario); no disparo.
+[2026-08-18 13:16:26] [TANK] SENTIDOS_EXTRA: Ojos REST: spread producto, alpha, convert.
+[2026-08-18 13:16:26] [TUSK] NAV_SYNC: Capital: 4029.76 | Masa auth: 53.18 | Margen: 98.68% | O2 guerra: 53.1771 (ahogada)
+[2026-08-18 13:17:45] [TUSK] NAV_SYNC: Capital: 4020.09 | Masa auth: 42.58 | Margen: 98.94% | O2 guerra: 42.5814 (ahogada)
+[2026-08-18 13:18:37] [BRIDGE] RECONEXIÓN: spot-1: sent 1011 (internal error) keepalive ping timeout; no close frame received
+[2026-08-18 13:18:37] [BRIDGE] LIBROS_INVALIDADOS: spot-1: frentes_feed≈0/44 · esperando snapshot WS (no wipe global)
+[2026-08-18 13:19:16] [TUSK] NAV_SYNC: Capital: 4014.54 | Masa auth: 38.74 | Margen: 99.03% | O2 guerra: 38.7421 (ahogada)
+[2026-08-18 13:20:35] [TUSK] NAV_SYNC: Capital: 4096.62 | Masa auth: 123.46 | Margen: 96.99% | O2 guerra: 123.4581 (ahogada)
+[2026-08-18 13:20:48] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 13:20:48] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 8s
+[2026-08-18 13:22:07] [TUSK] NAV_SYNC: Capital: 4102.19 | Masa auth: 128.19 | Margen: 96.88% | O2 guerra: 128.1919 (ahogada)
+[2026-08-18 13:22:21] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 13:22:21] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 11s
+[2026-08-18 13:23:21] [TUSK] NAV_SYNC: Capital: 4106.84 | Masa auth: 131.88 | Margen: 96.79% | O2 guerra: 131.8775 (ahogada)
+[2026-08-18 13:24:06] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 13:24:06] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 17s
+[2026-08-18 13:24:40] [TUSK] NAV_SYNC: Capital: 4101.72 | Masa auth: 126.15 | Margen: 96.92% | O2 guerra: 126.1523 (ahogada)
+[2026-08-18 13:25:49] [TUSK] NAV_SYNC: Capital: 4102.33 | Masa auth: 126.73 | Margen: 96.91% | O2 guerra: 126.729 (ahogada)
+[2026-08-18 13:25:59] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 13:25:59] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 25s
+[2026-08-18 13:27:08] [TUSK] NAV_SYNC: Capital: 4103.85 | Masa auth: 127.25 | Margen: 96.90% | O2 guerra: 127.2548 (ahogada)
+[2026-08-18 13:27:18] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 13:27:18] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 13:28:16] [TUSK] NAV_SYNC: Capital: 4105.85 | Masa auth: 129.13 | Margen: 96.85% | O2 guerra: 129.1306 (ahogada)
+[2026-08-18 13:29:35] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 13:29:35] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 13:29:35] [TUSK] NAV_SYNC: Capital: 4098.83 | Masa auth: 119.96 | Margen: 97.07% | O2 guerra: 119.9579 (ahogada)
+[2026-08-18 13:30:43] [TUSK] NAV_SYNC: Capital: 4101.78 | Masa auth: 125.23 | Margen: 96.95% | O2 guerra: 125.2275 (ahogada)
+[2026-08-18 13:31:29] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 13:31:29] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 13:32:03] [TUSK] NAV_SYNC: Capital: 4095.20 | Masa auth: 118.12 | Margen: 97.12% | O2 guerra: 118.1175 (ahogada)
+[2026-08-18 13:33:12] [TUSK] NAV_SYNC: Capital: 4094.15 | Masa auth: 115.44 | Margen: 97.18% | O2 guerra: 115.4398 (ahogada)
+[2026-08-18 13:33:23] [BRIDGE] RECONEXIÓN: spot-1: timed out during opening handshake
+[2026-08-18 13:33:23] [BRIDGE] RECONEXIÓN_SIN_WIPE: spot-1: handshake/no-live · libros intactos · reintento 30s
+[2026-08-18 13:34:34] [TUSK] NAV_SYNC: Capital: 4095.69 | Masa auth: 114.81 | Margen: 97.20% | O2 guerra: 114.81 (ahogada)

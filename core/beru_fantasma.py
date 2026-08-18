@@ -62,10 +62,10 @@ def ampliar_ojos_spot(activos: list[str] | None = None) -> list[str]:
 
 
 def estrechar_ojos_bridge(activos: list[str] | None = None) -> list[str]:
-    """Solo bases del ensayo en Bridge WS — sin trinidad completa ni libros.
+    """Solo last spot de los Santos — sin lineal, inverso, futuros ni libros.
 
-    Sin esto el ritual abre ~11 shards / ~1390 tickers y el handshake muere
-    (Tank ROJO, px=0, Beru ciego). Mismo patrón que arise_igris_sim.
+    Sin esto el ritual abre perps y el handshake muere (Tank congelado, Beru
+    caza con muleta de 10 s). Igris no usa esta puerta.
     """
     acts = list(activos or activos_ensayo())
     seen: set[str] = set()
@@ -85,6 +85,7 @@ def estrechar_ojos_bridge(activos: list[str] | None = None) -> list[str]:
             seen.add(u)
             bases.append(u)
     config.BRIDGE_WS_BASES = bases
+    config.BRIDGE_WS_SOLO_SPOT = True
     config.BRIDGE_WS_SUBSCRIBE_BOOKS = False
     if hasattr(config, "BRIDGE_WS_BOOKS_BASES"):
         config.BRIDGE_WS_BOOKS_BASES = []
@@ -106,6 +107,8 @@ def snapshot_barco(beru: Any, *, activo: str = "", vivo: bool = False) -> dict[s
         "oz_pct": float(getattr(beru, "oz_pct", 0) or 0),
         "altar_link_id": link or None,
         "carta_colgada": bool(link),
+        "hoz_modo": str(getattr(beru, "hoz_modo", "") or "") or None,
+        "masa_rafaga_usd": float(getattr(beru, "masa_rafaga_usd", 0) or 0) or None,
     }
 
 
@@ -198,5 +201,5 @@ def resumen_modo() -> dict[str, Any]:
         "sim": bool(getattr(config, "MODO_SIMULACION", True)),
         "activos_ensayo": activos_ensayo(),
         "log": str(LOG_PATH),
-        "ley": "ojos reales · mismo pergamino papel/vivo · Igris no engorda",
+        "ley": "ojos reales · Tank solo last spot Santos · Igris no engorda",
     }

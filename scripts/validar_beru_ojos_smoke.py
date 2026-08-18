@@ -61,6 +61,56 @@ def test_inyectar_rest_no_lineal():
     assert "category=\"spot\"" in src or "category='spot'" in src
 
 
+def test_frentes_spot_tank_ciego_perp():
+    fr = beru_ojos.frentes_spot_tank(["HYPE", "NEAR"])
+    assert "HYPEUSDT_SPOT" in fr
+    assert "NEARUSDT_SPOT" in fr
+    assert all(x.endswith("_SPOT") for x in fr)
+    assert not any("LINEAL" in x or "INVERSE" in x for x in fr)
+
+
+def test_feeds_solo_spot():
+    import core.config as config
+    from core.bridge import _feeds_completos
+
+    prev = {
+        "solo": bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False)),
+        "bases": list(getattr(config, "BRIDGE_WS_BASES", None) or []),
+        "spot": list(getattr(config, "SPOT_ALL_PARES", None) or []),
+        "lin": list(getattr(config, "LINEAR_PERP_PARES", None) or []),
+        "inv": list(getattr(config, "INVERSE_PERP_PARES", None) or []),
+        "linf": list(getattr(config, "LINEAR_FUTURES_PARES", None) or []),
+        "invf": list(getattr(config, "INVERSE_FUTURES_PARES", None) or []),
+    }
+    try:
+        config.SPOT_ALL_PARES = [{"symbol": "ETHUSDT", "frente": "ETHUSDT_SPOT"}]
+        config.LINEAR_PERP_PARES = [{"symbol": "ETHUSDT", "frente": "ETHUSDT_LINEAL"}]
+        config.INVERSE_PERP_PARES = [{"symbol": "ETHUSD", "frente": "ETHUSD_INVERSE"}]
+        config.LINEAR_FUTURES_PARES = []
+        config.INVERSE_FUTURES_PARES = []
+        config.BRIDGE_WS_BASES = ["ETH"]
+        config.BRIDGE_WS_SOLO_SPOT = True
+        feeds = _feeds_completos()
+        blob = " ".join(str(f.get("label") or "") for f in feeds)
+        assert "spot" in blob
+        assert "linear" not in blob
+        assert "inverse" not in blob
+        ticks = []
+        for f in feeds:
+            ticks.extend(f.get("tickers") or [])
+        frentes = [fr for _sym, fr in ticks]
+        assert "ETHUSDT_SPOT" in frentes
+        assert "ETHUSDT_LINEAL" not in frentes
+    finally:
+        config.BRIDGE_WS_SOLO_SPOT = prev["solo"]
+        config.BRIDGE_WS_BASES = prev["bases"]
+        config.SPOT_ALL_PARES = prev["spot"]
+        config.LINEAR_PERP_PARES = prev["lin"]
+        config.INVERSE_PERP_PARES = prev["inv"]
+        config.LINEAR_FUTURES_PARES = prev["linf"]
+        config.INVERSE_FUTURES_PARES = prev["invf"]
+
+
 def test_cero_manto_desde_tusk():
     tusk = SimpleNamespace(
         pesos={
@@ -108,6 +158,8 @@ def main() -> int:
     test_solo_last_spot()
     test_tank_solo_spot()
     test_inyectar_rest_no_lineal()
+    test_frentes_spot_tank_ciego_perp()
+    test_feeds_solo_spot()
     test_cero_manto_desde_tusk()
     test_aplicar_nuevo_cero_resync()
     print("validar_beru_ojos_smoke: OK (last spot · 0 manto · resync)")

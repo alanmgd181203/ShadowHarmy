@@ -131,23 +131,31 @@ async def _cronica_legion(beru: BeruCazador, intervalo_s: float = 20.0):
         estados: dict[str, int] = {}
         cazando: list[str] = []
         n_cartas = 0
+        n_radar = 0
+        n_minima = 0
         for b in beru.legion:
             est = str(getattr(b, "estado", "?") or "?")
             estados[est] = estados.get(est, 0) + 1
             act = beru._activo_de_barco(b)
             vivo = beru._manos_exchange(b)
             link = str(getattr(b, "altar_link_id", "") or "")
+            modo = str(getattr(b, "hoz_modo", "") or "").upper()
+            if modo == "RADAR":
+                n_radar += 1
+            elif modo == "MINIMA":
+                n_minima += 1
             if link:
                 n_cartas += 1
             if est == "CAZANDO":
                 tag = "VIVO" if vivo else "papel"
-                extra = "+carta" if link else ""
+                extra = "+carta" if link else ("+radar" if modo == "RADAR" else "")
                 cazando.append(f"{act}:{tag}{extra}")
         px = beru._precio_casa()
         casa = beru._activo_casa()
         print(
             f"[BERU] casa={casa} px={px:.6g} | legión={n} | estados={estados} | "
-            f"cartas={n_cartas} | cazando={cazando or '-'} | "
+            f"cartas={n_cartas} min={n_minima} radar={n_radar} | "
+            f"cazando={cazando or '-'} | "
             f"fantasma={beru._manos_fantasma()}",
             flush=True,
         )
@@ -159,6 +167,8 @@ async def _cronica_legion(beru: BeruCazador, intervalo_s: float = 20.0):
                 "n_legion": n,
                 "estados": estados,
                 "n_cartas": n_cartas,
+                "n_radar": n_radar,
+                "n_minima": n_minima,
                 "cazando": cazando,
                 "mariscales": beru_wake.activos_manos_reales(),
             },
@@ -277,7 +287,7 @@ async def _muleta_ojos_rest(bridge, tank, activos: list[str], shutdown_event):
     """Si el torrente WS muere, rellena precios spot por REST (público vía sesión)."""
     from core import beru_ojos
 
-    await asyncio.sleep(8)
+    await asyncio.sleep(1.0 if bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False)) else 8)
     while not shutdown_event.is_set():
         if beru_ojos.rest_fallback_activo():
             try:
@@ -317,9 +327,13 @@ def _aplicar_activos(activos: list[str]) -> None:
     config.TICKER_BASE = activos[0]
     frentes = beru_fantasma.ampliar_ojos_spot(activos)
     bases = beru_fantasma.estrechar_ojos_bridge(activos)
+    # Muleta REST = pozo de emergencia, no el oído oficial (WS last spot).
+    if float(getattr(config, "BERU_OJOS_REST_S", 10) or 10) >= 9.0:
+        config.BERU_OJOS_REST_S = 2.0
     print(f"[OJOS] Spot vigilancia: {frentes}", flush=True)
     print(
-        f"[OJOS] Modo estrecho: {len(bases)} bases · books=OFF · Binance ref OFF · "
+        f"[OJOS] Tank ciego a lineal/inverso/futuros · last spot {len(bases)} Santos · "
+        f"books=OFF · muleta REST {config.BERU_OJOS_REST_S:.0f}s si el río muere · "
         f"bases={','.join(bases)}",
         flush=True,
     )
@@ -439,6 +453,7 @@ async def ritual(segundos: float, activos: list[str]):
             "RITUAL_START",
             detalle=start_detalle,
             vivo=bool(live_manos),
+            campana="combate_flota_viva",
             activos=activos,
             manos_activos=vivos,
             cableado=beru_wake.resumen_cableado(),
