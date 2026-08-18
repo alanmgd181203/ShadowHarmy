@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Ritual Beru — manos fantasma (nivel 2 ensayo).
+"""Ritual Beru — manos fantasma o flota mixta.
 
 Ojos reales Bybit (Tank/Bridge) · Beru late · Igris/Greed dormidos.
-CERO place_order: cada disparo se imprime y va a data/logs/beru_fantasma/disparos.jsonl.
+Papel y Mariscales vivos escriben el mismo pergamino de disparos.
 
   python scripts/arise_beru_fantasma.py --segundos 1200
   python scripts/arise_beru_fantasma.py --segundos 600 --activos ADA,BCH,MNT
@@ -32,15 +32,20 @@ for _stream in (sys.stdout, sys.stderr):
 
 # Candados ritual (antes de importar config)
 os.environ["ARISE_BERU_FANTASMA"] = "true"
-os.environ["MODO_SIMULACION"] = "true"          # nunca place_order real
 os.environ["BERU_MANOS_FANTASMA"] = "true"
 os.environ["BERU_HILO_ENABLED"] = "true"
-os.environ["BERU_MANOS"] = "false"               # manos reales OFF
-os.environ["BERU_ENGORDE_PERMITIDO"] = "false"
+os.environ["BERU_ENGORDE_PERMITIDO"] = "true"    # acordeón del cazador vivo
 os.environ["BERU_NEUTRO_MARGEN"] = "true"
-os.environ["BERU_SPOT_MARGEN_ENABLED"] = "false"
-os.environ["BERU_WAKE_RESET_0"] = "true"
+os.environ["BERU_SPOT_MARGEN_ENABLED"] = "true"
+os.environ["BERU_WAKE_RESET_0"] = "false"  # 0 solo desde manto Igris
 os.environ["BERU_CAPITAN_WAKE"] = "NORMAL"
+_FLOTA_MANOS_VIVAS = (
+    os.getenv("ARISE_BERU_FLOTA_MIXTA", "").lower() == "true"
+    or os.getenv("ARISE_BERU_FLOTA_VIVA", "").lower() == "true"
+)
+if not _FLOTA_MANOS_VIVAS:
+    os.environ["MODO_SIMULACION"] = "true"          # nunca place_order real
+    os.environ["BERU_MANOS"] = "false"               # manos reales OFF
 os.environ.setdefault("BERU_SIEMBRA_FLOTA", "true")
 os.environ.setdefault("ARISE_BERU_ARMADO", "true")
 # Ojos estrechos: sin trinidad completa (11 shards / 1390 tickers ahogan handshake)
@@ -65,8 +70,10 @@ if hasattr(config, "BRIDGE_WS_FORCE_IPV4"):
 if hasattr(config, "BRIDGE_WS_PROXY"):
     config.BRIDGE_WS_PROXY = os.getenv("BRIDGE_WS_PROXY", "direct") or "direct"
 config.BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))
+config.BERU_ENGORDE_PERMITIDO = True
 
 from core import beru_fantasma  # noqa: E402
+from core import beru_ley  # noqa: E402
 from core import beru_wake  # noqa: E402
 from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402
@@ -98,6 +105,10 @@ def _escribir_hb(msg: str, extra: dict | None = None) -> None:
     HB_PATH.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def _flota_plena() -> bool:
+    return os.getenv("ARISE_BERU_FLOTA_VIVA", "").lower() == "true"
+
+
 async def _publicar_estado(bellion, tusk, igris, tank, kaiser, beru):
     await asyncio.sleep(2)
     while True:
@@ -118,19 +129,39 @@ async def _cronica_legion(beru: BeruCazador, intervalo_s: float = 20.0):
     while True:
         n = len(beru.legion)
         estados: dict[str, int] = {}
+        cazando: list[str] = []
+        n_cartas = 0
         for b in beru.legion:
             est = str(getattr(b, "estado", "?") or "?")
             estados[est] = estados.get(est, 0) + 1
+            act = beru._activo_de_barco(b)
+            vivo = beru._manos_exchange(b)
+            link = str(getattr(b, "altar_link_id", "") or "")
+            if link:
+                n_cartas += 1
+            if est == "CAZANDO":
+                tag = "VIVO" if vivo else "papel"
+                extra = "+carta" if link else ""
+                cazando.append(f"{act}:{tag}{extra}")
         px = beru._precio_casa()
         casa = beru._activo_casa()
         print(
             f"[BERU] casa={casa} px={px:.6g} | legión={n} | estados={estados} | "
+            f"cartas={n_cartas} | cazando={cazando or '-'} | "
             f"fantasma={beru._manos_fantasma()}",
             flush=True,
         )
         _escribir_hb(
             "cronica",
-            {"casa": casa, "precio": px, "n_legion": n, "estados": estados},
+            {
+                "casa": casa,
+                "precio": px,
+                "n_legion": n,
+                "estados": estados,
+                "n_cartas": n_cartas,
+                "cazando": cazando,
+                "mariscales": beru_wake.activos_manos_reales(),
+            },
         )
         await asyncio.sleep(intervalo_s)
 
@@ -152,34 +183,62 @@ async def _rellenar_precios_flota(beru: BeruCazador, activos: list[str]) -> dict
 async def _apagado(shutdown_event, bellion, tusk, beru, started: float, tasks: list):
     await shutdown_event.wait()
     leg = []
+    n_cartas = 0
+    n_cazando = 0
+    n_vivos_cazando = 0
     try:
         for b in beru.legion:
-            leg.append({
-                "uid": getattr(b, "uid", ""),
-                "estado": getattr(b, "estado", ""),
-                "direccion": getattr(b, "direccion", ""),
-                "masa": float(getattr(b, "masa", 0) or 0),
-                "centro_local": float(getattr(b, "centro_local", 0) or 0),
-                "activo": beru._activo_de_barco(b),
-            })
+            act = beru._activo_de_barco(b)
+            vivo = beru._manos_exchange(b)
+            snap = beru_fantasma.snapshot_barco(b, activo=act, vivo=vivo)
+            leg.append(snap)
+            if snap.get("carta_colgada"):
+                n_cartas += 1
+            if str(snap.get("estado") or "") == "CAZANDO":
+                n_cazando += 1
+                if vivo:
+                    n_vivos_cazando += 1
     except Exception:
         pass
+    mariscales = beru_wake.activos_manos_reales()
+    plena = _flota_plena()
+    veredicto = beru_fantasma.sello_veredicto(
+        mariscales=mariscales,
+        n_cartas=n_cartas,
+        n_cazando=n_cazando,
+        n_vivos_cazando=n_vivos_cazando,
+        plena=plena,
+    )
     informe = {
         "ts": time.time(),
         "iso": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "duracion_s": round(time.time() - started, 1),
         "cableado": beru_wake.resumen_cableado(),
         "legion": leg,
+        "n_cartas": n_cartas,
+        "n_cazando": n_cazando,
+        "n_vivos_cazando": n_vivos_cazando,
+        "mariscales": mariscales,
+        "plena": plena,
         "log_disparos": str(beru_fantasma.LOG_PATH),
-        "veredicto": "fantasma_sellado — cero órdenes reales",
+        "veredicto": veredicto,
     }
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text(json.dumps(informe, indent=2, ensure_ascii=False), encoding="utf-8")
     await bellion.ley_de_sucesion(tusk.export_for_bellion(), [])
-    await bellion.anotar(
-        "BELLION", "SUCESION",
-        "Ritual Beru fantasma sellado — Igris/Greed no dispararon; manos reales OFF.",
-    )
+    if plena:
+        suc = (
+            f"Ritual flota viva sellado — {len(mariscales) or 'todos'} Santos con manos; "
+            f"cartas colgadas={n_cartas}; cazando={n_cazando}."
+        )
+    elif mariscales:
+        suc = (
+            f"Ritual mixto sellado — Mariscales {', '.join(mariscales)} "
+            f"con manos reales; cartas colgadas={n_cartas}; cazando={n_cazando}."
+        )
+    else:
+        suc = "Ritual Beru fantasma sellado — Igris/Greed no dispararon; manos reales OFF."
+    await bellion.anotar("BELLION", "SUCESION", suc)
     n_disp = 0
     try:
         if beru_fantasma.LOG_PATH.exists():
@@ -187,11 +246,19 @@ async def _apagado(shutdown_event, bellion, tusk, beru, started: float, tasks: l
     except Exception:
         pass
     print(
-        f"\n[BERU_FANTASMA] Sellado · disparos en bitácora≈{n_disp} · "
-        f"informe={REPORT_PATH}",
+        f"\n[BERU] Sellado · {veredicto} · disparos≈{n_disp} · "
+        f"cartas={n_cartas} · informe={REPORT_PATH}",
         flush=True,
     )
-    _escribir_hb("sellado", {"n_disparos": n_disp})
+    _escribir_hb(
+        "sellado",
+        {
+            "n_disparos": n_disp,
+            "n_cartas": n_cartas,
+            "n_cazando": n_cazando,
+            "veredicto": veredicto,
+        },
+    )
     for t in tasks:
         cur = asyncio.current_task()
         if t is not None and t is not cur and not t.done():
@@ -259,20 +326,40 @@ def _aplicar_activos(activos: list[str]) -> None:
 
 
 async def ritual(segundos: float, activos: list[str]):
+    vivos = beru_wake.activos_manos_reales()
+    plena = _flota_plena()
+    mixta = bool(vivos) and not plena
+    live_manos = mixta or plena
     print("\n" + "═" * 52)
-    print("    RITUAL BERU — MANOS FANTASMA (nivel 2)")
-    print("    Ojos Bybit ON · disparos solo bitácora · Igris OFF")
+    if plena:
+        print("    RITUAL BERU — FLOTA VIVA (100%)")
+        print("    Toda la legión planta Hoz real · grado = manto · Igris OFF")
+    elif mixta:
+        print("    RITUAL BERU — FLOTA MIXTA")
+        print("    Mariscales vivos plantan Hoz · resto fantasma · Igris OFF")
+    else:
+        print("    RITUAL BERU — MANOS FANTASMA (nivel 2)")
+        print("    Ojos Bybit ON · disparos solo bitácora · Igris OFF")
     print(f"    SIM={config.MODO_SIMULACION} | FANTASMA={config.BERU_MANOS_FANTASMA}")
     print(f"    MANOS_REALES={config.BERU_MANOS} | HILO={config.BERU_HILO_ENABLED}")
+    if plena:
+        print(f"    Santos vivos: {','.join(vivos or activos)}")
+    elif mixta:
+        print(f"    Mariscales vivos: {','.join(vivos)}")
     print(f"    Santos: {','.join(activos)}")
     print("═" * 52)
 
-    if config.BERU_MANOS and not config.MODO_SIMULACION:
-        raise SystemExit("ABORT: manos reales + sim off — este ritual es solo fantasma.")
-    if not config.MODO_SIMULACION:
-        # Refuerzo: nunca salir de sim en este script
-        config.MODO_SIMULACION = True
-        print("[!] Forzado MODO_SIMULACION=true (candado ritual).", flush=True)
+    if live_manos:
+        if config.MODO_SIMULACION:
+            raise SystemExit("ABORT: flota con manos reales no puede ir en simulación.")
+        if not config.BERU_MANOS:
+            raise SystemExit("ABORT: flota viva/mixta requiere manos reales ON.")
+    else:
+        if config.BERU_MANOS and not config.MODO_SIMULACION:
+            raise SystemExit("ABORT: manos reales + sim off — este ritual es solo fantasma.")
+        if not config.MODO_SIMULACION:
+            config.MODO_SIMULACION = True
+            print("[!] Forzado MODO_SIMULACION=true (candado ritual).", flush=True)
 
     _aplicar_activos(activos)
     started = time.time()
@@ -283,6 +370,8 @@ async def ritual(segundos: float, activos: list[str]):
     try:
         api_key = getattr(config, "API_KEY", None)
         api_secret = getattr(config, "API_SECRET", None)
+        if live_manos and (not api_key or not api_secret):
+            raise SystemExit("ABORT: manos reales requieren llaves Bybit.")
 
         bellion = BellionAuditor()
         tusk = TuskBoveda(bellion)
@@ -302,22 +391,56 @@ async def ritual(segundos: float, activos: list[str]):
         # Igris solo snapshot — SIN vigilar_manto
         igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge, kaiser=kaiser)
         beru = BeruCazador(tusk, bellion, tank, bridge=bridge, kaiser=kaiser)
+        # No sembrar desde la foto restaurada de Bellion. La siembra asistida
+        # abrirá este candado solo después de reconciliar el manto con Bybit.
+        beru._flota_sembrada = True
 
         from core.validacion import advertir_gates
         advertir_gates()
         panel = PanelDeControl(tusk, igris, tank)
 
+        if live_manos:
+            if beru_ley.spot_margen_activo():
+                res_margen = await bridge.activar_spot_margen(
+                    int(getattr(config, "BERU_SPOT_MARGEN_LEVERAGE", 10) or 10),
+                )
+                print(
+                    f"[BERU] Margen spot: ok={res_margen.exito} · {res_margen.mensaje}",
+                    flush=True,
+                )
+
         print("\n[TUSK] Tesorería / oxígeno (solo lectura).", flush=True)
         print("[TANK] Ojos vivos Santos del manto.", flush=True)
-        print("[BERU] Hilo ON · manos fantasma · engorde OFF · neutro ON.", flush=True)
+        if plena:
+            print(
+                "[BERU] Hilo ON · flota viva 100% · Hoz real · "
+                "grado = manto · Vacío 1.1.",
+                flush=True,
+            )
+        elif mixta:
+            print(
+                "[BERU] Hilo ON · Mariscales vivos "
+                f"{','.join(vivos)} · resto fantasma · Vacío 1.1.",
+                flush=True,
+            )
+        else:
+            print("[BERU] Hilo ON · manos fantasma · engorde ON · Vacío 1.1 · neutro ON.", flush=True)
         print("[IGRIS/GREED] Hibernados.", flush=True)
         print(f"[BITÁCORA] {beru_fantasma.LOG_PATH}", flush=True)
         print("Ctrl+C para sellar.\n", flush=True)
 
+        if plena:
+            start_detalle = "flota viva — Hoz real en toda la legión"
+        elif mixta:
+            start_detalle = "flota mixta — Hoz real en Mariscales, resto bitácora"
+        else:
+            start_detalle = "manos fantasma — cero órdenes reales"
         beru_fantasma.registrar(
             "RITUAL_START",
-            detalle="manos fantasma — cero órdenes reales",
+            detalle=start_detalle,
+            vivo=bool(live_manos),
             activos=activos,
+            manos_activos=vivos,
             cableado=beru_wake.resumen_cableado(),
         )
 
@@ -351,6 +474,75 @@ async def ritual(segundos: float, activos: list[str]):
             await asyncio.sleep(25)
             if shutdown_event.is_set():
                 return
+            fresco = True
+            for act in activos:
+                try:
+                    ok = bool(
+                        await tusk.reconciliar_con_exchange(
+                            bridge, activo=act, solo_lectura=True,
+                        )
+                    )
+                except Exception as exc:
+                    print(f"[BERU] Manto {act} no reconciliado: {exc}", flush=True)
+                    ok = False
+                fresco = fresco and ok
+            if not fresco and live_manos:
+                print(
+                    "[BERU] ABORT SIEMBRA: manos reales exigen manto fresco; "
+                    "no se siembra con foto de Bellion.",
+                    flush=True,
+                )
+                return
+            if not fresco and beru_wake.manos_fantasma_activas():
+                cache_ok = all(
+                    beru_wake.manto_bellion_usable(tusk, act) for act in activos
+                )
+                if cache_ok:
+                    print(
+                        "[BERU] AVISO: reconcile falló (IP/API) — siembra con manto "
+                        "Bellion en caché · solo fantasma · sin manos reales.",
+                        flush=True,
+                    )
+                    beru_fantasma.registrar(
+                        "SIEMBRA_MANTO_CACHE",
+                        detalle="reconcile ciego; metro desde Bellion",
+                        activos=activos,
+                    )
+                    fresco = True
+            if not fresco:
+                print(
+                    "[BERU] ABORT SIEMBRA: sin foto fresca del manto; no inventar rango.",
+                    flush=True,
+                )
+                return
+            exigir_tier = str(
+                os.getenv("BERU_FANTASMA_EXIGIR_TIER", "") or ""
+            ).upper()
+            tiers = {
+                act: beru_wake.tier_siembra_activo(act, tusk=tusk)
+                for act in activos
+            }
+            print(f"[BERU] Rangos frescos para siembra: {tiers}", flush=True)
+            if vivos:
+                faltan = [
+                    a for a in vivos
+                    if (exigido := beru_wake.tier_manos_exigido(a))
+                    and str(tiers.get(a) or "") != exigido
+                ]
+                if faltan:
+                    print(
+                        f"[BERU] ABORT SIEMBRA: Santos vivos {faltan} no cubren "
+                        f"el uniforme pedido; manto dicta "
+                        f"{ {a: tiers.get(a) for a in vivos} }.",
+                        flush=True,
+                    )
+                    return
+            if exigir_tier and any(tier != exigir_tier for tier in tiers.values()):
+                print(
+                    f"[BERU] ABORT SIEMBRA: se exige {exigir_tier}, manto dicta {tiers}.",
+                    flush=True,
+                )
+                return
             precios = await _rellenar_precios_flota(beru, activos)
             print(f"[BERU] Precios ojos para siembra: {precios}", flush=True)
             if not precios:
@@ -361,9 +553,9 @@ async def ritual(segundos: float, activos: list[str]):
                 precios = await _rellenar_precios_flota(beru, activos)
                 print(f"[BERU] Precios ojos (2º): {precios}", flush=True)
             if precios:
-                if not beru.legion:
-                    beru._flota_sembrada = False
+                beru._flota_sembrada = False
                 n = beru.despertar_flota_reset_0(precios)
+                beru._flota_sembrada = True
                 beru_fantasma.registrar(
                     "SIEMBRA_FLOTA",
                     detalle=f"semillas={n}",
@@ -398,7 +590,15 @@ def main() -> int:
         default=os.getenv("BERU_FANTASMA_ACTIVOS", "ADA,BCH,MNT"),
         help="Santos del manto a vigilar (coma).",
     )
+    ap.add_argument(
+        "--exigir-tier",
+        default=os.getenv("BERU_FANTASMA_EXIGIR_TIER", ""),
+        help="Abortar siembra si el manto no dicta este tier (p.ej. PLENO=Mariscal).",
+    )
     args = ap.parse_args()
+    tier = str(args.exigir_tier or "").upper().strip()
+    if tier:
+        os.environ["BERU_FANTASMA_EXIGIR_TIER"] = tier
     activos = [a.strip().upper() for a in str(args.activos).split(",") if a.strip()]
     if not activos:
         activos = ["ADA", "BCH", "MNT"]

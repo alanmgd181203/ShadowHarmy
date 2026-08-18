@@ -40,14 +40,45 @@ class BeruShip:
     # Flag de sincronización con Greed
     sincronizado: bool = False
 
-    # Tier Proto/Pleno + modo combate (caza simétrico / negociador asimétrico)
+    # Tier Proto/Pleno + oficio (desde 2026-08-15: CAZA continuo únicamente)
     tier_id: str = ""
     modo_combate: str = ""
 
-    # Cazador por capas (doctrina Monarca)
+    # Cazador continuo: 0 absoluto Igris + 0 local del tramo
     centro_manto: float = 0.0
+    ancla_tramo: float = 0.0
+    cosechas_continuas: int = 0
+    llamado_tramo_pct: float = 0.0
+    masa_tramo_usd: float = 0.0
     oz_pct: float = 0.0
     red_pct: float = 0.0
+    # Arma del cazador: CONDICIONAL en los cuatro grados. Mariscal cierra sin hijo.
+    arma_cazador: str = ""
+    # Relevo puro: la frontera que desplegó la Hoz y el hijo que dejó.
+    # Son datos del oficio CAZA; nunca crean negociador/residual/Mega.
+    ultima_red_tocada_pct: float = 0.0
+    ultima_red_tocada_precio: float = 0.0
+    ultima_hoz_tocada_pct: float = 0.0
+    ultima_hoz_tocada_precio: float = 0.0
+    # Tras cosecha: sangre 1.1 desde la última Hoz; Red 0.9/0.5/0.3 despierta hijo
+    # y APAGA la sangre vieja. Nunca dos llamados vivos.
+    oreja_sangre_activa: bool = False
+    oreja_red_activa: bool = False
+    llamado_red_pct: float = 0.0
+    es_relevo_cazador: bool = False
+    padre_cazador_uid: str = ""
+    relevo_cazador_uid: str = ""
+    relevo_creado: bool = False
+    funeral_red_confirmado: bool = False
+    # Primera caza: nace dentro de su Vacío (0 local = wake).
+    sangre_vista_dentro: bool = False
+    # Recibo del altar nativo. Persistirlo impide duplicar cartas al reiniciar.
+    altar_revision: int = 0
+    altar_order_id: str = ""
+    altar_link_id: str = ""
+    altar_order_status: str = ""
+    altar_trigger_price: float = 0.0
+    altar_cancel_confirmado: bool = False
     capa: int = 1
     # Post-Mega: sangre absoluta sobre 0 de Igris (ej. +0.309 si purga en +30%)
     piso_sangre_pct: float = 0.0

@@ -48,6 +48,12 @@ def max_ordenes() -> int:
     return max(1, n)
 
 
+def max_masa_usd() -> float:
+    """Techo de masa de un solo Mariscal durante el ensayo vivo."""
+    n = float(getattr(config, "BERU_ENSAYO_MAX_MASA_USD", 60) or 60)
+    return max(1.0, n)
+
+
 def ordenes_ok() -> int:
     return int(_ordenes_ok)
 
@@ -173,6 +179,7 @@ def resumen_modo() -> dict[str, Any]:
         "sim": bool(getattr(config, "MODO_SIMULACION", True)),
         "solo_long": solo_long(),
         "max_ordenes": max_ordenes(),
+        "max_masa_usd": max_masa_usd(),
         "ordenes_ok": ordenes_ok(),
         "ordenes_fallidas": int(_ordenes_fallidas),
         "log": str(LOG_PATH),

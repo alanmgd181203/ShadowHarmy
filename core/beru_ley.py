@@ -37,6 +37,7 @@ def ceguera_coma_s() -> float:
 
 
 def spot_margen_activo() -> bool:
+    """Molino spot-margen: compra y venta. Ley ON; no es candado de oxígeno."""
     return bool(getattr(config, "BERU_SPOT_MARGEN_ENABLED", True))
 
 

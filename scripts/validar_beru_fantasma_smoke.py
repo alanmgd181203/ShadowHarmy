@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock, AsyncMock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -68,12 +68,22 @@ def test_siembra_fantasma_sin_candado_pase():
         bel = BellionAuditor()
         tusk = TuskBoveda(bel)
         tusk.masa_bruta_real = 2200.0
+        tusk.pesos = {
+            f"{act}USD_INVERSE": {
+                "long": 1, "short": 0,
+                "precio_medio_long": px, "precio_medio_short": 0,
+            }
+            for act, px in {"ADA": 0.18, "BCH": 210.0, "MNT": 0.45}.items()
+        }
         tank = MagicMock()
         tank.capitan_activo = CapitanNormal
         tank.nodos = []
         tank._obtener_lider_verde = MagicMock(return_value=None)
         beru = BeruCazador(tusk, bel, tank, bridge=MagicMock())
-        n = beru.despertar_flota_reset_0({"ADA": 0.18, "BCH": 210.0, "MNT": 0.45})
+        with patch("core.pase_director.grado_beru_para_caza", return_value="GENERAL"):
+            n = beru.despertar_flota_reset_0(
+                {"ADA": 0.18, "BCH": 210.0, "MNT": 0.45},
+            )
         assert n == 3
         assert len(beru.legion) == 3
     finally:
@@ -84,9 +94,24 @@ def test_siembra_fantasma_sin_candado_pase():
 def test_registrar_escribe(tmp_path, monkeypatch=None):
     # Usa log real bajo data/ — ok en smoke
     beru_fantasma.registrar("SMOKE_TEST", detalle="ok", qty=1.5, precio=100.0)
+    fila = beru_fantasma.registrar(
+        "SMOKE_VIVO", detalle="mariscal", vivo=True, activo="AVAX",
+    )
+    assert fila.get("vivo") is True
+    assert fila.get("fantasma") is False
     assert beru_fantasma.LOG_PATH.exists()
     text = beru_fantasma.LOG_PATH.read_text(encoding="utf-8")
     assert "SMOKE_TEST" in text
+    assert "SMOKE_VIVO" in text
+    assert "flota_viva_sellada" in beru_fantasma.sello_veredicto(
+        mariscales=["HYPE"], n_cartas=1, n_cazando=1, n_vivos_cazando=1, plena=True,
+    )
+    assert beru_fantasma.sello_veredicto(mariscales=["HYPE", "AVAX"], n_cartas=1) != (
+        "fantasma_sellado — cero órdenes reales"
+    )
+    assert "cartas_colgadas" in beru_fantasma.sello_veredicto(
+        mariscales=["HYPE"], n_cartas=1, n_cazando=1, n_vivos_cazando=1,
+    )
 
 
 def test_wake_conoce_fantasma():
@@ -149,7 +174,7 @@ async def test_caza_fantasma_no_place_order():
         await tusk.solicitar_reserva(ship.uid, 10.0, "BERU", "LONG", consumir_auth=False)
         await beru._ejecutar_caza(ship)
         bridge.place_order.assert_not_called()
-        assert ship.estado == "NEGOCIANDO"
+        assert ship.estado == "CAZANDO"
         assert ship.precio_entrada_real > 0
     finally:
         config.BERU_MANOS_FANTASMA = False
@@ -216,9 +241,30 @@ async def test_caza_barco_bch_no_ada():
 
 def test_ritual_cancela_y_muleta():
     src = (ROOT / "scripts" / "arise_beru_fantasma.py").read_text(encoding="utf-8")
+    src_general = (ROOT / "generales" / "beru.py").read_text(encoding="utf-8")
     assert "_muleta_ojos_rest" in src
     assert "t.cancel()" in src
     assert "beru_ojos" in src
+    assert "ABORT SIEMBRA: sin foto fresca del manto" in src
+    assert "activo=act" in src
+    assert "solo_lectura=True" in src
+    assert 'os.environ["BERU_ENGORDE_PERMITIDO"] = "true"' in src
+    assert "BERU_FANTASMA_EXIGIR_TIER" in src
+    assert "beru._flota_sembrada = True" in src
+    assert "if beru_wake.siembra_flota_activa():" in src_general
+    assert "if n <= 0 and precio > 0" not in src_general
+    assert "def _bitacora(" in src_general
+    assert '"ALTAR_ARMADO"' in src_general
+    assert "self._bitacora" in src_general
+    src_bit = (ROOT / "core" / "beru_fantasma.py").read_text(encoding="utf-8")
+    assert "mixto_sellado" in src_bit
+    assert "cartas_colgadas" in src_bit
+    assert "snapshot_barco" in src
+    assert "ARISE_BERU_FLOTA_VIVA" in src
+    src_viva = (ROOT / "scripts" / "arise_beru_flota_viva.py").read_text(encoding="utf-8")
+    assert "ARISE_BERU_FLOTA_VIVA" in src_viva
+    assert "BERU_MANOS_EXIGIR_TIER" in src_viva
+    assert "AUTO" in src_viva
     from core import beru_ojos
     assert beru_ojos.rest_fallback_activo() is True
 

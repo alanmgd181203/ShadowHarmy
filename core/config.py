@@ -58,12 +58,13 @@ FRENTES_BERU_VIGILANCIA = [f"{BERU_ACTIVO_SEMILLA}USDT_SPOT"]
 # Activos con precio vivo en Tank: pentiverso + semilla Beru
 ACTIVOS_VIGILANCIA = list(dict.fromkeys(ACTIVOS_PENTIVERSO + [BERU_ACTIVO_SEMILLA]))
 BERU_TIER_DEFAULT = os.getenv("BERU_TIER_DEFAULT", "PROTO1").upper()  # arranque: ProtoBeru ETH
-BERU_MODO_COMBATE_DEFAULT = os.getenv("BERU_MODO_COMBATE_DEFAULT", "NEGOCIADOR").upper()
+BERU_MODO_COMBATE_DEFAULT = "CAZA"  # oficio único desde cirugía continua 2026-08-15
 # Legacy — PnL/1% PLENO se expresa como 10×G_min del Santo (antes $50 con G_min=$5)
 BERU_PNL_OBJETIVO_POR_1PCT_USD = float(os.getenv("BERU_PNL_OBJETIVO_POR_1PCT_USD", "50"))
 BERU_SPOT_COLCHON_USD = float(os.getenv("BERU_SPOT_COLCHON_USD", "0"))  # spot margen: mismo equity, sin extra
-BERU_VACIO_ANSIEDAD = float(os.getenv("BERU_VACIO_ANSIEDAD", "0.012"))   # 1.2%
-BERU_VACIO_NORMAL = float(os.getenv("BERU_VACIO_NORMAL", "0.016"))         # 1.6%
+BERU_VACIO_ANSIEDAD = float(os.getenv("BERU_VACIO_ANSIEDAD", "0.012"))   # 1.2% legado capitán
+# Vacío de Adán vivo: ±1.1% — primer silbato de todos los grados (Hoz un peldaño atrás)
+BERU_VACIO_NORMAL = float(os.getenv("BERU_VACIO_NORMAL", "0.011"))         # 1.1%
 # Motor 5 Reglas — G_min Bybit POR SANTO (archivo sync) + piso + default
 # Default 1.0: pensamiento en mínimo real; override por activo en data/bybit_minimos_orden.json
 # Legado 5.0: documentado en CHECKPOINT_PRE_GMIN_VARIABLE — ya no es el peaje único
@@ -72,12 +73,12 @@ G_MIN_USD_PISO = float(os.getenv("G_MIN_USD_PISO", "1"))  # nunca por debajo (sa
 # Legado estático — solo si el Santo no está en archivo de mínimos
 G_MIN_USD_BY_ASSET: dict[str, float] = {}
 BERU_FRICCION_SOLDADO_PCT = float(os.getenv("BERU_FRICCION_SOLDADO_PCT", "0.008"))  # 0.8%
-# Vacío Adán 1.6% — llamado oro/tiempo (tumor 2% extirpado 2026-08-13)
+# Abismo histórico 1.6% (teatro/fósil) — no gobierna al cazador vivo
 BERU_ABISMO_SALIDA_PCT = float(os.getenv("BERU_ABISMO_SALIDA_PCT", "0.016"))
 BERU_ADAN_ARMADO_PCT = float(os.getenv("BERU_ADAN_ARMADO_PCT", "0.005"))  # legado
-# Cazador sellado: sangre 0.9 → Hoz 0.8
-BERU_HOZ_PRODUCTIVA_PCT = float(os.getenv("BERU_HOZ_PRODUCTIVA_PCT", "0.008"))
-BERU_LLAMADO_SANGRE_PCT = float(os.getenv("BERU_LLAMADO_SANGRE_PCT", "0.009"))
+# Cazador vivo: Vacío ±1.1 → Hoz ±1.0 (un peldaño detrás). Relevo 0.9/0.5/0.3 no cambia.
+BERU_HOZ_PRODUCTIVA_PCT = float(os.getenv("BERU_HOZ_PRODUCTIVA_PCT", "0.010"))
+BERU_LLAMADO_SANGRE_PCT = float(os.getenv("BERU_LLAMADO_SANGRE_PCT", "0.011"))
 BERU_CAZADOR_MORDIDA_USD = float(os.getenv("BERU_CAZADOR_MORDIDA_USD", "0"))
 BERU_CAZADOR_PASO_PCT = float(os.getenv("BERU_CAZADOR_PASO_PCT", "0.001"))
 BERU_CAZADOR_SPAWN_CADA_PCT = float(os.getenv("BERU_CAZADOR_SPAWN_CADA_PCT", "0.003"))  # legado
@@ -87,20 +88,24 @@ BERU_CAZA_CAPA1_MAX_USD = float(os.getenv("BERU_CAZA_CAPA1_MAX_USD", "0"))
 BERU_NEG_PASO_OZ_PCT = float(os.getenv("BERU_NEG_PASO_OZ_PCT", "0.001"))
 BERU_NEG_PASO_RED_PCT = float(os.getenv("BERU_NEG_PASO_RED_PCT", "0.0005"))
 BERU_COSECHA_PASO_PCT = float(os.getenv("BERU_COSECHA_PASO_PCT", "0.001"))
-BERU_MARISCAL_TRAILING_REBANO = os.getenv("BERU_MARISCAL_TRAILING_REBANO", "false").lower() == "true"
 # Cirugía Beru 2026-08-12 (Jess → USA): ley · wake · ojos · fantasma. Manos reales OFF.
-BERU_WAKE_RESET_0 = os.getenv("BERU_WAKE_RESET_0", "true").lower() == "true"
+BERU_WAKE_RESET_0 = False  # fósil: el 0 solo viene del manto Igris
 BERU_SIEMBRA_FLOTA = os.getenv("BERU_SIEMBRA_FLOTA", "true").lower() == "true"
-BERU_CAPITAN_WAKE = os.getenv("BERU_CAPITAN_WAKE", "NORMAL").upper()  # NORMAL=1.6 · ANSIEDAD=1.2
+BERU_CAPITAN_WAKE = os.getenv("BERU_CAPITAN_WAKE", "NORMAL").upper()  # NORMAL=1.1 · ANSIEDAD=1.2
 BERU_MANOS = os.getenv("BERU_MANOS", "false").lower() == "true"  # órdenes spot reales
 BERU_HILO_ENABLED = os.getenv("BERU_HILO_ENABLED", "false").lower() == "true"  # hilo en arise; default OFF
 # Nivel 2: ojos reales · bitácora · cero place_order. Ritual arise_beru_fantasma.
 BERU_MANOS_FANTASMA = os.getenv("BERU_MANOS_FANTASMA", "false").lower() == "true"
 BERU_FANTASMA_ACTIVOS = os.getenv("BERU_FANTASMA_ACTIVOS", "ADA,BCH,MNT")
+# Flota mixta: estos Santos plantan Hoz real; el resto queda en fantasma.
+# Vacío = todos según BERU_MANOS / FANTASMA (ley antigua).
+BERU_MANOS_ACTIVOS = os.getenv("BERU_MANOS_ACTIVOS", "")
+BERU_MANOS_EXIGIR_TIER = os.getenv("BERU_MANOS_EXIGIR_TIER", "PLENO").upper()
 # Nivel 3: manos chiquitas (dormido hasta mandato). Ritual arise_beru_manos_chiquitas.
 BERU_ENSAYO_NIVEL3 = os.getenv("BERU_ENSAYO_NIVEL3", "false").lower() == "true"
 BERU_ENSAYO_ACTIVOS = os.getenv("BERU_ENSAYO_ACTIVOS", "MNT")
 BERU_ENSAYO_MAX_ORDENES = int(float(os.getenv("BERU_ENSAYO_MAX_ORDENES", "1") or 1))
+BERU_ENSAYO_MAX_MASA_USD = float(os.getenv("BERU_ENSAYO_MAX_MASA_USD", "60") or 60)
 BERU_ENSAYO_SOLO_LONG = os.getenv("BERU_ENSAYO_SOLO_LONG", "true").lower() == "true"
 BERU_OJOS_REST_FALLBACK = os.getenv("BERU_OJOS_REST_FALLBACK", "true").lower() == "true"
 BERU_OJOS_REST_S = float(os.getenv("BERU_OJOS_REST_S", "10") or 10)
@@ -131,6 +136,25 @@ MANTO_LEVERAGE_INVERSE_MAX_BY_ASSET: dict[str, float] = {
     "FIL": 20, "HYPE": 20, "LINK": 20, "LTC": 50, "MNT": 50,
     "NEAR": 20, "OP": 20, "SOL": 50, "SUI": 20, "UNI": 20,
     "WIF": 20, "XLM": 20, "XRP": 50,
+}
+# Densidad útil: mayor leverage cuyo tier de riesgo soporta una pierna
+# Mariscal de $5k con 20% de holgura. Inverso convierte límite base×last.
+# Snapshot Bybit vivo 2026-08-15.
+# El techo de catálogo se conserva arriba; Igris y el pase usan este mapa.
+MANTO_RISK_HEADROOM_PCT = float(os.getenv("MANTO_RISK_HEADROOM_PCT", "0.80"))
+MANTO_LEVERAGE_LINEAR_UTIL_BY_ASSET: dict[str, float] = {
+    "AAVE": 75, "ADA": 75, "APT": 50, "AVAX": 50, "BCH": 50,
+    "BTC": 100, "DOGE": 75, "DOT": 50, "ETC": 50, "ETH": 100,
+    "FIL": 25, "HYPE": 50, "LINK": 50,
+    "LTC": 50, "MNT": 25, "NEAR": 50, "OP": 50, "SOL": 100,
+    "SUI": 50, "UNI": 50, "XLM": 50, "XRP": 100,
+}
+MANTO_LEVERAGE_INVERSE_UTIL_BY_ASSET: dict[str, float] = {
+    "AAVE": 20, "ADA": 50, "APT": 4, "AVAX": 20, "BCH": 20,
+    "BTC": 100, "DOGE": 25, "DOT": 50, "ETC": 20, "ETH": 100,
+    "FIL": 20, "HYPE": 20, "LINK": 20,
+    "LTC": 50, "MNT": 40, "NEAR": 20, "OP": 20, "SOL": 50,
+    "SUI": 20, "UNI": 20, "XLM": 20, "XRP": 50,
 }
 
 # Trinidad + USDC spot + USDE (core/trinidad.py)
@@ -368,6 +392,11 @@ IGRIS_ESPERA_COOLDOWN_S = float(os.getenv("IGRIS_ESPERA_COOLDOWN_S", "5"))
 # Ritmo entre duales OK de engorde/bootstrap (mismo Santo): default 15s.
 # No mandar otro par Market hasta confirmar fills L+S del dual anterior.
 IGRIS_ENGORDE_RITMO_S = float(os.getenv("IGRIS_ENGORDE_RITMO_S", "15"))
+# Una reconciliación global L/S al inicio de la ronda alimenta todas las manos.
+# Evita 2 consultas REST por Santo y mantiene el medidor fresco durante el lote.
+IGRIS_MEDIDOR_LOTE_FRESCO_S = float(
+    os.getenv("IGRIS_MEDIDOR_LOTE_FRESCO_S", "3")
+)
 # Disparo dual §E: timeout fill inicial + salvavidas
 IGRIS_DUAL_FILL_TIMEOUT_S = float(os.getenv("IGRIS_DUAL_FILL_TIMEOUT_S", "20"))
 # Legado: si true, empata USD al toque (cirugía: OFF — usar siguiente bocado)
@@ -383,12 +412,38 @@ IGRIS_DUAL_SALVAVIDAS_MARKET = os.getenv(
     "IGRIS_DUAL_SALVAVIDAS_MARKET",
     "true" if IGRIS_DUAL_SALVAVIDAS_EMERGENCIA else "false",
 ).lower() == "true"
+# Freno de mano de prueba: 0 = sin tope; N = Igris para tras N duales L+S llenos
+IGRIS_MAX_DUALES_SESION = int(float(os.getenv("IGRIS_MAX_DUALES_SESION", "0") or 0))
+# Escalera permanente: 0=ojos, 1=1 dual, 2=3, 3=10, 4=autónomo.
+IGRIS_DESPLIEGUE_NIVEL = int(float(os.getenv("IGRIS_DESPLIEGUE_NIVEL", "0") or 0))
 IGRIS_BOCADO_ASIMETRICO = os.getenv("IGRIS_BOCADO_ASIMETRICO", "true").lower() == "true"
 IGRIS_BOCADO_CORR_MIN_USD = float(os.getenv("IGRIS_BOCADO_CORR_MIN_USD", "1.0") or 1.0)
+# Máxima diferencia intencional L-S como fracción del bocado L+S.
+IGRIS_BOCADO_CORR_MAX_TOTAL_PCT = float(
+    os.getenv("IGRIS_BOCADO_CORR_MAX_TOTAL_PCT", "0.50") or 0.50
+)
+# Tusk: vigilia lenta; durante misión Igris mide el manto con mayor frecuencia.
+TUSK_RECONCILIACION_DORMIDO_S = float(
+    os.getenv("TUSK_RECONCILIACION_DORMIDO_S", "60") or 60
+)
+TUSK_RECONCILIACION_ASALTO_S = float(
+    os.getenv("TUSK_RECONCILIACION_ASALTO_S", "20") or 20
+)
 # Sueño + misiones (mega-cirugía 2026-08-12)
 IGRIS_SUENO_MISION = os.getenv("IGRIS_SUENO_MISION", "true").lower() == "true"
 IGRIS_SARGENTO_AUTO = os.getenv("IGRIS_SARGENTO_AUTO", "true").lower() == "true"
 IGRIS_SUENO_POLL_S = float(os.getenv("IGRIS_SUENO_POLL_S", "2") or 2)
+# Marcha principal: una ronda recorre todos los Santos abiertos antes de repetir.
+IGRIS_LATIDO_LOTE = os.getenv("IGRIS_LATIDO_LOTE", "true").lower() == "true"
+# Manos paralelas: cuántos duales (Santos distintos) pueden volar a la vez.
+# 1 = secuencial (legado). 0 = todos los elegibles del latido.
+IGRIS_MANOS_PARALELAS = int(float(os.getenv("IGRIS_MANOS_PARALELAS", "8") or 8))
+# Concentrar las manos en Santos cercanos a cerrar, en vez de repartir masa
+# entre todo el lote incompleto. Los huérfanos sin espejo conservan prioridad.
+IGRIS_PRIORIZAR_CIERRE = os.getenv("IGRIS_PRIORIZAR_CIERRE", "true").lower() == "true"
+IGRIS_FOCO_CIERRE_SANTOS = int(
+    float(os.getenv("IGRIS_FOCO_CIERRE_SANTOS", "3") or 3)
+)
 IGRIS_SOLO_ASALTO = os.getenv("IGRIS_SOLO_ASALTO", "true").lower() == "true"
 IGRIS_REDUCIR_REQUIERE_CONFIRMA = os.getenv(
     "IGRIS_REDUCIR_REQUIERE_CONFIRMA", "true"
@@ -488,7 +543,7 @@ LIVE_BERU_TESTNET = os.getenv("LIVE_BERU_TESTNET", "false").lower() == "true"
 LIVE_BERU_SEGUNDOS = float(os.getenv("LIVE_BERU_SEGUNDOS", "3600"))  # 1 h; 0 = Ctrl+C
 LIVE_BERU_ACTIVOS = os.getenv("LIVE_BERU_ACTIVOS", "flota")  # flota = 22 barcos USDT
 LIVE_BERU_MORDIDA_USD = float(os.getenv("LIVE_BERU_MORDIDA_USD", "20"))
-# Soldado frío listo: spot margen ON (permiso Bybit al 95%). Manos/hilo siguen OFF.
+# Ley Monarca: Beru es molino spot-margen (compra y venta). Default ON.
 BERU_SPOT_MARGEN_ENABLED = os.getenv("BERU_SPOT_MARGEN_ENABLED", "true").lower() == "true"
 BERU_SPOT_MARGEN_LEVERAGE = int(float(os.getenv("BERU_SPOT_MARGEN_LEVERAGE", "10")))
 BERU_RAIL_USDT_ONLY = os.getenv("BERU_RAIL_USDT_ONLY", "false").lower() == "true"
@@ -521,6 +576,10 @@ TUSK_TESORERIA_FETCH_POS = os.getenv("TUSK_TESORERIA_FETCH_POS", "true").lower()
 # Tesorería: publica caja USDT + lectura legado MNT; MANOS default false
 TUSK_BOVEDA_MNT_DOCTRINA = os.getenv("TUSK_BOVEDA_MNT_DOCTRINA", "true").lower() == "true"
 TUSK_BOVEDA_MANOS = os.getenv("TUSK_BOVEDA_MANOS", "false").lower() == "true"
+TUSK_CAJA_USDT_ACTIVO = os.getenv("TUSK_CAJA_USDT_ACTIVO", "LTC").upper()
+TUSK_CAJA_USDT_MAX_PEAJE_PCT = float(
+    os.getenv("TUSK_CAJA_USDT_MAX_PEAJE_PCT", "0.75") or 0.75
+)
 TUSK_BOVEDA_EQUILIBRIO_TOL_PCT = float(os.getenv("TUSK_BOVEDA_EQUILIBRIO_TOL_PCT", "0.03") or 0.03)
 # Ritual ojos: scripts/arise_ojos_tusk.py (Tusk+Tank+Kaiser; sin Igris/Greed/Beru)
 ARISE_OJOS_TUSK = os.getenv("ARISE_OJOS_TUSK", "false").lower() == "true"

@@ -129,7 +129,7 @@
 - [x] **3.5.5** Doctrina Igris §A — [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) *(2026-07-05)*
 - [x] **3.5.6** §C parcial — VIP en ley marcial + `manto_touch` Greed→Igris
 - [x] **3.5.7** Beru capital + ProtoBeru — `22_DOCTRINA_BERU.md`, `beru_tier.py`, `beru_capital.py`, cableado `beru.py`, capitanes 1.2/1.6%
-- [x] **3.5.7b** G_min **variable por Santo** — sync Bybit mínimos · `core/g_min.py` · mordida=G_min · Mariscal=G_min/0,1% · PLENO=10×G_min · **pase/ranking aún pendiente** (2026-08-07) · puerta Jess [`ORDEN_ACTIVA_JESS.md`](ORDEN_ACTIVA_JESS.md) · receta [`PEGAR_JESS_SYNC_MINIMOS_BYBIT.md`](PEGAR_JESS_SYNC_MINIMOS_BYBIT.md)
+- [x] **3.5.7b** G_min **variable por Santo** — sync Bybit mínimos · `core/g_min.py` · mordida=G_min · Mariscal=G_min/0,1% · PLENO=10×G_min · **pase 17 recalculado** con tiers de capacidad (2026-08-15)
 - [x] **3.5.7c** Protocolo **ORDEN_ACTIVA_JESS** — una sola puerta para Jess · PEGAR = recetas · regla Cursor `orden-jess.mdc` *(2026-08-07)*
 - [x] **3.5.8a** Igris §E v1 — bootstrap inverse L + lineal S + promedios pierna *(2026-07-05)*
 - [x] **3.5.8b** Igris §E v2 — Ancla + paciencia Ask/Bid + mordida sin pinza 85% + reloj invertido Kaiser (`core/igris_despliegue.py`, 2026-07-12)
@@ -137,7 +137,7 @@
 - [x] **3.5.8c** Igris §E — **ventana 48–52 / long-primero** — doctrina ✅ · motor ✅ `manto_ventana` · dual+salvavidas ✅ · **meta engorde = nocional L+S del grado** (Soldado~625/pierna peaje5; no capital 14) ✅ sync/cobertura nocional ✅ · MVP 2026-07-20 · **mega-pre-Igris** ✅ fill 100% · reserva 1 · personalizado · ritmo lote · libros Tusk · USD@entrada (`CHECKPOINT_MEGA_PRE_IGRIS.md`) · **ritmo dual 15s + candado fills L+S** *(2026-08-08)* · smoke etapas/nocional ✅ `validar_pase_metas_etapas_smoke.py`
 - [x] **3.5.8d** Sello mega-pre-Igris — marchas · `marcha_duracion` · `marcha_ritmo_lote` · `tusk_libros` · altar hidrata desde JSON · smokes frío *(2026-08-03)* · **sello 2 marchas (asalto · personalizado; legado→asalto)** *(2026-08-06)*
 
-- [x] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v2 + `plan_crecimiento.py` + [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) *(Aspirante→Chamán; candado + **director pase** `pase_director.py` · 3 marchas 2026-07-19; botín runtime y mérito aún pendiente)*
+- [x] **3.5.9** Plan crecimiento Monarca — [`23_PLAN_CRECIMIENTO.md`](23_PLAN_CRECIMIENTO.md) v3 + `plan_crecimiento.py` + [`PASE_BATALLA_17_SANTOS.md`](PASE_BATALLA_17_SANTOS.md) *(68 pasos · coste de oportunidad · leverage útil · migración semántica del libro viejo)*
 
 ### 3.6 Validación ciclo ejército *(ex M1 — 2.6.3)*
 - [x] **3.6.1** 1 ciclo CAZA → COSECHA en Bellion — ✅ `scripts/probar_ciclo_beru.py` + historial
@@ -266,7 +266,10 @@
 - [x] **4.0.1b** Tesorería Tusk — **caja USDT** (mega-cirugía 2026-08-12) · potencia pase desde caja, no short MNT · MNT+short = sucio lectura · **manos OFF** · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · smoke `validar_tusk_boveda_mnt_smoke.py`
 - [x] **4.0.1c** Sucio → saneo a **USDT** (peaje OK; no reconstruir saco MNT) · firmada 2026-08-02 + recorte 2026-08-12 · manos aún OFF
 - [x] **4.0.1c2** ~~capital_mando hedge → masa Igris~~ **cancelado** (tumor). Potencia = caja USDT.
-- [ ] **4.0.1d** Manos ritual **caja USDT** (Funding→UTA→USDT; sin comprar MNT) — solo `TUSK_BOVEDA_MANOS` + orden Monarca
+- [~] **4.0.1d** Manos ritual **caja USDT** (LTC Funding→USDT Funding→UTA;
+  no mezclar LTC colateral; sin comprar MNT)
+  — motor permanente por pasos + idempotencia + peaje Convert ≤0,75% + smoke
+  frío ✅; falta sello live LTC por niveles con autorización Monarca.
 - [x] **4.0.2** Igris sim/dry-run — `scripts/arise_igris_sim.py` · manos atadas + fills ilusorios · sin Beru/Greed · [`CHECKPOINT_IGRIS_SIM_4_0_2.md`](CHECKPOINT_IGRIS_SIM_4_0_2.md) · smoke `validar_arise_igris_sim_smoke.py` · **sello 2026-08-04** marcha forzada (~180s): ENGORDE_DUAL multi-Santo, masa~94, 15 frentes
 - [ ] **4.0.3** Igris live hasta manto 100% del paso (meta engorde)
   - **EN CURSO 2026-08-05** — ejército parcial oficial (Tusk·Tank·Kaiser·Igris; Greed/Beru hibernan) · marcha_forzada · books ON · manos sueltas mainnet (`arise_igris.py` + guardián `vigilar_arise_igris` hasta ~18:30) · smoke libros OK · **no PASS** hasta evidencia manto/meta · [`CHECKPOINT_IGRIS_LIVE_4_0_3.md`](CHECKPOINT_IGRIS_LIVE_4_0_3.md)
@@ -278,6 +281,16 @@
   - **Peaje + banda USD (2026-08-09):** Asalto no bloquea spread negativo; banda dual en USD del Santo (no qty mezclada) · smoke `validar_asalto_peaje_banda_smoke.py`
   - **MNT pausa lote (2026-08-09):** `IGRIS_BOVEDA_EN_LOTE=false` — engorde sin MNT; short bóveda intacto · smokes lote/mnt
   - **Ojos Asalto holgados (2026-08-09):** divergencia libro↔ticker Asalto **2.5%** · masa asimetría Asalto **12%** · ritmo dual **5 s** (no cacería) · smoke ojos/ley_masa
+  - **Medidor+bocado fresco (2026-08-14):** Tusk reconcilia solo el Santo antes de cada dual · pulso 20 s Asalto / 60 s sueño · corrección usa bocado real, no bloque pendiente · tope duro 50% L+S · smoke sueño/misión
+  - **Latido de lote + manos paralelas (2026-08-16):** el lote abierto aporta
+    candidatos; hasta `IGRIS_MANOS_PARALELAS` duales de Santos distintos vuelan
+    a la vez, oxígeno/libro con candado · sueño+misión queda como respaldo.
+  - **Foco de cierre Igris (2026-08-16):** las manos se concentran en hasta 3
+    Santos cercanos a terminar (menor restante primero), en vez de repartir
+    masa entre siete incompletos; un huérfano sin espejo conserva prioridad y
+    el freno final de oxígeno permanece · smoke latido lote ✅
+  - **Escalera live permanente (2026-08-15):** nivel 0 ojos · 1 un dual · 2 tres
+    duales · 3 diez · 4 autónomo; cada ascenso exige revisar el nivel anterior.
   - **Ojos Bridge sin wipe ciego (2026-08-09):** handshake fallido ≠ borrar 88 libros; invalidar solo frentes del feed caído tras sesión viva · smoke `validar_bridge_ojos_sin_wipe_smoke.py`
   - **Reserva dual 1× aire (2026-08-09):** espejo L+S cobra un solo corte de oxígeno Tusk (antes 2× castraba engorde con O2 justa)
   - **Densidad máxima siempre (2026-08-09):** Igris fuerza apalancamiento máx inv+lin al arranque Arise y antes de dual (cooldown); aviso `LEVERAGE_MAX_AVISO` si Bybit acepta menos · smoke `validar_igris_leverage_max_smoke.py`
@@ -286,10 +299,27 @@
   - **Panel cableado 2026-08-06:** estado_vivo publica marcha · ventana · meta engorde · ley_masa (lectura) · Tusk O₂/equity; Pergamino/Ascensión/Manto leen — **Jess corre 4.0.3 bajo Asalto; USA no ejecuta** · runbook [`PEGAR_JESS_IGRIS_LIVE_ASALTO.md`](PEGAR_JESS_IGRIS_LIVE_ASALTO.md)
   - **Noche historial flota Igris (≠ 4.0.3):** función ejército — bóveda velas 1m (spot + L/S manto) · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · motor [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · **manos OFF**
 - [~] **4.0.4** Cablear Beru en `arise` tras manto logrado (`pase_director.beru_puede_cazar`)
+  - **Beru cazador puro + relevo (2026-08-16):** los cuatro grados mueven Hoz CONDICIONAL y acumulan masa por peldaño · tras fill/funeral Soldado/Capitán/General dejan hijo desde última Red tocada (0,9/0,5/0,3); Mariscal cierra su recorrido · sin negociador/residual/capas/fusión/Mega · teatro viejo 1,6 bloqueado · manos OFF · [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md)
+  - **Altar unificado (2026-08-16):** Soldado/Capitán/General/Mariscal = CONDICIONAL que sigue la Red; engorde aproximado G_min/8, /4, /2, /1 · 400 recorridos y 3.800 Hoces movidas en stress frío · fósiles inertes · smoke `validar_beru_altar_cazador_smoke.py`
+  - **Manos nativas fase 1 (2026-08-16):** puente condicional spot para los cuatro grados + sello idempotente + query-before-create + cancelación confirmada · cero fallback Market · smoke `validar_beru_altar_nativo_smoke.py` ✅ frío
+  - **Vacío 1,1 desde wake (2026-08-17 noche):** primer silbato **±1,1 / Hoz 1,0** para los cuatro grados · 0 local = precio de wake · metro = manto · Mariscal $50 (10 peldaños) · relevo 0,9/0,5/0,3 intacto · Igris no pisa el 0 de acecho · Market sigue bloqueado (`ALTAR_NATIVO_PENDIENTE`) · **manos/hilo OFF**
+  - **Pre-fuego Mariscal HYPE (2026-08-17):** el ensayo de la mañana usó Sangre
+    fundida y persiguió el precio; esa ley quedó cortada. No despertar HYPE
+    hasta CONFIRM del Monarca sobre esta cirugía.
+  - **Pase de rangos al despertar (2026-08-16):** cada Santo recibe el mayor
+    grado que sostiene su manto real (Soldado/Capitán/General/Mariscal); los
+    sellos manuales avanzan el pase pero no inventan masa para Beru · flota
+    mixta verificada en frío ✅
+  - **Igris respiración lote (2026-08-16):** una foto REST L/S global por ronda alimenta las manos paralelas y las consultas bloqueantes salen del latido; smokes latido/sueño/niveles ✅ · live reiniciado con 3 manos
+  - **Igris guardia única (2026-08-16):** Arise detecta otra marcha viva y aborta antes de duplicar manos; candado huérfano se recupera · smoke `validar_igris_singleton_smoke.py` ✅
+  - **Teatro continuo v2 (2026-08-15):** 22 Santos × 3 horizontes completos · negociador/ping-pong en cero · calor usado por pase 17 · [`TEATRO_BERU_SANO_2026-08-14.md`](TEATRO_BERU_SANO_2026-08-14.md)
+  - **Pase 17 capacidad segura:** 22 candidatos auditados · 68 pasos · inverso convierte límite base×last · 20% holgura · MNT I=40x · APT/LINK/BCH fuera · DOGE/SUI/XLM dentro · coronas 136/457/1295/5024 · ojos 17 · no liquida mantos viejos · smoke `validar_pase_17_capacidad_smoke.py`
+  - **Teatro legión APAGADO:** actor anterior declarado fósil; rankings previos invalidados · [`TEATRO_BERU_LEGION_SANO_2026-08-14.md`](TEATRO_BERU_LEGION_SANO_2026-08-14.md)
   - **Cirugía USA 2026-08-12 (injerto Jess útil):** ley neutro · wake reset-0 · ojos muleta · fantasma nivel 2 + smokes OK · [`CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-12.md`](CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-12.md)
   - **Mega-cirugía ejército 2026-08-12 (frío):** caja USDT · Igris MNT Santo · [`CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md`](CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md)
-  - **Mega-cirugía Beru 2026-08-13 (frío):** tres vidas + Mega · sangre 0.9/Hoz 0.8 · oro 1.6 · engorde caza ON · manos OFF · [`CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md`](CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md) · [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) · dudas B-TRAIL/B-ALTAR/…
-  - **Aún no:** Beru ON dentro de arise Igris · nivel 3 manos reales · trailing Mariscal 2.0 · 4.0.4 completo = después de manto sirva
+  - **Arquitectura 2026-08-13 SUPERSEDIDA:** tres vidas/ping-pong/Mega solo archivo histórico.
+  - **Flota viva 100% (2026-08-18):** GO Monarca · ritual `arise_beru_flota_viva.py` · Hoz real en los 22 · grado = manto · Igris OFF · Jess México vigila hasta las 12 · bitácora viva
+  - **Aún no:** Beru ON dentro de arise Igris · 4.0.4 completo = manto sirva + GO explícito para convivir con Igris
 
 ### 4.1 Notificaciones *(oído = Pergamino)*
 - [~] **4.1.1** `core/telegram.py` — stub ✅; **legado** (no prioridad de camino)
@@ -328,7 +358,7 @@
 ### 5.3 Bellion — mariscal de verdad
 - [ ] **5.3.1** Ratio_Eficiencia latidos/amputaciones por activo
 - [ ] **5.3.2** Reporte horario (manual) — Telegram resumen
-- [x] **5.3.3** Clasificar activos parásitos vs eficientes — **Mega Coliseo done** · pase firma Monarca [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md) · [`MEGA_COLISEO_PLAN.md`](MEGA_COLISEO_PLAN.md) · [`INFORME_COLISEO_MONARCA.md`](INFORME_COLISEO_MONARCA.md)
+- [x] **5.3.3** Clasificar activos parásitos vs eficientes — Teatro Beru continuo + pase vigente [`PASE_BATALLA_17_SANTOS.md`](PASE_BATALLA_17_SANTOS.md); Mega Coliseo queda histórico.
 
 ### 5.4 Beru — legión completa
 - [ ] **5.4.1** SUPER_FUSION estable bajo carga
@@ -447,7 +477,7 @@ Núcleo Fases 0–3: fuerte (~95% operativo)
 **Smokes Beru:** `validar_ciclo_beru_eth.py` · cazador/fusión/multiberu/mega_reset/capital · `beru_live_testnet.py` · `validar_beru_asset_detail_smoke.py`  
 **Smokes Igris:** `validar_igris_smoke.py` · `validar_igris_asset_detail_smoke.py`  
 **Smokes Bellion:** `validar_bellion_oido_smoke.py`  
-**Smokes plan:** `validar_plan_crecimiento_smoke.py` · `validar_pase_director_smoke.py` · `validar_pase_metas_etapas_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_manto_frecuencia_smoke.py`  
+**Smokes plan:** `validar_pase_17_capacidad_smoke.py` · `validar_plan_crecimiento_smoke.py` · `validar_pase_director_smoke.py` · `validar_pase_metas_etapas_smoke.py` · `validar_semaforos_meta_smoke.py` · `validar_manto_frecuencia_smoke.py`
 **Runbook testnet:** `18_ARRANQUE_TESTNET.md`  
 **Validar estado:** `python scripts/validar_checklist.py`  
 **Validar sentidos Tank:** `python scripts/validar_panorama_tank.py --segundos 35`
@@ -460,7 +490,7 @@ Núcleo Fases 0–3: fuerte (~95% operativo)
 Proyecto: ShadowHarmy — Lilit de Hierro v2.0
 Codex: ./migracion/ (primero 17_GUIA_MONARCA.md — tono Ejército)
 Checklist: 16_CHECKLIST_MAESTRO.md · código manda en hechos; actualizar migracion cada sesión.
-Fases 0–2 ✅ · Fase 3 ~92% · pase Aspirante→Chamán firmado (PASE_BATALLA_13_SANTOS.md).
+Fases 0–2 ✅ · Fase 3 ~92% · pase 17 Aspirante→Chamán firmado (PASE_BATALLA_17_SANTOS.md).
 Siguiente: Igris 4.0.3 preferencia Asalto (ley 2026-08-06) · luego 4.0.4 Beru · Greed último.
 Validar: scripts/validar_*_smoke.py + validar_bellion_oido_smoke.py + validar_pase_director_smoke.py
 Si propongo algo contra 08/03 sin "Override codex" → avisar al Monarca.

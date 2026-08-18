@@ -242,6 +242,36 @@ class TuskBoveda:
                 self.masa_reservada_ltc += masa_f
             return True
 
+    def qty_anclaje(
+        self,
+        frente: str,
+        masa_usd: float,
+        *,
+        qty_fill: float | None = None,
+        precio_fill: float | None = None,
+    ) -> float:
+        """Qty nativa que va al muelle: contratos en inverso, monedas en lineal/spot.
+
+        Las reservas siempre viajan en USD. En inverso el contrato vale $1 y la
+        masa sirve tal cual, pero en lineal hay que traducir a monedas: meter
+        dólares donde van monedas deforma el espejo hasta la reconciliación.
+        """
+        q = float(qty_fill or 0)
+        if q > 0:
+            return q
+        masa = float(masa_usd or 0)
+        if masa <= 0:
+            return 0.0
+        try:
+            from core import lote_bybit as lote
+
+            if lote.unidad_lote(lote.filtros_lote(frente)) == "usd_contrato":
+                return masa
+        except Exception:
+            return masa
+        px = float(precio_fill or 0)
+        return masa / px if px > 0 else masa
+
     async def confirmar_reserva(
         self,
         uid: str,
@@ -250,10 +280,14 @@ class TuskBoveda:
         fill_confirmado=True,
         precio_fill: float | None = None,
         fee_usd: float | None = None,
+        qty_fill: float | None = None,
     ):
         """
         Fija el peso de la sombra en un muelle real.
         En MODO_SIMULACION=False, requiere fill_confirmado=True (caller debe verificar).
+
+        ``qty_fill`` = lo que realmente llenó el exchange en unidad nativa. El
+        oxígeno se sigue devolviendo en USD (``sombra.masa``).
         """
         if not config.MODO_SIMULACION and not fill_confirmado:
             await self.bel.anotar("TUSK", "ANCLAJE_RECHAZADO",
@@ -268,20 +302,27 @@ class TuskBoveda:
                 from core import igris_manto as im
                 im.asegurar_peso(self.pesos, frente)
 
+                qty = self.qty_anclaje(
+                    frente, sombra.masa, qty_fill=qty_fill, precio_fill=precio_fill,
+                )
+
                 if precio_fill and precio_fill > 0:
                     im.actualizar_promedio(
-                        self.pesos, frente, direccion, sombra.masa, precio_fill,
+                        self.pesos, frente, direccion, qty, precio_fill,
                         fee_usd=float(fee_usd or 0),
                     )
                 elif fee_usd and fee_usd > 0:
                     key_fee = "fees_paid_long" if direccion == "LONG" else "fees_paid_short"
                     self.pesos[frente][key_fee] = float(self.pesos[frente].get(key_fee) or 0) + float(fee_usd)
-                self.pesos[frente][dir_key] += sombra.masa
-                # Ya anclada: sale del tránsito
+                self.pesos[frente][dir_key] += qty
+                # Ya anclada: sale del tránsito (oxígeno siempre en USD)
                 self.reservas_activas.pop(uid, None)
                 if getattr(sombra, "consumio_auth", True):
                     self.masa_reservada_ltc = max(0.0, self.masa_reservada_ltc - sombra.masa)
-                await self.bel.anotar("TUSK", "ANCLAJE", f"Masa {sombra.masa:.4f} fijada en {frente}.")
+                await self.bel.anotar(
+                    "TUSK", "ANCLAJE",
+                    f"Qty {qty:.6f} fijada en {frente} (masa ${float(sombra.masa):.4f}).",
+                )
                 return True
         return False
 
@@ -306,28 +347,90 @@ class TuskBoveda:
 
     # === RECONCILIACIÓN CON EXCHANGE (Fase 2.4) ===
 
-    async def reconciliar_con_exchange(self, bridge):
+    async def ritual_caja_usdt(
+        self,
+        bridge,
+        *,
+        paso: str = "inspeccionar",
+        activo: str | None = None,
+        amount: float | None = None,
+        permitir_manos: bool = False,
+    ) -> dict:
+        """Funding → UTA → USDT, un paso idempotente por invocación."""
+        from core import tusk_caja_usdt as caja
+
+        if not bridge or not getattr(bridge, "session", None):
+            return {"ok": False, "paso": paso, "motivo": "bridge_sin_sesion"}
+        act = str(
+            activo or getattr(config, "TUSK_CAJA_USDT_ACTIVO", "LTC") or "LTC"
+        ).upper()
+        max_peaje = float(
+            getattr(config, "TUSK_CAJA_USDT_MAX_PEAJE_PCT", 0.75) or 0.75
+        )
+        resultado = await asyncio.to_thread(
+            caja.ejecutar_paso,
+            bridge.session,
+            paso,
+            activo=act,
+            amount=amount,
+            max_peaje_pct=max_peaje,
+            permitir_manos=permitir_manos,
+        )
+        await self.bel.anotar(
+            "TUSK",
+            "CAJA_USDT_PASO",
+            f"{act} · {paso} · ok={resultado.get('ok')} · "
+            f"motivo={resultado.get('motivo') or resultado.get('siguiente') or 'sellado'}",
+        )
+        return resultado
+
+    async def reconciliar_con_exchange(
+        self,
+        bridge,
+        activo: str | None = None,
+        *,
+        solo_lectura: bool = False,
+    ):
         """
         Compara posiciones reales (linear + inverse) con pesos internos.
         Corrige discrepancias y registra en Bellion.
-        Solo opera si MODO_SIMULACION=False y hay sesión activa.
+        Por defecto solo opera si MODO_SIMULACION=False y hay sesión activa.
+        ``solo_lectura=True`` permite al fantasma leer el manto real sin disparar.
         Guardar tamaño nativo + precio medio (linear) para que Igris vea acumulado USD.
+        Si ``activo`` viene informado, mide solo las dos piernas de ese Santo.
         """
-        if config.MODO_SIMULACION or not bridge or not bridge.session:
+        if (config.MODO_SIMULACION and not solo_lectura) or not bridge or not bridge.session:
             return True
 
         from core import igris_manto as im
 
         try:
             posiciones_reales: dict[str, dict] = {}
-            queries = (
-                {"category": "linear", "settleCoin": "USDT"},
-                {"category": "inverse"},
-            )
+            act = str(activo or "").upper()
+            if act:
+                queries = (
+                    {"category": "linear", "symbol": f"{act}USDT"},
+                    {"category": "inverse", "symbol": f"{act}USD"},
+                )
+                frentes_objetivo = {
+                    self._symbol_a_frente(f"{act}USDT", category="linear"),
+                    self._symbol_a_frente(f"{act}USD", category="inverse"),
+                }
+            else:
+                queries = (
+                    {"category": "linear", "settleCoin": "USDT"},
+                    {"category": "inverse"},
+                )
+                frentes_objetivo = None
             errores = 0
+            frentes_consultados_ok: set[str] = set()
             for kwargs in queries:
                 try:
-                    response = bridge.session.get_positions(**kwargs)
+                    # REST sync de pybit es bloqueante. Fuera del event loop:
+                    # ojos, fills y las otras manos Igris siguen respirando.
+                    response = await asyncio.to_thread(
+                        bridge.session.get_positions, **kwargs,
+                    )
                 except Exception as e:
                     errores += 1
                     await self.bel.anotar(
@@ -343,6 +446,10 @@ class TuskBoveda:
                     )
                     continue
                 cat = str(kwargs.get("category") or "")
+                if act and kwargs.get("symbol"):
+                    frentes_consultados_ok.add(
+                        self._symbol_a_frente(str(kwargs["symbol"]), category=cat)
+                    )
                 for pos in response.get("result", {}).get("list", []) or []:
                     symbol = str(pos.get("symbol") or "")
                     side = str(pos.get("side") or "")
@@ -372,12 +479,25 @@ class TuskBoveda:
                         else:
                             posiciones_reales[frente][px_key] = avg
 
+            # Ambas queries fallidas → ciego: NO tocar libros (no inventar fantasmas)
+            if errores >= len(queries):
+                await self.bel.anotar(
+                    "TUSK", "RECONCILIACIÓN_CIEGO",
+                    "No se pudo leer linear ni inverse — abortar manos/semilla",
+                )
+                return False
+
             async with self._lock:
                 discrepancias = 0
                 for frente, real in posiciones_reales.items():
                     interno = self.pesos.get(frente) or {"long": 0.0, "short": 0.0}
-                    diff_l = abs(real["long"] - float(interno.get("long") or 0))
-                    diff_s = abs(real["short"] - float(interno.get("short") or 0))
+                    # Copia: ``interno`` apunta al libro vivo y se sobreescribe abajo.
+                    # Sin copia el diario siempre decía «interno == real» y escondía
+                    # la deriva que se quería auditar.
+                    prev_l = float(interno.get("long") or 0)
+                    prev_s = float(interno.get("short") or 0)
+                    diff_l = abs(real["long"] - prev_l)
+                    diff_s = abs(real["short"] - prev_s)
                     if diff_l > 0.0001 or diff_s > 0.0001 or frente not in self.pesos:
                         discrepancias += 1
                         pf = im.asegurar_peso(self.pesos, frente)
@@ -389,19 +509,24 @@ class TuskBoveda:
                             pf["precio_medio_short"] = float(real["precio_medio_short"])
                         await self.bel.anotar(
                             "TUSK", "RECONCILIACIÓN",
-                            f"{frente}: interno L:{float(interno.get('long') or 0):.6f}/"
-                            f"S:{float(interno.get('short') or 0):.6f} → "
+                            f"{frente}: interno L:{prev_l:.6f}/"
+                            f"S:{prev_s:.6f} -> "
                             f"real L:{real['long']:.6f}/S:{real['short']:.6f}",
                         )
 
+                # Solo borrar “fantasmas” si al menos una query de exchange respondió
                 for frente in list(self.pesos.keys()):
+                    if frentes_objetivo is not None and frente not in frentes_objetivo:
+                        continue
+                    if frentes_objetivo is not None and frente not in frentes_consultados_ok:
+                        continue
                     if frente not in posiciones_reales:
                         row = self.pesos.get(frente) or {}
                         if float(row.get("long") or 0) > 0.0001 or float(row.get("short") or 0) > 0.0001:
                             discrepancias += 1
                             await self.bel.anotar(
                                 "TUSK", "RECONCILIACIÓN_FANTASMA",
-                                f"{frente} existe interno pero no en exchange → reseteando",
+                                f"{frente} existe interno pero no en exchange -> reseteando",
                             )
                             self.pesos[frente] = {
                                 "long": 0.0,
@@ -416,13 +541,6 @@ class TuskBoveda:
                         f"{discrepancias} frentes alineados con exchange",
                     )
 
-            # Ambas queries fallidas → ciego: no mentir "OK" a Igris
-            if errores >= len(queries):
-                await self.bel.anotar(
-                    "TUSK", "RECONCILIACIÓN_CIEGO",
-                    "No se pudo leer linear ni inverse — abortar manos/semilla",
-                )
-                return False
             return True
 
         except Exception as e:
@@ -472,15 +590,36 @@ class TuskBoveda:
         equity = float(self.masa_bruta_real or self.masa_bruta or 0)
         return telemetria_desde_pesos(dict(self.pesos), equity)
 
+    def intervalo_reconciliacion_s(self) -> float:
+        """Pulso Tusk: rápido con Igris despierto; lento durante el sueño."""
+        dormido = True
+        activa = None
+        try:
+            from core import igris_mision as imis
+
+            dormido = imis.esta_dormido()
+            activa = imis.mision_activa()
+        except Exception:
+            pass
+        tipo = str((activa or {}).get("tipo") or "").lower()
+        en_asalto = not dormido or tipo in {"sembrar", "engordar", "corregir"}
+        clave = (
+            "TUSK_RECONCILIACION_ASALTO_S"
+            if en_asalto
+            else "TUSK_RECONCILIACION_DORMIDO_S"
+        )
+        default = 20.0 if en_asalto else 60.0
+        return max(1.0, float(getattr(config, clave, default) or default))
+
     async def hilo_reconciliacion(self, bridge):
-        """Al arrancar + cada 60s: pesos alineados con exchange (acumulado visible a Igris)."""
+        """Al arrancar y luego con pulso dinámico sueño/asalto."""
         # Primera pasada pronta (no esperar 10s: Igris necesita have al despertar)
         await asyncio.sleep(1)
         while True:
             await self.actualizar_telemetria_posiciones(bridge)
             if not config.MODO_SIMULACION:
                 await self.reconciliar_con_exchange(bridge)
-            await asyncio.sleep(60)
+            await asyncio.sleep(self.intervalo_reconciliacion_s())
 
     def _symbol_a_frente(self, symbol, category: str | None = None):
         """Traduce símbolo Bybit al nombre interno del frente."""

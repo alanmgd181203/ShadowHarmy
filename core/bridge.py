@@ -62,6 +62,25 @@ def _filtrar_tuples_por_bases(tuples: list[tuple[str, str]], bases: list[str]) -
     return [(sym, frente) for sym, frente in tuples if _base_de_symbol(sym) in allow]
 
 
+def _latencia_ws_ajustada_ms(payload: dict, feed: dict, now_ms: float | None = None) -> float:
+    """Latencia relativa sin confundir desfase de relojes con red lenta.
+
+    ``payload.ts`` usa el reloj de Bybit; ``time.time`` usa el del cuartel.
+    La diferencia absoluta puede ser >1 s aunque el mensaje llegue fresco.
+    Cada feed aprende su menor diferencia como offset y mide solo el exceso.
+    """
+    local_ms = float(now_ms if now_ms is not None else time.time() * 1000)
+    server_ms = float(payload.get("ts") or local_ms)
+    delta = local_ms - server_ms
+    baseline = feed.get("_clock_offset_ms")
+    if baseline is None or abs(delta - float(baseline)) > 10_000:
+        baseline = delta
+    elif delta < float(baseline):
+        baseline = delta
+    feed["_clock_offset_ms"] = float(baseline)
+    return max(0.0, delta - float(baseline))
+
+
 def _feeds_completos():
     """Ojos mainnet: spot + perps + futuros dated Bybit (sharded)."""
     spot_tuples = _pares_a_tuples(getattr(config, "SPOT_ALL_PARES", []))
@@ -292,8 +311,7 @@ class BybitBridge:
 
     async def _procesar_mensaje(self, payload, feed):
         topic = payload.get("topic", "")
-        ts_server = int(payload.get("ts", time.time() * 1000))
-        latencia_local = abs((time.time() * 1000) - ts_server)
+        latencia_local = _latencia_ws_ajustada_ms(payload, feed)
 
         frente = None
         if topic.startswith("tickers."):
@@ -416,7 +434,9 @@ class BybitBridge:
 
     async def place_order(self, symbol, side, qty, order_type="Market",
                           price=None, link_id=None, category="linear", market_unit=None,
-                          is_leverage=None, position_idx=None, reduce_only=None):
+                          is_leverage=None, position_idx=None, reduce_only=None,
+                          trigger_price=None, trigger_direction=None,
+                          trigger_by=None, order_filter=None, time_in_force=None):
         if not self.session:
             return OrdenResultado(False, mensaje="Sin sesión API configurada")
 
@@ -449,10 +469,53 @@ class BybitBridge:
 
         if order_type == "Limit" and price is not None:
             params["price"] = str(price)
-            params["timeInForce"] = "GTC"
+            params["timeInForce"] = str(time_in_force or "GTC")
+        elif time_in_force:
+            params["timeInForce"] = str(time_in_force)
+
+        if trigger_price is not None:
+            params["triggerPrice"] = str(trigger_price)
+            # Spot Bybit V5: solo triggerPrice (+ orderFilter). No acepta
+            # triggerDirection ni triggerBy; esos se validan en el altar.
+            if str(category or "").lower() != "spot":
+                if int(trigger_direction or 0) not in (1, 2):
+                    return OrdenResultado(
+                        False, link_id=link_id,
+                        mensaje="triggerDirection requerido: 1=sube, 2=baja",
+                    )
+                params["triggerDirection"] = int(trigger_direction)
+                params["triggerBy"] = str(trigger_by or "LastPrice")
+        if order_filter:
+            params["orderFilter"] = str(order_filter)
+
+        async def _enviar() -> dict:
+            return await asyncio.to_thread(self.session.place_order, **params)
+
+        def _es_idx_desfasado(texto: str) -> bool:
+            t = str(texto or "").lower()
+            if "position idx" in t:
+                return True
+            return "10001" in t and "position mode" in t
 
         try:
-            response = await asyncio.to_thread(self.session.place_order, **params)
+            try:
+                response = await _enviar()
+            except Exception as e:
+                # Símbolo en modo simple (one-way): el idx de hedge tumba la orden
+                if position_idx is None or not _es_idx_desfasado(str(e)):
+                    raise
+                response = {"retCode": 10001, "retMsg": str(e)}
+
+            if response.get("retCode") != 0 and position_idx is not None and \
+                    _es_idx_desfasado(response.get("retMsg", "")):
+                params.pop("positionIdx", None)
+                position_idx = None
+                await self.bel.anotar(
+                    "BRIDGE", "IDX_ONE_WAY",
+                    f"{symbol}: casa en modo simple · reintento sin positionIdx "
+                    f"| LINK:{link_id}",
+                )
+                response = await _enviar()
 
             if response.get("retCode") == 0:
                 order_id = response["result"].get("orderId", "")
@@ -545,7 +608,8 @@ class BybitBridge:
             await self.bel.anotar("BRIDGE", "LEVERAGE_ERROR", f"{symbol} {lev}x: {err}")
             return OrdenResultado(False, mensaje=err)
 
-    async def cancel_order(self, symbol, order_id=None, link_id=None, category="linear"):
+    async def cancel_order(self, symbol, order_id=None, link_id=None,
+                           category="linear", order_filter=None):
         if not self.session:
             return OrdenResultado(False, mensaje="Sin sesión API configurada")
 
@@ -556,9 +620,11 @@ class BybitBridge:
             params["orderLinkId"] = link_id
         else:
             return OrdenResultado(False, mensaje="Se requiere orderId o linkId")
+        if order_filter:
+            params["orderFilter"] = str(order_filter)
 
         try:
-            response = self.session.cancel_order(**params)
+            response = await asyncio.to_thread(self.session.cancel_order, **params)
             if response.get("retCode") == 0:
                 await self.bel.anotar("BRIDGE", "ORDEN_CANCELADA", f"ID:{order_id or link_id} {symbol}")
                 return OrdenResultado(True, order_id=order_id or "", link_id=link_id or "", datos=response.get("result", {}))
@@ -570,7 +636,8 @@ class BybitBridge:
             return OrdenResultado(False, mensaje=str(e))
 
     async def amend_order(self, symbol, order_id=None, link_id=None,
-                          new_qty=None, new_price=None, category="linear"):
+                          new_qty=None, new_price=None, new_trigger_price=None,
+                          category="linear"):
         if not self.session:
             return OrdenResultado(False, mensaje="Sin sesión API configurada")
 
@@ -586,9 +653,11 @@ class BybitBridge:
             params["qty"] = str(new_qty)
         if new_price is not None:
             params["price"] = str(new_price)
+        if new_trigger_price is not None:
+            params["triggerPrice"] = str(new_trigger_price)
 
         try:
-            response = self.session.amend_order(**params)
+            response = await asyncio.to_thread(self.session.amend_order, **params)
             if response.get("retCode") == 0:
                 await self.bel.anotar("BRIDGE", "ORDEN_MODIFICADA", f"ID:{order_id or link_id}")
                 return OrdenResultado(True, order_id=order_id or "", link_id=link_id or "", datos=response.get("result", {}))
@@ -596,6 +665,112 @@ class BybitBridge:
             return OrdenResultado(False, mensaje=msg)
         except Exception as e:
             return OrdenResultado(False, mensaje=str(e))
+
+    def _buscar_orden_sync(self, symbol, *, link_id, category="linear",
+                           order_filter=None):
+        """Busca una orden por sello sin asumir si sigue abierta o ya terminó."""
+        if not self.session:
+            return {"ok": False, "mensaje": "Sin sesión API configurada"}
+        base = {
+            "category": category,
+            "symbol": symbol,
+            "orderLinkId": link_id,
+        }
+        if order_filter:
+            base["orderFilter"] = str(order_filter)
+        errores = []
+        for nombre, consulta in (
+            ("realtime", self.session.get_open_orders),
+            ("history", self.session.get_order_history),
+        ):
+            try:
+                response = consulta(**base)
+            except Exception as exc:
+                errores.append(f"{nombre}: {exc}")
+                continue
+            if response.get("retCode") != 0:
+                errores.append(
+                    f"{nombre}: ret={response.get('retCode')} {response.get('retMsg')}"
+                )
+                continue
+            for orden in (response.get("result") or {}).get("list") or []:
+                if str(orden.get("orderLinkId") or "") == str(link_id):
+                    return {
+                        "ok": True,
+                        "orden": dict(orden),
+                        "status": str(orden.get("orderStatus") or ""),
+                        "via": nombre,
+                    }
+        return {
+            "ok": False,
+            "not_found": not errores,
+            "mensaje": "; ".join(errores) if errores else "orden_no_encontrada",
+        }
+
+    async def get_order_status(self, symbol, *, link_id, category="linear",
+                               order_filter=None):
+        """Consulta idempotente por orderLinkId; no crea ni reintenta órdenes."""
+        if not link_id:
+            return OrdenResultado(False, mensaje="Se requiere linkId")
+        try:
+            pack = await asyncio.to_thread(
+                self._buscar_orden_sync,
+                symbol,
+                link_id=link_id,
+                category=category,
+                order_filter=order_filter,
+            )
+        except Exception as exc:
+            return OrdenResultado(False, link_id=link_id, mensaje=str(exc))
+        if not pack.get("ok"):
+            return OrdenResultado(
+                False, link_id=link_id,
+                mensaje=str(pack.get("mensaje") or "orden_no_encontrada"),
+                datos=pack,
+            )
+        orden = dict(pack.get("orden") or {})
+        return OrdenResultado(
+            True,
+            order_id=str(orden.get("orderId") or ""),
+            link_id=link_id,
+            mensaje=str(pack.get("status") or ""),
+            datos={**orden, "via": pack.get("via")},
+        )
+
+    async def set_trailing_stop(self, symbol, *, distance, active_price,
+                                position_idx=0, category="linear"):
+        """Trailing nativo de posición. Bybit no lo ofrece para spot."""
+        if category not in ("linear", "inverse"):
+            return OrdenResultado(
+                False,
+                mensaje="TRAILING_SPOT_NO_SOPORTADO: no usar fallback Market",
+            )
+        if not self.session:
+            return OrdenResultado(False, mensaje="Sin sesión API configurada")
+        params = {
+            "category": category,
+            "symbol": symbol,
+            "trailingStop": str(distance),
+            "activePrice": str(active_price),
+            "tpslMode": "Full",
+            "positionIdx": int(position_idx),
+        }
+        try:
+            response = await asyncio.to_thread(
+                self.session.set_trading_stop, **params,
+            )
+        except Exception as exc:
+            return OrdenResultado(False, mensaje=str(exc))
+        if response.get("retCode") == 0:
+            return OrdenResultado(
+                True, mensaje="TRAILING_ARMADO",
+                datos=response.get("result") or {},
+            )
+        return OrdenResultado(
+            False,
+            mensaje=str(response.get("retMsg") or "trailing rechazado"),
+            datos=response.get("result") or {},
+        )
 
     def _poll_fill_sync(self, symbol, order_id=None, link_id=None, category="linear"):
         """HTTP sync (llamar vía to_thread): open → history → executions."""

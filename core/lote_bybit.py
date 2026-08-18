@@ -154,6 +154,27 @@ def cuantizar_qty(
     return round(out, dec + 2)
 
 
+def cuantizar_precio(
+    precio: float,
+    frente: str,
+    *,
+    mode: ModoRedondeo = "floor",
+) -> float:
+    """Precio al tickSize del frente. Bybit rechaza decimales extra (170134)."""
+    px = float(precio or 0)
+    if px <= 0:
+        return 0.0
+    tick = float(filtros_lote(frente).get("tickSize") or 0)
+    if tick <= 0:
+        return px
+    if mode == "ceil":
+        n = math.ceil(px / tick - 1e-12)
+    else:
+        n = math.floor(px / tick + 1e-12)
+    dec = max(0, min(10, -int(math.floor(math.log10(tick))) if tick < 1 else 0))
+    return round(n * tick, dec)
+
+
 def unidad_lote(filtros: dict[str, Any] | None) -> str:
     """Unidad de la qty que Bybit espera en la orden.
 

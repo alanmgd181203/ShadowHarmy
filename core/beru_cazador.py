@@ -1,10 +1,12 @@
-"""Beru Cazador — doctrina sellada Monarca 2026-08-13.
+"""Beru Cazador — doctrina sellada Monarca 2026-08-17 · Vacío 1.1 desde wake.
 
-Llamado de sangre (±0.9%) SOLO detona — cero fill.
-Hoz productiva en ±0.8% (número del manto / ranking / Igris).
-Mientras caza: Red de 0.1 en 0.1; Hoz engorda lo del grado por peldaño.
+Primer silbato = Vacío de Adán ±1.1% desde el 0 local de wake (precio al nacer).
+El metro es el 0 del manto Igris: 1.1 puntos de ese metro, sin composición.
+Hoz un peldaño detrás (±1.0%). El llamado solo detona — cero fill.
+Mientras caza: Red de 0.1 en 0.1; Hoz engorda lo del grado por peldaño
+solo si el Santo tiene manto Igris vivo.
 Relevo: desde la ÚLTIMA Red TOCADA (+0.9 / +0.5 / +0.3), no desde la plantada.
-Mariscal 2.0 (trailing rebaño $5) = duda B-TRAIL — no cableado aquí.
+Mariscal mueve la misma Hoz condicional; engorda G_min por cada peldaño.
 """
 from __future__ import annotations
 
@@ -16,28 +18,28 @@ from core import beru_tier
 if TYPE_CHECKING:
     from generales.tusk import TuskBoveda
 
-# Vacío Normal 1.6% → Hoz sagrada 0.8%; llamado = Hoz + 0.1%
-HOZ_PRODUCTIVA_PCT = 0.008
+# Vacío 1.1% → Hoz 1.0%; llamado = Hoz + 0.1%
+HOZ_PRODUCTIVA_PCT = 0.010
 LLAMADO_SANGRE_OFFSET = 0.001  # llamado = hoz + 0.1%
 
 
 def paso_pct() -> float:
-    return beru_tier.PASO_TRAILING_CAZA
+    return beru_tier.PASO_HOZ_CAZA
 
 
 def llamado_sangre_pct() -> float:
-    """Primera caza: ±0.9% desde el 0 del manto."""
+    """Primer silbato: Vacío de Adán ±1.1% desde el 0 de wake, escala del manto."""
     return float(getattr(config, "BERU_LLAMADO_SANGRE_PCT", HOZ_PRODUCTIVA_PCT + LLAMADO_SANGRE_OFFSET))
 
 
 def hoz_productiva_pct() -> float:
-    """Primera Hoz: ±0.8% — no tocar (manto / ranking)."""
+    """Primera Hoz: ±1.0% — un peldaño detrás del Vacío."""
     return float(getattr(config, "BERU_HOZ_PRODUCTIVA_PCT", HOZ_PRODUCTIVA_PCT))
 
 
 def gatillo_pct(vacio_adan: float | None = None) -> float:
-    """Alias: el 'gatillo' del cazador ES el llamado de sangre (0.9), no vacío/2."""
-    _ = vacio_adan  # vacío manda el 0.8 sagrado; el llamado lleva +0.1
+    """Gatillo de la semilla = Vacío ±1.1. El ADN del capitán no sustituye esto."""
+    _ = vacio_adan
     return llamado_sangre_pct()
 
 
@@ -97,9 +99,9 @@ def relevo_llamado_pct(grado_o_tier: str) -> float:
 
 
 def capa1_masa_usd(masa_autorizada: float, asset: str | None = None, grado: str | None = None) -> float:
-    """Masa inicial al detonar: peldaños desde 0 hasta Hoz 0.8% × engorde del grado.
+    """Masa inicial al detonar: peldaños desde 0 hasta Hoz 1.0% × engorde del grado.
 
-    Soldado ≈ G_min · Mariscal ≈ 8×G_min ($40 si G_min=$5). Oxígeno Tusk acota.
+    Soldado ≈ 1.25×G_min · Mariscal ≈ 10×G_min ($50 si G_min=$5). Oxígeno Tusk acota.
     """
     fijo = float(getattr(config, "BERU_CAZA_CAPA1_USD", 0.0))
     cap = float(getattr(config, "BERU_CAZA_CAPA1_MAX_USD", 0.0))
@@ -116,7 +118,12 @@ def capa1_masa_usd(masa_autorizada: float, asset: str | None = None, grado: str 
     return max(0.0, float(masa))
 
 
-def centro_manto_desde_tusk(tusk: TuskBoveda, activo: str | None = None) -> float:
+def centro_manto_desde_tusk(
+    tusk: TuskBoveda,
+    activo: str | None = None,
+    *,
+    fallback_global: bool = True,
+) -> float:
     """0 de Beru = promedio de entrada L+S del manto (Igris/Tusk).
 
     Si hay activo, prioriza pesos de ese Santo; si no, promedio de todos los medios.
@@ -137,7 +144,7 @@ def centro_manto_desde_tusk(tusk: TuskBoveda, activo: str | None = None) -> floa
             precios.append(pm_l)
         if pm_s > 0:
             precios.append(pm_s)
-    if not precios and act:
+    if not precios and act and fallback_global:
         # Sin filtro si el activo no matcheó claves
         for p in pesos.values():
             pm_l = float(p.get("precio_medio_long") or 0)
@@ -149,6 +156,23 @@ def centro_manto_desde_tusk(tusk: TuskBoveda, activo: str | None = None) -> floa
     if precios:
         return sum(precios) / len(precios)
     return 0.0
+
+
+def manto_vivo(tusk, activo: str) -> bool:
+    """Ese Santo tiene metro L+S de Igris. Sin manto no se arma ni se engorda."""
+    act = str(activo or "").upper()
+    if not act or tusk is None:
+        return False
+    centro = float(centro_manto_desde_tusk(tusk, act, fallback_global=False) or 0)
+    if centro <= 0:
+        return False
+    pesos = getattr(tusk, "pesos", None) or {}
+    masa = 0.0
+    for frente, p in pesos.items():
+        if act not in str(frente or "").upper():
+            continue
+        masa += float((p or {}).get("long") or 0) + float((p or {}).get("short") or 0)
+    return masa > 1e-12
 
 
 def aplicar_nuevo_cero(beru, nuevo_centro: float, *, umbral_rel: float = 1e-6) -> bool:
@@ -163,8 +187,10 @@ def aplicar_nuevo_cero(beru, nuevo_centro: float, *, umbral_rel: float = 1e-6) -
     if viejo > 0 and abs(nuevo - viejo) / viejo < umbral_rel:
         return False
     beru.centro_manto = nuevo
-    if float(getattr(beru, "centro_local", 0) or 0) <= 0 or viejo <= 0:
-        beru.centro_local = nuevo
+    # El 0 local de acecho es el wake; no se pisa con el manto.
+    if float(getattr(beru, "centro_local", 0) or 0) <= 0:
+        ancla = float(getattr(beru, "ancla_tramo", 0) or 0)
+        beru.centro_local = ancla if ancla > 0 else nuevo
     # Reproyectar cartas desde %
     oz_p = float(getattr(beru, "oz_pct", 0) or 0)
     red_p = float(getattr(beru, "red_pct", 0) or 0)
@@ -189,10 +215,10 @@ def precio_desde_pct(centro: float, pct: float) -> float:
 
 
 def niveles_desde_llamado_sangre(signo: int) -> tuple[float, float]:
-    """Al detonar sangre: oz = ±0.8, red = ±0.9 (primera frontera)."""
+    """Al detonar Vacío: Hoz ±1.0; Red un peldaño más afuera (±1.2)."""
     s = 1 if signo >= 0 else -1
     oz = s * hoz_productiva_pct()
-    red = s * llamado_sangre_pct()
+    red = s * (llamado_sangre_pct() + paso_pct())
     return oz, red
 
 
@@ -211,7 +237,7 @@ def niveles_desde_toque(
     paso_oz: float | None = None,
     paso_red_clon: float | None = None,
 ) -> tuple[float, float]:
-    """Si |touch|≈0.9 → primera caza; si mayor (post-Mega) → sangre absoluta."""
+    """Si |touch|≈1.1 → primera caza; si mayor (fósil post-Mega) → sangre absoluta."""
     _ = paso_oz, paso_red_clon
     if abs(touch_pct) <= llamado_sangre_pct() + 1e-9:
         signo = 1 if touch_pct >= 0 else -1

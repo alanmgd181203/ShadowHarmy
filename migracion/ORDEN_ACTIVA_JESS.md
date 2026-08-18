@@ -12,88 +12,90 @@ Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
 git pull origin master
 ```
 
-Luego **abre solo este archivo** y ejecuta la misión de abajo.  
-No busques otro pergamino como mandato principal.
+Luego **abre solo este archivo** y ejecuta la misión de abajo.
 
 ---
 
-## 2) Misión actual — MNT inverso: modo posición + re-equilibrar pierna larga
+## 2) Misión actual — Beru flota viva 100% (vigilar hasta las 12)
 
-**Qué es:** el Monarca soltó Arise Igris (ojos estrechos · Asalto · canal MNT). El **short lineal** llenó; el **long inverso** falló con Bybit `position idx not match position mode`. El manto quedó más torcido (más short). Ritual **apagado**. Hay que dejar el **MNTUSD inverso en Both Sides / hedge** y luego equilibrar el long que faltó.
+**Qué es:** despertar **toda la flota Beru** con **Hoz real** en Bybit.
+Los 22 Santos. Cada uno nace en el grado que aguante su manto
+(Soldado / Capitán / General / Mariscal). Vacío ±1,1 · Hoz 1,0.
+Igris y Greed **dormidos**. Margen spot ON. Bitácora viva encendida.
 
-**Contexto (no reabrir debate):**
-- Ojos = Santos last price · **books OFF** (`ojos_estrechos` · Arise Igris igual).
-- Beru/Greed **dormidos**.
-- Ranking: foco MNT General ~\$537 de nocional; tras el short unilateral el Δ puede haber cambiado — reconciliar antes de plantar.
+**Manos reales:** ON (toda la legión).  
+**Importante:** correr desde **México** (IP de la API Bybit). Desde USA
+la reconciliación del manto falla y la siembra aborta sola.
 
-**Manos:** solo las que hacen falta para **arreglar modo** + **equilibrar long MNT inverso** (o dual limpio). No Beru. No Greed. No engorde de otros Santos.
+**Duración:** default **4 h**. Si sigue vivo a las **12:00 México**,
+Ctrl+C sella. No cancelar cartas a mano.
 
 ### Comandos exactos
 
 ```
 git pull origin master
-
-# Fríos primero
-python scripts/validar_ojos_estrechos_smoke.py
-python scripts/validar_beru_ojos_smoke.py
-
-# Ojos (sin manos) — confirmar Tank VERDE estrecho
-python scripts/arise_ojos_tusk.py --segundos 90
-
-# En Bybit (UI o API): MNTUSD inverso = Both Sides / hedge mode
-# (mismo espíritu que el lineal). Confirmar que positionIdx 1 = long hedge funciona.
-
-# Solo-ojos Igris (plan, sin plantar) — canal MNT
-set IGRIS_FORZAR_EXCLUSIVOS=MNT
-python scripts/arise_igris.py --solo-ojos --segundos 90
-
-# Si el modo ya es hedge OK y el Monarca/esta orden autoriza equilibrar:
-# (tope corto — no 12 min a ciegas)
-set IGRIS_FORZAR_EXCLUSIVOS=MNT
-python scripts/arise_igris.py --permitir-mainnet-manos --segundos 180
+python scripts/validar_beru_cazador_smoke.py
+python scripts/validar_beru_fantasma_smoke.py
+python scripts/arise_beru_flota_viva.py
 ```
 
-Si PowerShell:
+Equivalente con corte a las 12 (ajusta segundos si arrancas más tarde):
 
 ```
-$env:IGRIS_FORZAR_EXCLUSIVOS='MNT'
-python scripts/arise_igris.py --solo-ojos --segundos 90
+python scripts/arise_beru_flota_viva.py --segundos 14400
 ```
+
+`0` = hasta Ctrl+C (si quieres cortar tú a las 12).
 
 ---
 
 ## 3) Qué NO hacer
 
-- No despertar Beru ni Greed.
-- No `ARISE_IGRIS_BOOKS=true` salvo que Tank muera otra vez y el Monarca lo pida.
-- No engordar flota completa / otros Santos — solo **MNT** hasta equilibrar.
-- No regenerar pase/ranking.
-- No subir `.env`, `Ima/`, secretos ni logs gordos.
-- Si el long inverso sigue con ErrCode 10001 → **parar** y avisar; no martillar shorts.
+- No `arise_igris` / dual / engorde Igris / Greed.
+- No `arise_beru_flota_mixta` ni `arise_beru_hype_mariscal` (esos ya no son hoy).
+- No `arise_beru_manos_chiquitas` (techo de ensayo).
+- No regenerar pase / ranking.
+- No subir `.env` ni secretos.
+- No cancelar órdenes spot a mano en Bybit.
+- No cambiar la lista de Santos ni forzar PLENO a toda la flota.
+- No tocar Tusk / oxígeno a mano.
 
 ---
 
-## 4) Qué mirar al terminar
+## 4) Qué mirar (arranque + cada ~20 min + al sellar)
 
-1. Bybit: MNT inverso en **hedge/Both Sides**; long avanza o dual L+S limpio.
-2. Short lineal no se dispara solo otra vez.
-3. Parte al Monarca: ¿modo OK? ¿cuánto long plantó? ¿restante MNT del pase?
-4. Marcar **HECHO** abajo.
+1. Consola: `RITUAL BERU — FLOTA VIVA (100%)` · `[BERU_VIVO]` al plantar Hoz.
+2. Crónica ~20 s: `cazando=HYPE:VIVO+carta,...` · cuántas cartas.
+3. Latido: `data/logs/beru_fantasma/heartbeat.json`
+4. Pergamino: `data/logs/beru_fantasma/disparos.jsonl`
+   (LLAMADO, ALTAR_ARMADO / FALLIDO, fill, engorde).
+5. Al sellar: `data/logs/beru_fantasma/ultimo_informe.json`
+   — veredicto `flota_viva_sellada` · cartas colgadas · cazando.
+6. Si siembra aborta («sin foto fresca del manto») → avisar ya, no insistir.
+7. Oxígeno Tusk: si sale CRÍTICO, avisar; **no** apagues tú salvo que el
+   Monarca lo pida.
+
+**Avisar al Monarca al arrancar:** «Beru flota viva ON · N semillas ·
+rangos …».  
+**Al sellar (12:00 o 4 h):** «Sellado · cartas=N · cazando=… · disparos≈…»
++ 4–6 líneas de qué Santos cazaron / fallaron al plantar.
 
 ---
 
 ## 5) HECHO (Jess / Cursor marca)
 
 - [ ] `git pull origin master` hecho
-- [ ] Smokes ojos OK
-- [ ] Modo posición MNT inverso corregido / confirmado
-- [ ] Solo-ojos o equilibrado (según pudo)
-- [ ] Monarca avisado (modo + nocional L/S MNT + restante)
+- [ ] Smokes cazador + fantasma OK
+- [ ] `arise_beru_flota_viva.py` corrido (hasta 12:00 o 4 h)
+- [ ] Bitácora / informe revisados
+- [ ] Monarca avisado (arranque y sello)
 
 **Fecha / notas Jess:** _(vacío)_
 
 ---
 
-## Nota
+## Nota Monarca
 
-Tumor visto USA 2026-08-13: `ORDEN_ERROR position idx not match position mode` en `MNTUSD` Buy Market `positionIdx=1`. Short `MNTUSDT` sí fill. No repetir engorde a una pierna.
+- Esto **sí planta condicionales reales**. No es fantasma.
+- Al Ctrl+C el pergamino sella; las cartas que queden colgadas **siguen
+  en Bybit** hasta que el Monarca pida funeral. No las toques a mano.

@@ -24,10 +24,10 @@ CapitanAnsiedad = ADN_Capitan(
     distancia_pendulo=0.01,
 )
 
-# --- Normal (1.6%) — equilibrio, legión principal ---
+# --- Normal (1.1%) — Vacío de Adán vivo; primer silbato de todos los grados ---
 CapitanNormal = ADN_Capitan(
     nombre=f"NORMAL_{config.FASE_ACTUAL}",
-    vacio_adan=float(getattr(config, "BERU_VACIO_NORMAL", 0.016)),
+    vacio_adan=float(getattr(config, "BERU_VACIO_NORMAL", 0.011)),
     margen_apertura=0.001,
     latigazo_snap=0.002,
     distancia_pendulo=0.015,

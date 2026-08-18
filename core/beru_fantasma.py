@@ -1,7 +1,7 @@
-"""Beru manos fantasma — nivel 2 ensayo (Monarca 2026-08-12).
+"""Bitácora Beru — papel y Mariscales vivos (mismo pergamino).
 
-Ojos reales Bybit · cerebro Beru late · CERO órdenes al exchange.
-Cada disparo que habría sido market se imprime y se anexa a bitácora.
+Ojos reales Bybit · cerebro Beru late. En fantasma no hay place_order.
+En mixto, el Mariscal vivo también escribe aquí: silbato, Hoz, fill o carta.
 """
 from __future__ import annotations
 
@@ -91,19 +91,66 @@ def estrechar_ojos_bridge(activos: list[str] | None = None) -> list[str]:
     return bases
 
 
+def snapshot_barco(beru: Any, *, activo: str = "", vivo: bool = False) -> dict[str, Any]:
+    """Foto de un Santo al sello: estado, Hoz y si hay carta colgada."""
+    link = str(getattr(beru, "altar_link_id", "") or "")
+    return {
+        "uid": getattr(beru, "uid", ""),
+        "estado": getattr(beru, "estado", ""),
+        "direccion": getattr(beru, "direccion", ""),
+        "activo": activo,
+        "vivo": bool(vivo),
+        "masa": float(getattr(beru, "masa", 0) or 0),
+        "centro_local": float(getattr(beru, "centro_local", 0) or 0),
+        "oz_adan": float(getattr(beru, "oz_adan", 0) or 0),
+        "oz_pct": float(getattr(beru, "oz_pct", 0) or 0),
+        "altar_link_id": link or None,
+        "carta_colgada": bool(link),
+    }
+
+
+def sello_veredicto(
+    *,
+    mariscales: list[str] | None = None,
+    n_cartas: int = 0,
+    n_cazando: int = 0,
+    n_vivos_cazando: int = 0,
+    plena: bool = False,
+) -> str:
+    vivos = [str(a).upper() for a in (mariscales or []) if str(a).strip()]
+    if plena:
+        n_vivos = len(vivos)
+        return (
+            f"flota_viva_sellada — Santos con manos={n_vivos or 'todos'}; "
+            f"cartas_colgadas={n_cartas}; cazando={n_cazando} "
+            f"(vivos={n_vivos_cazando})"
+        )
+    if vivos:
+        return (
+            f"mixto_sellado — Mariscales {','.join(vivos)}; "
+            f"cartas_colgadas={n_cartas}; cazando={n_cazando} "
+            f"(vivos={n_vivos_cazando})"
+        )
+    return "fantasma_sellado — cero órdenes reales"
+
+
 def registrar(
     evento: str,
     *,
     detalle: str = "",
+    vivo: bool = False,
     **extra: Any,
 ) -> dict[str, Any]:
     """Imprime en consola + append jsonl. Nunca lanza (ensayo no debe morir por log)."""
+    extra.pop("vivo", None)
+    vivo = bool(vivo)
     fila: dict[str, Any] = {
         "ts": time.time(),
         "iso": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "evento": str(evento),
         "detalle": str(detalle or ""),
-        "fantasma": True,
+        "fantasma": not vivo,
+        "vivo": vivo,
     }
     for k, v in extra.items():
         if v is None:
@@ -114,14 +161,15 @@ def registrar(
         except TypeError:
             fila[k] = str(v)
 
+    prefijo = "[BERU_VIVO]" if vivo else "[BERU_FANTASMA]"
     linea = (
-        f"[BERU_FANTASMA] {fila['iso']} · {evento}"
+        f"{prefijo} {fila['iso']} · {evento}"
         + (f" · {detalle}" if detalle else "")
     )
     extras = {
         k: v
         for k, v in fila.items()
-        if k not in ("ts", "iso", "evento", "detalle", "fantasma")
+        if k not in ("ts", "iso", "evento", "detalle", "fantasma", "vivo")
     }
     if extras:
         bits = []
@@ -150,5 +198,5 @@ def resumen_modo() -> dict[str, Any]:
         "sim": bool(getattr(config, "MODO_SIMULACION", True)),
         "activos_ensayo": activos_ensayo(),
         "log": str(LOG_PATH),
-        "ley": "ojos reales · disparos solo bitácora · Igris no engorda",
+        "ley": "ojos reales · mismo pergamino papel/vivo · Igris no engorda",
     }

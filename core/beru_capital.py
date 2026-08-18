@@ -1,10 +1,12 @@
 """Beru — motor dinámico de capital (5 Reglas Universales del Monarca).
 
-Peaje/IM del ranking: pierna a pierna con lev MÁX Bybit (L inverso + S lineal).
-Prohibido apalancamiento promedio para costos/pase (Monarca 2026-08-11).
+Peaje/IM del ranking: pierna a pierna con leverage ÚTIL por capacidad
+(L inverso + S lineal). El techo de catálogo no sirve si su tier no admite
+la pierna Mariscal completa (sello MNT 50x→40x, 2026-08-15).
+Prohibido apalancamiento promedio para costos/pase.
 Bóveda MNT no se suma al presupuesto ofensivo (cubre la reserva 5%→muro 95%).
 
-Ejecución en exchange: Igris usa el MÁXIMO por contrato (inverse/lineal).
+Ejecución en exchange: Igris usa la densidad útil por contrato.
 
 Ley de Fricción (esfuerzo de mercado para extraer G_min):
   Soldado 0.8% · Capitán 0.4% · General 0.2% · Mariscal 0.1%.
@@ -51,23 +53,35 @@ def apalancamiento_inverse_max(asset: str) -> float:
     return float(mp.get(asset.upper(), default))
 
 
+def apalancamiento_linear_util(asset: str) -> float:
+    """Mayor leverage lineal que soporta la meta Mariscal con holgura."""
+    mp = getattr(config, "MANTO_LEVERAGE_LINEAR_UTIL_BY_ASSET", {}) or {}
+    return float(mp.get(asset.upper(), apalancamiento_linear_max(asset)))
+
+
+def apalancamiento_inverse_util(asset: str) -> float:
+    """Mayor leverage inverso que soporta la meta Mariscal con holgura."""
+    mp = getattr(config, "MANTO_LEVERAGE_INVERSE_UTIL_BY_ASSET", {}) or {}
+    return float(mp.get(asset.upper(), apalancamiento_inverse_max(asset)))
+
+
 def apalancamiento_manto_promedio(asset: str) -> float:
     """LEGADO — no usar para peaje/IM/ranking. Solo compat lecturas antiguas."""
     return (apalancamiento_linear_max(asset) + apalancamiento_inverse_max(asset)) / 2.0
 
 
 def apalancamiento_ejecucion(frente_o_asset: str, category: str | None = None) -> float:
-    """Ejecución Igris — máximo del contrato concreto."""
+    """Ejecución Igris — densidad útil del contrato concreto."""
     a = frente_o_asset.upper().replace("USDT_LINEAL", "").replace("USDC_LINEAL", "")
     a = a.replace("USD_INVERSE", "").replace("USDT_SPOT", "").replace("USDC_SPOT", "")
     if not a or a == frente_o_asset.upper():
         a = frente_o_asset.upper()
     cat = (category or "").lower()
     if "inverse" in cat or frente_o_asset.upper().endswith("_INVERSE"):
-        return apalancamiento_inverse_max(a)
+        return apalancamiento_inverse_util(a)
     if "linear" in cat or "LINEAL" in frente_o_asset.upper():
-        return apalancamiento_linear_max(a)
-    return max(apalancamiento_linear_max(a), apalancamiento_inverse_max(a))
+        return apalancamiento_linear_util(a)
+    return max(apalancamiento_linear_util(a), apalancamiento_inverse_util(a))
 
 
 def g_min_usd(asset: str) -> float:
@@ -127,19 +141,21 @@ def notional_manto_ls_grado(asset: str, grado: str) -> float:
 
 
 def margen_piernas_para_friccion(asset: str, friccion: float) -> dict[str, float]:
-    """IM por pierna a lev máx Bybit (L inverso + S lineal).
+    """IM por pierna a leverage útil Bybit (L inverso + S lineal).
 
     Bóveda MNT short NO entra — presupuesto ofensivo del manto únicamente.
     """
     pierna = notional_por_pierna_para_friccion(asset, friccion)
-    lev_inv = max(apalancamiento_inverse_max(asset), 1.0)
-    lev_lin = max(apalancamiento_linear_max(asset), 1.0)
+    lev_inv = max(apalancamiento_inverse_util(asset), 1.0)
+    lev_lin = max(apalancamiento_linear_util(asset), 1.0)
     im_inv = pierna / lev_inv
     im_lin = pierna / lev_lin
     return {
         "notional_pierna_usd": pierna,
         "lev_inverse": lev_inv,
         "lev_linear": lev_lin,
+        "lev_inverse_catalogo": apalancamiento_inverse_max(asset),
+        "lev_linear_catalogo": apalancamiento_linear_max(asset),
         "im_inverse_usd": im_inv,
         "im_linear_usd": im_lin,
         "im_total_usd": im_inv + im_lin,
@@ -502,11 +518,11 @@ def resumen_capital() -> dict[str, Any]:
         "tiers": beru_tier.resumen_tiers(),
         "capitanes": {
             "ansiedad_vacio_pct": float(getattr(config, "BERU_VACIO_ANSIEDAD", 0.012)) * 100,
-            "normal_vacio_pct": float(getattr(config, "BERU_VACIO_NORMAL", 0.016)) * 100,
+            "normal_vacio_pct": float(getattr(config, "BERU_VACIO_NORMAL", 0.011)) * 100,
         },
         "nota_pase": (
-            "Peaje IM pierna a pierna (lev_inv + lev_lin). "
-            "Corona Brujo acum $1673 · Chamán $3735. Promedio solo legado UI."
+            "Peaje IM pierna a pierna con leverage útil por tier de riesgo. "
+            "Corona Brujo $1295 · Chamán $5024. Promedio solo legado UI."
         ),
     }
 

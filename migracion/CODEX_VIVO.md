@@ -66,8 +66,19 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Tusk tesorería UTA (2026-08-01):** MNT/hedge/disponible → oxígeno de guerra · `tusk_tesoreria` · masa_autorizada real
 - **Ritual ojos 4.0.1 (2026-08-01):** `arise_ojos_tusk.py` — Tusk+Tank+Kaiser sin disparos · Igris/Greed/Beru hibernados
 - **Caja USDT (mega-cirugía 2026-08-12):** Tusk para en USDT · no compra MNT · no short de equilibrio · potencia pase = caja · MNT = Santo · [`CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md`](CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md)
-- **Beru tres vidas + Mega (mega-cirugía 2026-08-13):** sangre 0.9→Hoz 0.8 · oro/tiempo 1.6 · engorde caza por grado · Mega promedio+misma carta · **Mega = purga (0 Igris intacto)** · ping-pong sin acordeón · manos OFF · [`CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md`](CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md) · doctrina [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) · dudas [`DUDAS_CIRUGIAS_MENORES_2026-08-12.md`](DUDAS_CIRUGIAS_MENORES_2026-08-12.md)
+- **Beru Vacío 1,1 desde wake (cirugía 2026-08-17):** un oficio · primer silbato Vacío ±1,1 / Hoz 1,0 desde el precio de wake, puntos del metro del manto · Mariscal nace con 10×G_min ($50 si G_min=$5) · relevo intacto 0,9/0,5/0,3 desde última Red · Mariscal cierra sin hijo · tumor «esperar ±0,9 del manto» extirpado · negociador/ping-pong/residual/capas/fusión/Mega extirpados · manos OFF · doctrina [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md)
+- **Beru flota viva 100% (GO 2026-08-18):** ritual `arise_beru_flota_viva.py` · Hoz real en 22 Santos · grado = manto · bitácora viva · Igris OFF · Jess México hasta las 12
 - **Beru ojos + 0 vivo (precisión 2026-08-13):** last spot solo · sin fallback perp · 0 = promedio manto L+S · refresco al engorde Igris · basis → Greed · smoke `validar_beru_ojos_smoke`
+- **Teatro Beru continuo v2 (FÓSIL 2026-08-16):** reiniciaba al mismo Beru desde la Hoz con Vacío 1,6; sus 30/90/365d son históricos y no prueban el relevo restaurado. Bloqueado para nuevas coronas. Prueba vigente: altar + 300 relevos fríos.
+- **Pase batalla 17 capacidad segura (2026-08-15):** 22 candidatos auditados · 68 pasos por calor continuo / dólar incremental · inverso convierte límite base×last · 20% holgura · MNT inverso 40x · APT/LINK/BCH fuera · DOGE/SUI/XLM dentro · coronas $136/$457/$1295/$5024 · progreso migra por Santo+grado · [`PASE_BATALLA_17_SANTOS.md`](PASE_BATALLA_17_SANTOS.md)
+- **Tusk caja USDT escalonada (2026-08-15):** LTC Funding→USDT Funding→UTA
+  (no mezcla LTC colateral) · diario atómico con IDs reutilizables ·
+  confirma transfer/convert antes de repetir · peaje >0,75% bloquea ·
+  smoke frío ✅ · live LTC pendiente IP.
+- **Igris liberación por niveles (2026-08-15):** libro mainnet permanente ·
+  0 ojos · 1/3/10 duales · autónomo · reinicio no concede cupo · env solo baja ·
+  ascenso explícito · smoke reinicio ✅.
+- **Teatro legión (APAGADO 2026-08-15):** actor de capas/negociadores/fusión/Mega declarado fósil; ritual aborta y sus rankings no coronan · [`TEATRO_BERU_LEGION_SANO_2026-08-14.md`](TEATRO_BERU_LEGION_SANO_2026-08-14.md)
 - **Pre-fuego 2026-08-12:** sello git antes de alinear este Codex · [`CHECKPOINT_PRE_FUEGO_2026-08-12.md`](CHECKPOINT_PRE_FUEGO_2026-08-12.md)
 - **Bóveda MNT 4.0.1b/c (2026-08-02, LEGADO):** el ritual MNT+short+fees quedó **extirpado**. Checkpoint Tusk reescrito a caja USDT · [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md)
 - **Kaiser índice+sesgo 3.8.P4/P5 (2026-08-02):** índice absoluto · digest `sesgo_estructural` · backfill 3 mares (LTC/BTC/…+MNT) · metaverso pairs después · [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md)
@@ -84,12 +95,13 @@ Lo que no implementemos va a `15_IDEAS_FUTURO.md`, no se descarta.
 - **Estado código:** Fase 3 ~92% · lives ✅ · pase Chamán firmado · falta Telegram/ranking fusión
 - **Jess sync Bybit (2026-07-21):** lev+mínimos+piso manto vivos · 780 bases · origin sync México
 - **Protocolo Jess puerta única (2026-08-07):** mandato vigente = [`ORDEN_ACTIVA_JESS.md`](ORDEN_ACTIVA_JESS.md) · PEGAR = recetas · regla `.cursor/rules/orden-jess.mdc` · índice [`ordenes_jess/README.md`](ordenes_jess/README.md)
-- **G_min variable por Santo (2026-08-07):** peaje Beru = mínimo spot USDT (fallback linear, piso $1) · `core/g_min.py` · sync `scripts/sync_bybit_minimos_orden.py` · **pase/ranking PENDIENTE** tras mínimos reales + análisis Monarca · puerta [`ORDEN_ACTIVA_JESS.md`](ORDEN_ACTIVA_JESS.md) · receta [`PEGAR_JESS_SYNC_MINIMOS_BYBIT.md`](PEGAR_JESS_SYNC_MINIMOS_BYBIT.md)
-- **Pase batalla 13 Santos (2026-07-19):** vacío 1,6 % · rangos Aspirante→Chamán · [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md)
+- **G_min variable por Santo (2026-08-07→15):** peaje Beru = mínimo spot USDT (fallback linear, piso $1) · `core/g_min.py` · pase/ranking recalculado en el pase 17.
+- **Pase batalla 13 Santos (2026-07-19):** **HISTÓRICO**, superado por el pase 17 · [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md)
 - **Candado rango (2026-07-19):** `MONARCA_RANK_GATE` → Igris auditoría/despliegue + Beru casa (no live) + Ascensión viva desde `estado_vivo`
 - **Director pase (2026-07-19→08-06):** `pase_director` — potencia/lote · **2 marchas operativas (asalto · personalizado)** · **fill 100% · reserva 1** · personalizado por T · legado táctico/forzada → asalto · altar hidrata JSON · `set_marcha_cli` · sello [`CHECKPOINT_MEGA_PRE_IGRIS.md`](CHECKPOINT_MEGA_PRE_IGRIS.md)
 - **Ley Igris≠Greed · Asalto (2026-08-06):** Igris peaje aceptado / plantar; caza edge = Greed después; indicadores/peinado Kaiser después; orden Igris→Beru→Greed · [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md) · doctrina `21`
 - **Ritmo engorde dual (2026-08-06):** tras dual OK, aire ≥~5s (`IGRIS_ENGORDE_RITMO_S`) mismo Santo — Asalto exige no ametrallar libro · smoke `validar_igris_ritmo_engorde_smoke.py` · ley de Igris (no Greed)
+- **Medidor+bocado Igris (2026-08-14):** Tusk 20 s Asalto / 60 s sueño + reconciliación del Santo pre-dual; asimetría calcula sobre mordida real, corrige como máximo el hueco y ≤50% del bocado · smoke sueño/misión
 - **Libros Tusk / duración / ritmo:** `tusk_libros` · `marcha_duracion` · `marcha_ritmo_lote` (legado dormido tras sello 2 marchas)
 - **Disparo dual Igris (2026-07-19):** L+S a la vez + salvavidas Market si una pierna huérfana (`IGRIS_DUAL_*`)
 - **Escalera precios (2026-07-20):** micro-bocados Limit Igris+Greed · cancel no llenos · equilibrar Market · `core/escalera_precios.py`

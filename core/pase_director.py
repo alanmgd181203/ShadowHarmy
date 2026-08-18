@@ -2,7 +2,7 @@
 
 Sello mega-pre-Igris + sello 2 marchas (Monarca):
 - Engorde 100% del *nocional del grado* en foco (fill_ratio=1.0).
-  Capital delta_usd = peaje IM pierna a pierna (lev máx Bybit L+S); abre potencia/ranking.
+  Capital delta_usd = peaje IM pierna a pierna (leverage útil por capacidad L+S).
   Caja = USDT. Short MNT legado no suma al presupuesto ofensivo.
   Igris planta nocional L+S del grado.
 - Reserva = 1 en todas las marchas (lote hasta potencia−1).
@@ -30,60 +30,94 @@ _GRADO_UI = {
     "MARISCAL": "Mariscal",
 }
 
-# 52 pasos canónicos — migracion/PASE_BATALLA_13_SANTOS.md
+# 68 pasos canónicos — migracion/PASE_BATALLA_17_SANTOS.md
+# Calor Beru continuo ÷ delta de capital útil; cada Santo conserva precedencia
+# Soldado → Capitán → General → Mariscal.
+PASE_VERSION = "17s-capacidad-v2"
 PASE_PASOS: tuple[dict[str, Any], ...] = (
     {"n": 1, "activo": "ETH", "grado": "SOLDADO", "delta_usd": 14.0, "acum_usd": 14.0},
-    {"n": 2, "activo": "HYPE", "grado": "SOLDADO", "delta_usd": 42.0, "acum_usd": 56.0},
-    {"n": 3, "activo": "XRP", "grado": "SOLDADO", "delta_usd": 20.0, "acum_usd": 76.0},
-    {"n": 4, "activo": "MNT", "grado": "SOLDADO", "delta_usd": 40.0, "acum_usd": 116.0},
-    {"n": 5, "activo": "LTC", "grado": "SOLDADO", "delta_usd": 27.0, "acum_usd": 143.0},
-    {"n": 6, "activo": "SOL", "grado": "SOLDADO", "delta_usd": 20.0, "acum_usd": 163.0},
-    {"n": 7, "activo": "LINK", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 210.0},
-    {"n": 8, "activo": "ADA", "grado": "SOLDADO", "delta_usd": 22.0, "acum_usd": 232.0},
-    {"n": 9, "activo": "BCH", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 279.0},
-    {"n": 10, "activo": "AVAX", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 326.0},
-    {"n": 11, "activo": "AVAX", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 371.0},
-    {"n": 12, "activo": "FIL", "grado": "SOLDADO", "delta_usd": 60.0, "acum_usd": 431.0},
-    {"n": 13, "activo": "OP", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 478.0},
-    {"n": 14, "activo": "LINK", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 523.0},
-    {"n": 15, "activo": "LINK", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 615.0},
-    {"n": 16, "activo": "LINK", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 799.0},
-    {"n": 17, "activo": "SOL", "grado": "CAPITAN", "delta_usd": 19.0, "acum_usd": 818.0},
-    {"n": 18, "activo": "SOL", "grado": "GENERAL", "delta_usd": 40.0, "acum_usd": 858.0},
-    {"n": 19, "activo": "SOL", "grado": "MARISCAL", "delta_usd": 79.0, "acum_usd": 937.0},
-    {"n": 20, "activo": "MNT", "grado": "CAPITAN", "delta_usd": 39.0, "acum_usd": 976.0},
-    {"n": 21, "activo": "MNT", "grado": "GENERAL", "delta_usd": 79.0, "acum_usd": 1055.0},
-    {"n": 22, "activo": "MNT", "grado": "MARISCAL", "delta_usd": 158.0, "acum_usd": 1213.0},
-    {"n": 23, "activo": "AVAX", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 1305.0},
-    {"n": 24, "activo": "AVAX", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 1489.0},
-    {"n": 25, "activo": "LTC", "grado": "CAPITAN", "delta_usd": 26.0, "acum_usd": 1515.0},
-    {"n": 26, "activo": "LTC", "grado": "GENERAL", "delta_usd": 52.0, "acum_usd": 1567.0},
-    {"n": 27, "activo": "LTC", "grado": "MARISCAL", "delta_usd": 106.0, "acum_usd": 1673.0},
-    {"n": 28, "activo": "ADA", "grado": "CAPITAN", "delta_usd": 22.0, "acum_usd": 1695.0},
-    {"n": 29, "activo": "ADA", "grado": "GENERAL", "delta_usd": 44.0, "acum_usd": 1739.0},
-    {"n": 30, "activo": "ADA", "grado": "MARISCAL", "delta_usd": 87.0, "acum_usd": 1826.0},
-    {"n": 31, "activo": "BCH", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 1871.0},
-    {"n": 32, "activo": "BCH", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 1963.0},
-    {"n": 33, "activo": "BCH", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 2147.0},
-    {"n": 34, "activo": "OP", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 2192.0},
-    {"n": 35, "activo": "OP", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 2284.0},
-    {"n": 36, "activo": "OP", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 2468.0},
-    {"n": 37, "activo": "ETH", "grado": "CAPITAN", "delta_usd": 12.0, "acum_usd": 2480.0},
-    {"n": 38, "activo": "ETH", "grado": "GENERAL", "delta_usd": 27.0, "acum_usd": 2507.0},
-    {"n": 39, "activo": "ETH", "grado": "MARISCAL", "delta_usd": 52.0, "acum_usd": 2559.0},
-    {"n": 40, "activo": "AAVE", "grado": "SOLDADO", "delta_usd": 42.0, "acum_usd": 2601.0},
-    {"n": 41, "activo": "AAVE", "grado": "CAPITAN", "delta_usd": 41.0, "acum_usd": 2642.0},
-    {"n": 42, "activo": "FIL", "grado": "CAPITAN", "delta_usd": 58.0, "acum_usd": 2700.0},
-    {"n": 43, "activo": "FIL", "grado": "GENERAL", "delta_usd": 119.0, "acum_usd": 2819.0},
-    {"n": 44, "activo": "FIL", "grado": "MARISCAL", "delta_usd": 237.0, "acum_usd": 3056.0},
-    {"n": 45, "activo": "AAVE", "grado": "GENERAL", "delta_usd": 84.0, "acum_usd": 3140.0},
-    {"n": 46, "activo": "AAVE", "grado": "MARISCAL", "delta_usd": 166.0, "acum_usd": 3306.0},
-    {"n": 47, "activo": "HYPE", "grado": "CAPITAN", "delta_usd": 41.0, "acum_usd": 3347.0},
-    {"n": 48, "activo": "HYPE", "grado": "GENERAL", "delta_usd": 84.0, "acum_usd": 3431.0},
-    {"n": 49, "activo": "HYPE", "grado": "MARISCAL", "delta_usd": 166.0, "acum_usd": 3597.0},
-    {"n": 50, "activo": "XRP", "grado": "CAPITAN", "delta_usd": 19.0, "acum_usd": 3616.0},
-    {"n": 51, "activo": "XRP", "grado": "GENERAL", "delta_usd": 40.0, "acum_usd": 3656.0},
-    {"n": 52, "activo": "XRP", "grado": "MARISCAL", "delta_usd": 79.0, "acum_usd": 3735.0},
+    {"n": 2, "activo": "ETH", "grado": "CAPITAN", "delta_usd": 12.0, "acum_usd": 26.0},
+    {"n": 3, "activo": "ADA", "grado": "SOLDADO", "delta_usd": 22.0, "acum_usd": 48.0},
+    {"n": 4, "activo": "ADA", "grado": "CAPITAN", "delta_usd": 22.0, "acum_usd": 70.0},
+    {"n": 5, "activo": "SOL", "grado": "SOLDADO", "delta_usd": 20.0, "acum_usd": 90.0},
+    {"n": 6, "activo": "SOL", "grado": "CAPITAN", "delta_usd": 19.0, "acum_usd": 109.0},
+    {"n": 7, "activo": "ETH", "grado": "GENERAL", "delta_usd": 27.0, "acum_usd": 136.0},
+    {"n": 8, "activo": "XRP", "grado": "SOLDADO", "delta_usd": 20.0, "acum_usd": 156.0},
+    {"n": 9, "activo": "XRP", "grado": "CAPITAN", "delta_usd": 19.0, "acum_usd": 175.0},
+    {"n": 10, "activo": "DOT", "grado": "SOLDADO", "delta_usd": 27.0, "acum_usd": 202.0},
+    {"n": 11, "activo": "DOT", "grado": "CAPITAN", "delta_usd": 26.0, "acum_usd": 228.0},
+    {"n": 12, "activo": "ADA", "grado": "GENERAL", "delta_usd": 44.0, "acum_usd": 272.0},
+    {"n": 13, "activo": "SOL", "grado": "GENERAL", "delta_usd": 40.0, "acum_usd": 312.0},
+    {"n": 14, "activo": "LTC", "grado": "SOLDADO", "delta_usd": 27.0, "acum_usd": 339.0},
+    {"n": 15, "activo": "LTC", "grado": "CAPITAN", "delta_usd": 26.0, "acum_usd": 365.0},
+    {"n": 16, "activo": "ETH", "grado": "MARISCAL", "delta_usd": 52.0, "acum_usd": 417.0},
+    {"n": 17, "activo": "XRP", "grado": "GENERAL", "delta_usd": 40.0, "acum_usd": 457.0},
+    {"n": 18, "activo": "DOT", "grado": "GENERAL", "delta_usd": 52.0, "acum_usd": 509.0},
+    {"n": 19, "activo": "DOGE", "grado": "SOLDADO", "delta_usd": 36.0, "acum_usd": 545.0},
+    {"n": 20, "activo": "DOGE", "grado": "CAPITAN", "delta_usd": 34.0, "acum_usd": 579.0},
+    {"n": 21, "activo": "MNT", "grado": "SOLDADO", "delta_usd": 43.0, "acum_usd": 622.0},
+    {"n": 22, "activo": "MNT", "grado": "CAPITAN", "delta_usd": 43.0, "acum_usd": 665.0},
+    {"n": 23, "activo": "HYPE", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 712.0},
+    {"n": 24, "activo": "HYPE", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 757.0},
+    {"n": 25, "activo": "NEAR", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 804.0},
+    {"n": 26, "activo": "NEAR", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 849.0},
+    {"n": 27, "activo": "AAVE", "grado": "SOLDADO", "delta_usd": 42.0, "acum_usd": 891.0},
+    {"n": 28, "activo": "AAVE", "grado": "CAPITAN", "delta_usd": 41.0, "acum_usd": 932.0},
+    {"n": 29, "activo": "OP", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 979.0},
+    {"n": 30, "activo": "OP", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 1024.0},
+    {"n": 31, "activo": "UNI", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 1071.0},
+    {"n": 32, "activo": "UNI", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 1116.0},
+    {"n": 33, "activo": "SUI", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 1163.0},
+    {"n": 34, "activo": "SUI", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 1208.0},
+    {"n": 35, "activo": "ADA", "grado": "MARISCAL", "delta_usd": 87.0, "acum_usd": 1295.0},
+    {"n": 36, "activo": "SOL", "grado": "MARISCAL", "delta_usd": 79.0, "acum_usd": 1374.0},
+    {"n": 37, "activo": "LTC", "grado": "GENERAL", "delta_usd": 52.0, "acum_usd": 1426.0},
+    {"n": 38, "activo": "XLM", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 1473.0},
+    {"n": 39, "activo": "XLM", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 1518.0},
+    {"n": 40, "activo": "FIL", "grado": "SOLDADO", "delta_usd": 60.0, "acum_usd": 1578.0},
+    {"n": 41, "activo": "FIL", "grado": "CAPITAN", "delta_usd": 58.0, "acum_usd": 1636.0},
+    {"n": 42, "activo": "AVAX", "grado": "SOLDADO", "delta_usd": 47.0, "acum_usd": 1683.0},
+    {"n": 43, "activo": "AVAX", "grado": "CAPITAN", "delta_usd": 45.0, "acum_usd": 1728.0},
+    {"n": 44, "activo": "XRP", "grado": "MARISCAL", "delta_usd": 79.0, "acum_usd": 1807.0},
+    {"n": 45, "activo": "DOGE", "grado": "GENERAL", "delta_usd": 70.0, "acum_usd": 1877.0},
+    {"n": 46, "activo": "DOT", "grado": "MARISCAL", "delta_usd": 106.0, "acum_usd": 1983.0},
+    {"n": 47, "activo": "MNT", "grado": "GENERAL", "delta_usd": 85.0, "acum_usd": 2068.0},
+    {"n": 48, "activo": "HYPE", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 2160.0},
+    {"n": 49, "activo": "NEAR", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 2252.0},
+    {"n": 50, "activo": "AAVE", "grado": "GENERAL", "delta_usd": 84.0, "acum_usd": 2336.0},
+    {"n": 51, "activo": "OP", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 2428.0},
+    {"n": 52, "activo": "UNI", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 2520.0},
+    {"n": 53, "activo": "SUI", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 2612.0},
+    {"n": 54, "activo": "XLM", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 2704.0},
+    {"n": 55, "activo": "LTC", "grado": "MARISCAL", "delta_usd": 106.0, "acum_usd": 2810.0},
+    {"n": 56, "activo": "FIL", "grado": "GENERAL", "delta_usd": 119.0, "acum_usd": 2929.0},
+    {"n": 57, "activo": "AVAX", "grado": "GENERAL", "delta_usd": 92.0, "acum_usd": 3021.0},
+    {"n": 58, "activo": "DOGE", "grado": "MARISCAL", "delta_usd": 141.0, "acum_usd": 3162.0},
+    {"n": 59, "activo": "MNT", "grado": "MARISCAL", "delta_usd": 171.0, "acum_usd": 3333.0},
+    {"n": 60, "activo": "HYPE", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 3517.0},
+    {"n": 61, "activo": "NEAR", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 3701.0},
+    {"n": 62, "activo": "AAVE", "grado": "MARISCAL", "delta_usd": 166.0, "acum_usd": 3867.0},
+    {"n": 63, "activo": "OP", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 4051.0},
+    {"n": 64, "activo": "UNI", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 4235.0},
+    {"n": 65, "activo": "SUI", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 4419.0},
+    {"n": 66, "activo": "XLM", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 4603.0},
+    {"n": 67, "activo": "FIL", "grado": "MARISCAL", "delta_usd": 237.0, "acum_usd": 4840.0},
+    {"n": 68, "activo": "AVAX", "grado": "MARISCAL", "delta_usd": 184.0, "acum_usd": 5024.0},
+)
+
+# Traducción única del libro 13 Santos (sin versión) a claves semánticas.
+_LEGACY_PASE_KEYS: tuple[str, ...] = (
+    "ETH:SOLDADO", "HYPE:SOLDADO", "XRP:SOLDADO", "MNT:SOLDADO", "LTC:SOLDADO",
+    "SOL:SOLDADO", "LINK:SOLDADO", "ADA:SOLDADO", "BCH:SOLDADO", "AVAX:SOLDADO",
+    "AVAX:CAPITAN", "FIL:SOLDADO", "OP:SOLDADO", "LINK:CAPITAN", "LINK:GENERAL",
+    "LINK:MARISCAL", "SOL:CAPITAN", "SOL:GENERAL", "SOL:MARISCAL", "MNT:CAPITAN",
+    "MNT:GENERAL", "MNT:MARISCAL", "AVAX:GENERAL", "AVAX:MARISCAL", "LTC:CAPITAN",
+    "LTC:GENERAL", "LTC:MARISCAL", "ADA:CAPITAN", "ADA:GENERAL", "ADA:MARISCAL",
+    "BCH:CAPITAN", "BCH:GENERAL", "BCH:MARISCAL", "OP:CAPITAN", "OP:GENERAL",
+    "OP:MARISCAL", "ETH:CAPITAN", "ETH:GENERAL", "ETH:MARISCAL", "AAVE:SOLDADO",
+    "AAVE:CAPITAN", "FIL:CAPITAN", "FIL:GENERAL", "FIL:MARISCAL", "AAVE:GENERAL",
+    "AAVE:MARISCAL", "HYPE:CAPITAN", "HYPE:GENERAL", "HYPE:MARISCAL", "XRP:CAPITAN",
+    "XRP:GENERAL", "XRP:MARISCAL",
 )
 
 # Reserva de pasos (no abrir todo el techo de golpe) + umbral fees
@@ -307,6 +341,68 @@ def guardar_marcha(
     return payload
 
 
+def _clave_paso(paso: dict[str, Any]) -> str:
+    return f"{str(paso.get('activo') or '').upper()}:{str(paso.get('grado') or '').upper()}"
+
+
+def _mapa_n_por_clave() -> dict[str, int]:
+    return {_clave_paso(p): int(p["n"]) for p in PASE_PASOS}
+
+
+def _claves_desde_numeros(
+    numeros: list[Any],
+    *,
+    legado_13: bool,
+) -> list[str]:
+    tabla = _LEGACY_PASE_KEYS if legado_13 else tuple(_clave_paso(p) for p in PASE_PASOS)
+    out: list[str] = []
+    for raw in numeros:
+        try:
+            n = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if 1 <= n <= len(tabla):
+            clave = tabla[n - 1]
+            if clave not in out:
+                out.append(clave)
+    return out
+
+
+def _decodificar_progreso(data: dict[str, Any] | None) -> dict[str, Any]:
+    """Migra números del pase 13 por Santo+grado; nunca por posición nueva."""
+    raw = data if isinstance(data, dict) else {}
+    version = str(raw.get("pase_version") or "")
+    legado = version != PASE_VERSION
+    claves = [
+        str(x).upper()
+        for x in (raw.get("pasos_clave") or [])
+        if isinstance(x, str) and ":" in x
+    ]
+    if not claves:
+        claves = _claves_desde_numeros(list(raw.get("pasos_logrados") or []), legado_13=legado)
+    claves_forzadas = [
+        str(x).upper()
+        for x in (raw.get("pasos_forzados_clave") or [])
+        if isinstance(x, str) and ":" in x
+    ]
+    if not claves_forzadas:
+        claves_forzadas = _claves_desde_numeros(
+            list(raw.get("pasos_forzados") or []),
+            legado_13=legado,
+        )
+    mapa = _mapa_n_por_clave()
+    pasos = sorted({mapa[x] for x in claves if x in mapa})
+    forzados = sorted({mapa[x] for x in claves_forzadas if x in mapa})
+    return {
+        "pasos_logrados": sorted(set(pasos) | set(forzados)),
+        "pasos_forzados": forzados,
+        "pasos_clave": sorted({x for x in claves if x in mapa}),
+        "pasos_forzados_clave": sorted({x for x in claves_forzadas if x in mapa}),
+        "pase_version": PASE_VERSION,
+        "migrado_desde": version or ("13s-numerico" if raw else None),
+    }
+
+
 def cargar_progreso() -> dict[str, Any]:
     """Lee pasos logrados del libro mainnet. En testnet/demo → vacío (no hereda demo)."""
     vacio: dict[str, Any] = {
@@ -314,6 +410,9 @@ def cargar_progreso() -> dict[str, Any]:
         "pasos_forzados": [],
         "ts": 0,
         "red": "mainnet",
+        "pase_version": PASE_VERSION,
+        "pasos_clave": [],
+        "pasos_forzados_clave": [],
     }
     if not es_mainnet_pase():
         return vacio
@@ -326,11 +425,9 @@ def cargar_progreso() -> dict[str, Any]:
         # Defensa: si alguien etiquetó testnet, ignorar
         if str(data.get("red") or "mainnet").lower() == "testnet":
             return vacio
-        logs = [int(x) for x in (data.get("pasos_logrados") or []) if int(x) >= 1]
-        forz = [int(x) for x in (data.get("pasos_forzados") or []) if int(x) >= 1]
+        migrado = _decodificar_progreso(data)
         return {
-            "pasos_logrados": sorted(set(logs) | set(forz)),
-            "pasos_forzados": sorted(set(forz)),
+            **migrado,
             "ts": float(data.get("ts") or 0),
             "red": "mainnet",
             "nota_forzados": data.get("nota_forzados"),
@@ -358,7 +455,7 @@ def guardar_progreso(
         except (json.JSONDecodeError, OSError, TypeError):
             prev = {}
     if pasos_forzados is None:
-        forz = [int(x) for x in (prev.get("pasos_forzados") or []) if int(x) >= 1]
+        forz = list(_decodificar_progreso(prev).get("pasos_forzados") or [])
     else:
         forz = [int(x) for x in pasos_forzados if int(x) >= 1]
     logs = sorted({int(x) for x in pasos_logrados if int(x) >= 1} | set(forz))
@@ -368,6 +465,13 @@ def guardar_progreso(
     payload: dict[str, Any] = {
         "pasos_logrados": logs,
         "pasos_forzados": sorted(set(forz)),
+        "pasos_clave": sorted(
+            {_clave_paso(PASE_PASOS[n - 1]) for n in logs if 1 <= n <= len(PASE_PASOS)}
+        ),
+        "pasos_forzados_clave": sorted(
+            {_clave_paso(PASE_PASOS[n - 1]) for n in forz if 1 <= n <= len(PASE_PASOS)}
+        ),
+        "pase_version": PASE_VERSION,
         "ts": time.time(),
         "red": "mainnet",
     }
@@ -738,27 +842,69 @@ def umbral_por_marcha(
     }
 
 
+_GRADOS_BERU_ORDEN = ("SOLDADO", "CAPITAN", "GENERAL", "MARISCAL")
+
+
+def grado_beru_para_caza(
+    activo: str,
+    *,
+    tusk=None,
+    pasos_logrados: list[int] | None = None,
+) -> str | None:
+    """Mayor grado respaldado por el manto real; el libro queda como respaldo frío."""
+    act = (activo or "").upper()
+    if not act:
+        return None
+    if tusk is not None:
+        have = float(notional_manto_usd(tusk, act))
+        grado: str | None = None
+        for candidato in _GRADOS_BERU_ORDEN:
+            need = float(need_notional_grado_usd(act, candidato))
+            if have + 1e-9 >= need * 0.995:
+                grado = candidato
+            else:
+                break
+        return grado
+
+    progreso = cargar_progreso()
+    logrados = set(
+        _ordenar_logrados(
+            pasos_logrados
+            if pasos_logrados is not None
+            else progreso["pasos_logrados"]
+        )
+    )
+    # Un sello manual permite avanzar el pase, pero no inventa masa para Beru.
+    if pasos_logrados is None:
+        logrados -= set(_ordenar_logrados(progreso.get("pasos_forzados") or []))
+    grado = None
+    for p in PASE_PASOS:
+        if int(p["n"]) in logrados and str(p["activo"]).upper() == act:
+            candidato = str(p["grado"]).upper()
+            if candidato in _GRADOS_BERU_ORDEN:
+                grado = candidato
+    return grado
+
+
 def beru_puede_cazar(
     activo: str,
     equity_usd: float,
     *,
     marcha_id: str | None = None,
     pasos_logrados: list[int] | None = None,
+    tusk=None,
 ) -> bool:
-    """Beru caza en un Santo solo si hay al menos un paso logrado de ese activo."""
+    """Beru caza solo si el Santo sostiene al menos grado Soldado."""
     if not director_activo():
         return True
     if getattr(config, "LIVE_BERU_TESTNET", False):
         return True
-    act = (activo or "").upper()
-    logrados = set(_ordenar_logrados(pasos_logrados if pasos_logrados is not None else cargar_progreso()["pasos_logrados"]))
-    if not logrados:
-        # Sin manto logrado aún: no caza (espera Igris)
-        return False
-    for p in PASE_PASOS:
-        if int(p["n"]) in logrados and str(p["activo"]).upper() == act:
-            return True
-    return False
+    _ = equity_usd, marcha_id
+    return grado_beru_para_caza(
+        activo,
+        tusk=tusk,
+        pasos_logrados=pasos_logrados,
+    ) is not None
 
 
 def usd_piernas_manto_activo(tusk, activo: str) -> tuple[float, float]:
