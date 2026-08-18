@@ -83,7 +83,7 @@ def plan_condicional_spot(
         category="spot",
         side=side,
         qty=qty,
-        market_unit=None,
+        market_unit="baseCoin",
         is_leverage=1 if beru_ley.spot_margen_activo() else 0,
         trigger_price=px,
         trigger_direction=trigger_direction,

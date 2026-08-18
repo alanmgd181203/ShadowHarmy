@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import re
 import time
 from typing import Any
 
@@ -23,12 +24,14 @@ from core import lote_bybit
 MODO_MINIMA = "MINIMA"
 MODO_RADAR = "RADAR"
 
-# Códigos Bybit típicos de saldo/margen. Otros rechazos NO se trocean.
+# Códigos Bybit típicos de saldo/margen. Lote/mínimo NO se trocean.
 AHOGO_RETCODES = frozenset({
     110007, 110012, 110014, 110044,
-    170131, 170137, 170140, 170033,
+    170131, 170137, 170033,
     30208, 30031,
 })
+# 170140 = valor bajo el mínimo (casa leyó monedas como dólares, o polvo).
+LOTE_RETCODES = frozenset({170140, 170134, 170124})
 AHOGO_FRASES = (
     "not enough",
     "insufficient",
@@ -127,24 +130,58 @@ def debe_rafaga(beru: Any) -> bool:
     return float(getattr(beru, "masa_rafaga_usd", 0) or 0) > 0
 
 
-def resultado_es_ahogo(resultado: Any) -> bool:
-    """True solo si la casa escupió por bóveda/margen, no por qty o símbolo."""
+_RE_ERRCODE = re.compile(r"ErrCode:\s*(\d+)", re.I)
+_RE_RETCODE = re.compile(r"retCode['\"]?\s*[:=]\s*(\d+)")
+LOTE_FRASES = (
+    "exceeded lower limit",
+    "order value exceeded",
+    "qty invalid",
+    "quantity is invalid",
+)
+
+
+def retcode_de_texto(texto: str) -> int | None:
+    t = str(texto or "")
+    m = _RE_ERRCODE.search(t)
+    if m:
+        return int(m.group(1))
+    m = _RE_RETCODE.search(t)
+    if m:
+        return int(m.group(1))
+    return None
+
+
+def retcode_de_resultado(resultado: Any) -> int | None:
+    datos = getattr(resultado, "datos", None) or {}
+    if isinstance(datos, dict) and datos.get("retCode") is not None:
+        try:
+            return int(datos["retCode"])
+        except (TypeError, ValueError):
+            pass
+    return retcode_de_texto(getattr(resultado, "mensaje", "") or "")
+
+
+def resultado_es_lote(resultado: Any) -> bool:
+    """True si la casa escupe por valor/qty mínimo — no es ahogo de bóveda."""
     if resultado is None or bool(getattr(resultado, "exito", False)):
         return False
-    datos = getattr(resultado, "datos", None) or {}
-    code = datos.get("retCode") if isinstance(datos, dict) else None
-    try:
-        if int(code) in AHOGO_RETCODES:
-            return True
-    except (TypeError, ValueError):
-        pass
-    texto = f"{getattr(resultado, 'mensaje', '')} {code or ''}".lower()
-    if any(c in texto for c in (str(n) for n in AHOGO_RETCODES)):
-        if "qty" in texto or "symbol" in texto or "tick" in texto:
-            # Código de ahogo mezclado con rechazo de lote: no trocear a ciegas.
-            if "insufficient" not in texto and "not enough" not in texto:
-                return False
+    code = retcode_de_resultado(resultado)
+    if code in LOTE_RETCODES:
         return True
+    texto = str(getattr(resultado, "mensaje", "") or "").lower()
+    return any(f in texto for f in LOTE_FRASES)
+
+
+def resultado_es_ahogo(resultado: Any) -> bool:
+    """True solo si la casa escupió por bóveda/margen, no por lote o símbolo."""
+    if resultado is None or bool(getattr(resultado, "exito", False)):
+        return False
+    if resultado_es_lote(resultado):
+        return False
+    code = retcode_de_resultado(resultado)
+    if code is not None:
+        return code in AHOGO_RETCODES
+    texto = str(getattr(resultado, "mensaje", "") or "").lower()
     return any(f in texto for f in AHOGO_FRASES)
 
 
@@ -391,12 +428,13 @@ async def disparar_rafaga(
                 order_type="Market",
                 link_id=link,
                 category="spot",
+                market_unit="baseCoin",
                 is_leverage=int(is_leverage),
             )
             if not getattr(creada, "exito", False):
                 fail_n += 1
                 msgs.append(str(getattr(creada, "mensaje", "") or "market_rechazado"))
-                if resultado_es_ahogo(creada):
+                if resultado_es_ahogo(creada) or resultado_es_lote(creada):
                     resto = sum(x["usd"] for x in bocados[i:])
                     return {
                         "ok": ok_n > 0 and fail_n == 0,

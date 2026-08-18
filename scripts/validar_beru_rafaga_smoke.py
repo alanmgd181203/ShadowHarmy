@@ -49,9 +49,22 @@ def _assert_ahogo() -> None:
         datos={"retCode": 10001},
     )
     assert not beru_rafaga.resultado_es_ahogo(qty)
+    assert beru_rafaga.resultado_es_lote(qty)
     sym = OrdenResultado(False, mensaje="symbol not support", datos={"retCode": 10001})
     assert not beru_rafaga.resultado_es_ahogo(sym)
     assert not beru_rafaga.resultado_es_ahogo(OrdenResultado(True, mensaje="OK"))
+    # Dump de excepción con JSON (qty/symbol) no se confunde con ahogo.
+    aave = OrdenResultado(
+        False,
+        mensaje=(
+            'ErrCode: 170140. Order value exceeded lower limit. '
+            '{"qty":"0.28","symbol":"AAVEUSDT"}'
+        ),
+        datos={},
+    )
+    assert beru_rafaga.resultado_es_lote(aave)
+    assert not beru_rafaga.resultado_es_ahogo(aave)
+    assert beru_rafaga.retcode_de_resultado(aave) == 170140
     print("  rechazo ahogo vs lote OK")
 
 
@@ -86,6 +99,7 @@ class BridgeCapa:
             "trigger_price": kwargs.get("trigger_price"),
             "order_filter": kwargs.get("order_filter"),
             "order_type": kwargs.get("order_type", "Market"),
+            "market_unit": kwargs.get("market_unit"),
             "link_id": kwargs.get("link_id"),
             "usd": usd,
         }
@@ -238,6 +252,27 @@ async def _capas() -> None:
     assert b.hoz_modo == ""
     print("  rechazo de lote no se trocea")
 
+    lote_b = BridgeCapa(techo_usd=10_000)
+    async def _lote_fail(symbol, side, qty, **kwargs):
+        lote_b.n += 1
+        return OrdenResultado(
+            False,
+            mensaje='ErrCode: 170140. Order value exceeded lower limit.',
+            datos={"retCode": 170140},
+        )
+    lote_b.place_order = _lote_fail  # type: ignore[method-assign]
+    g = _general(lote_b)
+    b = _barco(25)
+    ok = await g._plantar_hoz_nativa(b)
+    assert not ok
+    assert b.altar_lote_bloqueado
+    assert b.hoz_modo == ""
+    n1 = lote_b.n
+    ok2 = await g._plantar_hoz_nativa(b)
+    assert not ok2
+    assert lote_b.n == n1
+    print("  170140 sella lote y calla el martillo")
+
     # Ráfaga: markets sin gatillo, uno tras otro, ninguno < mínimo.
     g = _general(mini)
     b = _barco(40)
@@ -252,6 +287,7 @@ async def _capas() -> None:
     for c in mini.creadas:
         assert c.get("trigger_price") is None, c
         assert c.get("order_filter") in (None, "")
+        assert c.get("market_unit") == "baseCoin", c
         assert c["usd"] + 1e-9 >= 5, c
     print("  ráfaga: markets sin gatillo, bocados ≥ mínimo")
 

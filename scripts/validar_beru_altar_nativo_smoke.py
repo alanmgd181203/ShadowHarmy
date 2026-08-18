@@ -145,7 +145,7 @@ async def _probar() -> None:
     )
     assert plan.side == "Buy"
     assert plan.qty > 0
-    assert plan.market_unit is None
+    assert plan.market_unit == "baseCoin"
     assert plan.is_leverage == (1 if beru_ley.spot_margen_activo() else 0)
     assert plan.trigger_direction == 1
 

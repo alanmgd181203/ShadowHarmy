@@ -304,6 +304,7 @@
   - **Altar unificado (2026-08-16):** Soldado/Capitán/General/Mariscal = CONDICIONAL que sigue la Red; engorde aproximado G_min/8, /4, /2, /1 · 400 recorridos y 3.800 Hoces movidas en stress frío · fósiles inertes · smoke `validar_beru_altar_cazador_smoke.py`
   - **Manos nativas fase 1 (2026-08-16):** puente condicional spot para los cuatro grados + sello idempotente + query-before-create + cancelación confirmada · smoke `validar_beru_altar_nativo_smoke.py` ✅ frío
   - **Red de ráfaga (2026-08-18):** si Bybit ahoga la Hoz gorda → carta mínima + resto acecha; si ni el mínimo cabe → radar interno. Bocados ≥ lote, uno tras otro, 0,25 s. Camino feliz sigue sin Market. Polvo no se planta. Smoke `validar_beru_rafaga_smoke.py`
+  - **Cantidad = moneda del Santo (2026-08-18):** Hoz y ráfaga sellan qty como moneda, no dólares. Lote mínimo (170140) = una bitácora, cero martillo, cero ráfaga. Smoke altar + ráfaga.
   - **Vacío 1,1 desde wake (2026-08-17 noche):** primer silbato **±1,1 / Hoz 1,0** para los cuatro grados · 0 local = precio de wake · metro = manto · Mariscal $50 (10 peldaños) · relevo 0,9/0,5/0,3 intacto · Igris no pisa el 0 de acecho · Market sigue bloqueado (`ALTAR_NATIVO_PENDIENTE`) · **manos/hilo OFF**
   - **Pre-fuego Mariscal HYPE (2026-08-17):** el ensayo de la mañana usó Sangre
     fundida y persiguió el precio; esa ley quedó cortada. No despertar HYPE

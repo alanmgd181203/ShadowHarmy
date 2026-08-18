@@ -139,7 +139,8 @@ no se convierte a ciegas.
   siembra aborta.
 - Caveat Bybit spot: la carta nativa envía `triggerPrice` + filtro Stop; la
   dirección del gatillo se guarda en el altar, pero **no** viaja a la casa.
-  Cantidad siempre en moneda base.
+  Cantidad siempre en moneda del Santo (sellada a la casa). Si la casa escupe
+  por lote mínimo, Beru anota una vez y no martillea ni abre ráfaga.
 - El trailing Spot del panel de Bybit no es necesario para Mariscal. Su mano
   nativa usa la misma condicional spot sellada y el propio Beru la cancela y
   replanta al avanzar la Red.

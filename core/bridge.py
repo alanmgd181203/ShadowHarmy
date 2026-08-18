@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 import time
 import ssl
 import uuid
@@ -553,8 +554,20 @@ class BybitBridge:
                 )
 
         except Exception as e:
-            await self.bel.anotar("BRIDGE", "ORDEN_ERROR", f"{str(e)} | LINK:{link_id}")
-            return OrdenResultado(False, link_id=link_id, mensaje=str(e))
+            msg = str(e)
+            code = None
+            m = re.search(r"ErrCode:\s*(\d+)", msg, re.I)
+            if m:
+                code = int(m.group(1))
+            else:
+                m = re.search(r"retCode['\"]?\s*[:=]\s*(\d+)", msg)
+                if m:
+                    code = int(m.group(1))
+            await self.bel.anotar("BRIDGE", "ORDEN_ERROR", f"{msg} | LINK:{link_id}")
+            datos = {"retMsg": msg}
+            if code is not None:
+                datos["retCode"] = code
+            return OrdenResultado(False, link_id=link_id, mensaje=msg, datos=datos)
 
     async def activar_spot_margen(self, leverage: int = 10) -> OrdenResultado:
         """Enciende spot margen UTA y fija apalancamiento (hasta 10x)."""

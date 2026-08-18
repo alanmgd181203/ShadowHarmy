@@ -555,6 +555,8 @@ class BeruCazador:
             return False
         if beru_rafaga.es_radar(beru):
             return True
+        if bool(getattr(beru, "altar_lote_bloqueado", False)):
+            return False
         act = self._activo_de_barco(beru)
         oz = float(getattr(beru, "oz_adan", 0) or 0)
         masa = float(getattr(beru, "masa", 0) or 0)
@@ -592,6 +594,7 @@ class BeruCazador:
             self.bridge, beru, plan,
         )
         if resultado.exito:
+            beru.altar_lote_bloqueado = False
             if masa_plan + 1e-9 < masa * 0.98:
                 beru_rafaga.marcar_hoz_minima(beru, masa_plan)
             else:
@@ -609,6 +612,18 @@ class BeruCazador:
                 masa_usd=masa_plan,
             )
             return True
+        if beru_rafaga.resultado_es_lote(resultado):
+            beru.altar_lote_bloqueado = True
+            await self.bel.anotar(
+                "BERU", "ALTAR_LOTE_RECHAZADO",
+                f"{beru.uid}: {resultado.mensaje}",
+            )
+            self._bitacora(
+                "ALTAR_LOTE_RECHAZADO", beru,
+                detalle=str(resultado.mensaje),
+                oz_adan=oz, masa_usd=masa,
+            )
+            return False
         if not beru_rafaga.resultado_es_ahogo(resultado):
             await self.bel.anotar(
                 "BERU", "ALTAR_ARMAR_FALLIDO",
@@ -673,6 +688,19 @@ class BeruCazador:
             )
             return True
 
+        if beru_rafaga.resultado_es_lote(rmin):
+            beru.altar_lote_bloqueado = True
+            await self.bel.anotar(
+                "BERU", "ALTAR_LOTE_RECHAZADO",
+                f"{beru.uid} mínima: {rmin.mensaje}",
+            )
+            self._bitacora(
+                "ALTAR_LOTE_RECHAZADO", beru,
+                detalle=str(rmin.mensaje),
+                oz_adan=oz, masa_usd=masa,
+            )
+            return False
+
         beru_rafaga.activar_radar(beru)
         await self.bel.anotar(
             "BERU", "ALTAR_HOZ_RADAR",
@@ -690,6 +718,8 @@ class BeruCazador:
         """Cancela confirmado y planta la Hoz nueva. Si ya filló → cosecha."""
         if not self._manos_exchange(beru):
             return "sin_manos"
+        if bool(getattr(beru, "altar_lote_bloqueado", False)):
+            return "lote_bloqueado"
         beru_rafaga.sincronizar_masa_rafaga(beru)
         if beru_rafaga.es_radar(beru):
             return "radar"
@@ -1222,6 +1252,7 @@ class BeruCazador:
                     and not str(getattr(beru, "altar_link_id", "") or "")
                     and not beru_rafaga.es_radar(beru)
                     and not bool(getattr(beru, "rafaga_en_curso", False))
+                    and not bool(getattr(beru, "altar_lote_bloqueado", False))
                 ):
                     await self._plantar_hoz_nativa(beru)
             if beru.estado == "CAZANDO" and not beru.sincronizado and beru.precio_entrada_real > 0:

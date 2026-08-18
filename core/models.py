@@ -88,6 +88,8 @@ class BeruShip:
     rafaga_ultimo_ts: float = 0.0
     qty_rafaga_acum: float = 0.0
     qty_base_ejecutada: float = 0.0
+    # Lote/mínimo de la casa: una bitácora y se calla el martillo (no ráfaga).
+    altar_lote_bloqueado: bool = False
     capa: int = 1
     # Post-Mega: sangre absoluta sobre 0 de Igris (ej. +0.309 si purga en +30%)
     piso_sangre_pct: float = 0.0
