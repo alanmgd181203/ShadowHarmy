@@ -263,7 +263,7 @@
 ### 4.0 Despliegue por capas (ojos → manto → Beru)
 *Ley Monarca 2026-08-06:* etapa = **Igris**; preferencia operativa = **Asalto** (peaje aceptado). Igris ≠ Greed — no pedir edge/arbitraje fino a Igris. Indicadores / peinado Kaiser / Greed laboratorio = **después**. Orden: Igris → Beru (manto sirva) → Greed último. Sello: [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md). Disco marcha no se fuerza en este sello.
 - [x] **4.0.1** Ritual ojos — `scripts/arise_ojos_tusk.py` (Tusk tesorería + Tank + Kaiser; sin Igris/Greed/Beru) · runbook `18` · smoke `validar_arise_ojos_smoke.py`
-- [x] **4.0.1-beru-spot** Ritual Beru: Tank/puente **solo last spot Santos** (ciego lineal/inverso/futuros) · llamado ahogado a bitácora · muleta REST de emergencia 2 s · 2026-08-18
+- [x] **4.0.1-beru-spot** Ritual Beru: Tank/puente **solo last spot Santos con manto** · tratos públicos (mecha del latido) · muleta REST **solo si el río WS muere** · cada Santo planta sin cola · Tusk no recita el manto · Kaiser hiberna · Vacío dual **solo al arise** · luego 1 sangre contraria a la última Hoz (1,1 del metro) · manto = metro · hijo G_min · chip saco = Vacío ahora / Hoz viva · cosecha = **metro y última Hoz** · flota: cazando → % al oído → Mariscal cerrado · lienzo clava encuadre · × desde este arise · 2026-08-19
 - [x] **4.0.1b** Tesorería Tusk — **caja USDT** (mega-cirugía 2026-08-12) · potencia pase desde caja, no short MNT · MNT+short = sucio lectura · **manos OFF** · `CHECKPOINT_TUSK_BOVEDA_MNT.md` · smoke `validar_tusk_boveda_mnt_smoke.py`
 - [x] **4.0.1c** Sucio → saneo a **USDT** (peaje OK; no reconstruir saco MNT) · firmada 2026-08-02 + recorte 2026-08-12 · manos aún OFF
 - [x] **4.0.1c2** ~~capital_mando hedge → masa Igris~~ **cancelado** (tumor). Potencia = caja USDT.
@@ -440,7 +440,7 @@
 - [ ] **10.2.4** Fusión con otro Monarca/Gobernador (multi-bot) — si sigue en visión
 
 ### 10.3 Producto acabado
-- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · PWA/install ✅ · Manto Igris + AssetDetail · **Sub-Santuario Beru** · **oído Bellion** (portal susurro 4.1.2) · Ascensión Aspirante→Chamán (estrella · techos pase · **progreso vivo** `plan_crecimiento`) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo / noche historial Igris: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · unificar Streamlit↔Pergamino pendiente
+- [~] **10.3.1** UI web / panel Pergamino — Cascada 6 portales ✅ · **PWA celular = Cascada React** (`iniciar_panel_pwa.sh` / `_win.ps1` · túnel HTTPS · no mata Beru) · Manto Igris + AssetDetail · **Sub-Santuario Beru** (dos ceros · **velas spot + rayas de combate** · nombre abre lienzo) · **oído Bellion** (portal susurro 4.1.2 + foto viva completa) · **mega-cableado** foto cruda por sello (Tusk bóveda · Tank/Kaiser · Greed) · Ascensión Aspirante→Chamán (estrella · techos pase · **progreso vivo** `plan_crecimiento`) · **cosas apagadas** `ui/featuresApagadas.js` · sync Bybit México ✅ · bóveda Coliseo / noche historial Igris: [`JESS_BOVEDA_COLISEO.md`](JESS_BOVEDA_COLISEO.md) · [`PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md`](PEGAR_JESS_NOCHE_HISTORIAL_IGRIS.md) · unificar Streamlit↔Pergamino pendiente
 - [ ] **10.3.2** Mapa neuronal del Códice en vivo (opcional Monarca UI)
 - [ ] **10.3.3** Documentación pública del protocolo Shadow Army
 - [ ] **10.3.4** El Monarca puede retirarse; el ejército caza solo 🌑

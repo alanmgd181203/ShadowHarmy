@@ -107,6 +107,20 @@ def main() -> int:
     b.oz_adan = 58.19
     assert abs(bc.beneficio_desde_manto_pct(b, 58.19) - (58.19 - 57.5) / 57.5) < 1e-9
 
+    hoz_fill = _beru(local=9.637, manto=8.3)
+    hoz_fill.direccion = "SHORT"
+    hoz_fill.oz_adan = 9.728
+    hoz_fill.ultima_hoz_tocada_precio = 9.728
+    lec = bc.lecturas_cosecha(hoz_fill, 9.725)
+    assert lec["hoz"] > -0.01
+    assert abs(lec["hoz"]) < 0.002
+    assert lec["metro"] > 0.15
+    txt = bc.texto_lecturas_cosecha(lec)
+    assert "metro" in txt and "Hoz" in txt
+    extra = bc.extra_bitacora_cosecha(lec)
+    assert extra["beneficio_metro_pct"] > 15
+    assert abs(extra["beneficio_hoz_pct"]) < 0.2
+
     sem = _beru()
     sem.direccion = "SHORT"
     sem.oz_adan = 101.0
@@ -119,6 +133,61 @@ def main() -> int:
     assert sem.direccion == "SHORT"
     assert sem.sangre_vista_dentro is True
     assert sem.ancla_tramo == 100.0
+
+    hijo = _beru(local=101.1, manto=100.0)
+    hijo.direccion = "SHORT"
+    hijo.es_relevo_cazador = True
+    hijo.oreja_red_activa = True
+    hijo.ultima_red_tocada_precio = 101.2
+    hijo.llamado_red_pct = 0.003
+    assert abs(bc.precio_oreja_red(hijo) - 101.5) < 1e-9
+    assert abs(bc.precio_hoz_si_oreja_red(hijo) - 101.4) < 1e-9
+    masa_red = bc.masa_prometida_silbato_usd(hijo, "ETH", "GENERAL", oreja="RED")
+    masa_sangre = bc.masa_prometida_silbato_usd(hijo, "ETH", "GENERAL", oreja="SANGRE")
+    assert masa_red > 0
+    assert masa_sangre > masa_red
+    hijo.ultima_hoz_tocada_precio = 101.1
+    hijo.sangre_vista_dentro = True
+    assert not bc.sangre_dual(hijo)
+    assert abs(bc.precio_sangre_contraria(hijo) - 100.0) < 1e-9
+    assert not bc.toca_llamado(hijo, 101.5)
+    assert bc.toca_llamado(hijo, 99.99)
+
+    # Mecha: last ya volvió; los tratos del latido sí tocan el Vacío.
+    mecha = _beru()
+    assert bc.decidir_oreja_acecho(mecha, 100.0) == ""
+    assert bc.decidir_oreja_acecho(
+        mecha, 100.0,
+        latido={"last": 100.0, "high": 101.1, "low": 99.8, "prints": [100.0, 101.1, 100.0]},
+    ) == "SANGRE"
+    sordo = _beru()
+    assert bc.decidir_oreja_acecho(sordo, 100.0) == ""
+    assert bc.decidir_oreja_acecho(
+        sordo, 100.0,
+        latido={"last": 100.0, "high": 100.0, "low": 100.0, "prints": []},
+    ) == ""
+    # Primer trato que toca gana (arriba antes que abajo).
+    dual_up = _beru()
+    assert bc.decidir_oreja_acecho(
+        dual_up, 100.0,
+        latido={"last": 100.0, "high": 101.2, "low": 98.8, "prints": [100.0, 101.1, 98.9]},
+    ) == "SANGRE"
+    bc.armar_tramo(dual_up, 101.1, activo="TEST", grado="MARISCAL")
+    assert dual_up.direccion == "SHORT"
+    dual_dn = _beru()
+    oreja_dn = bc.decidir_oreja_acecho(
+        dual_dn, 100.0,
+        latido={"last": 100.0, "high": 101.2, "low": 98.8, "prints": [100.0, 98.9, 101.1]},
+    )
+    assert oreja_dn == "SANGRE"
+    bc.armar_tramo(dual_dn, 98.9, activo="TEST", grado="MARISCAL")
+    assert dual_dn.direccion == "LONG"
+    # Nació ya fuera: mecha sin haber visto dentro no silba.
+    fuera = _beru()
+    assert bc.decidir_oreja_acecho(
+        fuera, 101.3,
+        latido={"last": 101.3, "high": 101.4, "low": 101.2, "prints": [101.3]},
+    ) == ""
 
     print("OK validar_beru_continuo_smoke (Vacío 1.1 · Hoz 1.0 · 0 de wake · metro manto)")
     return 0

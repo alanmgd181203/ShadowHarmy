@@ -8,8 +8,9 @@ Primera caza:
 
 Tras cada cosecha confirmada:
   el 0 del manto NO cambia. El padre muere. El hijo oye DOS orejas:
-  sangre ±1.1 desde la última Hoz cobrada, y Red 0.9/0.5/0.3 en la
-  tendencia. Si la Red despierta al nuevo Beru, la sangre vieja se apaga.
+  sangre 1.1 al otro lado de la última Hoz cobrada, y Red 0.9/0.5/0.3 en la
+  tendencia. Dual Vacío solo al nacer. Si la Red despierta al nuevo Beru, la
+  sangre vieja se apaga.
 
 La masa de cada tramo es distancia hasta Hoz × engorde por peldaño. Si el
 precio continúa, Red/Hoz avanzan 0.1% y añaden otro peldaño. Al tocar Hoz se
@@ -100,6 +101,69 @@ def beneficio_cosecha_pct(beru: Any, precio_fill: float) -> float:
     return beneficio_desde_manto_pct(beru, fill)
 
 
+def precio_ultima_hoz(beru: Any) -> float:
+    """Altar vivo (Hoz plantada); si ya no está, la última Hoz tocada."""
+    for attr in ("oz_adan", "ultima_hoz_tocada_precio"):
+        v = float(getattr(beru, attr, 0) or 0)
+        if v > 0:
+            return v
+    return 0.0
+
+
+def beneficio_desde_hoz_pct(beru: Any, precio_fill: float) -> float:
+    """% de la transmutación vs la última Hoz. Fill en el altar ≈ 0."""
+    hoz = precio_ultima_hoz(beru)
+    fill = float(precio_fill or 0)
+    if hoz <= 0 or fill <= 0:
+        return 0.0
+    return beneficio_ida_vuelta_pct(
+        str(getattr(beru, "direccion", "") or ""),
+        hoz,
+        fill,
+    )
+
+
+def lecturas_cosecha(beru: Any, precio_fill: float) -> dict[str, float]:
+    """Dos reglas, no una: metro (manto) y caza (última Hoz)."""
+    fill = float(precio_fill or 0)
+    return {
+        "metro": float(beneficio_desde_manto_pct(beru, fill) or 0),
+        "hoz": float(beneficio_desde_hoz_pct(beru, fill) or 0),
+        "precio_hoz": float(precio_ultima_hoz(beru) or 0),
+        "precio_manto": float(getattr(beru, "centro_manto", 0) or 0),
+        "precio_fill": fill,
+    }
+
+
+def _sello_botin(pct: float) -> str:
+    return "Botín" if float(pct or 0) >= 0 else "Merma"
+
+
+def texto_lecturas_cosecha(lec: dict[str, float]) -> str:
+    """Una línea: metro …% · Hoz …%."""
+    m = float(lec.get("metro") or 0)
+    h = float(lec.get("hoz") or 0)
+    return (
+        f"metro {_sello_botin(m)} {m * 100:.2f}% · "
+        f"Hoz {_sello_botin(h)} {h * 100:.2f}%"
+    )
+
+
+def extra_bitacora_cosecha(lec: dict[str, float]) -> dict[str, float | None]:
+    """Campos de bitácora/crónica. beneficio_pct = metro (compat)."""
+    m = float(lec.get("metro") or 0)
+    h = float(lec.get("hoz") or 0)
+    hoz_px = float(lec.get("precio_hoz") or 0)
+    manto_px = float(lec.get("precio_manto") or 0)
+    return {
+        "beneficio_pct": round(m * 100.0, 4),
+        "beneficio_metro_pct": round(m * 100.0, 4),
+        "beneficio_hoz_pct": round(h * 100.0, 4),
+        "precio_hoz": round(hoz_px, 10) if hoz_px > 0 else None,
+        "precio_manto": round(manto_px, 10) if manto_px > 0 else None,
+    }
+
+
 def ancla_tramo(beru: Any) -> float:
     """0 local: wake en la semilla; última Red tocada en el relevo.
 
@@ -141,15 +205,84 @@ def precio_desde_ancla(beru: Any, pct: float) -> float:
 
 
 def toca_llamado(beru: Any, precio: float) -> bool:
-    """Vacío ±1.1 desde el 0 local (wake o última Hoz). No es condicional."""
-    pct = pct_desde_ancla(beru, precio)
+    """Vacío de Adán. Semilla: ±1,1. Tras la primera Hoz: solo el lado contrario."""
     umbral = distancia_llamado_pct(beru)
-    if abs(pct) < umbral - 1e-9:
-        beru.sangre_vista_dentro = True
+    px = float(precio or 0)
+    if umbral <= 0 or px <= 0:
+        return False
+    if sangre_dual(beru):
+        pct = pct_desde_ancla(beru, px)
+        if abs(pct) < umbral - 1e-9:
+            beru.sangre_vista_dentro = True
+            return False
+        if not bool(getattr(beru, "sangre_vista_dentro", False)):
+            return False
+        return abs(pct) >= umbral - 1e-9
+    oz = ancla_sangre_contraria(beru)
+    escala = escala_manto(beru)
+    signo = signo_sangre_contraria(beru)
+    if oz <= 0 or escala <= 0 or signo == 0:
+        return False
+    pct = (px - oz) / escala
+    if signo < 0:
+        if pct > -umbral + 1e-9:
+            if pct >= -1e-9:
+                beru.sangre_vista_dentro = True
+            return False
+        if not bool(getattr(beru, "sangre_vista_dentro", False)):
+            return False
+        return pct <= -umbral + 1e-9
+    if pct < umbral - 1e-9:
+        if pct <= 1e-9:
+            beru.sangre_vista_dentro = True
         return False
     if not bool(getattr(beru, "sangre_vista_dentro", False)):
         return False
-    return abs(pct) >= umbral - 1e-9
+    return pct >= umbral - 1e-9
+
+
+def sangre_dual(beru: Any) -> bool:
+    """Dos Vacío solo al nacer: aún no hay Hoz, no sabemos arriba o abajo."""
+    if bool(getattr(beru, "es_relevo_cazador", False)):
+        return False
+    if str(getattr(beru, "estado", "") or "").upper() == "CAZANDO":
+        return False
+    if float(getattr(beru, "oz_adan", 0) or 0) > 0:
+        return False
+    if float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0) > 0:
+        return False
+    return True
+
+
+def signo_sangre_contraria(beru: Any) -> int:
+    """Tras SHORT la sangre es abajo (−). Tras LONG, arriba (+)."""
+    d = str(getattr(beru, "direccion", "") or "").upper()
+    if d == "SHORT":
+        return -1
+    if d == "LONG":
+        return 1
+    return 0
+
+
+def ancla_sangre_contraria(beru: Any) -> float:
+    """La sangre viva se mide desde la última Hoz, no desde el wake."""
+    oz = float(getattr(beru, "oz_adan", 0) or 0)
+    if oz > 0:
+        return oz
+    hoz = float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0)
+    if hoz > 0:
+        return hoz
+    return ancla_tramo(beru)
+
+
+def precio_sangre_contraria(beru: Any) -> float:
+    oz = ancla_sangre_contraria(beru)
+    escala = escala_manto(beru)
+    off = vacio_adan_pct(beru)
+    signo = signo_sangre_contraria(beru)
+    if oz <= 0 or escala <= 0 or off <= 0 or signo == 0:
+        return 0.0
+    return oz + signo * escala * off
 
 
 def apagar_llamado_sangre(beru: Any) -> bool:
@@ -164,13 +297,73 @@ def apagar_orejas_acecho(beru: Any) -> None:
     beru.oreja_red_activa = False
 
 
+def offset_oreja_red(beru: Any, grado: str = "") -> float:
+    """0,9 / 0,5 / 0,3 del relevo. Si el barco ya lo trae escrito, manda eso."""
+    off = float(getattr(beru, "llamado_red_pct", 0) or 0)
+    if off > 0:
+        return off
+    g = str(grado or "").upper()
+    if not g:
+        from core.beru_capital import grado_desde_tier
+
+        tid = str(getattr(beru, "tier_id", "") or "")
+        g = grado_desde_tier(tid) if tid else "SOLDADO"
+    return float(beru_cazador.relevo_llamado_pct(g))
+
+
+def precio_oreja_red(beru: Any, grado: str = "") -> float:
+    """Precio de la Red de relevo (oído, no carta). 0 si esa oreja no está viva."""
+    if not bool(getattr(beru, "oreja_red_activa", False)):
+        return 0.0
+    ancla = float(getattr(beru, "ultima_red_tocada_precio", 0) or 0)
+    escala = escala_manto(beru)
+    off = offset_oreja_red(beru, grado)
+    if ancla <= 0 or escala <= 0 or off <= 0:
+        return 0.0
+    direccion = str(getattr(beru, "direccion", "") or "").upper()
+    if direccion == "LONG":
+        return ancla - escala * off
+    return ancla + escala * off
+
+
+def precio_hoz_si_oreja_red(beru: Any, grado: str = "") -> float:
+    """Dónde nacería la Hoz si el relevo toca ahora. Un peldaño detrás de esa Red."""
+    ancla = float(getattr(beru, "ultima_red_tocada_precio", 0) or 0)
+    escala = escala_manto(beru)
+    off = offset_oreja_red(beru, grado)
+    if ancla <= 0 or escala <= 0 or off <= 0:
+        return 0.0
+    hoz_off = max(paso_pct(), off - paso_pct())
+    direccion = str(getattr(beru, "direccion", "") or "").upper()
+    if direccion == "LONG":
+        return ancla - escala * hoz_off
+    return ancla + escala * hoz_off
+
+
+def masa_prometida_silbato_usd(
+    beru: Any,
+    activo: str,
+    grado: str,
+    *,
+    oreja: str = "SANGRE",
+) -> float:
+    """Masa doctrinal del tramo si ese silbato despierta ahora (antes del lote)."""
+    por = float(beru_cazador.engorde_paso_usd(activo, grado))
+    if str(oreja or "").upper() == "RED":
+        off = offset_oreja_red(beru, grado)
+        dist = max(paso_pct(), off - paso_pct())
+    else:
+        dist = distancia_hoz_pct(beru)
+    return max(0.0, por * (dist / max(paso_pct(), 1e-12)))
+
+
 def toca_oreja_red(beru: Any, precio: float) -> bool:
     """Red de continuación 0.9/0.5/0.3 desde la última Red tocada."""
     if not bool(getattr(beru, "oreja_red_activa", False)):
         return False
     ancla = float(getattr(beru, "ultima_red_tocada_precio", 0) or 0)
     escala = escala_manto(beru)
-    off = float(getattr(beru, "llamado_red_pct", 0) or 0)
+    off = offset_oreja_red(beru)
     px = float(precio or 0)
     if ancla <= 0 or escala <= 0 or off <= 0 or px <= 0:
         return False
@@ -181,12 +374,63 @@ def toca_oreja_red(beru: Any, precio: float) -> bool:
     return pct >= off - 1e-9
 
 
-def decidir_oreja_acecho(beru: Any, precio: float) -> str:
+def secuencia_latido_spot(
+    beru: Any,
+    precio: float,
+    latido: dict[str, Any] | None = None,
+) -> list[float]:
+    """Tratos del latido en orden. Sin tratos: last + extremo del lado que oye."""
+    lat = latido or {}
+    prints = [float(p) for p in (lat.get("prints") or []) if float(p or 0) > 0]
+    if prints:
+        return prints
+    last = float(lat.get("last") or precio or 0)
+    if last <= 0:
+        return []
+    out = [last]
+    high = float(lat.get("high") or 0)
+    low = float(lat.get("low") or 0)
+    if sangre_dual(beru):
+        return out
+    signo = signo_sangre_contraria(beru)
+    if signo < 0 and low > 0 and low < last - 1e-12:
+        out.append(low)
+    elif signo > 0 and high > 0 and high > last + 1e-12:
+        out.append(high)
+    if bool(getattr(beru, "oreja_red_activa", False)):
+        direccion = str(getattr(beru, "direccion", "") or "").upper()
+        if direccion == "LONG" and low > 0 and low not in out:
+            out.append(low)
+        elif direccion == "SHORT" and high > 0 and high not in out:
+            out.append(high)
+    return out
+
+
+def decidir_oreja_acecho(
+    beru: Any,
+    precio: float,
+    latido: dict[str, Any] | None = None,
+) -> str:
     """Qué oído gana este latido: RED (mata sangre), SANGRE, o nada.
 
-    Si la tendencia sigue y toca la Red del relevo, la sangre vieja muere.
-    La siguiente sangre solo nace cuando se vuelva a tocar una Hoz.
+    Si hay tratos, camina la mecha en orden (el primer toque gana).
+    Sin tratos, el Vacío pregunta last; en sangre de un lado también el extremo.
     """
+    seq = secuencia_latido_spot(beru, precio, latido)
+    if not seq:
+        px = float(precio or 0)
+        seq = [px] if px > 0 else []
+    for px in seq:
+        oreja = _decidir_oreja_un_precio(beru, px)
+        if oreja:
+            if latido is not None:
+                latido["toque"] = px
+            return oreja
+    return ""
+
+
+def _decidir_oreja_un_precio(beru: Any, precio: float) -> str:
+    """Un solo last: RED gana a sangre. La vista-dentro se acumula en el barco."""
     if toca_oreja_red(beru, precio):
         apagar_llamado_sangre(beru)
         beru.oreja_red_activa = False
@@ -305,7 +549,7 @@ def plantar_orejas_post_hoz(
     activo: str,
     grado: str,
 ) -> Any:
-    """Tras cosecha: sangre ±1.1 desde la Hoz; Red 0.9/0.5/0.3 en tendencia.
+    """Tras cosecha: una sangre, la contraria a la Hoz cobrada; Red en tendencia.
 
     Ninguna oreja es condicional. Solo la Hoz lo es, cuando el silbato detona.
     """
@@ -366,6 +610,7 @@ def plantar_orejas_post_hoz(
         neg_post_cazador=False,
         masa_congelada=0.0,
         sangre_vista_dentro=True,
+        ts_wake=float(getattr(beru, "ts_wake", 0) or 0),
     )
     _ = sangre_off  # sangre siempre Vacío 1.1 vía distancia_llamado_pct default
     beru.relevo_cazador_uid = uid

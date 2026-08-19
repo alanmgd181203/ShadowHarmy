@@ -6,11 +6,18 @@ de Adán 1,1 % · manos aparte (BERU_MANOS).
 """
 from __future__ import annotations
 
+import json
+import re
 import time
+from pathlib import Path
 from typing import Any
 
 import core.config as config
 from core.models import BeruShip
+
+ROOT = Path(__file__).resolve().parents[1]
+WAKE_RITUAL = ROOT / "data" / "beru" / "wake_ritual.json"
+_UID_SEMILLA_NS = re.compile(r"BERU_SEM_[A-Z0-9]+_(\d{16,})$")
 
 
 def wake_reset_0_activo() -> bool:
@@ -114,6 +121,81 @@ def catalogo_flota() -> list[str]:
     return out
 
 
+def _solo_con_manto(activos: list[str], tusk=None) -> list[str]:
+    """Sin metro de Igris no se siembra."""
+    if tusk is None:
+        return list(activos)
+    from core import beru_cazador as bc
+
+    return [a for a in activos if bc.manto_vivo(tusk, a)]
+
+
+def _leer_estado_vivo() -> dict[str, Any]:
+    path = ROOT / "data" / "estado_vivo.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, TypeError):
+        return {}
+
+
+def manto_en_foto_estado(activo: str, snap: dict[str, Any] | None = None) -> bool:
+    """¿Esta tierra tiene metro en la última foto?"""
+    act = str(activo or "").upper()
+    if not act:
+        return False
+    data = snap if isinstance(snap, dict) else _leer_estado_vivo()
+    if not data:
+        return False
+    for row in (data.get("beru_flota") or {}).get("activos") or []:
+        if str(row.get("activo") or "").upper() != act:
+            continue
+        if float(row.get("centro_manto") or 0) > 0:
+            return True
+    det = (data.get("igris_asset_details") or {}).get(act) or {}
+    long_usd = float((det.get("long") or {}).get("size_usd") or 0)
+    short_usd = float((det.get("short") or {}).get("size_usd") or 0)
+    return long_usd > 0 and short_usd > 0
+
+
+def catalogo_ojos_desde_foto(
+    candidatos: list[str] | None = None,
+    *,
+    snap: dict[str, Any] | None = None,
+) -> list[str]:
+    """Ojos Beru: Santos con manto o Beru vivo. El ticker de casa se queda.
+
+    Tierras sin metro (BTC/APT/ETC en este arise) no ensucian el río.
+    """
+    cand = list(candidatos or catalogo_flota())
+    data = snap if isinstance(snap, dict) else _leer_estado_vivo()
+    ticker = str(
+        getattr(config, "TICKER_BASE", "")
+        or getattr(config, "BERU_ACTIVO_SEMILLA", "")
+        or ""
+    ).upper()
+    vivos: set[str] = set()
+    for row in (data.get("beru_flota") or {}).get("activos") or []:
+        u = str(row.get("activo") or "").upper()
+        if (
+            u
+            and float(row.get("centro_manto") or 0) > 0
+            and int(row.get("n_barcos") or 0) > 0
+        ):
+            vivos.add(u)
+    out: list[str] = []
+    seen: set[str] = set()
+    for a in cand:
+        u = str(a or "").upper()
+        if not u or u in seen:
+            continue
+        if u == ticker or u in vivos or manto_en_foto_estado(u, data):
+            seen.add(u)
+            out.append(u)
+    if ticker and ticker not in seen:
+        out.insert(0, ticker)
+    return out
+
+
 def activos_siembra_permitidos(
     equity_usd: float,
     *,
@@ -130,9 +212,9 @@ def activos_siembra_permitidos(
 
     flota = catalogo_flota()
     if siembra_sin_candado_pase():
-        return list(flota)
+        return _solo_con_manto(list(flota), tusk)
     if not exigir_candado or not pd.director_activo():
-        return list(flota)
+        return _solo_con_manto(list(flota), tusk)
     ok: list[str] = []
     for act in flota:
         if pd.beru_puede_cazar(
@@ -142,7 +224,7 @@ def activos_siembra_permitidos(
             tusk=tusk,
         ):
             ok.append(act)
-    return ok
+    return _solo_con_manto(ok, tusk)
 
 
 def tier_siembra_activo(
@@ -178,6 +260,68 @@ def tier_siembra_activo(
     return bc.tier_id_desde_grado(grado) if grado else None
 
 
+def sellar_wake_ritual(ts: float | None = None, *, force: bool = False) -> float:
+    """Corta la memoria corta: × y cazas solo desde este arise."""
+    t = float(ts or time.time())
+    if not force:
+        prev = leer_wake_ritual()
+        if prev > 0:
+            return prev
+    WAKE_RITUAL.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "ts": t,
+        "iso": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(t)),
+    }
+    WAKE_RITUAL.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return t
+
+
+def leer_wake_ritual() -> float:
+    if not WAKE_RITUAL.is_file():
+        return 0.0
+    try:
+        data = json.loads(WAKE_RITUAL.read_text(encoding="utf-8"))
+        return float(data.get("ts") or 0)
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        return 0.0
+
+
+def ts_wake_de_uid(uid: str) -> float:
+    """Ns del uid de semilla (no del hijo _R2_). Unix segundos."""
+    m = _UID_SEMILLA_NS.search(str(uid or ""))
+    if not m:
+        return 0.0
+    try:
+        return int(m.group(1)) / 1e9
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def ts_corte_memoria(barcos: list | None = None, cronica: list | None = None) -> float:
+    """Desde cuándo cuenta esta vida: sello de arise, o la semilla más nueva."""
+    ritual = leer_wake_ritual()
+    if ritual > 0:
+        return ritual
+    vals: list[float] = []
+    for b in barcos or []:
+        if isinstance(b, dict):
+            t = float(b.get("ts_wake") or 0)
+            uid = str(b.get("uid") or "")
+        else:
+            t = float(getattr(b, "ts_wake", 0) or 0)
+            uid = str(getattr(b, "uid", "") or "")
+        if t > 0:
+            vals.append(t)
+        u = ts_wake_de_uid(uid)
+        if u > 0:
+            vals.append(u)
+    for r in cronica or []:
+        u = ts_wake_de_uid(str((r or {}).get("uid") or ""))
+        if u > 0:
+            vals.append(u)
+    return max(vals) if vals else 0.0
+
+
 def crear_semilla_wake(
     activo: str,
     precio_nuevo_0: float,
@@ -209,6 +353,7 @@ def crear_semilla_wake(
         es_super_beru=False,
         masa_congelada=0.0,
         sangre_vista_dentro=True,
+        ts_wake=float(leer_wake_ritual() or time.time()),
     )
 
 

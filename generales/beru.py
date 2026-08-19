@@ -38,6 +38,7 @@ class BeruCazador:
         self.kaiser = kaiser
         self.legion = []
         self._flota_sembrada = False
+        self._altar_tareas: dict[str, asyncio.Task] = {}
         try:
             self.tank.capitan_activo = beru_wake.adn_capitan_wake()
         except Exception:
@@ -60,6 +61,7 @@ class BeruCazador:
                     "tipo": tipo,
                     "uid": getattr(beru, "uid", ""),
                     "detalle": detalle,
+                    "direccion": str(getattr(beru, "direccion", "") or "") or None,
                     "precio": float(getattr(beru, "precio_salida_real", 0) or 0)
                     or float(extra.pop("precio", 0) or 0)
                     or None,
@@ -108,6 +110,42 @@ class BeruCazador:
             f"[BERU] Llamado ahogado {act} {getattr(beru, 'direccion', '')} · {motivo}",
             flush=True,
         )
+
+    def _altar_en_vuelo(self, beru: BeruShip) -> bool:
+        uid = str(getattr(beru, "uid", "") or "")
+        t = self._altar_tareas.get(uid)
+        return bool(t is not None and not t.done())
+
+    def _lanzar_altar(self, beru: BeruShip, coro) -> None:
+        """Cada Santo arma su Hoz sin congelar al resto de la legión."""
+        uid = str(getattr(beru, "uid", "") or "")
+        if not uid:
+            try:
+                coro.close()
+            except Exception:
+                pass
+            return
+        previa = self._altar_tareas.get(uid)
+        if previa is not None and not previa.done():
+            try:
+                coro.close()
+            except Exception:
+                pass
+            return
+        task = asyncio.create_task(coro)
+        self._altar_tareas[uid] = task
+
+        def _limpio(done, u=uid):
+            if self._altar_tareas.get(u) is done:
+                self._altar_tareas.pop(u, None)
+            try:
+                done.result()
+            except asyncio.CancelledError:
+                pass
+            except Exception as exc:
+                print(f"[BERU] Altar {u} cayó: {exc}", flush=True)
+
+        task.add_done_callback(_limpio)
 
     def _activo_casa(self) -> str:
         """Casa spot: en ensayo = Santos elegidos; si no, pase / semilla."""
@@ -283,7 +321,7 @@ class BeruCazador:
         if beru_wake.siembra_flota_activa():
             if not self._flota_sembrada:
                 precios_flota = {}
-                for act in beru_wake.catalogo_flota():
+                for act in beru_wake.catalogo_ojos_desde_foto():
                     px_act = self._precio_de_activo(act)
                     if px_act > 0:
                         precios_flota[act] = px_act
@@ -422,35 +460,48 @@ class BeruCazador:
     # === ACECHO Y CAZA (EJECUCIÓN DIRECTA) ===
 
     async def auditar_gatillos_adan(self, precio_actual=None):
-        """Un gatillo por barco con el precio de SU Santo (no todo vs ADA)."""
+        """Un gatillo por barco con el latido de SU Santo (mecha, no solo la foto)."""
+        from core import beru_ojos
+
+        lats: dict[str, dict] = {}
         for beru in self.legion:
+            act = self._activo_de_barco(beru)
+            if act and act not in lats:
+                lats[act] = beru_ojos.latido_spot_desde_tank(self.tank, act)
             if beru.estado != "ACECHANDO":
                 continue
-            px = self._precio_de_barco(beru)
+            lat = dict(lats.get(act) or {})
+            px = float(lat.get("last") or 0)
             if px <= 0 and precio_actual is not None:
                 px = float(precio_actual or 0)
             if px <= 0:
                 continue
             try:
-                await self._auditar_gatillo_cazador(beru, px)
+                await self._auditar_gatillo_cazador(beru, px, latido=lat)
             except Exception as exc:
                 self._llamado_ahogado(
                     beru, f"pulso_excepcion:{type(exc).__name__}",
-                    activo=self._activo_de_barco(beru),
+                    activo=act,
                     precio=float(px or 0),
                 )
                 print(f"[BERU] Pulso de un Santo falló (legión sigue): {exc}", flush=True)
 
-    async def _auditar_gatillo_cazador(self, beru: BeruShip, precio_actual: float):
+    async def _auditar_gatillo_cazador(
+        self, beru: BeruShip, precio_actual: float, latido: dict | None = None,
+    ):
         """Vacío ±1.1 desde el wake; después silbato del relevo desde la última Red."""
         if self._centro_cazador(beru) <= 0:
             return
-        oreja = beru_continuo.decidir_oreja_acecho(beru, precio_actual)
+        lat = dict(latido or {})
+        oreja = beru_continuo.decidir_oreja_acecho(beru, precio_actual, latido=lat)
         if not oreja:
             return
+        px_toque = float(lat.get("toque") or precio_actual or 0)
+        if px_toque <= 0:
+            px_toque = float(precio_actual or 0)
         act = self._activo_de_barco(beru)
         grado = beru_altar_cazador.grado_de_barco(beru)
-        touch_pct = beru_continuo.pct_desde_ancla(beru, precio_actual)
+        touch_pct = beru_continuo.pct_desde_ancla(beru, px_toque)
         direccion = "SHORT" if touch_pct > 0 else "LONG"
         if self._ensayo_nivel3() and beru_ensayo.solo_long() and direccion != "LONG":
             beru_ensayo.registrar(
@@ -475,7 +526,7 @@ class BeruCazador:
                 beru, "sin_manto",
                 activo=act, oreja=oreja,
                 touch_pct=round(float(touch_pct) * 100.0, 4),
-                precio=float(precio_actual or 0),
+                precio=float(px_toque or 0),
             )
             return
 
@@ -484,7 +535,7 @@ class BeruCazador:
         beru.modo_combate = "CAZA"
         masa_fresca = beru_continuo.armar_tramo(
             beru,
-            precio_actual,
+            px_toque,
             activo=act,
             grado=grado,
             oreja=oreja,
@@ -498,7 +549,7 @@ class BeruCazador:
                 beru, "armado_masa_0",
                 activo=act, oreja=oreja, grado=grado,
                 touch_pct=round(float(touch_pct) * 100.0, 4),
-                precio=float(precio_actual or 0),
+                precio=float(px_toque or 0),
             )
             beru_continuo.restaurar_acecho_tras_fallo_armado(beru)
             beru.estado = "ACECHANDO"
@@ -515,7 +566,7 @@ class BeruCazador:
                 activo=act, oreja=oreja, grado=grado, arma=arma,
                 masa_usd=float(masa_fresca),
                 touch_pct=round(float(touch_pct) * 100.0, 4),
-                precio=float(precio_actual or 0),
+                precio=float(px_toque or 0),
             )
             beru_continuo.restaurar_acecho_tras_fallo_armado(beru)
             beru.estado = "ACECHANDO"
@@ -547,7 +598,7 @@ class BeruCazador:
             oreja=oreja,
         )
         if self._manos_exchange(beru):
-            await self._plantar_hoz_nativa(beru)
+            self._lanzar_altar(beru, self._plantar_hoz_nativa(beru))
 
     async def _plantar_hoz_nativa(self, beru: BeruShip) -> bool:
         """Planta la Hoz. Si Bybit ahoga la gorda: mínima o radar. Cero Market feliz."""
@@ -825,27 +876,28 @@ class BeruCazador:
             activo=act,
             fill_confirmado=True,
         )
-        ben = beru_continuo.beneficio_cosecha_pct(beru, px_fill)
-        sello = "Botín" if ben >= 0 else "Merma"
+        lec = beru_continuo.lecturas_cosecha(beru, px_fill)
+        texto = beru_continuo.texto_lecturas_cosecha(lec)
+        extra = beru_continuo.extra_bitacora_cosecha(lec)
         await self.bel.anotar(
             "BERU", "COSECHA_CONDICIONAL",
             f"{beru.uid} fill nativo @ {px_fill:.6f} "
-            f"qty={qty:.8f} (${masa_tramo:.2f}) · {sello} {ben*100:.2f}%.",
+            f"qty={qty:.8f} (${masa_tramo:.2f}) · {texto}.",
         )
         self._bitacora(
             "COSECHA_CONDICIONAL",
             beru,
-            detalle=f"fill nativo · {sello} {ben*100:.2f}%",
+            detalle=f"fill nativo · {texto}",
             precio=px_fill,
             qty=qty,
             masa_usd=masa_tramo,
-            beneficio_pct=round(ben * 100.0, 4),
+            **extra,
         )
         self._cronica(
             beru, "COSECHA",
-            f"{sello} nativo Hoz @ {ben*100:.2f}%",
+            f"{texto}",
             precio=px_fill, masa_usd=masa_tramo,
-            beneficio_pct=round(ben * 100.0, 4),
+            **extra,
         )
         if self._ensayo_nivel3():
             beru_ensayo.anotar_cosecha_ok(
@@ -1254,7 +1306,7 @@ class BeruCazador:
                     and not bool(getattr(beru, "rafaga_en_curso", False))
                     and not bool(getattr(beru, "altar_lote_bloqueado", False))
                 ):
-                    await self._plantar_hoz_nativa(beru)
+                    self._lanzar_altar(beru, self._plantar_hoz_nativa(beru))
             if beru.estado == "CAZANDO" and not beru.sincronizado and beru.precio_entrada_real > 0:
                 beru.centro_manto = self._centro_cazador(beru)
                 beru.sincronizado = True
@@ -1616,7 +1668,7 @@ class BeruCazador:
                         detalle="Hoz/Red +0.1% (engorde OFF)", masa_extra=0.0,
                     )
                     if self._manos_exchange(beru):
-                        await self._replantar_hoz_nativa(beru)
+                        self._lanzar_altar(beru, self._replantar_hoz_nativa(beru))
                     continue
                 act = self._activo_de_barco(beru)
                 if not beru_cazador.manto_vivo(self.tusk, act):
@@ -1631,7 +1683,7 @@ class BeruCazador:
                         detalle="Hoz avanza sin masa (sin manto Igris)",
                     )
                     if self._manos_exchange(beru):
-                        await self._replantar_hoz_nativa(beru)
+                        self._lanzar_altar(beru, self._replantar_hoz_nativa(beru))
                     continue
                 masa_extra = beru_cazador.engorde_paso_usd(act, grado)
                 if self._ensayo_nivel3():
@@ -1668,7 +1720,7 @@ class BeruCazador:
                         masa_usd=float(beru.masa or 0),
                     )
                     if self._manos_exchange(beru):
-                        await self._replantar_hoz_nativa(beru)
+                        self._lanzar_altar(beru, self._replantar_hoz_nativa(beru))
 
     def _puede_desbloquear_engorde(self, beru: BeruShip, precio_actual: float) -> bool:
         """Excepción A: red más extrema. B: toque precio Beru fusionado (reset 0)."""
@@ -1938,12 +1990,13 @@ class BeruCazador:
         barco.frente_salida = mejor_f
         barco.precio_salida_real = p_ef
         barco.estado = "COSECHADO"
-        sello = "Botín" if beneficio >= 0 else "Merma"
-        msg = f"{sello} @ {beneficio*100:.2f}%"
-        await self.bel.anotar("BERU", "COSECHA", msg)
+        lec = beru_continuo.lecturas_cosecha(barco, p_ef)
+        texto = beru_continuo.texto_lecturas_cosecha(lec)
+        extra = beru_continuo.extra_bitacora_cosecha(lec)
+        await self.bel.anotar("BERU", "COSECHA", texto)
         self._cronica(
-            barco, "COSECHA", msg,
-            precio=float(p_ef or 0), beneficio_pct=round(beneficio * 100.0, 4),
+            barco, "COSECHA", texto,
+            precio=float(p_ef or 0), **extra,
         )
         if getattr(barco, "ciclo_infinito", False) or getattr(barco, "engorde_bloqueado", False):
             await self._iniciar_reciclaje_post_venta(barco, float(p_ef or 0))
@@ -2159,6 +2212,7 @@ class BeruCazador:
                     neg_toques_ciclo=item.get("neg_toques_ciclo", 0),
                     ciclo_infinito=item.get("ciclo_infinito", False),
                     masa_congelada=item.get("masa_congelada", 0.0),
+                    ts_wake=float(item.get("ts_wake") or 0),
                 ))
             except (KeyError, TypeError):
                 continue

@@ -1,18 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   snapshotCero,
   desdeEstadoVivo,
   fmtUsd,
   fmtPct,
   fmtNum,
+  detalleCosecha,
 } from "./beruAssetDetailModel.js";
+import FotoCruda from "./FotoCruda.jsx";
+import BeruSpotChart from "./BeruSpotChart.jsx";
 
 const ESTADO_URL = "/data/estado_vivo.json";
 
 /**
  * Sub-Santuario Beru — ficha por moneda (caza / neg / red engorde / gráfica).
  */
-export default function BeruAssetDetail({ symbol, onClose }) {
+export default function BeruAssetDetail({ symbol, onClose, onChart }) {
   const [visible, setVisible] = useState(false);
   const [closing, setClosing] = useState(false);
   const [data, setData] = useState(() => snapshotCero(symbol));
@@ -51,7 +54,6 @@ export default function BeruAssetDetail({ symbol, onClose }) {
     window.setTimeout(() => onClose?.(), 700);
   }
 
-  const C = data.composicion || {};
   const re = data.red_engorde;
   const graf = data.grafica || {};
 
@@ -76,69 +78,60 @@ export default function BeruAssetDetail({ symbol, onClose }) {
         <h1 className="absolute left-1/2 -translate-x-1/2 text-xl italic font-bold tracking-widest text-white pointer-events-none">
           {data.symbol || symbol}
         </h1>
-        <span className="text-[10px] uppercase tracking-widest text-white/35 w-10 text-right">
-          {data.fuente === "cero" ? "00" : "BERU"}
-        </span>
+        {onChart ? (
+          <button
+            type="button"
+            onClick={onChart}
+            className="text-[10px] uppercase tracking-widest text-emerald-400/80 w-10 text-right"
+          >
+            velas
+          </button>
+        ) : (
+          <span className="text-[10px] uppercase tracking-widest text-white/35 w-10 text-right">
+            {data.fuente === "cero" ? "00" : "BERU"}
+          </span>
+        )}
       </header>
 
       <div className="px-4 py-4 space-y-4 pb-10">
-        <Section title="Legión en este activo">
+        <Section title="Cazador en este Santo">
           <Row label="Barcos" value={String(data.n_barcos ?? 0)} accent />
           <Row label="Cazando" value={String(data.n_caza ?? 0)} />
-          <Row label="Negociando" value={String(data.n_negociando ?? 0)} />
           <Row label="Acechando" value={String(data.n_acechando ?? 0)} />
-          <Row label="Mega" value={String(data.n_mega ?? 0)} />
-          <div className="h-3 rounded-full overflow-hidden flex border border-white/10 mt-2">
-            <div
-              className="h-full bg-emerald-500/70"
-              style={{ width: `${Math.min(100, C.pct_caza || 0)}%` }}
-              title="Caza"
-            />
-            <div
-              className="h-full bg-sky-500/60"
-              style={{ width: `${Math.min(100, C.pct_negociando || 0)}%` }}
-              title="Negociando"
-            />
-          </div>
           <p className="text-[10px] text-white/35 mt-1">
-            Verde = caza · Azul = negociando ({C.pct_caza || 0}% / {C.pct_negociando || 0}%)
+            Un oficio: CAZA. Negociador/Mega son fósiles.
           </p>
         </Section>
 
-        <Section title="Centro 0 y economía">
-          <Row label="Centro 0" value={fmtNum(data.centro_0, 4)} accent />
-          <Row label="Masa total" value={fmtUsd(data.masa_total_usd)} />
-          <Row label="PnL estimado" value={fmtUsd(data.pnl_est_usd)} />
-          <Row label="Fees pagados" value={data.fees_paid_usd == null ? "—" : fmtUsd(data.fees_paid_usd)} />
-          <p className="text-[10px] text-white/30 mt-1">{data.nota_pnl}</p>
+        <Section title="Dos ceros (no se mezclan)">
+          <Row label="0 del manto (Igris)" value={fmtNum(data.centro_manto || data.grafica?.centro_manto)} accent />
+          <Row label="0 de nacimiento (wake)" value={fmtNum(data.centro_wake || data.grafica?.centro_wake)} />
+          <Row label="Spot ahora" value={fmtNum(data.spot_last || data.grafica?.spot_last)} />
+          <p className="text-[10px] text-white/30 mt-1">
+            El metro es Igris. El Vacío ±1,1 nace del wake, no del manto.
+          </p>
         </Section>
 
         <Section title="Red que permite engordar">
           {re ? (
             <>
-              <Row label="Precio red" value={fmtNum(re.precio, 4)} accent />
-              <Row label="% vs centro 0" value={fmtPct(re.pct_vs_centro)} />
+              <Row label="Precio red" value={fmtNum(re.precio)} accent />
+              <Row label="% vs metro" value={fmtPct(re.pct_vs_centro)} />
               <Row label="Barco" value={String(re.uid || "").slice(0, 22)} />
               <Row label="Dirección" value={re.direccion || "—"} />
               <p className="text-[10px] text-amber-400/80 mt-1">{re.nota}</p>
             </>
           ) : (
-            <p className="text-sm text-white/40">Sin red de frontera activa en este activo.</p>
+            <p className="text-sm text-white/40">Sin Red activa — aún acecha o no armó tramo.</p>
           )}
         </Section>
 
-        <Section title="Rails spot (USDT / USDC…)">
-          <Row
-            label="Vivos"
-            value={(data.rails_vivos || []).join(", ") || "—"}
-          />
-          {(data.rails_disponibles || []).map((r) => (
-            <Row key={r.frente || r.quote} label={r.quote || "?"} value={r.frente || "—"} />
-          ))}
-        </Section>
-
-        <Section title="Mapa de niveles">
-          <BeruLevelChart grafica={graf} redEngorde={re} />
+        <Section title="Velas de spot + combate">
+          <BeruSpotChart symbol={data.symbol || symbol} grafica={graf} altura={280} />
+          <p className="text-[10px] text-white/30 mt-2 leading-relaxed">
+            Velas de la casa spot. Las rayas son el combate: manto, wake, Vacío, Hoz y Red.
+            No es el gráfico del celular de Bybit.
+          </p>
         </Section>
 
         <Section title="Barcos">
@@ -151,26 +144,40 @@ export default function BeruAssetDetail({ symbol, onClose }) {
                 className="rounded-xl border border-white/8 bg-black/25 p-2.5 mb-2"
               >
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-white/50">{String(b.uid || "").slice(0, 18)}</span>
-                  <span className={b.es_super ? "text-amber-300" : "text-white/70"}>
-                    {b.modo}
-                    {b.es_super ? " ★" : ""}
-                  </span>
+                  <span className="text-white/50">{String(b.uid || "").slice(0, 20)}</span>
+                  <span className="text-emerald-400/80">{b.grado || b.tier_id || "—"}</span>
                 </div>
+                <Row label="Estado" value={b.estado || "—"} />
+                <Row label="Lado" value={b.direccion || "—"} />
                 <TwoCol
-                  leftTitle="Grid"
+                  leftTitle="Ceros"
                   rightTitle="Masa"
                   left={[
-                    ["Oz %", fmtPct(b.oz_vs_centro_pct)],
-                    ["Red %", fmtPct(b.red_vs_centro_pct)],
+                    ["Manto", fmtNum(b.centro_manto)],
+                    ["Wake", fmtNum(b.centro_wake || b.centro_local)],
                   ]}
                   right={[
-                    ["USD", fmtUsd(b.masa)],
-                    ["PnL", fmtUsd(b.pnl_est_usd)],
+                    ["Tramo", fmtUsd(b.masa_tramo_usd || b.masa)],
+                    ["Carta", fmtUsd(b.masa_carta_usd)],
                   ]}
                 />
-                <Row label="Estado" value={b.estado || "—"} />
-                <Row label="Rail" value={b.rail_quote || "—"} />
+                <TwoCol
+                  leftTitle="Hoz"
+                  rightTitle="Red / Vacío"
+                  left={[
+                    ["Precio", fmtNum(b.oz_precio)],
+                    ["%", fmtPct(b.oz_pct)],
+                  ]}
+                  right={[
+                    ["Red", fmtNum(b.red_precio)],
+                    ["Vacío ±", fmtPct(b.vacio_pct)],
+                  ]}
+                />
+                <Row label="Carta colgada" value={b.carta_colgada ? "sí" : "no"} />
+                <Row label="Hoz modo" value={b.hoz_modo || "—"} />
+                <Row label="Última Hoz tocada" value={b.ultima_hoz_precio ? fmtNum(b.ultima_hoz_precio) : "aún no"} />
+                <Row label="Spot" value={fmtNum(b.spot_last)} />
+                <FotoCruda titulo="Foto de este barco" data={b} />
               </div>
             ))
           )}
@@ -179,76 +186,20 @@ export default function BeruAssetDetail({ symbol, onClose }) {
         <Section title="Crónica de ciclos">
           {(data.cronica || []).length === 0 ? (
             <p className="text-sm text-white/40">
-              Sin crónica aún — se irá llenando con caza / cosecha / Mega.
+              Sin crónica aún — se irá llenando con caza / cosecha.
             </p>
           ) : (
             (data.cronica || []).slice(-12).reverse().map((ev, i) => (
               <Row
                 key={`${ev.ts}-${i}`}
                 label={ev.tipo || ev.evento || "evento"}
-                value={ev.detalle || ev.precio || String(ev.ts || "")}
+                value={detalleCosecha(ev)}
               />
             ))
           )}
         </Section>
+        <FotoCruda titulo="Foto cruda de este Santo" data={data} />
       </div>
-    </div>
-  );
-}
-
-function BeruLevelChart({ grafica, redEngorde }) {
-  const niveles = useMemo(() => {
-    const raw = Array.isArray(grafica?.niveles) ? [...grafica.niveles] : [];
-    return raw.filter((n) => Number(n.precio) > 0);
-  }, [grafica]);
-
-  if (!niveles.length) {
-    return <p className="text-sm text-white/40">Sin niveles para graficar.</p>;
-  }
-
-  const precios = niveles.map((n) => Number(n.precio));
-  const min = Math.min(...precios);
-  const max = Math.max(...precios);
-  const span = Math.max(max - min, 1e-9);
-  const w = 320;
-  const h = 140;
-  const pad = 12;
-
-  function yOf(p) {
-    return pad + ((max - p) / span) * (h - pad * 2);
-  }
-
-  const color = {
-    centro: "#ff0055",
-    oz: "#34d399",
-    red: "#38bdf8",
-    red_engorde: "#fbbf24",
-  };
-
-  return (
-    <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${w} ${h}`} className="w-full max-w-full" role="img" aria-label="Niveles Beru">
-        <rect x="0" y="0" width={w} height={h} fill="#0a0c10" />
-        {niveles.map((n, i) => {
-          const y = yOf(Number(n.precio));
-          const c = color[n.rol] || "#ffffff88";
-          const thick = n.rol === "red_engorde" || n.rol === "centro" ? 2.2 : 1.2;
-          return (
-            <g key={`${n.id}-${i}`}>
-              <line x1={pad} x2={w - pad} y1={y} y2={y} stroke={c} strokeWidth={thick} opacity={0.85} />
-              <text x={pad + 2} y={y - 3} fill={c} fontSize="8" opacity={0.9}>
-                {n.rol}
-                {n.pct != null ? ` ${Number(n.pct).toFixed(2)}%` : ""}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-      {redEngorde?.precio ? (
-        <p className="text-[10px] text-amber-400/80 mt-1">
-          Ámbar = red engorde @ {fmtNum(redEngorde.precio, 4)}
-        </p>
-      ) : null}
     </div>
   );
 }

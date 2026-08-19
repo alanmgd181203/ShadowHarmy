@@ -1,8 +1,36 @@
 import { useEffect, useState } from "react";
 import BeruAssetDetail from "./BeruAssetDetail.jsx";
-import { flotaDesdeEstado, fmtUsd, fmtPct } from "./beruAssetDetailModel.js";
+import BeruChartScreen from "./BeruChartScreen.jsx";
+import { flotaDesdeEstado, fmtUsd, fmtDistSilbato } from "./beruAssetDetailModel.js";
+import { nombreGrado } from "./beruMantoRegla.js";
 
 const ESTADO_URL = "/data/estado_vivo.json";
+
+const COLOR_GRADO = {
+  SOLDADO: "#1e3a5f",
+  CAPITAN: "#3b82f6",
+  GENERAL: "#22d3ee",
+  MARISCAL: "#67e8f9",
+};
+
+const RANGOS_SANTOS = [
+  { id: "MARISCAL", plural: "Mariscales" },
+  { id: "GENERAL", plural: "Generales" },
+  { id: "CAPITAN", plural: "Capitanes" },
+  { id: "SOLDADO", plural: "Soldados" },
+];
+
+function colorGrado(grado) {
+  const g = String(grado || "").toUpperCase();
+  return COLOR_GRADO[g] || "#64748b";
+}
+
+function etiquetaOficio(oficio) {
+  const o = String(oficio || "").toLowerCase();
+  if (o === "cazando") return "cazando";
+  if (o === "cerrado") return "cerrado";
+  return "acechando";
+}
 
 /**
  * BeruPanel — flota por moneda → Sub-Santuario.
@@ -11,6 +39,8 @@ export default function BeruPanel({ onClose }) {
   const [panelVisible, setPanelVisible] = useState(false);
   const [selected, setSelected] = useState(null);
   const [flota, setFlota] = useState(() => flotaDesdeEstado({}));
+  const [menuSantos, setMenuSantos] = useState(false);
+  const [filtroGrado, setFiltroGrado] = useState(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setPanelVisible(true));
@@ -37,11 +67,31 @@ export default function BeruPanel({ onClose }) {
     };
   }, []);
 
-  if (selected) {
-    return <BeruAssetDetail symbol={selected} onClose={() => setSelected(null)} />;
+  if (selected?.vista === "chart") {
+    return (
+      <BeruChartScreen
+        symbol={selected.symbol}
+        onClose={() => setSelected(null)}
+        onFicha={() => setSelected({ symbol: selected.symbol, vista: "ficha" })}
+      />
+    );
+  }
+  if (selected?.vista === "ficha" || typeof selected === "string") {
+    const sym = typeof selected === "string" ? selected : selected.symbol;
+    return (
+      <BeruAssetDetail
+        symbol={sym}
+        onClose={() => setSelected(null)}
+        onChart={() => setSelected({ symbol: sym, vista: "chart" })}
+      />
+    );
   }
 
-  const activos = flota.activos || [];
+  const todos = flota.activos || [];
+  const activos = filtroGrado ? todos.filter((a) => a.grado === filtroGrado) : todos;
+  const nSantos = flota.n_santos || todos.length;
+  const conteo = flota.conteo_grados || {};
+  const filtroLabel = RANGOS_SANTOS.find((r) => r.id === filtroGrado)?.plural;
 
   return (
     <div
@@ -64,67 +114,161 @@ export default function BeruPanel({ onClose }) {
         <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl italic font-bold tracking-widest pointer-events-none">
           BERU
         </h1>
-        <span className="text-[10px] text-white/35 w-10 text-right">{flota.n_barcos_total || 0}</span>
+        <button
+          type="button"
+          onClick={() => setMenuSantos((v) => !v)}
+          aria-expanded={menuSantos}
+          aria-label={`${nSantos} Santos de la flota`}
+          className={`flex flex-col items-end justify-center min-w-[4.5rem] px-2.5 py-1.5 rounded-xl border active:scale-95 ${
+            menuSantos || filtroGrado
+              ? "border-cyan-300/70 bg-cyan-400/20"
+              : "border-cyan-400/45 bg-cyan-400/10"
+          }`}
+        >
+          <span className="text-lg font-bold tabular-nums leading-none text-cyan-300">{nSantos}</span>
+          <span className="text-[9px] uppercase tracking-[0.18em] text-cyan-400/90">Santos</span>
+        </button>
       </header>
 
-      <section className="px-4 pt-4 pb-2">
-        <p className="text-center text-[10px] uppercase tracking-[0.25em] text-white/35 mb-1">
-          Flota · semilla {flota.semilla || "—"}
-        </p>
-        <p className="text-center text-xs text-white/50 mb-3">
-          {flota.n_activos || 0} monedas · toca una para el Sub-Santuario
-        </p>
-      </section>
+      {menuSantos ? (
+        <div className="mx-4 mt-3 rounded-2xl border border-cyan-400/25 bg-[#12141a] p-3 space-y-1 shadow-[0_0_24px_rgba(103,232,249,0.08)]">
+          {RANGOS_SANTOS.map((r) => {
+            const n = Number(conteo[r.id]) || 0;
+            const activo = filtroGrado === r.id;
+            return (
+              <button
+                key={r.id}
+                type="button"
+                disabled={n <= 0}
+                onClick={() => {
+                  setFiltroGrado(r.id);
+                  setMenuSantos(false);
+                }}
+                className={`w-full flex justify-between items-center px-3 py-2 rounded-xl text-sm ${
+                  n <= 0
+                    ? "text-white/25 cursor-not-allowed"
+                    : activo
+                      ? "bg-cyan-400/15 text-cyan-200"
+                      : "text-white/85 active:scale-[0.99]"
+                }`}
+              >
+                <span style={{ color: n > 0 ? colorGrado(r.id) : undefined }}>{r.plural}</span>
+                <span className="tabular-nums font-semibold">{n}</span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => {
+              setFiltroGrado(null);
+              setMenuSantos(false);
+            }}
+            className="w-full mt-1 px-3 py-2 rounded-xl text-xs uppercase tracking-[0.2em] text-white/50 active:scale-[0.99]"
+          >
+            Todos
+          </button>
+        </div>
+      ) : null}
 
-      <div className="px-4 pb-10 space-y-2">
+      {filtroLabel && !menuSantos ? (
+        <div className="px-4 pt-3">
+          <button
+            type="button"
+            onClick={() => setFiltroGrado(null)}
+            className="text-[11px] uppercase tracking-[0.18em] text-cyan-300/80"
+          >
+            {filtroLabel} · todos
+          </button>
+        </div>
+      ) : null}
+
+      <div className="px-4 pt-4 pb-10 space-y-2">
         {activos.length === 0 ? (
           <p className="text-center text-white/40 text-sm py-8">
-            Legión vacía — esperando semilla.
+            {filtroGrado ? "Ningún Santo de este rango." : "Legión vacía — esperando semilla."}
           </p>
         ) : (
           activos.map((a) => {
-            const comp = a.composicion || {};
-            const pctC = Math.min(100, Number(comp.pct_caza) || 0);
-            const pctN = Math.min(100, Number(comp.pct_negociando) || 0);
+            const cerrado = String(a.oficio || "").toLowerCase() === "cerrado";
+            const distTxt = fmtDistSilbato(a.dist_silbato, a.oficio);
+            const tono = colorGrado(a.grado);
+            const mariscal = String(a.grado || "").toUpperCase() === "MARISCAL";
+            const saco = a.saco_usd != null ? a.saco_usd : a.masa_total_usd;
+            const cazas = Number(a.n_cazas) || 0;
+            const paso = Number(a.engorde_paso_usd);
+            const rango = nombreGrado(a.grado);
             return (
-              <button
+              <div
                 key={a.activo}
-                type="button"
-                onClick={() => setSelected(a.activo)}
-                className="w-full text-left rounded-2xl border border-white/10 bg-[#12141a]/90 p-3.5 active:scale-[0.99] transition-transform"
+                className="w-full text-left rounded-2xl border bg-[#12141a]/90 p-3.5"
+                style={{
+                  borderColor: cerrado
+                    ? "rgba(255,255,255,0.08)"
+                    : mariscal
+                      ? "rgba(103,232,249,0.45)"
+                      : "rgba(255,255,255,0.10)",
+                  boxShadow: mariscal && !cerrado ? "0 0 18px rgba(103,232,249,0.12)" : "none",
+                  opacity: cerrado ? 0.72 : 1,
+                }}
               >
-                <div className="flex justify-between items-baseline mb-1.5">
-                  <span className="text-lg font-semibold tracking-wide">
+                <div className="flex justify-between items-baseline mb-1">
+                  <button
+                    type="button"
+                    onClick={() => setSelected({ symbol: a.activo, vista: "chart" })}
+                    className="text-lg font-semibold tracking-wide text-left active:scale-[0.98]"
+                    aria-label={`Velas spot ${a.activo}`}
+                  >
                     {a.activo}
                     {a.es_semilla ? (
                       <span className="ml-2 text-[10px] uppercase text-emerald-400/80">semilla</span>
                     ) : null}
-                  </span>
-                  <span className="text-xs text-white/45 tabular-nums">{fmtUsd(a.masa_total_usd)}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelected({ symbol: a.activo, vista: "ficha" })}
+                    className="text-xs text-white/70 tabular-nums active:scale-[0.98]"
+                    aria-label={`Saco Hoz ${a.activo}`}
+                  >
+                    {fmtUsd(cerrado ? null : saco)}
+                  </button>
                 </div>
-                {a.G_min_hay_dato && a.G_min != null ? (
-                  <p className="text-[10px] text-white/40 mb-1.5 tabular-nums">
-                    G_min {fmtUsd(a.G_min)}
-                    {a.G_min_fuente ? ` · ${a.G_min_fuente}` : ""}
+                <button
+                  type="button"
+                  onClick={() => setSelected({ symbol: a.activo, vista: "ficha" })}
+                  className="w-full text-left active:scale-[0.99]"
+                  aria-label={`Ficha ${a.activo}`}
+                >
+                  <p
+                    className="text-[12px] font-semibold tracking-wide mb-1"
+                    style={{
+                      color: tono,
+                      textShadow: mariscal ? "0 0 10px rgba(103,232,249,0.55)" : "none",
+                    }}
+                  >
+                    {rango === "00" ? "" : rango}
+                    {!cerrado && Number.isFinite(paso) && paso > 0 ? (
+                      <span className="ml-2 text-[11px] font-normal tabular-nums opacity-90">
+                        +{fmtUsd(paso)} / 0,1
+                      </span>
+                    ) : null}
                   </p>
-                ) : null}
-                <div className="flex gap-3 text-[11px] text-white/55 mb-2">
-                  <span>{a.n_caza || 0} caza</span>
-                  <span>{a.n_negociando || 0} neg</span>
-                  <span>{a.n_acechando || 0} acech</span>
-                  {a.n_mega ? <span className="text-amber-300">{a.n_mega} mega</span> : null}
-                </div>
-                <div className="h-2.5 rounded-full overflow-hidden flex border border-white/10 mb-1.5">
-                  <div className="h-full bg-emerald-500/70" style={{ width: `${pctC}%` }} />
-                  <div className="h-full bg-sky-500/60" style={{ width: `${pctN}%` }} />
-                </div>
-                <div className="flex justify-between text-[10px] text-white/40">
-                  <span>
-                    Red engorde {a.red_engorde_pct != null ? fmtPct(a.red_engorde_pct) : "—"}
-                  </span>
-                  <span>PnL {fmtUsd(a.pnl_est_usd)}</span>
-                </div>
-              </button>
+                  <div className="flex justify-between text-[11px] text-white/55">
+                    <span>{etiquetaOficio(a.oficio)}</span>
+                    <span className="tabular-nums">
+                      {cerrado
+                        ? (cazas > 0 ? `${cazas} ${cazas === 1 ? "caza" : "cazas"}` : "")
+                        : distTxt
+                          ? distTxt
+                          : `${cazas} ${cazas === 1 ? "caza" : "cazas"}`}
+                    </span>
+                  </div>
+                  {a.ultima_lecturas ? (
+                    <p className="text-[10px] text-white/40 mt-1 tabular-nums leading-snug">
+                      {a.ultima_lecturas}
+                    </p>
+                  ) : null}
+                </button>
+              </div>
             );
           })
         )}

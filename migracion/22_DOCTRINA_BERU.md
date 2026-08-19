@@ -28,6 +28,50 @@ El precio de nacimiento **sí es el 0 local de la semilla**. No es un tercer
 metro. El manto no se pisa. Si Igris mueve el promedio mientras un tramo ya
 está armado, el metro se refresca pero la Hoz/Red no se desplazan.
 
+## Pergamino — velas propias (no Bybit incrustado)
+
+El Sub-Santuario muestra **velas de spot** de la casa USDT, con las rayas del
+combate encima: manto, wake, Vacío, Hoz, Red. La Hoz **amarilla** solo si hay
+carta colgada en Bybit; la Red es **azul**. El wake es raya sin precio a la
+derecha. El last de la vela no usa el amarillo de la Hoz. A la **izquierda**
+de cada raya roja va la **masa prometida** ya pasada por el lote de Bybit.
+Al nacer (semilla acechando), las **dos** campanas del Vacío de Adán: aún no
+se sabe si tocará arriba o abajo. En cuanto **una** suena, el dual se acaba.
+Ese lado pasa a ser **Hoz + Red**. Queda **una sola sangre**, la **contraria**
+a la última Hoz, a **1,1 puntos del metro** desde esa Hoz (no del wake). Si la
+Hoz camina por toques de Red, esa sangre camina con ella. Hoz amarilla solo
+con carta; Red azul. Cada cosecha de **esta vida** (desde el wake/arise) deja
+una **×**. Tras el funeral, el hijo acecha con **esa sangre contraria** y la
+**Red de relevo** azul (0,9 / 0,5 / 0,3) — no con dos Vacío. El 0 local
+es la raya de wake (semilla: precio de nacimiento; hijo: Hoz cobrada). El
+**manto** es solo el metro: no se disfraza de 0. El hijo nace con masa **G_min**,
+no con el saco de diez peldaños de la semilla. Mariscal no deja hijo. Esta
+geometría es ley de oficio de **toda la flota**. Tocar el **nombre** del Santo
+abre el lienzo grande. El gráfico del celular de Bybit **no** se importa:
+este mapa es del cazador. HYPE no se confunde con HYPER.
+
+La **flota** (listado de Santos) no va A→Z: sube el calor. Primero quien
+**caza** (Vacío o Red ya sonó). Luego el hijo que acecha tras una Hoz cobrada.
+El resto, por cercanía al silbato más próximo. No se listan huecos: sin Beru
+o sin manto, el Santo no aparece. Mariscal que ya cerró esta vida **sí**
+aparece abajo, como cerrado, sin % de oído. El número junto a BERU son vivos
+más cerrados; tocarlo parte Mariscales / Generales / Capitanes / Soldados y filtra.
+El rango sale del cazador vivo, nunca 00. Orden: **cazando**, luego acecho del
+**% más chico** al oído (sangre o Red), luego cerrados. Vacío, Hoz y Red llevan a la izquierda la masa prometida (lote de
+la casa) aunque la foto no traiga el número. La tarjetita: nombre, grado en
+azul (Soldado oscuro → Mariscal cian), dólares por cada 0,1, cazando/acechando
+o cerrado, **% al toque** si acecha, y a la derecha el **saco de la Hoz** (el mismo número que
+el Vacío de ahora si acecha; la Hoz viva si caza; cerrado sin saco). Sin G_min ni PnL en el chip.
+
+En el lienzo grande, el metro del manto es **nativo, en dos toques**: el
+primero **despierta** el 0 e ilumina la raya (aún no arrastra); el segundo
+proyecta. Asa chica, no imán. Ficha al **lado del dedo** (% vs el 0, jugo en
+$, moneda). Dólares L+S y el grado van como marca de agua arriba a la
+izquierda. La × apaga; el 0 real no se mueve; **no** mueve a Igris. La ficha
+del Sub-Santuario no tiene esta regla. El campo **no se replanta** en cada
+pulso: velas y rayas se actualizan encima; el encuadre se queda (salvo al
+abrir el Santo o cambiar 15m / 1h / 4h).
+
 ## Primera caza — Vacío de Adán
 
 Los cuatro grados oyen el **mismo silbato**:
@@ -35,6 +79,7 @@ Los cuatro grados oyen el **mismo silbato**:
 - **Vacío de Adán: ±1,1 %** desde el 0 local de wake, en puntos del metro del
   manto. Solo llama, no ejecuta. Hay una campana arriba y una abajo.
 - Ejemplo: manto 100, wake 130 → espera **131,1** o **128,9**.
+  El Pergamino pinta esas mismas campanas (metro del manto, no 1,1 % del wake).
 - **Hoz:** un peldaño detrás, **±1,0 %**.
 - Masa al nacer la Hoz (10 peldaños × engorde del grado). Con G_min=$5:
   Soldado **$6,25** · Capitán **$12,50** · General **$25** · Mariscal **$50**.
@@ -74,9 +119,13 @@ Hoz:
 3. el padre queda `COSECHADO`;
 4. nace **un solo** cazador hijo, masa cero y oficio `CAZA`;
 5. el hijo **acecha** con **dos orejas** — ninguna es condicional:
-   - **Sangre:** oído interno **±1,1 %** desde la **última Hoz** cobrada;
+   - **Sangre:** oído interno **1,1 %** al **otro lado** de la **última Hoz**
+     cobrada (si vendió arriba, la sangre queda abajo; si compró abajo, arriba);
    - **Red de relevo:** oído **0,9 / 0,5 / 0,3 %** desde la **última Red**
      tocada, en la dirección de la tendencia;
+   En el Pergamino se pintan **esa** campana de sangre y el 0 local (raya
+   wake). La Red de relevo es azul. El manto no ocupa el lugar del 0.
+   No se vuelve a pintar un Vacío del mismo lado que la Hoz.
 6. **solo la Hoz es condicional.** Cuando una oreja silba, recién entonces se
    planta la Hoz 0,1 % detrás del silbato.
 
@@ -90,9 +139,9 @@ Eso hace que el hijo nazca con exactamente **G_min** potencial: $5 con el mínim
 vigente. Un aviso repetido del mismo fill no puede parir un segundo hijo.
 
 Ejemplo con metro 100: semilla despierta en 101,1; Red en 101,2; cobra Hoz en
-101,1. El hijo acecha sangre en 102,21 / 99,99 y Red de relevo en 102,11 /
-100,29 (Soldado 0,9 %). Si sube primero a 102,11 gana la Red; si cae a 99,99
-gana la sangre desde la Hoz.
+101,1. El hijo acecha sangre **abajo** en 100,0 (Hoz − 1,1 del metro) y Red de
+relevo en 102,11 (Soldado 0,9 %). Si sube primero a 102,11 gana la Red; si cae
+a 100 gana la sangre desde la Hoz. No hay Vacío arriba: ese lado ya fue la caza.
 
 ## Mariscal
 
@@ -121,8 +170,21 @@ no se convierte a ciegas.
 ## Ojos y manos
 
 - Ojos = **last price spot** del Santo. Sin spot, Beru está ciego.
-- En ritual de Beru, Tank y el puente **solo** oyen ese last spot (ciegos a
-  lineal, inverso y futuros). La muleta REST es pozo de emergencia, no el oído.
+  El pregón vivo son los **tratos públicos** spot: cada fill actualiza el last
+  y Tank recuerda máximo y mínimo del latido. El Vacío pregunta si **en ese
+  latido se tocó** el ±1,1 del metro, no si el last sigue ahí ahora. El ticker
+  es muleta si no hay tratos. REST sigue pozo si el río muere. Sin libro, sin
+  mark, sin lineal/inverso. Igris no bebe el extremo del latido.
+- En ritual de Beru, Tank y el puente **solo** oyen last spot (ciegos a
+  lineal, inverso y futuros) **más tratos públicos** de esos Santos. La muleta
+  REST es pozo de emergencia, no el oído. Si el río WS late, la muleta **calla**.
+  Si el río muere, el last se pide por HTTP público — no por la boca de combate
+  (esa boca es solo plantar/quitar Hoz).
+- Cada Santo arma o mueve su Hoz **por su cuenta**: AAVE no espera a que ETH
+  termine el viaje a Bybit. El pulso de la legión sigue oyendo.
+- En ritual Beru, Tusk toma **una foto** del manto al sembrar. No recita
+  linear+inverse en cada pulso (Igris hiberna). El oxígeno de la caja sigue
+  a ~30 s. Kaiser **no late** (no klines ni vocero en la boca de la Hoz).
 - Sin fallback lineal/inverso ni orderbook.
 - Basis y sobrantes pertenecen a Greed.
 - Manos reales continúan **OFF** (candado `BERU_MANOS` / hilo). El pulso del
@@ -146,10 +208,13 @@ no se convierte a ciegas.
   replanta al avanzar la Red.
 - Bitácora única (papel y Mariscales vivos): silbato Vacío/Red/relevo, Hoz
   plantada o fallo, **llamado ahogado** (oreja sí / garganta no), fill o carta
-  aún colgada, engorde y sello por Santo. El
-  sello no dice «cero órdenes reales» si hubo Mariscales con manos.
-- Flota viva 100%: los 22 Santos plantan Hoz real; el uniforme de cada uno
-  lo dicta su manto (no se exige Mariscal a toda la flota). Igris hiberna.
+  aún colgada, engorde y sello por Santo. Cada cosecha anota **dos lecturas**
+  (no se mezclan): **metro** (fill vs manto Igris) y **Hoz** (fill vs última
+  Hoz plantada). El sello no dice «cero órdenes reales» si hubo Mariscales con
+  manos.
+- Flota: solo se siembra y se lista Santo **con metro**. Tierra sin manto no
+  ensucia ojos ni Pergamino (no nace Beru ahí). El ticker de casa puede quedar
+  en el río para el last, sin semilla. Igris hiberna.
 
 ## Prueba vigente
 
@@ -168,6 +233,8 @@ La prueba canónica actual es el altar frío:
 - stress de 300 relevos y 400 recorridos / 3.800 Hoces movidas.
 
 ```powershell
+python scripts/validar_beru_asset_detail_smoke.py
+python scripts/validar_beru_spot_kline_smoke.py
 python scripts/validar_beru_continuo_smoke.py
 python scripts/validar_beru_cazador_smoke.py
 python scripts/validar_beru_wake_reset0_smoke.py

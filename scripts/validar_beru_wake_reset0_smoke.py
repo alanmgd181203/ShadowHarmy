@@ -1,9 +1,9 @@
-"""Smoke — Beru wake reset-0 flota · Normal 1.6 · manos OFF."""
+"""Smoke — wake Beru no inventa 0; lo recibe del manto Igris."""
 from __future__ import annotations
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -11,113 +11,112 @@ if str(ROOT) not in sys.path:
 
 import core.config as config
 from core import beru_wake
-from core import beru_cazador
 from generales.beru import BeruCazador
-from generales.capitanes import CapitanNormal, CapitanAnsiedad
-
-
-def test_centros_reset_0():
-    cl, cm = beru_wake.centros_al_wake(1234.5)
-    assert cl == 1234.5
-    assert cm == 1234.5
-
-
-def test_capitan_normal_1_6():
-    adn = beru_wake.adn_capitan_wake()
-    assert adn is CapitanNormal
-    assert abs(float(adn.vacio_adan) - 0.016) < 1e-9
-    assert adn is not CapitanAnsiedad
-    assert abs(beru_wake.vacio_wake_pct() - 0.016) < 1e-9
-
-
-def test_manos_off_por_default():
-    assert config.BERU_MANOS is False
-    assert beru_wake.manos_beru_activas() is False
-    assert config.BERU_HILO_ENABLED is False
-
-
-def test_semilla_wake_ambos_centros():
-    s = beru_wake.crear_semilla_wake("ADA", 0.19, tier_id="PROTO1")
-    assert s.masa == 0.0
-    assert s.centro_local == 0.19
-    assert s.centro_manto == 0.19
-    assert s.estado == "ACECHANDO"
-    assert "ADA" in s.uid
-    assert s.adn_capitan is CapitanNormal
-
-
-def test_plantar_no_usa_promedio_tusk():
-    tusk = MagicMock()
-    tusk.masa_bruta_real = 2200.0
-    tusk.masa_bruta = 2200.0
-    tusk.precio_spot = 100.0
-    tusk.ultimo_precio = 100.0
-    tusk.pesos = {
-        "XUSDT_LINEAL": {"long": 0, "short": 1, "precio_medio_long": 0, "precio_medio_short": 50.0},
-        "XUSD_INVERSE": {"long": 1, "short": 0, "precio_medio_long": 50.0, "precio_medio_short": 0},
-    }
-    # Promedio Tusk sería 50; wake debe clavar 100
-    assert abs(beru_cazador.centro_manto_desde_tusk(tusk) - 50.0) < 1e-6
-
-    tank = MagicMock()
-    tank.capitan_activo = CapitanAnsiedad  # se fuerza a Normal al init
-    bel = MagicMock()
-    beru = BeruCazador(tusk, bel, tank, bridge=None)
-    # Sin director: permite caza
-    import core.pase_director as pd
-    prev = getattr(pd, "director_activo", None)
-    try:
-        pd.director_activo = lambda: False  # type: ignore
-        s = beru.plantar_semilla_adan(100.0, activo="ETH")
-    finally:
-        if prev is not None:
-            pd.director_activo = prev
-    assert s is not None
-    assert s.centro_manto == 100.0
-    assert s.centro_local == 100.0
-    assert tank.capitan_activo is CapitanNormal
-
-
-def test_flota_siembra_varios():
-    tusk = MagicMock()
-    tusk.masa_bruta_real = 2200.0
-    tusk.masa_bruta = 2200.0
-    tusk.precio_spot = 0.0
-    tusk.ultimo_precio = 0.0
-    tank = MagicMock()
-    tank.capitan_activo = CapitanNormal
-    beru = BeruCazador(tusk, MagicMock(), tank, bridge=None)
-    import core.pase_director as pd
-    prev = pd.director_activo
-    try:
-        pd.director_activo = lambda: False  # type: ignore
-        precios = {"ETH": 3000.0, "ADA": 0.18, "BCH": 210.0, "MNT": 0.43}
-        n = beru.despertar_flota_reset_0(precios, equity_usd=2200.0)
-    finally:
-        pd.director_activo = prev
-    assert n >= 3
-    centros = {(b.uid.split("_")[2], b.centro_manto) for b in beru.legion}
-    assert any(a == "ETH" and c == 3000.0 for a, c in centros)
-    assert any(a == "ADA" and abs(c - 0.18) < 1e-9 for a, c in centros)
-
-
-def test_resumen_cableado():
-    r = beru_wake.resumen_cableado()
-    assert r["wake_reset_0"] is True
-    assert r["manos"] is False
-    assert r["vacio_pct"] == 1.6
-    assert r["n_flota_catalogo"] >= 10
+from generales.capitanes import CapitanNormal
 
 
 def main() -> int:
-    test_centros_reset_0()
-    test_capitan_normal_1_6()
-    test_manos_off_por_default()
-    test_semilla_wake_ambos_centros()
-    test_plantar_no_usa_promedio_tusk()
-    test_flota_siembra_varios()
-    test_resumen_cableado()
-    print("validar_beru_wake_reset0_smoke: OK (7 checks)")
+    cl, cm = beru_wake.centros_al_wake(1234.5)
+    assert cl == 1234.5 and cm == 0.0
+    assert beru_wake.wake_reset_0_activo() is False
+    assert config.BERU_WAKE_RESET_0 is False
+    assert beru_wake.adn_capitan_wake() is CapitanNormal
+    assert beru_wake.manos_beru_activas() is False
+
+    s = beru_wake.crear_semilla_wake("ETH", 100.0, tier_id="PROTO1")
+    assert s.centro_manto == 0.0
+    assert s.modo_combate == "CAZA"
+
+    tusk = MagicMock()
+    tusk.masa_bruta_real = tusk.masa_bruta = 2200.0
+    tusk.pesos = {
+        "ETHUSD_INVERSE": {
+            "long": 1,
+            "short": 0,
+            "precio_medio_long": 50.0,
+            "precio_medio_short": 0,
+        },
+        "ETHUSDT_LINEAL": {
+            "long": 0,
+            "short": 1,
+            "precio_medio_long": 0,
+            "precio_medio_short": 50.0,
+        },
+    }
+    tank = MagicMock()
+    tank.capitan_activo = CapitanNormal
+    beru = BeruCazador(tusk, MagicMock(), tank, bridge=None)
+
+    import core.pase_director as pd
+    previo = pd.director_activo
+    try:
+        pd.director_activo = lambda: False  # type: ignore
+        sembrado = beru.plantar_semilla_adan(100.0, activo="ETH")
+        sin_manto = beru.plantar_semilla_adan(1.0, activo="ADA")
+    finally:
+        pd.director_activo = previo
+
+    assert sembrado is not None
+    assert sembrado.centro_manto == 50.0
+    assert sembrado.centro_local == 100.0
+    assert sembrado.ancla_tramo == 100.0
+    assert sin_manto is None
+
+    resumen = beru_wake.resumen_cableado()
+    assert resumen["wake_reset_0"] is False
+    assert resumen["manos"] is False
+    assert resumen["vacio_pct"] == 1.1
+    assert resumen.get("sangre_pct") == 1.1
+    with (
+        patch("core.pase_director.director_activo", return_value=True),
+        patch("core.pase_director.grado_beru_para_caza", return_value="MARISCAL"),
+    ):
+        assert beru_wake.tier_siembra_activo("HYPE", tusk=tusk) == "PLENO"
+    with (
+        patch("core.pase_director.director_activo", return_value=True),
+        patch("core.pase_director.grado_beru_para_caza", return_value="SOLDADO"),
+    ):
+        assert beru_wake.tier_siembra_activo("OP", tusk=tusk) == "BERUBBY"
+
+    # Integración: la flota nace con uniformes distintos según su propio manto.
+    roster = BeruCazador(tusk, MagicMock(), tank, bridge=None)
+    grados = {"HYPE": "MARISCAL", "DOT": "GENERAL", "OP": "SOLDADO"}
+    with (
+        patch("core.beru_wake.catalogo_flota", return_value=list(grados)),
+        patch(
+            "core.pase_director.grado_beru_para_caza",
+            side_effect=lambda act, **_kw: grados[str(act).upper()],
+        ),
+        patch("core.beru_cazador.centro_manto_desde_tusk", return_value=100.0),
+        patch("core.beru_cazador.manto_vivo", return_value=True),
+    ):
+        assert roster.despertar_flota_reset_0(
+            {"HYPE": 100.0, "DOT": 100.0, "OP": 100.0},
+            equity_usd=4000.0,
+        ) == 3
+    tiers = {roster._activo_de_barco(b): b.tier_id for b in roster.legion}
+    assert tiers == {"HYPE": "PLENO", "DOT": "PROTO1", "OP": "BERUBBY"}, tiers
+    ojos = beru_wake.catalogo_ojos_desde_foto(
+        ["BTC", "ETH", "APT", "ETC", "DOT"],
+        snap={
+            "beru_flota": {
+                "activos": [
+                    {"activo": "DOT", "centro_manto": 0.76, "n_barcos": 1},
+                ]
+            },
+            "igris_asset_details": {
+                "ETH": {
+                    "long": {"size_usd": 100},
+                    "short": {"size_usd": 100},
+                },
+            },
+        },
+    )
+    assert "DOT" in ojos
+    assert "ETH" in ojos
+    assert "APT" not in ojos
+    assert "ETC" not in ojos
+    print("validar_beru_wake_reset0_smoke: OK (metro manto · 0 local = wake)")
     return 0
 
 

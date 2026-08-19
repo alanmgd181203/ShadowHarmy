@@ -82,7 +82,7 @@ from generales.beru import BeruCazador  # noqa: E402
 from generales.igris import IgrisEscudo  # noqa: E402
 from generales.kaiser import KaiserVocero  # noqa: E402
 from generales.tank import TankCluster  # noqa: E402
-from generales.tusk import TuskBoveda  # noqa: E402
+from generales.tusk import TuskBoveda, silenciar_recital_manto_en_ritual_beru  # noqa: E402
 
 HB_PATH = ROOT / "data" / "logs" / "beru_fantasma" / "heartbeat.json"
 REPORT_PATH = ROOT / "data" / "logs" / "beru_fantasma" / "ultimo_informe.json"
@@ -284,19 +284,19 @@ async def _corte_tiempo(shutdown_event, segundos: float):
 
 
 async def _muleta_ojos_rest(bridge, tank, activos: list[str], shutdown_event):
-    """Si el torrente WS muere, rellena precios spot por REST (público vía sesión)."""
+    """Si el torrente WS muere, rellena last spot por HTTP público (no la boca de combate)."""
     from core import beru_ojos
 
     await asyncio.sleep(1.0 if bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False)) else 8)
     while not shutdown_event.is_set():
-        if beru_ojos.rest_fallback_activo():
+        if beru_ojos.muleta_rest_necesaria(tank):
             try:
                 precios = await asyncio.to_thread(
                     beru_ojos.inyectar_precios_rest, bridge, tank, activos,
                 )
                 if precios:
                     bits = ",".join(f"{k}={v:.6g}" for k, v in precios.items())
-                    print(f"[OJOS_REST] muleta tickers: {bits}", flush=True)
+                    print(f"[OJOS_REST] muleta pública (río muerto): {bits}", flush=True)
             except Exception as e:
                 print(f"[OJOS_REST] fallo: {e}", flush=True)
         try:
@@ -333,10 +333,85 @@ def _aplicar_activos(activos: list[str]) -> None:
     print(f"[OJOS] Spot vigilancia: {frentes}", flush=True)
     print(
         f"[OJOS] Tank ciego a lineal/inverso/futuros · last spot {len(bases)} Santos · "
-        f"books=OFF · muleta REST {config.BERU_OJOS_REST_S:.0f}s si el río muere · "
+        f"tratos públicos ON · books=OFF · muleta REST {config.BERU_OJOS_REST_S:.0f}s si el río muere · "
         f"bases={','.join(bases)}",
         flush=True,
     )
+
+
+def _pct_foto_a_fraccion(v) -> float:
+    x = float(v or 0)
+    if x <= 0:
+        return 0.0
+    return x / 100.0 if abs(x) > 0.2 else x
+
+
+def _items_legion_desde_vivo(activos: list[str]) -> list[dict]:
+    """Reusa la flota viva del Pergamino: mismo 0 local, sin nuevo arise."""
+    path = ROOT / "data" / "estado_vivo.json"
+    if not path.exists():
+        return []
+    try:
+        snap = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    details = snap.get("beru_asset_details") or {}
+    permitidos = {str(a or "").upper() for a in activos if a}
+    items: list[dict] = []
+    vistos: set[str] = set()
+    for act, det in details.items():
+        u = str(act or "").upper()
+        if permitidos and u not in permitidos:
+            continue
+        for b in det.get("barcos") or []:
+            uid = str(b.get("uid") or "")
+            if not uid or uid in vistos:
+                continue
+            est = str(b.get("estado") or "").upper()
+            if est in ("COSECHADO", "FUSIONADO", "FOSIL_BLOQUEADO", "ESPERANDO_SUELTA"):
+                continue
+            vistos.add(uid)
+            local = float(b.get("centro_local") or b.get("centro_wake") or b.get("centro_0") or 0)
+            manto = float(b.get("centro_manto") or 0)
+            if local <= 0 or manto <= 0:
+                continue
+            items.append({
+                "uid": uid,
+                "centro_local": local,
+                "centro_manto": manto,
+                "ancla_tramo": float(b.get("ancla_tramo") or local),
+                "masa": float(b.get("masa") or 0),
+                "direccion": str(b.get("direccion") or "LONG"),
+                "estado": est or "ACECHANDO",
+                "oz_adan": float(b.get("oz_precio") or 0),
+                "red_adan": float(b.get("red_precio") or 0),
+                "oz_pct": _pct_foto_a_fraccion(b.get("oz_pct")),
+                "red_pct": _pct_foto_a_fraccion(b.get("red_pct")),
+                "frente_asignado": str(b.get("frente") or f"{u}USDT_SPOT"),
+                "tier_id": str(b.get("tier_id") or ""),
+                "modo_combate": "CAZA",
+                "generacion": int(b.get("generacion") or 1),
+                "cosechas_continuas": int(b.get("cosechas_continuas") or 0),
+                "llamado_tramo_pct": _pct_foto_a_fraccion(b.get("llamado_tramo_pct")),
+                "masa_tramo_usd": float(b.get("masa_tramo_usd") or b.get("masa") or 0),
+                "ultima_hoz_tocada_precio": float(b.get("ultima_hoz_precio") or 0),
+                "ultima_hoz_tocada_pct": _pct_foto_a_fraccion(b.get("ultima_hoz_pct")),
+                "ultima_red_tocada_precio": float(b.get("ultima_red_precio") or 0),
+                "ultima_red_tocada_pct": _pct_foto_a_fraccion(b.get("ultima_red_pct")),
+                "oreja_sangre_activa": bool(b.get("oreja_vacio")),
+                "oreja_red_activa": bool(b.get("oreja_red")),
+                "llamado_red_pct": float(b.get("llamado_red_pct") or 0),
+                "es_relevo_cazador": bool(b.get("es_relevo")),
+                "altar_link_id": str(b.get("altar_link_id") or ""),
+                "altar_order_status": str(b.get("altar_status") or ""),
+                "hoz_modo": str(b.get("hoz_modo") or ""),
+                "masa_carta_usd": float(b.get("masa_carta_usd") or 0),
+                "masa_rafaga_usd": float(b.get("masa_rafaga_usd") or 0),
+                "precio_entrada_real": float(b.get("precio_entrada") or 0),
+                "ts_wake": float(b.get("ts_wake") or 0),
+                "sangre_vista_dentro": False,
+            })
+    return items
 
 
 async def ritual(segundos: float, activos: list[str]):
@@ -375,7 +450,12 @@ async def ritual(segundos: float, activos: list[str]):
             config.MODO_SIMULACION = True
             print("[!] Forzado MODO_SIMULACION=true (candado ritual).", flush=True)
 
-    _aplicar_activos(activos)
+    _aplicar_activos(beru_wake.catalogo_ojos_desde_foto(activos))
+    silenciar_recital_manto_en_ritual_beru()
+    print(
+        "[TUSK] Igris hiberna: una foto del manto al sembrar · no recita en el pulso.",
+        flush=True,
+    )
     started = time.time()
     shutdown_event = asyncio.Event()
     _senales(asyncio.get_running_loop(), shutdown_event)
@@ -440,6 +520,7 @@ async def ritual(segundos: float, activos: list[str]):
         else:
             print("[BERU] Hilo ON · manos fantasma · engorde ON · Vacío 1.1 · neutro ON.", flush=True)
         print("[IGRIS/GREED] Hibernados.", flush=True)
+        print("[KAISER] Hibernado — no late (boca de la Hoz libre).", flush=True)
         print(f"[BITÁCORA] {beru_fantasma.LOG_PATH}", flush=True)
         print("Ctrl+C para sellar.\n", flush=True)
 
@@ -458,6 +539,7 @@ async def ritual(segundos: float, activos: list[str]):
             manos_activos=vivos,
             cableado=beru_wake.resumen_cableado(),
         )
+        beru_wake.sellar_wake_ritual(force=True)
 
         running: list[asyncio.Task] = []
 
@@ -472,7 +554,7 @@ async def ritual(segundos: float, activos: list[str]):
         _spawn(bridge.conectar())
         _spawn(bridge.hilo_sentidos_extra())
         _spawn(bridge.hilo_sincronizacion_nav())
-        _spawn(kaiser.vigilar_indicadores())
+        # Kaiser no late: klines/backfill pelearían la boca con la Hoz.
         _spawn(beru.hilo_beru_berserker())
         _spawn(_refrescar_panel(panel))
         _spawn(_publicar_estado(bellion, tusk, igris, tank, kaiser, beru))
@@ -484,63 +566,114 @@ async def ritual(segundos: float, activos: list[str]):
         if binance_ref:
             _spawn(binance_ref.conectar())
 
-        # Siembra asistida tras calentar ojos (precios reales por Santo)
-        async def _siembra_asistida():
-            await asyncio.sleep(25)
-            if shutdown_event.is_set():
-                return
-            fresco = True
-            for act in activos:
-                try:
-                    ok = bool(
-                        await tusk.reconciliar_con_exchange(
-                            bridge, activo=act, solo_lectura=True,
-                        )
-                    )
-                except Exception as exc:
-                    print(f"[BERU] Manto {act} no reconciliado: {exc}", flush=True)
-                    ok = False
-                fresco = fresco and ok
-            if not fresco and live_manos:
-                print(
-                    "[BERU] ABORT SIEMBRA: manos reales exigen manto fresco; "
-                    "no se siembra con foto de Bellion.",
-                    flush=True,
-                )
-                return
-            if not fresco and beru_wake.manos_fantasma_activas():
-                cache_ok = all(
-                    beru_wake.manto_bellion_usable(tusk, act) for act in activos
-                )
-                if cache_ok:
+        items_vivo = _items_legion_desde_vivo(activos)
+        reuse = False
+        if items_vivo:
+            try:
+                beru.restaurar_legion(items_vivo)
+                n_ok = len(beru.legion)
+                if n_ok > 0:
+                    beru._flota_sembrada = True
+                    reuse = True
                     print(
-                        "[BERU] AVISO: reconcile falló (IP/API) — siembra con manto "
-                        "Bellion en caché · solo fantasma · sin manos reales.",
+                        f"[BERU] Ojos recargados · misma flota n={n_ok} · "
+                        "sin nuevo arise (0 local intacto).",
                         flush=True,
                     )
-                    beru_fantasma.registrar(
-                        "SIEMBRA_MANTO_CACHE",
-                        detalle="reconcile ciego; metro desde Bellion",
-                        activos=activos,
+            except Exception as exc:
+                print(f"[BERU] No se pudo reusar la flota viva: {exc}", flush=True)
+                beru.legion = []
+                beru._flota_sembrada = True
+
+        # Siembra asistida tras calentar ojos (precios reales por Santo)
+        async def _siembra_asistida():
+            print("[BERU] Calentando manto para sembrar…", flush=True)
+            await asyncio.sleep(8)
+            if shutdown_event.is_set():
+                return
+            foto_ok = False
+            try:
+                foto_ok = bool(
+                    await tusk.reconciliar_con_exchange(
+                        bridge, solo_lectura=True,
                     )
-                    fresco = True
-            if not fresco:
+                )
+            except Exception as exc:
+                print(f"[BERU] Manto no reconciliado: {exc}", flush=True)
+            print(
+                f"[BERU] Foto del manto: {'fresca' if foto_ok else 'sin foto'}",
+                flush=True,
+            )
+            frescos = [
+                act for act in activos
+                if beru_wake.manto_bellion_usable(tusk, act)
+            ]
+            for act in activos:
+                print(
+                    f"[BERU] Manto {act}: "
+                    f"{'fresco' if act in frescos else 'sin foto'}",
+                    flush=True,
+                )
+            if not foto_ok and frescos:
+                print(
+                    "[BERU] AVISO: Bybit no entregó foto a tiempo — siembra con "
+                    "manto de Bellion (Igris dormido · metro ya en Tusk).",
+                    flush=True,
+                )
+                beru_fantasma.registrar(
+                    "SIEMBRA_MANTO_CACHE",
+                    detalle="reconcile lento; metro desde Bellion",
+                    activos=frescos,
+                )
+            if not frescos:
+                if live_manos and not foto_ok:
+                    print(
+                        "[BERU] ABORT SIEMBRA: manos reales exigen manto fresco; "
+                        "no se siembra con foto de Bellion.",
+                        flush=True,
+                    )
+                    return
+                if beru_wake.manos_fantasma_activas():
+                    cache_ok = all(
+                        beru_wake.manto_bellion_usable(tusk, act) for act in activos
+                    )
+                    if cache_ok:
+                        print(
+                            "[BERU] AVISO: reconcile falló (IP/API) — siembra con manto "
+                            "Bellion en caché · solo fantasma · sin manos reales.",
+                            flush=True,
+                        )
+                        beru_fantasma.registrar(
+                            "SIEMBRA_MANTO_CACHE",
+                            detalle="reconcile ciego; metro desde Bellion",
+                            activos=activos,
+                        )
+                        frescos = list(activos)
+            if not frescos:
                 print(
                     "[BERU] ABORT SIEMBRA: sin foto fresca del manto; no inventar rango.",
                     flush=True,
                 )
                 return
+            if len(frescos) < len(activos):
+                faltan_foto = [a for a in activos if a not in frescos]
+                print(
+                    f"[BERU] Siembra parcial {len(frescos)}/{len(activos)} · "
+                    f"sin foto: {faltan_foto}",
+                    flush=True,
+                )
             exigir_tier = str(
                 os.getenv("BERU_FANTASMA_EXIGIR_TIER", "") or ""
             ).upper()
             tiers = {
                 act: beru_wake.tier_siembra_activo(act, tusk=tusk)
-                for act in activos
+                for act in frescos
             }
             print(f"[BERU] Rangos frescos para siembra: {tiers}", flush=True)
-            if vivos:
+            vivos_ok = [a for a in vivos if a in frescos]
+            if vivos_ok:
                 faltan = [
-                    a for a in vivos
+                    a for a in vivos_ok
                     if (exigido := beru_wake.tier_manos_exigido(a))
                     and str(tiers.get(a) or "") != exigido
                 ]
@@ -548,7 +681,7 @@ async def ritual(segundos: float, activos: list[str]):
                     print(
                         f"[BERU] ABORT SIEMBRA: Santos vivos {faltan} no cubren "
                         f"el uniforme pedido; manto dicta "
-                        f"{ {a: tiers.get(a) for a in vivos} }.",
+                        f"{ {a: tiers.get(a) for a in vivos_ok} }.",
                         flush=True,
                     )
                     return
@@ -558,14 +691,14 @@ async def ritual(segundos: float, activos: list[str]):
                     flush=True,
                 )
                 return
-            precios = await _rellenar_precios_flota(beru, activos)
+            precios = await _rellenar_precios_flota(beru, frescos)
             print(f"[BERU] Precios ojos para siembra: {precios}", flush=True)
             if not precios:
                 print("[BERU] Sin precios aún — reintento en 20s…", flush=True)
                 await asyncio.sleep(20)
                 if shutdown_event.is_set():
                     return
-                precios = await _rellenar_precios_flota(beru, activos)
+                precios = await _rellenar_precios_flota(beru, frescos)
                 print(f"[BERU] Precios ojos (2º): {precios}", flush=True)
             if precios:
                 beru._flota_sembrada = False
@@ -583,7 +716,8 @@ async def ritual(segundos: float, activos: list[str]):
                     flush=True,
                 )
 
-        _spawn(_siembra_asistida())
+        if not reuse:
+            _spawn(_siembra_asistida())
         await asyncio.gather(*running, return_exceptions=True)
 
     except Exception:
