@@ -32,6 +32,8 @@ AHOGO_RETCODES = frozenset({
 })
 # 170140 = valor bajo el mínimo (casa leyó monedas como dólares, o polvo).
 LOTE_RETCODES = frozenset({170140, 170134, 170124})
+RATE_LIMIT_RETCODES = frozenset({10006})
+SIN_ORDEN_RETCODES = frozenset({170213})
 AHOGO_FRASES = (
     "not enough",
     "insufficient",
@@ -172,6 +174,55 @@ def resultado_es_lote(resultado: Any) -> bool:
     return any(f in texto for f in LOTE_FRASES)
 
 
+def resultado_es_rate_limit(resultado: Any) -> bool:
+    """True si la casa escupe por demasiadas visitas (no hay cola)."""
+    if resultado is None or bool(getattr(resultado, "exito", False)):
+        return False
+    code = retcode_de_resultado(resultado)
+    if code in RATE_LIMIT_RETCODES:
+        return True
+    texto = str(getattr(resultado, "mensaje", "") or "").lower()
+    return "too many visits" in texto or "10006" in texto
+
+
+def resultado_es_sin_orden(resultado: Any) -> bool:
+    """True si la carta ya no está (170213). Cancelar no debe enredar la ronda."""
+    if resultado is None:
+        return False
+    if bool(getattr(resultado, "exito", False)):
+        return False
+    datos = getattr(resultado, "datos", None) or {}
+    if isinstance(datos, dict) and bool(datos.get("not_found")):
+        return True
+    code = retcode_de_resultado(resultado)
+    if code in SIN_ORDEN_RETCODES:
+        return True
+    texto = str(getattr(resultado, "mensaje", "") or "").lower()
+    return "does not exist" in texto or "order not exists" in texto or "170213" in texto
+
+
+def cooldown_api_s() -> float:
+    return max(0.0, float(getattr(config, "BERU_API_COOLDOWN_S", 0.5) or 0))
+
+
+def en_cooldown_api(beru: Any) -> bool:
+    hasta = float(getattr(beru, "api_bloqueo_hasta", 0) or 0)
+    return hasta > time.time()
+
+
+def marcar_cooldown_api(beru: Any) -> None:
+    if beru is None:
+        return
+    beru.api_bloqueo_hasta = time.time() + cooldown_api_s()
+
+
+def marcar_si_rate_limit(beru: Any, resultado: Any) -> bool:
+    if not resultado_es_rate_limit(resultado):
+        return False
+    marcar_cooldown_api(beru)
+    return True
+
+
 def resultado_es_ahogo(resultado: Any) -> bool:
     """True solo si la casa escupió por bóveda/margen, no por lote o símbolo."""
     if resultado is None or bool(getattr(resultado, "exito", False)):
@@ -179,8 +230,10 @@ def resultado_es_ahogo(resultado: Any) -> bool:
     if resultado_es_lote(resultado):
         return False
     code = retcode_de_resultado(resultado)
-    if code is not None:
-        return code in AHOGO_RETCODES
+    if code in AHOGO_RETCODES:
+        return True
+    if code in LOTE_RETCODES:
+        return False
     texto = str(getattr(resultado, "mensaje", "") or "").lower()
     return any(f in texto for f in AHOGO_FRASES)
 
@@ -434,6 +487,7 @@ async def disparar_rafaga(
             if not getattr(creada, "exito", False):
                 fail_n += 1
                 msgs.append(str(getattr(creada, "mensaje", "") or "market_rechazado"))
+                marcar_si_rate_limit(beru, creada)
                 if resultado_es_ahogo(creada) or resultado_es_lote(creada):
                     resto = sum(x["usd"] for x in bocados[i:])
                     return {

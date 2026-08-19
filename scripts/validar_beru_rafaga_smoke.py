@@ -65,7 +65,44 @@ def _assert_ahogo() -> None:
     assert beru_rafaga.resultado_es_lote(aave)
     assert not beru_rafaga.resultado_es_ahogo(aave)
     assert beru_rafaga.retcode_de_resultado(aave) == 170140
+    raro = OrdenResultado(
+        False,
+        mensaje="abnormal available balance",
+        datos={"retCode": 88888},
+    )
+    assert beru_rafaga.resultado_es_ahogo(raro)
     print("  rechazo ahogo vs lote OK")
+
+
+def _assert_rate_limit() -> None:
+    lim = OrdenResultado(
+        False, mensaje="Too many visits. Exceeded the API Rate Limit.",
+        datos={"retCode": 10006},
+    )
+    assert beru_rafaga.resultado_es_rate_limit(lim)
+    assert not beru_rafaga.resultado_es_ahogo(lim)
+    gone = OrdenResultado(
+        False, mensaje="Order does not exist. (ErrCode: 170213)",
+        datos={"retCode": 170213},
+    )
+    assert beru_rafaga.resultado_es_sin_orden(gone)
+    nf = OrdenResultado(
+        False, mensaje="orden_no_encontrada",
+        datos={"not_found": True},
+    )
+    assert beru_rafaga.resultado_es_sin_orden(nf)
+    b = BeruShip(
+        uid="SEM_ETH_L",
+        centro_local=100.0,
+        masa=5.0,
+        direccion="LONG",
+        estado="CAZANDO",
+    )
+    assert not beru_rafaga.en_cooldown_api(b)
+    assert beru_rafaga.marcar_si_rate_limit(b, lim)
+    assert beru_rafaga.en_cooldown_api(b)
+    assert not beru_rafaga.marcar_si_rate_limit(b, gone)
+    print("  10006 cooldown · 170213 sin orden OK")
 
 
 class BridgeCapa:
@@ -289,13 +326,14 @@ async def _capas() -> None:
         assert c.get("order_filter") in (None, "")
         assert c.get("market_unit") == "baseCoin", c
         assert c["usd"] + 1e-9 >= 5, c
-    print("  ráfaga: markets sin gatillo, bocados ≥ mínimo")
+    print("  rafaga: markets sin gatillo, bocados >= minimo")
 
 
 def main() -> int:
     print("[SMOKE] beru ráfaga / empaque")
     _assert_empacar()
     _assert_ahogo()
+    _assert_rate_limit()
     asyncio.run(_capas())
     print("OK validar_beru_rafaga_smoke")
     return 0

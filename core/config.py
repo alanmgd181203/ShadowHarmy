@@ -109,12 +109,18 @@ BERU_ENSAYO_MAX_MASA_USD = float(os.getenv("BERU_ENSAYO_MAX_MASA_USD", "60") or 
 BERU_ENSAYO_SOLO_LONG = os.getenv("BERU_ENSAYO_SOLO_LONG", "true").lower() == "true"
 BERU_OJOS_REST_FALLBACK = os.getenv("BERU_OJOS_REST_FALLBACK", "true").lower() == "true"
 BERU_OJOS_REST_S = float(os.getenv("BERU_OJOS_REST_S", "10") or 10)
+# Si el last spot WS llegó hace menos de esto, la muleta REST calla.
+BERU_OJOS_WS_MAX_AGE_S = float(os.getenv("BERU_OJOS_WS_MAX_AGE_S", "5") or 5)
 BERU_NEUTRO_MARGEN = os.getenv("BERU_NEUTRO_MARGEN", "true").lower() == "true"
 # Ráfaga de seguridad (solo si Bybit escupe la Hoz gorda por ahogo de bóveda)
 BERU_RAFAGA_LATENCIA_S = float(os.getenv("BERU_RAFAGA_LATENCIA_S", "0.25") or 0.25)
 BERU_RAFAGA_MAX_BOCADOS = int(float(os.getenv("BERU_RAFAGA_MAX_BOCADOS", "24") or 24))
 BERU_RAFAGA_FILL_TIMEOUT_S = float(os.getenv("BERU_RAFAGA_FILL_TIMEOUT_S", "2") or 2)
 BERU_RAFAGA_COOLDOWN_S = float(os.getenv("BERU_RAFAGA_COOLDOWN_S", "3") or 3)
+# Pulso: cuántos Santos hablan a Bybit a la vez. 1 = fila legado. 0 = todos.
+BERU_MANOS_PARALELAS = int(float(os.getenv("BERU_MANOS_PARALELAS", "8") or 8))
+# Si Bybit escupe 10006, ese Santo espera; los otros no se congelan.
+BERU_API_COOLDOWN_S = float(os.getenv("BERU_API_COOLDOWN_S", "0.5") or 0.5)
 # Engorde de Hoz en CAZA (por grado). No engorda escudo Igris. Manos siguen OFF.
 BERU_ENGORDE_PERMITIDO = os.getenv("BERU_ENGORDE_PERMITIDO", "true").lower() == "true"
 BERU_ABORTAR_SOLO_CEGUERA = os.getenv("BERU_ABORTAR_SOLO_CEGUERA", "true").lower() == "true"
@@ -578,6 +584,8 @@ TUSK_RESERVA_MONARCA_EXTRA_PCT = float(os.getenv("TUSK_RESERVA_MONARCA_EXTRA_PCT
 # Tesorería UTA: oxígeno de guerra desde disponible real (MNT hedge visible)
 TUSK_TESORERIA_ACTIVA = os.getenv("TUSK_TESORERIA_ACTIVA", "true").lower() == "true"
 TUSK_TESORERIA_FETCH_POS = os.getenv("TUSK_TESORERIA_FETCH_POS", "true").lower() == "true"
+# Recitar linear+inverse en cada pulso. Ritual Beru lo apaga: Igris hiberna.
+TUSK_RECONCILE_LIVE = os.getenv("TUSK_RECONCILE_LIVE", "true").lower() == "true"
 # Tesorería: publica caja USDT + lectura legado MNT; MANOS default false
 TUSK_BOVEDA_MNT_DOCTRINA = os.getenv("TUSK_BOVEDA_MNT_DOCTRINA", "true").lower() == "true"
 TUSK_BOVEDA_MANOS = os.getenv("TUSK_BOVEDA_MANOS", "false").lower() == "true"
@@ -701,9 +709,17 @@ BRIDGE_WS_BASES: list[str] = (
 )
 # Ritual Beru: Tank/puente ciegos a lineal, inverso y futuros — solo last spot.
 BRIDGE_WS_SOLO_SPOT = os.getenv("BRIDGE_WS_SOLO_SPOT", "false").lower() == "true"
+# Tratos públicos spot (mecha). En ritual Beru (solo spot) se abre solo.
+# Igris no lo usa: el libro se mueve sin trato; Vacío oye last/trato, no mark.
+BRIDGE_WS_PUBLIC_TRADES_SPOT = os.getenv(
+    "BRIDGE_WS_PUBLIC_TRADES_SPOT", "false"
+).lower() == "true"
 
 # Bybit HTTP: recv_window (ms). Skew ~5s del Mac→10002; 60s da colchón.
 BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))
+# Timeout del client HTTP (pybit default 10). Foto de posiciones de la flota
+# cabe; no cortar el hilo a los 8s y dejar la sesión colgada.
+BYBIT_HTTP_TIMEOUT_S = int(float(os.getenv("BYBIT_HTTP_TIMEOUT_S", "20") or 20))
 
 # Igris sim / ojos sin muros: puerta §E puede usar ticker si no hay libro.
 # true|false|auto — auto = ON si MODO_SIMULACION o ARISE_IGRIS_SIM o books OFF.

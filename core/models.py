@@ -52,7 +52,7 @@ class BeruShip:
     masa_tramo_usd: float = 0.0
     oz_pct: float = 0.0
     red_pct: float = 0.0
-    # Arma del cazador: CONDICIONAL en los cuatro grados. Mariscal cierra sin hijo.
+    # Arma del cazador: CONDICIONAL en los cuatro grados. Tras Oz, todos dejan hijo.
     arma_cazador: str = ""
     # Relevo puro: la frontera que desplegó la Hoz y el hijo que dejó.
     # Son datos del oficio CAZA; nunca crean negociador/residual/Mega.
@@ -60,8 +60,8 @@ class BeruShip:
     ultima_red_tocada_precio: float = 0.0
     ultima_hoz_tocada_pct: float = 0.0
     ultima_hoz_tocada_precio: float = 0.0
-    # Tras cosecha: sangre 1.1 desde la última Hoz; Red 0.9/0.5/0.3 despierta hijo
-    # y APAGA la sangre vieja. Nunca dos llamados vivos.
+    # Tras cosecha: sangre 1.1 desde la última Oz cobrada; Red 0.9/0.5/0.3/0.1
+    # despierta hijo y APAGA la sangre vieja. Nunca dos llamados vivos.
     oreja_sangre_activa: bool = False
     oreja_red_activa: bool = False
     llamado_red_pct: float = 0.0
@@ -90,6 +90,9 @@ class BeruShip:
     qty_base_ejecutada: float = 0.0
     # Lote/mínimo de la casa: una bitácora y se calla el martillo (no ráfaga).
     altar_lote_bloqueado: bool = False
+    altar_rependiente: bool = False
+    # Bybit 10006 / ahogo de visitas: solo este Santo calla un toque.
+    api_bloqueo_hasta: float = 0.0
     capa: int = 1
     # Post-Mega: sangre absoluta sobre 0 de Igris (ej. +0.309 si purga en +30%)
     piso_sangre_pct: float = 0.0
@@ -114,6 +117,8 @@ class BeruShip:
     red_extrema: float = 0.0
     precio_fusion_ref: float = 0.0
     fase_reciclaje: str = ""  # "" | ESPERANDO_SALIDA | ARMADO_ADAN | ESPERANDO_RECOMPRA
+    # Memoria corta: unix del arise/wake de esta vida.
+    ts_wake: float = 0.0
 
 # === [SUBTEMA: CONTEXTO DE MERCADO (MarketContext)] ===
 

@@ -6,14 +6,16 @@ Primera caza:
   Hoz un peldaño detrás (±1.0%). Los cuatro grados oyen el mismo silbato;
   solo cambia el dólar por peldaño.
 
-Tras cada cosecha confirmada:
+Tras cada cosecha confirmada (los cuatro grados, Mariscal incluido):
   el 0 del manto NO cambia. El padre muere. El hijo oye DOS orejas:
-  sangre 1.1 al otro lado de la última Hoz cobrada, y Red 0.9/0.5/0.3 en la
-  tendencia. Dual Vacío solo al nacer. Si la Red despierta al nuevo Beru, la
-  sangre vieja se apaga.
+  sangre 1.1 al otro lado de la última Hoz cobrada, y Red en la tendencia
+  (0.9/0.5/0.3; Mariscal un peldaño 0.1). Dual Vacío solo al nacer. Si la Red
+  despierta al nuevo Beru, la sangre vieja se apaga.
 
-La masa de cada tramo es distancia hasta Hoz × engorde por peldaño. Si el
-precio continúa, Red/Hoz avanzan 0.1% y añaden otro peldaño. Al tocar Hoz se
+La masa de cada tramo es distancia hasta Hoz × engorde por peldaño. Si al
+nacer el precio ya pasó el silbato, la primera Hoz nace un peldaño detrás
+de ahora y la masa cuenta esos peldaños desde el 0 de esa Oz. Si el precio
+continúa, Red/Hoz avanzan 0.1% y añaden otro peldaño. Al tocar Hoz se
 transmuta todo el tramo y su cuenta local vuelve a cero.
 
 No existe oficio negociador, masa congelada, ping-pong, residual, fusión ni Mega.
@@ -265,10 +267,7 @@ def signo_sangre_contraria(beru: Any) -> int:
 
 
 def ancla_sangre_contraria(beru: Any) -> float:
-    """La sangre viva se mide desde la última Hoz, no desde el wake."""
-    oz = float(getattr(beru, "oz_adan", 0) or 0)
-    if oz > 0:
-        return oz
+    """Sangre desde la última Oz cobrada, nunca desde la Hoz que persigue ahora."""
     hoz = float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0)
     if hoz > 0:
         return hoz
@@ -374,36 +373,130 @@ def toca_oreja_red(beru: Any, precio: float) -> bool:
     return pct >= off - 1e-9
 
 
+def _px_nuevo(seq: list[float], px: float) -> bool:
+    if px <= 0:
+        return False
+    return all(abs(px - q) > 1e-12 for q in seq)
+
+
 def secuencia_latido_spot(
     beru: Any,
     precio: float,
     latido: dict[str, Any] | None = None,
 ) -> list[float]:
-    """Tratos del latido en orden. Sin tratos: last + extremo del lado que oye."""
+    """Mismo río para acecho y caza: tratos en orden; si no, last + alto + bajo."""
+    _ = beru
     lat = latido or {}
     prints = [float(p) for p in (lat.get("prints") or []) if float(p or 0) > 0]
     if prints:
         return prints
     last = float(lat.get("last") or precio or 0)
-    if last <= 0:
-        return []
-    out = [last]
-    high = float(lat.get("high") or 0)
-    low = float(lat.get("low") or 0)
-    if sangre_dual(beru):
-        return out
-    signo = signo_sangre_contraria(beru)
-    if signo < 0 and low > 0 and low < last - 1e-12:
-        out.append(low)
-    elif signo > 0 and high > 0 and high > last + 1e-12:
-        out.append(high)
-    if bool(getattr(beru, "oreja_red_activa", False)):
-        direccion = str(getattr(beru, "direccion", "") or "").upper()
-        if direccion == "LONG" and low > 0 and low not in out:
-            out.append(low)
-        elif direccion == "SHORT" and high > 0 and high not in out:
-            out.append(high)
+    out: list[float] = []
+    for px in (last, float(lat.get("high") or 0), float(lat.get("low") or 0)):
+        if _px_nuevo(out, px):
+            out.append(px)
     return out
+
+
+def toca_red_en_latido(
+    beru: Any,
+    precio: float,
+    latido: dict[str, Any] | None = None,
+) -> bool:
+    """La Red viva se tocó en este latido (trato o extremo), no solo el last ahora."""
+    from core import beru_cazador
+
+    red = float(getattr(beru, "red_adan", 0) or 0)
+    direccion = str(getattr(beru, "direccion", "") or "")
+    for px in secuencia_latido_spot(beru, precio, latido):
+        if beru_cazador.toca_red(px, direccion, red):
+            return True
+    return False
+
+
+def toca_oz_en_latido(
+    beru: Any,
+    precio: float,
+    latido: dict[str, Any] | None = None,
+) -> bool:
+    """La mecha rozó la Hoz. En vivo no cosecha: solo pide fill a casa."""
+    from core import beru_cazador
+
+    oz = float(getattr(beru, "oz_adan", 0) or 0)
+    direccion = str(getattr(beru, "direccion", "") or "")
+    for px in secuencia_latido_spot(beru, precio, latido):
+        if beru_cazador.toca_oz(px, direccion, oz):
+            return True
+    return False
+
+
+def last_bajo_hoz_venta(beru: Any, precio: float) -> bool:
+    """Caza SHORT: el last ya está bajo la Hoz. Pose sana = Hoz abajo, Red arriba."""
+    if str(getattr(beru, "direccion", "") or "").upper() != "SHORT":
+        return False
+    oz = float(getattr(beru, "oz_adan", 0) or 0)
+    px = float(precio or 0)
+    return oz > 0 and px > 0 and px < oz - 1e-9
+
+
+def extremo_latido_caza(
+    beru: Any,
+    precio: float,
+    latido: dict[str, Any] | None = None,
+) -> float:
+    """Punta del latido hacia la Red: SHORT oye el alto; LONG el bajo."""
+    seq = secuencia_latido_spot(beru, precio, latido)
+    if not seq:
+        return float(precio or 0)
+    direccion = str(getattr(beru, "direccion", "") or "").upper()
+    if direccion == "LONG":
+        return min(seq)
+    return max(seq)
+
+
+def n_peldaños_red(
+    beru: Any,
+    precio: float,
+    latido: dict[str, Any] | None = None,
+    *,
+    tope: int = 20,
+) -> int:
+    """Cuántos pisos de Red ya pisó este latido (regilla del metro, sin mutar)."""
+    from core import beru_cazador
+
+    px = extremo_latido_caza(beru, precio, latido)
+    if px <= 0:
+        return 0
+    direccion = str(getattr(beru, "direccion", "") or "")
+    oz_pct = float(getattr(beru, "oz_pct", 0) or 0)
+    red_pct = float(getattr(beru, "red_pct", 0) or 0)
+    n = 0
+    tope_n = max(1, int(tope or 20))
+    while n < tope_n:
+        red_px = precio_desde_ancla(beru, red_pct)
+        if not beru_cazador.toca_red(px, direccion, red_px):
+            break
+        n += 1
+        oz_pct, red_pct = beru_cazador.mover_niveles_cazador(
+            direccion, oz_pct, red_pct,
+        )
+    return n
+
+
+def saltar_pisos_red(beru: Any, n: int, masa_extra: float) -> None:
+    """Corre n peldaños de la regilla y suma la masa de golpe."""
+    pasos = max(0, int(n or 0))
+    extra = max(0.0, float(masa_extra or 0))
+    if pasos <= 0:
+        return
+    from core.beru_altar_cazador import registrar_red_tocada
+
+    for _ in range(pasos):
+        registrar_red_tocada(beru)
+        avanzar_frontera(beru, 0.0)
+    if extra > 0:
+        beru.masa = float(getattr(beru, "masa", 0) or 0) + extra
+        beru.masa_tramo_usd = beru.masa
 
 
 def decidir_oreja_acecho(
@@ -413,8 +506,8 @@ def decidir_oreja_acecho(
 ) -> str:
     """Qué oído gana este latido: RED (mata sangre), SANGRE, o nada.
 
-    Si hay tratos, camina la mecha en orden (el primer toque gana).
-    Sin tratos, el Vacío pregunta last; en sangre de un lado también el extremo.
+    Mismo río que la caza: tratos en orden; si no, last + alto + bajo.
+    El primer toque gana.
     """
     seq = secuencia_latido_spot(beru, precio, latido)
     if not seq:
@@ -449,13 +542,39 @@ def _decidir_oreja_un_precio(beru: Any, precio: float) -> str:
     return ""
 
 
+def boveda_ahogada(tusk: Any = None) -> bool:
+    """Tusk sin aire: disponible ≤ 0 o estado ahogada. No usa masa_autorizada sola."""
+    if tusk is None:
+        return False
+    tes = getattr(tusk, "tesoreria", None) or {}
+    if not isinstance(tes, dict):
+        tes = {}
+    if str(tes.get("estado") or "").lower() == "ahogada":
+        return True
+    try:
+        disp = tes.get("disponible_usd")
+        if disp is not None and float(disp) <= 0:
+            return True
+    except (TypeError, ValueError):
+        pass
+    return False
+
+
 def masa_tramo_inicial_usd(
     beru: Any,
     activo: str,
     grado: str,
+    *,
+    ahogada: bool = False,
 ) -> float:
-    """Masa escrita por el manto hasta la Hoz de este tramo."""
+    """Masa escrita por el manto hasta la Hoz de este tramo.
+
+    Si la bóveda está ahogada: un peldaño (carta chica en la Oz), no
+    peldaños × grado. El precio de la Hoz sigue un peldaño detrás de ahora.
+    """
     por_peldano = beru_cazador.engorde_paso_usd(activo, grado)
+    if ahogada:
+        return max(0.0, float(por_peldano))
     hoz_pct = abs(float(getattr(beru, "oz_pct", 0) or 0))
     distancia = hoz_pct if hoz_pct > 0 else distancia_hoz_pct(beru)
     peldaños = distancia / max(paso_pct(), 1e-12)
@@ -468,13 +587,22 @@ def niveles_desde_llamado(
     *,
     touch_pct: float | None = None,
 ) -> tuple[float, float]:
-    _ = touch_pct
+    """Hoz un peldaño detrás del silbato. Si ya pasó, Hoz un peldaño detrás de ahora."""
     s = 1 if signo >= 0 else -1
-    # Hoz un peldaño detrás del silbato; Red un peldaño más afuera.
-    return (
-        s * distancia_hoz_pct(beru),
-        s * (distancia_llamado_pct(beru) + paso_pct()),
-    )
+    paso = paso_pct()
+    hoz_primera = distancia_hoz_pct(beru)
+    red_primera = distancia_llamado_pct(beru) + paso
+    if touch_pct is None:
+        return s * hoz_primera, s * red_primera
+    dist = abs(float(touch_pct))
+    silbato = distancia_llamado_pct(beru)
+    if dist <= silbato + 1e-9:
+        return s * hoz_primera, s * red_primera
+    n_ahora = max(0, int(dist / max(paso, 1e-12) + 1e-9))
+    n_hoz_min = max(1, int(hoz_primera / max(paso, 1e-12) + 1e-9))
+    n_hoz = max(n_hoz_min, n_ahora - 1)
+    hoz_abs = n_hoz * paso
+    return s * hoz_abs, s * (hoz_abs + paso)
 
 
 def armar_tramo(
@@ -484,6 +612,7 @@ def armar_tramo(
     activo: str,
     grado: str,
     oreja: str = "SANGRE",
+    tusk: Any = None,
 ) -> float:
     """Arma Hoz/Red. El llamado de sangre no ejecuta fill; solo la Hoz."""
     ancla = ancla_tramo(beru)
@@ -524,7 +653,9 @@ def armar_tramo(
     beru.funeral_red_confirmado = False
     beru.modo_combate = "CAZA"
     beru.estado = "CAZANDO"
-    beru.masa = masa_tramo_inicial_usd(beru, activo, grado)
+    beru.masa = masa_tramo_inicial_usd(
+        beru, activo, grado, ahogada=boveda_ahogada(tusk),
+    )
     beru.masa_tramo_usd = beru.masa
     return float(beru.masa)
 
@@ -555,8 +686,6 @@ def plantar_orejas_post_hoz(
     """
     fill = float(precio_hoz or 0)
     if fill <= 0:
-        return None
-    if grado == "MARISCAL":
         return None
 
     escala = escala_manto(beru)
@@ -615,6 +744,294 @@ def plantar_orejas_post_hoz(
     _ = sangre_off  # sangre siempre Vacío 1.1 vía distancia_llamado_pct default
     beru.relevo_cazador_uid = uid
     return hijo
+
+
+def activo_de_barco(beru: Any) -> str:
+    frente = str(getattr(beru, "frente_asignado", "") or "").upper()
+    if frente and frente not in {"INDEFINIDO", ""}:
+        return (
+            frente.replace("USDT_SPOT", "")
+            .replace("_SPOT", "")
+            .replace("USDT", "")
+            .strip("_")
+        )
+    uid = str(getattr(beru, "uid", "") or "")
+    parts = uid.split("_")
+    if len(parts) >= 3:
+        return str(parts[2] or "").upper()
+    return ""
+
+
+def carta_hoz_viva(beru: Any) -> bool:
+    """Hay Stop de Hoz en casa (Untriggered). Enlace muerto no cuenta."""
+    link = str(getattr(beru, "altar_link_id", "") or "")
+    if not link:
+        return False
+    st = str(getattr(beru, "altar_order_status", "") or "")
+    if st in {"Cancelled", "Rejected", "Deactivated", "Filled"}:
+        return False
+    if st in {"Untriggered", "Created", "New", "Pending", "Live"}:
+        return True
+    return False
+
+
+def lado_fill_a_direccion(side: str) -> str:
+    """Sell cobrado = Oz SHORT. Buy cobrado = Oz LONG."""
+    s = str(side or "").strip().upper()
+    if s in {"SELL", "SHORT"}:
+        return "SHORT"
+    return "LONG"
+
+
+def _apagar_carta_casa(beru: Any) -> None:
+    """La Hoz de foto no se replanta. Carta muerta, masa del tramo a cero."""
+    beru.estado = "ACECHANDO"
+    beru.masa = 0.0
+    beru.masa_tramo_usd = 0.0
+    beru.oz_pct = 0.0
+    beru.red_pct = 0.0
+    beru.oz_adan = 0.0
+    beru.red_adan = 0.0
+    beru.llamado_tramo_pct = 0.0
+    beru.arma_cazador = ""
+    beru.hoz_modo = ""
+    beru.masa_carta_usd = 0.0
+    beru.masa_rafaga_usd = 0.0
+    beru.rafaga_en_curso = False
+    beru.altar_order_id = ""
+    beru.altar_link_id = ""
+    beru.altar_order_status = ""
+    beru.altar_trigger_price = 0.0
+    beru.altar_cancel_confirmado = False
+    beru.altar_rependiente = False
+    beru.altar_lote_bloqueado = False
+
+
+def alinear_acecho_con_oz_fill(
+    beru: Any,
+    *,
+    precio: float,
+    side: str,
+    grado: str = "",
+) -> bool:
+    """Mano de la casa (fill spot cobrado) = última Oz. No es botín ni dual Vacío.
+
+    Misma geometría que el funeral: sangre 1,1 al otro lado y Red de relevo.
+    El barco sigue vivo (no COSECHADO, no hijo nuevo) para no duplicar la flota.
+    No suma cosechas: no es botín del General.
+    """
+    fill = float(precio or 0)
+    if fill <= 0:
+        return False
+    direccion = lado_fill_a_direccion(side)
+    escala = escala_manto(beru)
+    ancla_prev = float(getattr(beru, "ancla_tramo", 0) or 0)
+    if escala > 0 and ancla_prev > 0:
+        hoz_pct = (fill - ancla_prev) / escala
+    elif escala > 0:
+        manto = float(getattr(beru, "centro_manto", 0) or 0)
+        hoz_pct = (fill - manto) / escala if manto > 0 else 0.0
+    else:
+        hoz_pct = 0.0
+
+    # Vida nueva: la Red del saco muerto no manda. Relevo desde esta Oz.
+    red_px = fill
+    red_pct = hoz_pct
+
+    g = str(grado or "").upper()
+    if not g:
+        from core.beru_altar_cazador import grado_de_barco
+
+        g = str(grado_de_barco(beru) or "").upper()
+
+    _apagar_carta_casa(beru)
+    beru.direccion = direccion
+    beru.ancla_tramo = fill
+    beru.centro_local = fill
+    beru.ultima_hoz_tocada_precio = fill
+    beru.ultima_hoz_tocada_pct = hoz_pct
+    beru.ultima_red_tocada_precio = red_px
+    beru.ultima_red_tocada_pct = red_pct
+    beru.modo_combate = "CAZA"
+    beru.sangre_vista_dentro = True
+    red_off = float(beru_cazador.relevo_llamado_pct(g))
+    beru.es_relevo_cazador = True
+    beru.oreja_sangre_activa = True
+    beru.oreja_red_activa = red_px > 0
+    beru.llamado_red_pct = red_off
+    if not str(getattr(beru, "padre_cazador_uid", "") or ""):
+        beru.padre_cazador_uid = str(getattr(beru, "uid", "") or "")
+    return True
+
+
+def desarmar_caza_huerfana(beru: Any) -> None:
+    """Caza en foto, Hoz de casa ya no está: acecha; no replanta el saco viejo."""
+    hoz = float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0)
+    relevo = bool(getattr(beru, "es_relevo_cazador", False))
+    _apagar_carta_casa(beru)
+    if hoz > 0 or relevo:
+        beru.es_relevo_cazador = True if hoz > 0 or relevo else False
+        restaurar_acecho_tras_fallo_armado(beru)
+        return
+    beru.sangre_vista_dentro = False
+    beru.oreja_sangre_activa = False
+    beru.oreja_red_activa = False
+
+
+def preparar_legion_tras_manos_casa(
+    legion: list[Any],
+    fills: dict[str, dict] | None = None,
+) -> dict[str, str]:
+    """Al recargar: fill de casa en acecho dual; caza con carta viva se conserva.
+
+    Caza en memoria sin Stop: no se pisa con Oz vieja; el pulso planta esa Hoz.
+    """
+    fills = fills or {}
+    informe: dict[str, str] = {}
+    for beru in legion or []:
+        act = activo_de_barco(beru)
+        raw = fills.get(act) or fills.get(str(act).upper()) or {}
+        px = float(raw.get("precio") or 0)
+        ts = float(raw.get("ts") or 0)
+        piso = float(raw.get("piso_ts") or 0)
+        cazando = str(getattr(beru, "estado", "") or "").upper() == "CAZANDO"
+        oz_mem = float(getattr(beru, "oz_adan", 0) or 0)
+        if cazando and carta_hoz_viva(beru):
+            informe[act or str(getattr(beru, "uid", ""))] = "caza_viva"
+            continue
+        if cazando and oz_mem > 0:
+            informe[act or str(getattr(beru, "uid", ""))] = "caza_sin_carta"
+            continue
+        if px > 0 and (piso <= 0 or ts > piso) and not cazando:
+            ok = alinear_acecho_con_oz_fill(
+                beru,
+                precio=px,
+                side=str(raw.get("side") or ""),
+                grado=str(raw.get("grado") or ""),
+            )
+            informe[act or str(getattr(beru, "uid", ""))] = (
+                "oz_casa" if ok else "fill_invalido"
+            )
+            continue
+        if cazando:
+            desarmar_caza_huerfana(beru)
+            informe[act or str(getattr(beru, "uid", ""))] = "caza_huerfana"
+        else:
+            informe[act or str(getattr(beru, "uid", ""))] = "intacta"
+    for hijo in adoptar_cosechados_sin_hijo(legion):
+        legion.append(hijo)
+        act = activo_de_barco(hijo)
+        informe[act or str(getattr(hijo, "uid", ""))] = "hijo_cosecha"
+    return informe
+
+
+def adoptar_cosechados_sin_hijo(legion: list[Any]) -> list[Any]:
+    """Cosecha sin hijo (Mariscal viejo u orejas muertas): nace el relevo desde esa Oz."""
+    vivos = {str(getattr(b, "uid", "") or "") for b in (legion or [])}
+    padres = {
+        str(getattr(b, "padre_cazador_uid", "") or "")
+        for b in (legion or [])
+        if str(getattr(b, "padre_cazador_uid", "") or "")
+    }
+    from core.beru_altar_cazador import grado_de_barco
+
+    nuevos: list[Any] = []
+    for beru in list(legion or []):
+        if str(getattr(beru, "estado", "") or "").upper() != "COSECHADO":
+            continue
+        rid = str(getattr(beru, "relevo_cazador_uid", "") or "")
+        if rid and rid in vivos:
+            continue
+        uid = str(getattr(beru, "uid", "") or "")
+        if uid and uid in padres:
+            continue
+        fill = float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0)
+        if fill <= 0:
+            continue
+        act = activo_de_barco(beru)
+        grado = str(grado_de_barco(beru) or "")
+        hijo = plantar_orejas_post_hoz(beru, fill, activo=act, grado=grado)
+        if hijo is None:
+            continue
+        beru.relevo_creado = True
+        nuevos.append(hijo)
+        vivos.add(str(getattr(hijo, "uid", "") or ""))
+        if uid:
+            padres.add(uid)
+    return nuevos
+
+
+def resucitar_santos_cosechados_sin_barco(
+    legion: list[Any],
+    activos: list[str],
+    *,
+    tusk: Any = None,
+) -> list[Any]:
+    """Santo que cobró y ya no tiene Beru: hijo desde esa Oz, no dual Vacío."""
+    from core import beru_asset_detail as bad
+    from core import beru_cazador
+    from core import beru_wake
+    from core.beru_altar_cazador import grado_de_barco
+    from core.models import BeruShip
+    from generales.capitanes import CapitanNormal
+
+    ya: set[str] = set()
+    for b in legion or []:
+        a = str(activo_de_barco(b) or "").upper()
+        if a:
+            ya.add(a)
+    corte = beru_wake.leer_wake_ritual()
+    nuevos: list[Any] = []
+    for raw in activos or []:
+        act = str(raw or "").upper()
+        if not act or act in ya:
+            continue
+        if tusk is not None and not beru_wake.manto_bellion_usable(tusk, act):
+            continue
+        row = bad.ultima_cosecha_esta_vida(act, corte)
+        if not row:
+            continue
+        fill = float(row.get("precio") or 0)
+        if fill <= 0:
+            continue
+        manto = float(row.get("precio_manto") or 0)
+        if tusk is not None:
+            vivo = float(
+                beru_cazador.centro_manto_desde_tusk(
+                    tusk, act, fallback_global=False,
+                ) or 0
+            )
+            if vivo > 0:
+                manto = vivo
+        if manto <= 0:
+            continue
+        direccion = str(row.get("direccion") or "SHORT").upper()
+        if direccion not in ("LONG", "SHORT"):
+            direccion = "SHORT"
+        uid_p = str(row.get("uid") or f"BERU_SEM_{act}_COSECHA")
+        tier = str(beru_wake.tier_siembra_activo(act, tusk=tusk) or "PLENO")
+        padre = BeruShip(
+            uid=uid_p,
+            centro_local=fill,
+            centro_manto=manto,
+            ancla_tramo=fill,
+            masa=0.0,
+            direccion=direccion,
+            estado="COSECHADO",
+            adn_capitan=CapitanNormal,
+            tier_id=tier,
+            modo_combate="CAZA",
+            ultima_hoz_tocada_precio=fill,
+            ultima_red_tocada_precio=fill,
+            frente_asignado=f"{act}USDT_SPOT",
+        )
+        grado = str(grado_de_barco(padre) or "MARISCAL")
+        hijo = plantar_orejas_post_hoz(padre, fill, activo=act, grado=grado)
+        if hijo is None:
+            continue
+        nuevos.append(hijo)
+        ya.add(act)
+    return nuevos
 
 
 def restaurar_acecho_tras_fallo_armado(beru: Any) -> None:

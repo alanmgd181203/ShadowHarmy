@@ -4,17 +4,18 @@ Camino feliz: Hoz condicional. Cero Market de entrada.
 La ráfaga Market (bocados mínimos, uno tras otro) vive en ``beru_rafaga``
 y solo dispara si Bybit escupe la carta gorda — o la mínima — por ahogo.
 - Los cuatro grados usan condicional spot sellada por ``orderLinkId``.
-- Mariscal emula su trailing: Beru cancela y replanta la Hoz como los demás.
-- Mover una Hoz exige cancelación confirmada antes de plantar la siguiente.
+- Mariscal persigue con la misma carta: enmendar gatillo y masa.
+- Si la casa niega el amend: cancelar y plantar al hilo, sin esperar sello.
 """
 from __future__ import annotations
 
 import asyncio
 import hashlib
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 from core import beru_ley
+from core import beru_rafaga
 from core import lote_bybit
 
 
@@ -100,6 +101,18 @@ def _guardar_orden(beru: Any, plan: PlanOrdenNativa, resultado: Any) -> None:
     beru.altar_cancel_confirmado = False
 
 
+def _es_sello_duplicado(resultado: Any) -> bool:
+    """Bybit 170141: el sello de reintento ya existe. Hay que nacer otro."""
+    if resultado is None or bool(getattr(resultado, "exito", False)):
+        return False
+    texto = str(getattr(resultado, "mensaje", "") or "").lower()
+    datos = getattr(resultado, "datos", None) or {}
+    code = datos.get("retCode") if isinstance(datos, dict) else None
+    if code == 170141:
+        return True
+    return "duplicate clientorderid" in texto or "170141" in texto
+
+
 async def armar_condicional(bridge: Any, beru: Any, plan: PlanOrdenNativa):
     """Query-before-create: un timeout nunca duplica la carta."""
     previa = await bridge.get_order_status(
@@ -107,12 +120,23 @@ async def armar_condicional(bridge: Any, beru: Any, plan: PlanOrdenNativa):
         order_filter="StopOrder",
     )
     if previa.exito:
-        _guardar_orden(beru, plan, previa)
-        beru.altar_order_status = str(
-            (previa.datos or {}).get("orderStatus") or previa.mensaje or "Untriggered"
+        status = str(
+            (previa.datos or {}).get("orderStatus") or previa.mensaje or ""
         )
-        return previa
-    if not bool((previa.datos or {}).get("not_found")):
+        if status == "Filled":
+            beru.altar_order_id = str(getattr(previa, "order_id", "") or "")
+            beru.altar_link_id = plan.link_id
+            beru.altar_order_status = "Filled"
+            beru.altar_trigger_price = float(plan.trigger_price)
+            return previa
+        if status not in TERMINALES:
+            _guardar_orden(beru, plan, previa)
+            beru.altar_order_status = str(
+                (previa.datos or {}).get("orderStatus") or previa.mensaje or "Untriggered"
+            )
+            return previa
+        # Carta muerta: mismo sello. 170141 nace otro al plantar.
+    elif not bool((previa.datos or {}).get("not_found")):
         # Consulta incierta: no crear. El siguiente pulso consultará otra vez.
         return previa
 
@@ -131,6 +155,25 @@ async def armar_condicional(bridge: Any, beru: Any, plan: PlanOrdenNativa):
     )
     if creada.exito:
         _guardar_orden(beru, plan, creada)
+        return creada
+    if _es_sello_duplicado(creada):
+        beru.altar_revision = int(getattr(beru, "altar_revision", 0) or 0) + 1
+        plan = replace(plan, link_id=link_id_determinista(beru))
+        otra = await bridge.place_order(
+            plan.symbol,
+            plan.side,
+            plan.qty,
+            order_type="Market",
+            link_id=plan.link_id,
+            category=plan.category,
+            market_unit=plan.market_unit,
+            is_leverage=plan.is_leverage,
+            trigger_price=plan.trigger_price,
+            order_filter="StopOrder",
+        )
+        if otra.exito:
+            _guardar_orden(beru, plan, otra)
+        return otra
     return creada
 
 
@@ -140,7 +183,7 @@ async def cancelar_confirmado(
     *,
     symbol: str,
     category: str = "spot",
-    intentos: int = 4,
+    intentos: int = 2,
 ):
     """Cancela y confirma. Filled no se trata como cancelado."""
     link_id = str(getattr(beru, "altar_link_id", "") or "")
@@ -159,7 +202,15 @@ async def cancelar_confirmado(
         beru.altar_order_status = status
         beru.altar_cancel_confirmado = True
         return True, status
+    if not estado.exito and bool((estado.datos or {}).get("not_found")):
+        beru.altar_cancel_confirmado = True
+        beru.altar_order_status = "Cancelled"
+        return True, "no_existia"
     if not estado.exito and not bool((estado.datos or {}).get("not_found")):
+        if beru_rafaga.resultado_es_sin_orden(estado):
+            beru.altar_cancel_confirmado = True
+            beru.altar_order_status = "Cancelled"
+            return True, "no_existia"
         return False, "consulta_incierta"
 
     cancelada = await bridge.cancel_order(
@@ -167,10 +218,14 @@ async def cancelar_confirmado(
         order_filter="StopOrder",
     )
     if not cancelada.exito:
+        if beru_rafaga.resultado_es_sin_orden(cancelada):
+            beru.altar_cancel_confirmado = True
+            beru.altar_order_status = "Cancelled"
+            return True, "no_existia"
         return False, str(cancelada.mensaje or "cancel_rechazada")
 
     for _ in range(max(1, int(intentos))):
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.15)
         estado = await bridge.get_order_status(
             symbol, link_id=link_id, category=category,
             order_filter="StopOrder",
@@ -186,6 +241,98 @@ async def cancelar_confirmado(
     return False, "cancel_sin_confirmar"
 
 
+async def enmendar_condicional(
+    bridge: Any,
+    beru: Any,
+    *,
+    activo: str,
+    masa_usd: float,
+    trigger_price: float,
+):
+    """Misma Hoz, nuevo piso: gatillo y cantidad. Sin cancelar."""
+    link_id = str(getattr(beru, "altar_link_id", "") or "")
+    if not link_id:
+        return None, "sin_carta"
+    symbol = f"{str(activo or '').upper()}USDT"
+    fill = await consultar_fill(bridge, beru, activo=activo)
+    if fill:
+        return None, "fill_confirmado"
+    try:
+        plan = plan_condicional_spot(
+            beru,
+            activo=activo,
+            masa_usd=masa_usd,
+            trigger_price=trigger_price,
+        )
+    except ValueError as exc:
+        return None, str(exc or "plan_invalido")
+    enmendar = getattr(bridge, "amend_order", None)
+    if not callable(enmendar):
+        return None, "sin_amend"
+    try:
+        resultado = await enmendar(
+            plan.symbol,
+            order_id=str(getattr(beru, "altar_order_id", "") or "") or None,
+            link_id=link_id,
+            new_qty=plan.qty,
+            new_trigger_price=plan.trigger_price,
+            category="spot",
+        )
+    except TypeError:
+        resultado = await enmendar(
+            plan.symbol,
+            link_id=link_id,
+            new_qty=plan.qty,
+            new_trigger_price=plan.trigger_price,
+            category="spot",
+        )
+    if resultado is None or not getattr(resultado, "exito", False):
+        return None, str(getattr(resultado, "mensaje", None) or "amend_rechazado")
+    oid = str(getattr(resultado, "order_id", "") or "")
+    if oid:
+        beru.altar_order_id = oid
+    beru.altar_trigger_price = float(plan.trigger_price)
+    beru.altar_order_status = "Untriggered"
+    return resultado, "enmendada"
+
+
+async def replantar_sin_esperar_sello(
+    bridge: Any,
+    beru: Any,
+    *,
+    activo: str,
+    masa_usd: float,
+    trigger_price: float,
+):
+    """Cancel primero, planta en seguida. No espera confirmación de la baja."""
+    symbol = f"{str(activo or '').upper()}USDT"
+    fill = await consultar_fill(bridge, beru, activo=activo)
+    if fill:
+        return None, "fill_confirmado"
+    link_id = str(getattr(beru, "altar_link_id", "") or "")
+    if link_id:
+        try:
+            baja = await bridge.cancel_order(
+                symbol, link_id=link_id, category="spot",
+                order_filter="StopOrder",
+            )
+        except Exception:
+            baja = None
+        if baja is None or getattr(baja, "exito", False) or beru_rafaga.resultado_es_sin_orden(baja):
+            beru.altar_cancel_confirmado = True
+        # Mismo sello si la carta ya no está. 170141 (armar) nace otro.
+    plan = plan_condicional_spot(
+        beru,
+        activo=activo,
+        masa_usd=masa_usd,
+        trigger_price=trigger_price,
+    )
+    creada = await armar_condicional(bridge, beru, plan)
+    if creada is None or not getattr(creada, "exito", False):
+        return creada, str(getattr(creada, "mensaje", None) or "plantar_fallido")
+    return creada, "replantada"
+
+
 async def mover_condicional(
     bridge: Any,
     beru: Any,
@@ -194,21 +341,18 @@ async def mover_condicional(
     masa_usd: float,
     trigger_price: float,
 ):
-    """Quita la carta vieja y solo entonces planta la nueva revisión."""
-    symbol = f"{str(activo or '').upper()}USDT"
-    ok, motivo = await cancelar_confirmado(
-        bridge, beru, symbol=symbol, category="spot",
+    """Camino feliz: enmendar. Plan B: cancel y planta al hilo."""
+    if str(getattr(beru, "altar_link_id", "") or ""):
+        movida, motivo = await enmendar_condicional(
+            bridge, beru,
+            activo=activo, masa_usd=masa_usd, trigger_price=trigger_price,
+        )
+        if motivo in ("enmendada", "fill_confirmado"):
+            return movida, motivo
+    return await replantar_sin_esperar_sello(
+        bridge, beru,
+        activo=activo, masa_usd=masa_usd, trigger_price=trigger_price,
     )
-    if not ok:
-        return None, motivo
-    beru.altar_revision = int(getattr(beru, "altar_revision", 0) or 0) + 1
-    plan = plan_condicional_spot(
-        beru,
-        activo=activo,
-        masa_usd=masa_usd,
-        trigger_price=trigger_price,
-    )
-    return await armar_condicional(bridge, beru, plan), "replantada"
 
 
 async def consultar_fill(

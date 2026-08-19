@@ -63,14 +63,38 @@ def main() -> int:
         except RuntimeError as exc:
             assert "FOSIL_BLOQUEADO" in str(exc)
 
-        # Nacer lejos no persigue el precio: Hoz/Red siguen siendo las del Vacío.
+        # Si el silbato ya quedó atrás: Hoz un peldaño detrás de ahora, masa de esos pisos.
         tarde = _beru()
         masa = bc.armar_tramo(tarde, 103.35, activo="TEST", grado="MARISCAL")
         assert tarde.centro_manto == 100.0
         assert tarde.ancla_tramo == 100.0
-        assert round(tarde.oz_adan, 6) == 101.0
-        assert round(tarde.red_adan, 6) == 101.2
-        assert round(masa, 6) == 50.0
+        assert round(tarde.oz_adan, 6) == 103.2
+        assert round(tarde.red_adan, 6) == 103.3
+        assert round(masa, 6) == 160.0
+
+        class TuskAhogada:
+            tesoreria = {"estado": "ahogada", "disponible_usd": 0.0}
+
+        tarde_ah = _beru()
+        masa_ah = bc.armar_tramo(
+            tarde_ah, 103.35, activo="TEST", grado="MARISCAL",
+            tusk=TuskAhogada(),
+        )
+        assert round(tarde_ah.oz_adan, 6) == 103.2
+        assert round(tarde_ah.red_adan, 6) == 103.3
+        assert round(masa_ah, 6) == 5.0
+        assert not bc.boveda_ahogada(None)
+
+        class TuskSeca:
+            tesoreria = {"estado": "ok", "disponible_usd": 0.0}
+
+        assert bc.boveda_ahogada(TuskSeca())
+
+        class TuskAuthCero:
+            tesoreria = {"estado": "ok", "disponible_usd": 12.0}
+            masa_autorizada = 0.0
+
+        assert not bc.boveda_ahogada(TuskAuthCero())
 
         # Tumor: el 0 de wake no es el manto. Metro 100, nace en 130.
         lejos = _beru(local=130.0, manto=100.0)
@@ -160,6 +184,12 @@ def main() -> int:
         mecha, 100.0,
         latido={"last": 100.0, "high": 101.1, "low": 99.8, "prints": [100.0, 101.1, 100.0]},
     ) == "SANGRE"
+    # Sin tratos: el alto/bajo del mismo latido también silba (un oído).
+    mecha_ext = _beru()
+    assert bc.decidir_oreja_acecho(
+        mecha_ext, 100.0,
+        latido={"last": 100.0, "high": 101.1, "low": 99.8, "prints": []},
+    ) == "SANGRE"
     sordo = _beru()
     assert bc.decidir_oreja_acecho(sordo, 100.0) == ""
     assert bc.decidir_oreja_acecho(
@@ -188,6 +218,35 @@ def main() -> int:
         fuera, 101.3,
         latido={"last": 101.3, "high": 101.4, "low": 101.2, "prints": [101.3]},
     ) == ""
+
+    from core import beru_cazador as caz
+
+    caza = _beru()
+    with patch("core.beru_cazador.engorde_paso_usd", return_value=5.0):
+        bc.armar_tramo(caza, 101.1, activo="TEST", grado="MARISCAL")
+    lat_caza = {"last": 101.05, "high": 101.45, "low": 101.02, "prints": []}
+    assert not caz.toca_red(101.05, caza.direccion, caza.red_adan)
+    assert bc.toca_red_en_latido(caza, 101.05, lat_caza)
+    assert not bc.toca_oz_en_latido(caza, 101.05, lat_caza)
+    n = bc.n_peldaños_red(caza, 101.05, lat_caza)
+    assert n >= 2
+    masa0 = float(caza.masa)
+    bc.saltar_pisos_red(caza, n, 5.0 * n)
+    assert caza.masa == masa0 + 5.0 * n
+    assert not caz.toca_red(101.45, caza.direccion, caza.red_adan)
+    masa_pre = float(caza.masa)
+    oz_pre = float(caza.oz_adan)
+    bc.saltar_pisos_red(caza, 2, 0.0)
+    assert caza.masa == masa_pre
+    assert abs(float(caza.oz_adan) - oz_pre) > 1e-9
+
+    venta = _beru()
+    venta.direccion = "SHORT"
+    venta.oz_adan = 101.0
+    assert bc.last_bajo_hoz_venta(venta, 100.4)
+    assert not bc.last_bajo_hoz_venta(venta, 101.2)
+    venta.direccion = "LONG"
+    assert not bc.last_bajo_hoz_venta(venta, 100.4)
 
     print("OK validar_beru_continuo_smoke (Vacío 1.1 · Hoz 1.0 · 0 de wake · metro manto)")
     return 0
