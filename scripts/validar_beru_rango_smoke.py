@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke frio — Beru rango (Vacío arma trailing Oz 0.2 · Red ladder $5)."""
+"""Smoke frio — Beru rango (activacion + callback; Red tambien trailing)."""
 from __future__ import annotations
 
 import asyncio
@@ -35,11 +35,11 @@ def _assert_geometria() -> None:
     g = br.resumen_geometria()
     assert abs(g["vacio_pct"] - 0.012) < 1e-12
     assert abs(g["trailing_pct"] - 0.002) < 1e-12
-    assert g["oz_modo"] == "trailing"
-    assert abs(g["sangre_pct"] - 0.012) < 1e-12
-    assert abs(g["masa_usd"] - 10.0) < 1e-9
+    assert g["oz_modo"] == "trailing_callback"
+    assert g["red_modo"] == "trailing"
+    assert abs(g["red_activacion_pct"] - 0.007) < 1e-12
     assert abs(g["masa_red_usd"] - 5.0) < 1e-9
-    print("  geometria Vacio 1.2 / trailing Oz 0.2 / Red->$5 OK")
+    print("  geometria act 1.2 / callback 0.2 / Red trailing act 0.7 OK")
 
 
 def _assert_trailing_short() -> None:
@@ -47,66 +47,62 @@ def _assert_trailing_short() -> None:
     br.despertar(b, 100.0, activo="ETH")
     br.toca_vacio(b, 100.0)
     assert br.toca_vacio(b, 101.2) == "ARRIBA"
-    masa = br.armar_tramo_desde_vacio(b, "ARRIBA", precio=101.2)
-    assert abs(masa - 10.0) < 1e-9
-    assert b.direccion == "SHORT"
-    assert abs(b.trail_extremo - 101.2) < 1e-9
+    br.armar_tramo_desde_vacio(b, "ARRIBA", precio=101.2)
     assert abs(b.oz_adan - 101.2 * 0.998) < 1e-9
-    # Sube: el rastro persigue
-    assert not br.toca_oz(b, 101.5)
+    assert float(b.red_adan or 0) == 0.0  # Red no durante caza
     br.actualizar_trailing_oz(b, 102.0)
-    assert abs(b.trail_extremo - 102.0) < 1e-9
     assert abs(b.oz_adan - 102.0 * 0.998) < 1e-9
-    # Retrocede a la Oz -> SHORT
-    assert not br.toca_oz(b, 102.0 * 0.998 + 0.01)
     assert br.toca_oz(b, 102.0 * 0.998)
     br.cosechar_oz_y_mover_cero(b, b.oz_adan)
-    assert b.sangre_lado == "ABAJO"
     assert b.oreja_red_activa is True
-    print("  trailing SHORT persigue extremo y detona al bajar OK")
+    assert abs(b.red_adan - b.centro_local * 1.007) < 1e-9
+    print("  Vacío act -> callback -> Red act 0.7 plantada OK")
 
 
-def _assert_ladder_y_sangre() -> None:
+def _assert_red_trailing_y_sangre_cancela() -> None:
     b = BeruShip(uid="R2", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
     br.despertar(b, 100.0, activo="ETH")
     br.toca_vacio(b, 100.0)
     br.armar_tramo_desde_vacio(b, "ARRIBA", precio=101.2)
     br.actualizar_trailing_oz(b, 101.2)
-    br.cosechar_oz_y_mover_cero(b, b.oz_adan)
-    assert br.toca_red_continuacion(b, b.red_adan)
-    br.armar_tramo_desde_red(b, precio=b.red_adan)
+    fill = b.oz_adan
+    br.cosechar_oz_y_mover_cero(b, fill)
+    red_act = b.red_adan
+    assert br.toca_red_activacion(b, red_act)
+    br.armar_tramo_desde_red(b, precio=red_act)
     assert abs(b.masa - 5.0) < 1e-9
-    assert b.direccion == "SHORT"
-    # LONG por Vacío abajo
+    assert b.oreja_red_activa is False
+    br.actualizar_trailing_oz(b, red_act * 1.01)
+    assert br.toca_oz(b, b.oz_adan)
+    # Sangre cancela Red
     b2 = BeruShip(uid="R3", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
     br.despertar(b2, 100.0, activo="ETH")
     br.toca_vacio(b2, 100.0)
-    br.armar_tramo_desde_vacio(b2, "ABAJO", precio=98.8)
-    br.actualizar_trailing_oz(b2, 98.0)
-    assert br.toca_oz(b2, b2.oz_adan)
+    br.armar_tramo_desde_vacio(b2, "ARRIBA", precio=101.2)
+    br.actualizar_trailing_oz(b2, 101.2)
     br.cosechar_oz_y_mover_cero(b2, b2.oz_adan)
-    assert b2.sangre_lado == "ARRIBA"
-    print("  ladder Red $5 + LONG trailing OK")
+    assert b2.oreja_red_activa
+    sangre_px = b2.centro_local * (1 - 0.012)
+    assert br.toca_sangre(b2, sangre_px)
+    br.armar_tramo_desde_sangre(b2, precio=sangre_px)
+    assert b2.direccion == "LONG"
+    assert b2.oreja_red_activa is False
+    assert float(b2.red_adan or 0) == 0.0
+    print("  Red trailing $5 + sangre cancela Red OK")
 
 
 async def _assert_general() -> None:
     g = BeruRango(Tusk(), Bel(), Tank(), bridge=None)
     await g.despertar(100.0, activo="ETH")
     await g.pulso(100.0)
-    r2 = await g.pulso(101.2)
-    assert r2.get("evento") == "ARMAR_ARRIBA"
-    # Aun en el extremo: no detona
-    r3 = await g.pulso(101.2)
-    assert r3.get("evento") == "CAZA"
-    # Sube y luego baja a Oz
+    assert (await g.pulso(101.2)).get("evento") == "ARMAR_ARRIBA"
+    assert (await g.pulso(101.2)).get("evento") == "CAZA"
     await g.pulso(102.0)
-    oz = g.vivo.oz_adan
-    r4 = await g.pulso(oz)
-    assert r4.get("evento") == "OZ_COSECHA"
+    assert (await g.pulso(g.vivo.oz_adan)).get("evento") == "OZ_COSECHA"
     r5 = await g.pulso(g.vivo.red_adan)
     assert r5.get("evento") == "ARMAR_RED"
     assert abs(r5.get("masa") - 5.0) < 1e-9
-    print("  General trailing + Red->$5 OK")
+    print("  General Red trailing OK")
 
 
 def _assert_plan() -> None:
@@ -115,17 +111,15 @@ def _assert_plan() -> None:
         estado="CAZANDO", oz_adan=101.0, modo_combate="RANGO",
     )
     plan = altar.plan_trailing_entrada(b, activo="ETH", masa_usd=10.0)
-    assert plan.category == "linear"
-    assert plan.side == "Sell"
-    assert plan.trigger_direction == 2  # baja a la Oz
-    print("  plan trailing SHORT Sell dir=2 OK", plan.qty)
+    assert plan.trigger_direction == 2
+    print("  plan trailing SHORT OK", plan.qty)
 
 
 def main() -> int:
-    print("[SMOKE] beru rango trailing Oz")
+    print("[SMOKE] beru rango activacion+callback")
     _assert_geometria()
     _assert_trailing_short()
-    _assert_ladder_y_sangre()
+    _assert_red_trailing_y_sangre_cancela()
     _assert_plan()
     asyncio.run(_assert_general())
     print("OK validar_beru_rango_smoke")

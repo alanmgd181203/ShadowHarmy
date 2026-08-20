@@ -18,10 +18,10 @@ Luego **abre solo este archivo** y ejecuta la misión de abajo.
 
 ## 2) Misión actual — Revisar Beru rango (Oz trailing)
 
-**Qué es:** el Monarca selló un **oficio nuevo** de Beru para laterales en lineal.
-El Vacío ±1,2 **arma** un trailing; la **Oz es trailing 0,2 %** (SHORT al bajar /
-LONG al subir). Tras Oz: sangre 1,2 ($10) o Red 0,7 → Beru $5 (ladder).
-Jess **revisa** doctrina + smokes + teatro HYPE. **No** enciende manos ni Bybit live.
+**Qué es:** el Monarca selló Beru rango como **trailing de activación**:
+Vacío/sangre act. **1,2** · Oz callback **0,2** · **Red también trailing**
+(act. **0,7** + callback 0,2 · $5). Sangre cancela Red pendiente.
+Jess **revisa** (smokes + teatro). **No** manos ni Bybit live.
 
 **Receta / detalle:** ninguna · doctrina [`22_DOCTRINA_BERU_RANGO.md`](22_DOCTRINA_BERU_RANGO.md)
 

@@ -94,38 +94,32 @@ def _niveles_de(
     }
 
     if estado == "CAZANDO" and oz:
-        # Un tramo vivo: Oz + Red + 0. El otro flanco se pega a ±1,2 % de la Oz.
+        # Caza: solo Oz trailing (callback). Red se planta tras el fill.
         out["fase"] = "caza"
         out["oz"] = oz
-        out["red"] = red
+        out["red"] = None
         out["masa"] = masa
         out["dir"] = d
         if d == "SHORT":
-            out["vacio_arriba"] = cero * (1 + vac)  # silbato que disparó
-            out["contrario_1_2"] = oz * (1 - vac)  # otro lado pegado a la Oz
+            out["vacio_arriba"] = cero * (1 + vac)
             out["labels"] = {
                 "cero": "0",
-                "oz": f"Oz trailing {d} ${masa:.0f}",
-                "red": "Red",
-                "vacio_arriba": "Vacío↑ (armo trail)",
-                "contrario_1_2": "otro flanco",
+                "oz": f"Oz callback {d} ${masa:.0f}",
+                "vacio_arriba": "act. Vacío↑",
             }
         else:
             out["vacio_abajo"] = cero * (1 - vac)
-            out["contrario_1_2"] = oz * (1 + vac) if oz else None
             out["labels"] = {
                 "cero": "0",
-                "oz": f"Oz trailing {d} ${masa:.0f}",
-                "red": "Red",
-                "vacio_abajo": "Vacío↓ (armo trail)",
-                "contrario_1_2": "otro flanco",
+                "oz": f"Oz callback {d} ${masa:.0f}",
+                "vacio_abajo": "act. Vacío↓",
             }
         return out
 
     if estado == "ACECHANDO" and (
         bool(getattr(beru, "es_relevo_cazador", False)) or sangre_lado
     ):
-        # Tras Oz: sangre 1,2 contraria + Red 0,7 mismo sentido (→ Beru $5).
+        # Tras Oz: sangre act. 1,2 + Red trailing act. 0,7
         out["fase"] = "bifurca"
         masa_marca = float(getattr(beru, "ultima_masa_cosechada", 0) or 0) or beru_rango.masa_tramo_usd()
         out["oz"] = oz_fantasma
@@ -138,8 +132,11 @@ def _niveles_de(
             out["sangre"] = cero * (1 + sang)
         out["labels"] = {
             "cero": "0 = Oz",
-            "sangre": f"Sangre {sang*100:.1f}% → $10",
-            "red": f"Red +{beru_rango.red_desde_oz_pct()*100:.1f}% → Beru $5",
+            "sangre": f"Sangre act. {sang*100:.1f}% → trail $10",
+            "red": (
+                f"Red act. {beru_rango.red_activacion_pct()*100:.1f}% → "
+                f"trail callback {beru_rango.trailing_dist_pct()*100:.1f}% · $5"
+            ),
             "oz": f"marca {dir_fantasma or 'OZ'} ${masa_marca:.0f}" if oz_fantasma else "",
         }
         return out
@@ -165,28 +162,30 @@ def _narrar_armar(beru, origen: str, precio: float, precio_antes: float) -> tupl
     extremo = float(getattr(beru, "trail_extremo", 0) or precio)
     if origen == "RED":
         esc = int(getattr(beru, "rango_escalones_red", 0) or 0)
-        titulo = f"Toco la Red — nace Beru {d} ${beru.masa:.0f} (escalon {esc})"
+        titulo = f"Red activacion — trailing {d} ${beru.masa:.0f} (escalon {esc})"
         detalle = (
             f"Precio {_fmt_px(precio_antes)} → {_fmt_px(precio)}. "
-            f"Red de continuacion armo trailing {d} ${beru.masa:.2f}: "
-            f"extremo {_fmt_px(extremo)}, Oz a {trail*100:.1f}% detras → {_fmt_px(oz)}. "
-            f"Cuando el precio retroceda/rebote a la Oz, detona la entrada."
+            f"Toco la activacion Red (0,7% desde la Oz). "
+            f"Enciende trailing {d} ${beru.masa:.2f}: callback {trail*100:.1f}% "
+            f"(Oz ahora {_fmt_px(oz)} detrás de extremo {_fmt_px(extremo)}). "
+            f"Si sigue, la Oz persigue; al voltear y tocar Oz, entra el ${beru.masa:.0f}."
         )
         return titulo, detalle
     if origen.startswith("VACIO"):
-        titulo = f"Toco el Vacio de Adan {lado} — arma trailing"
-        detalle = (
-            f"El precio vino de {_fmt_px(precio_antes)} a {_fmt_px(precio)}. "
-            f"Vacío ±{vac*100:.1f}% arma trailing {d} ${beru.masa:.2f}: "
-            f"extremo {_fmt_px(extremo)}, Oz = trailing {trail*100:.1f}% → {_fmt_px(oz)}. "
-            f"Si sigue subiendo/bajando, la Oz persigue; al tocar la Oz entra el {d}."
-        )
-    else:
-        titulo = f"Toco la sangre contraria ({getattr(beru, 'sangre_lado', lado)})"
+        titulo = f"Vacío act. {lado} — trailing {d} ${beru.masa:.0f}"
         detalle = (
             f"Precio {_fmt_px(precio_antes)} → {_fmt_px(precio)}. "
-            f"Sangre a {beru_rango.sangre_contraria_pct()*100:.1f}% arma trailing {d} "
-            f"${beru.masa:.2f}: Oz {_fmt_px(oz)} ({trail*100:.1f}% del extremo {_fmt_px(extremo)})."
+            f"Activacion Vacío ±{vac*100:.1f}% enciende trailing {d} ${beru.masa:.2f}: "
+            f"callback {trail*100:.1f}% · Oz {_fmt_px(oz)} (extremo {_fmt_px(extremo)}). "
+            f"Persigue si sigue; al tocar la Oz, entra."
+        )
+    else:
+        titulo = f"Sangre act. — trailing {d} ${beru.masa:.0f} (Red cancelada)"
+        detalle = (
+            f"Precio {_fmt_px(precio_antes)} → {_fmt_px(precio)}. "
+            f"Activacion sangre {beru_rango.sangre_contraria_pct()*100:.1f}%: "
+            f"trailing {d} ${beru.masa:.2f} (callback {trail*100:.1f}%). "
+            f"La Red que esperaba mas shorts/longs se elimino."
         )
     return titulo, detalle
 
@@ -203,15 +202,18 @@ def _narrar_oz(
     lado = str(getattr(beru, "sangre_lado", "") or "")
     sang = beru_rango.sangre_contraria_pct()
     sangre_px = fill * (1 - sang) if lado == "ABAJO" else fill * (1 + sang)
-    red_cont = float(getattr(beru, "red_adan", 0) or 0)
-    titulo = f"Trailing Oz detono — {direccion} ${masa:.0f}"
+    red_act = float(getattr(beru, "red_adan", 0) or 0)
+    trail = beru_rango.trailing_dist_pct()
+    titulo = f"Callback Oz — {direccion} ${masa:.0f}"
     detalle = (
-        f"El trailing 0,2% se disparo ({_fmt_px(precio_antes)} → Oz {_fmt_px(fill)}). "
-        f"Entra {direccion} ${masa:.0f}. El 0 se mueve a {_fmt_px(fill)}. "
-        f"Bifurcacion: sangre {lado} a {sang*100:.1f}% → {_fmt_px(sangre_px)} ($10), "
-        f"o Red a {_fmt_px(red_cont)} (0,7%) → Beru $5 con otro trailing. "
-        f"(Red del tramo previo {_fmt_px(red_tramo)})."
+        f"El trailing se disparo ({_fmt_px(precio_antes)} → Oz {_fmt_px(fill)}). "
+        f"Entra {direccion} ${masa:.0f}. 0 = {_fmt_px(fill)}. "
+        f"Planta: sangre act. {lado} {sang*100:.1f}% → {_fmt_px(sangre_px)} (trail $10), "
+        f"y Red trailing act. {_fmt_px(red_act)} "
+        f"(0,7% · callback {trail*100:.1f}% · $5). "
+        f"Si sangre gana primero, la Red se cancela."
     )
+    _ = red_tramo
     return titulo, detalle
 
 
@@ -492,7 +494,7 @@ def escribir_html(sim: dict[str, Any], path: Path) -> None:
 <body>
 <header>
   <h1>Teatro Beru rango — {sim['activo']}</h1>
-  <p>Vacío ±1,2 arma trailing Oz 0,2 · SHORT al bajar / LONG al subir · Red 0,7 → Beru $5 · sangre 1,2.
+  <p>Vacío/sangre = activación 1,2 · Oz = callback 0,2 · Red = trailing act. 0,7 + callback 0,2 ($5).
      Cosechas: {sim['cosechas']} · Eventos: {sim['n_eventos']} · Latidos: {sim['n_latidos']}</p>
 </header>
 <div class="layout">

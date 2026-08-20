@@ -97,7 +97,7 @@ class BeruRango:
             if bool(getattr(beru, "es_relevo_cazador", False)) or float(
                 getattr(beru, "ultima_hoz_tocada_precio", 0) or 0
             ) > 0:
-                if beru_rango.toca_red_continuacion(beru, px):
+                if beru_rango.toca_red_activacion(beru, px):
                     masa = beru_rango.armar_tramo_desde_red(beru, precio=px)
                     beru.uid = (
                         f"RANGO_{self._activo}_R"
@@ -111,6 +111,7 @@ class BeruRango:
                         "masa": masa,
                         "dir": beru.direccion,
                         "escalon": int(getattr(beru, "rango_escalones_red", 0) or 0),
+                        "nota": "Red activacion 0.7 -> trailing callback 0.2",
                     }
                 if beru_rango.toca_sangre(beru, px):
                     masa = beru_rango.armar_tramo_desde_sangre(beru, precio=px)
@@ -146,9 +147,11 @@ class BeruRango:
                 beru_rango.cosechar_oz_y_mover_cero(beru, fill)
                 await self.bel.anotar(
                     "BERU_RANGO", "OZ_COSECHA",
-                    f"{beru.uid} trailing Oz @{fill:.6f} → 0 · sangre {beru.sangre_lado} "
+                    f"{beru.uid} trailing Oz @{fill:.6f} → 0 · sangre act. {beru.sangre_lado} "
                     f"{beru_rango.sangre_contraria_pct()*100:.1f}% · "
-                    f"Red @{beru.red_adan:.6f} (${beru_rango.masa_red_usd():.0f}).",
+                    f"Red trailing act. @{beru.red_adan:.6f} "
+                    f"(callback {beru_rango.trailing_dist_pct()*100:.1f}% · "
+                    f"${beru_rango.masa_red_usd():.0f}).",
                 )
                 self._bitacora(
                     "OZ_COSECHA",

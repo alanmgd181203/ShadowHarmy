@@ -1,14 +1,14 @@
-"""Beru rango (lineal) — molino de laterales, Oz = trailing 0,2 %.
+"""Beru rango (lineal) — laterales con trailing de entrada.
 
-Geometría sellada 2026-08-20:
-  · Vacío de Adán ±1,2 % desde el 0 → ARMA el trailing (no es la Oz fija)
-  · Oz = trailing stop 0,2 % detrás del extremo:
-      – subiendo → SHORT al retroceder 0,2
-      – bajando → LONG al rebotar 0,2
-  · Red mapa / continuación 0,7 % (ladder $5 post-Oz)
-  · Tras fill Oz: 0 = fill; sangre 1,2 contraria ($10) o Red 0,7 mismo sentido ($5)
-  · Ladder Red→$5 repetible ambos lados · un vivo · ojos/manos lineal
-  · Bybit: el cerebro lleva el rastro; manos detonán Market / Stop que se enmienda
+Geometría sellada Monarca 2026-08-20:
+  · Vacío ±1,2 % = PRECIO DE ACTIVACIÓN del trailing (masa $10)
+  · Callback Oz = 0,2 % detrás del extremo (persigue)
+  · Tras fill Oz: 0 = fill
+      – Sangre 1,2 % contraria = activación del trailing opuesto ($10)
+      – Red 0,7 % mismo sentido = PRECIO DE ACTIVACIÓN de otro trailing ($5)
+  · Red también es trailing: activa en 0,7 · callback 0,2 · $5 (ladder repetible)
+  · Si sangre arma primero, la Red que esperaba se elimina
+  · Un vivo · manos OFF por defecto · lineal
 """
 from __future__ import annotations
 
@@ -18,16 +18,23 @@ import core.config as config
 
 
 def vacio_adan_pct() -> float:
+    """Activación del trailing semilla / sangre (± desde el 0)."""
     return float(getattr(config, "BERU_RANGO_VACIO_PCT", 0.012) or 0.012)
 
 
 def oz_gap_pct() -> float:
-    """Callback del trailing (= Oz). Default 0,2 %."""
+    """Callback del trailing (distancia que persigue)."""
     return float(getattr(config, "BERU_RANGO_OZ_GAP_PCT", 0.002) or 0.002)
 
 
-def red_desde_oz_pct() -> float:
+def red_activacion_pct() -> float:
+    """Activación del trailing Red (desde la última Oz)."""
     return float(getattr(config, "BERU_RANGO_RED_DESDE_OZ_PCT", 0.007) or 0.007)
+
+
+def red_desde_oz_pct() -> float:
+    """Alias histórico = activación Red."""
+    return red_activacion_pct()
 
 
 def sangre_contraria_pct() -> float:
@@ -43,7 +50,6 @@ def masa_red_usd() -> float:
 
 
 def trailing_dist_pct() -> float:
-    """Alias del callback Oz (Bybit distance)."""
     return float(getattr(config, "BERU_RANGO_TRAILING_PCT", 0) or 0) or oz_gap_pct()
 
 
@@ -89,7 +95,7 @@ def despertar(beru: Any, precio: float, *, activo: str = "") -> None:
     beru.oz_pct = 0.0
     beru.red_pct = 0.0
     beru.oz_adan = 0.0
-    beru.red_adan = 0.0
+    beru.red_adan = 0.0  # = precio de activación Red mientras espera
     beru.trail_extremo = 0.0
     beru.llamado_tramo_pct = vacio_adan_pct()
     beru.oreja_sangre_activa = True
@@ -113,6 +119,7 @@ def marcar_visto_dentro(beru: Any, precio: float) -> None:
 
 
 def toca_vacio(beru: Any, precio: float) -> str:
+    """Activación ±1,2 del trailing semilla."""
     if str(getattr(beru, "estado", "") or "") != "ACECHANDO":
         return ""
     if bool(getattr(beru, "es_relevo_cazador", False)):
@@ -146,24 +153,20 @@ def _plantar_trailing(
     *,
     short: bool,
     masa: float,
-    precio_armado: float,
+    precio_activacion: float,
 ) -> float:
-    """Vacío/sangre/Red sonó: arma trailing Oz 0,2 detrás del extremo."""
-    px = float(precio_armado or 0)
+    """Activación tocada → arma trailing (callback 0,2). Sin Red durante la caza."""
+    px = float(precio_activacion or 0)
     if px <= 0:
         return 0.0
-    gap = trailing_dist_pct()
-    red_off = red_desde_oz_pct()
     beru.direccion = "SHORT" if short else "LONG"
     beru.trail_extremo = px
     beru.oz_adan = _oz_desde_extremo(px, short=short)
-    if short:
-        beru.red_adan = px * (1.0 + red_off)
-    else:
-        beru.red_adan = px * (1.0 - red_off)
     beru.oz_pct = pct_desde_cero(beru, beru.oz_adan)
-    beru.red_pct = pct_desde_cero(beru, beru.red_adan)
-    beru.llamado_tramo_pct = gap
+    # Durante CAZANDO la Red no persigue: solo Oz. Activación Red se planta post-fill.
+    beru.red_adan = 0.0
+    beru.red_pct = 0.0
+    beru.llamado_tramo_pct = trailing_dist_pct()
     beru.masa = float(masa)
     beru.masa_tramo_usd = float(masa)
     beru.estado = "CAZANDO"
@@ -176,22 +179,22 @@ def _plantar_trailing(
 def armar_tramo_desde_vacio(
     beru: Any, lado: str, precio: float | None = None,
 ) -> float:
-    """Vacío ±1,2 arma trailing SHORT/LONG masa $10."""
+    """Vacío ±1,2 (activación) → trailing $10."""
     lado_u = str(lado or "").upper()
     vac = vacio_adan_pct()
     if lado_u == "ARRIBA":
         px = float(precio or 0) or precio_desde_cero(beru, vac)
         beru.origen_tramo = "VACIO"
-        return _plantar_trailing(beru, short=True, masa=masa_tramo_usd(), precio_armado=px)
+        return _plantar_trailing(beru, short=True, masa=masa_tramo_usd(), precio_activacion=px)
     if lado_u == "ABAJO":
         px = float(precio or 0) or precio_desde_cero(beru, -vac)
         beru.origen_tramo = "VACIO"
-        return _plantar_trailing(beru, short=False, masa=masa_tramo_usd(), precio_armado=px)
+        return _plantar_trailing(beru, short=False, masa=masa_tramo_usd(), precio_activacion=px)
     return 0.0
 
 
 def actualizar_trailing_oz(beru: Any, precio: float) -> bool:
-    """Persigue el extremo; Oz = extremo ± 0,2 %. True si la Oz se movió."""
+    """Persigue el extremo; solo mueve la Oz (callback). Red no se mueve en caza."""
     if str(getattr(beru, "estado", "") or "") != "CAZANDO":
         return False
     px = float(precio or 0)
@@ -199,7 +202,6 @@ def actualizar_trailing_oz(beru: Any, precio: float) -> bool:
         return False
     d = str(getattr(beru, "direccion", "") or "").upper()
     gap = trailing_dist_pct()
-    red_off = red_desde_oz_pct()
     extremo = float(getattr(beru, "trail_extremo", 0) or 0) or px
     oz_antes = float(getattr(beru, "oz_adan", 0) or 0)
     moved = False
@@ -209,25 +211,22 @@ def actualizar_trailing_oz(beru: Any, precio: float) -> bool:
             moved = True
         beru.trail_extremo = extremo
         beru.oz_adan = extremo * (1.0 - gap)
-        beru.red_adan = extremo * (1.0 + red_off)
     elif d == "LONG":
         if px < extremo - 1e-15 or extremo <= 0:
             extremo = px
             moved = True
         beru.trail_extremo = extremo
         beru.oz_adan = extremo * (1.0 + gap)
-        beru.red_adan = extremo * (1.0 - red_off)
     else:
         return False
     beru.oz_pct = pct_desde_cero(beru, beru.oz_adan)
-    beru.red_pct = pct_desde_cero(beru, beru.red_adan)
     if abs(float(beru.oz_adan) - oz_antes) > 1e-12:
         moved = True
     return moved
 
 
 def toca_oz(beru: Any, precio: float) -> bool:
-    """Fill del trailing: SHORT al bajar a la Oz; LONG al subir a la Oz."""
+    """Callback del trailing: SHORT baja a Oz; LONG sube a Oz."""
     if str(getattr(beru, "estado", "") or "") != "CAZANDO":
         return False
     oz = float(getattr(beru, "oz_adan", 0) or 0)
@@ -243,6 +242,7 @@ def toca_oz(beru: Any, precio: float) -> bool:
 
 
 def toca_sangre(beru: Any, precio: float) -> bool:
+    """Activación 1,2 contraria (trailing opuesto $10)."""
     if not bool(getattr(beru, "oreja_sangre_activa", False)):
         return False
     if str(getattr(beru, "estado", "") or "") != "ACECHANDO":
@@ -267,7 +267,8 @@ def toca_sangre(beru: Any, precio: float) -> bool:
     return False
 
 
-def toca_red_continuacion(beru: Any, precio: float) -> bool:
+def toca_red_activacion(beru: Any, precio: float) -> bool:
+    """Activación del trailing Red (0,7 desde la Oz)."""
     if not bool(getattr(beru, "oreja_red_activa", False)):
         return False
     if str(getattr(beru, "estado", "") or "") != "ACECHANDO":
@@ -286,25 +287,38 @@ def toca_red_continuacion(beru: Any, precio: float) -> bool:
     return False
 
 
+# Alias compat
+def toca_red_continuacion(beru: Any, precio: float) -> bool:
+    return toca_red_activacion(beru, precio)
+
+
+def _cancelar_red(beru: Any) -> None:
+    """Sangre ganó: elimina el trailing Red que esperaba."""
+    beru.oreja_red_activa = False
+    beru.red_adan = 0.0
+    beru.red_pct = 0.0
+
+
 def _plantar_orejas_post_oz(beru: Any, fill: float, direccion: str) -> None:
+    """Tras Oz: sangre activación 1,2 + Red trailing activación 0,7."""
     sil = sangre_contraria_pct()
-    red_off = red_desde_oz_pct()
+    red_act = red_activacion_pct()
     beru.llamado_tramo_pct = sil
     d = str(direccion or "").upper()
     if d == "SHORT":
         beru.sangre_lado = "ABAJO"
-        beru.red_adan = fill * (1.0 + red_off)
-        beru.red_pct = red_off
+        beru.red_adan = fill * (1.0 + red_act)  # activación Red arriba
+        beru.red_pct = red_act
     else:
         beru.sangre_lado = "ARRIBA"
-        beru.red_adan = fill * (1.0 - red_off)
-        beru.red_pct = -red_off
+        beru.red_adan = fill * (1.0 - red_act)
+        beru.red_pct = -red_act
     beru.oreja_sangre_activa = True
     beru.oreja_red_activa = True
 
 
 def cosechar_oz_y_mover_cero(beru: Any, precio_fill: float) -> float:
-    """Trailing detonó: 0 = fill; sangre 1,2 + Red 0,7."""
+    """Trailing detonó: 0 = fill; planta sangre 1,2 + Red (activación 0,7)."""
     fill = float(precio_fill or 0) or float(getattr(beru, "oz_adan", 0) or 0)
     if fill <= 0:
         return 0.0
@@ -332,6 +346,8 @@ def cosechar_oz_y_mover_cero(beru: Any, precio_fill: float) -> float:
 
 
 def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
+    """Sangre (activación) → trailing opuesto $10; mata Red pendiente."""
+    _cancelar_red(beru)
     lado = str(getattr(beru, "sangre_lado", "") or "").upper()
     if lado == "ABAJO":
         return armar_tramo_desde_vacio(beru, "ABAJO", precio=precio)
@@ -346,19 +362,18 @@ def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
 
 
 def armar_tramo_desde_red(beru: Any, precio: float | None = None) -> float:
-    """Red → Beru $5 con trailing Oz 0,2 detrás del extremo (parte en la Red)."""
+    """Red (activación 0,7) → trailing callback 0,2 · masa $5."""
     red = float(getattr(beru, "red_adan", 0) or 0)
     px = float(precio or 0) or red
     if px <= 0:
         return 0.0
     d = str(getattr(beru, "ultima_hoz_direccion", "") or "").upper()
     masa = masa_red_usd()
+    beru.origen_tramo = "RED"
     if d == "SHORT":
-        beru.origen_tramo = "RED"
-        out = _plantar_trailing(beru, short=True, masa=masa, precio_armado=px)
+        out = _plantar_trailing(beru, short=True, masa=masa, precio_activacion=px)
     elif d == "LONG":
-        beru.origen_tramo = "RED"
-        out = _plantar_trailing(beru, short=False, masa=masa, precio_armado=px)
+        out = _plantar_trailing(beru, short=False, masa=masa, precio_activacion=px)
     else:
         return 0.0
     beru.rango_escalones_red = int(getattr(beru, "rango_escalones_red", 0) or 0) + 1
@@ -366,19 +381,22 @@ def armar_tramo_desde_red(beru: Any, precio: float | None = None) -> float:
 
 
 def resumen_geometria() -> dict[str, float | str]:
-    vac = vacio_adan_pct()
-    gap = trailing_dist_pct()
     return {
         "oficio": "RANGO",
         "mercado": "linear",
-        "vacio_pct": vac,
-        "oz_gap_pct": gap,
-        "oz_modo": "trailing",
-        "red_desde_oz_pct": red_desde_oz_pct(),
+        "vacio_pct": vacio_adan_pct(),
+        "vacio_rol": "activacion_trailing",
+        "oz_gap_pct": trailing_dist_pct(),
+        "oz_modo": "trailing_callback",
+        "red_activacion_pct": red_activacion_pct(),
+        "red_desde_oz_pct": red_activacion_pct(),
+        "red_modo": "trailing",
+        "red_callback_pct": trailing_dist_pct(),
         "sangre_pct": sangre_contraria_pct(),
+        "sangre_rol": "activacion_trailing",
         "masa_usd": masa_tramo_usd(),
         "masa_red_usd": masa_red_usd(),
-        "trailing_pct": gap,
+        "trailing_pct": trailing_dist_pct(),
         "engorde": 0.0,
         "ladder_red": "si",
     }
