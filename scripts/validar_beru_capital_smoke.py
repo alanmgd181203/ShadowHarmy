@@ -134,9 +134,10 @@ def test_capitanes_config():
 
 def test_tiers_pasos():
     t = beru_tier.tier_por_id("PROTO1")
-    oz, red = t.pasos("NEGOCIADOR")
-    assert abs(oz - 0.002) < 1e-9
-    print("  PROTO1 pasos OK")
+    oz, red = t.pasos("CAZA")
+    assert abs(oz - 0.001) < 1e-9
+    assert abs(red - 0.001) < 1e-9
+    print("  PROTO1 pasos CAZA OK")
 
 
 def test_im_pierna_a_pierna_sin_promedio():

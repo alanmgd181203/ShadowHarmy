@@ -1,8 +1,10 @@
 # 20 — Doctrina Kaiser (vocero interno)
 
-**Estado:** acordado con el Monarca — 2026-07-05  
-**Implementación manos:** Greed + **VIP/Mega VIP** cableados — ver §VIP abajo.  
-**Código actual:** `generales/kaiser.py`, perfiles 3d/1m/1a, metaverso, **Ancla** (`core/ancla.py`) — ojos + digest; **sin disparos Greed**.
+**Estado:** recorte 2026-08-20 (rama `beru-bby`) — Igris de baja.  
+Kaiser **no dispara**. Alimenta **Greed** (rutas/ancla/matriz) y lecturas **lineales**
+útiles al Beru nuevo. **Fuera:** `OPORTUNIDAD_MANTO`, frecuencia de espejo L+S.
+
+**Código:** `generales/kaiser.py`, `core/kaiser_indicators.py`, ancla, perfiles, metaverso.
 
 ---
 
@@ -78,7 +80,7 @@ Precio de **referencia multi-exchange** que Bybit calcula promediando spot en va
 **Dirección firmada (doctrina):** el índice Bybit es la **referencia absoluta** del pentiverso. Kaiser etiqueta el **sesgo histórico** de cada mar vs índice (`sesgo_estructural` en digest — 3.8.P5).  
 **Sesgo vivo (Jess 2026-08-02):** si Tank está ROJO por latencia, el clima vivo sigue leyendo del nodo más fresco — no apagar el indicador solo por semáforo.  
 **Manto (2026-08-02):** frecuencia/ETA y puerta Igris usan **cero estructural** (exceso vs clima normal, no gap eterno). Flag `MANTO_CERO_ESTRUCTURAL`. Informe: `scripts/informe_sesgo_monarca.py`.  
-Detalle: [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md). Smoke: `python scripts/validar_kaiser_sesgo_smoke.py`.
+Detalle: (purgado). Smoke: `python scripts/validar_kaiser_sesgo_smoke.py`.
 
 ### Quién usa qué ancla
 
@@ -91,7 +93,7 @@ Detalle: [`CHECKPOINT_KAISER_INDICE_SESGO.md`](CHECKPOINT_KAISER_INDICE_SESGO.md
 
 **Regla:** situaciones “normales” en trinidad/pentiverso = optimización **intra-Bybit**. Greed es quien **toma riesgo entre mares/exchanges**.
 
-**Nota Monarca 2026-08-06:** entradas/salidas finas, slippage y spreads = oficio de **Greed al final** (laboratorio); no reabrir Greed mainnet ahora ni pedírselo a Igris. Indicadores / mega-historial / peinado Kaiser = **después**. Camino vigente: Igris (Asalto) → Beru → Greed. Sello: [`CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md`](CHECKPOINT_LEY_IGRIS_ASALTO_2026-08-06.md).
+**Nota Monarca 2026-08-06:** entradas/salidas finas, slippage y spreads = oficio de **Greed al final** (laboratorio); no reabrir Greed mainnet ahora ni pedírselo a Igris. Indicadores / mega-historial / peinado Kaiser = **después**. Camino vigente: Igris (Asalto) → Beru → Greed. Sello: (purgado).
 
 **Semáforos matriz (3.7.P1 ✅):** `indicadores.matriz_luces` en digest — VERDE &lt; umbral · AMARILLO ≥ umbral · ROJO ≥ 2× · **sin órdenes**.
 

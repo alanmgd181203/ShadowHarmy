@@ -54,7 +54,7 @@ class PanelDeControl:
         elif oxigeno_libre > 80.0:
             status_margen = "SEGURO"
 
-        print(f"\n[ MANTO PIEZOELÉCTRICO · IGRIS ]")
+        print(f"\n[ BÓVEDA · TUSK ]")
         print(f"  CAPITAL REAL: {self.tusk.masa_bruta:.2f} USD")
         print(f"  MASA BRUTA: {masa_bruta:.4f} | DELTA: {(peso_l - peso_s):.4f}")
         print(f"  OXÍGENO: {oxigeno_libre:.2f}% | ESTADO: {status_margen}")

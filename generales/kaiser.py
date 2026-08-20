@@ -123,15 +123,9 @@ class KaiserVocero:
             ind = self.ultimo_digest.setdefault("indicadores", {})
             ind["memoria_barcos_escritos"] = n_mem
 
-        # Frecuencia manto 4 umbrales (ranking / reloj invertido)
-        try:
-            from core import manto_frecuencia as mf
+        # Frecuencia manto: de baja con Igris.
 
-            if getattr(config, "MANTO_FREQ_ACTIVA", True):
-                self.ultimo_digest["frecuencia_manto"] = mf.snapshot_ranking()
-        except Exception as e:
-            self.ultimo_digest["frecuencia_manto"] = {"error": str(e)}
-
+        # Sesgo estructural
         # Sesgo estructural vs índice Bybit (3.8.P5)
         try:
             if getattr(config, "KAISER_SESGO_INDEX_ACTIVO", True):

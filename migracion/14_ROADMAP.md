@@ -50,7 +50,7 @@
 | 5 | Primer manto + Igris→Bridge | 3.5 ✅ |
 | 6 | Ciclo CAZA→COSECHA | 3.6 ✅ |
 
-**Validación:** `validar_m2.py` 10/10 · `probar_ciclo_beru.py` · `validar_checklist.py --fase 3`
+**Validación:** `validar_arise_ojos_smoke.py` 10/10 · `validar_beru_altar_nativo_smoke.py` · `validar_beru_sin_tumores_smoke.py --fase 3`
 
 ---
 
@@ -136,7 +136,7 @@
 |---|-------|--------|
 | 1 | Doctrina `23_PLAN_CRECIMIENTO.md` | ✅ v2 |
 | 2 | `core/plan_crecimiento.py` — Aspirante→Chamán + techos pase | ✅ |
-| 3 | Pergamino `PASE_BATALLA_13_SANTOS.md` | ✅ |
+| 3 | Pergamino (purgado) | ✅ |
 | 4 | Panel/Bellion publican `plan_crecimiento` | ✅ |
 | 5 | Auto-tier Tusk NAV (3 días promedio) | ✅ |
 | 6 | Multi-flota Beru + mérito Bellion | ❌ pendiente |

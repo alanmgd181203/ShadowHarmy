@@ -1,7 +1,7 @@
 # ORDEN ACTIVA (única) — PLANTILLA
 
 **Agente USA:** al preparar trabajo para Jess, **reescribe** `migracion/ORDEN_ACTIVA_JESS.md` con esta forma.  
-No inventes otro `PEGAR_*` como puerta. PEGAR = receta/anexo opcional.
+No inventes otro mandato del día. Todo va en la puerta.
 
 Copia el bloque debajo → pega en `ORDEN_ACTIVA_JESS.md` → rellena.
 
@@ -12,7 +12,7 @@ Copia el bloque debajo → pega en `ORDEN_ACTIVA_JESS.md` → rellena.
 
 **Puerta oficial Jess / Cursor México.**  
 Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`  
-Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
+Puerta única: este archivo. Sin recetas PEGAR (purgadas).
 
 ---
 
@@ -29,7 +29,7 @@ Luego **abre solo este archivo** y ejecuta la misión de abajo.
 ## 2) Misión actual — [TÍTULO CORTO]
 
 **Qué es:** [1–2 frases en lenguaje ejército]  
-**Receta / detalle (anexo, si hace falta):** [`PEGAR_JESS_….md`](…)  _(o «ninguna»)_
+**Receta:** ninguna (purgadas 2026-08-20).
 
 ### Comandos exactos
 

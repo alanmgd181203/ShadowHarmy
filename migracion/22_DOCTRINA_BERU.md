@@ -4,7 +4,7 @@
 **Ojos:** last spot solamente
 **0 absoluto (metro):** promedio vivo L+S del manto Igris
 **0 local de la semilla:** precio en el instante del wake
-**Dudas:** [`DUDAS_CIRUGIAS_MENORES_2026-08-12.md`](DUDAS_CIRUGIAS_MENORES_2026-08-12.md)
+**Dudas:** `DUDAS_CIRUGIAS_MENORES_2026-08-12.md`
 
 ## Veredicto
 
@@ -273,17 +273,12 @@ La prueba canónica actual es el altar frío:
 - stress de 300 relevos y 400 recorridos / 3.800 Hoces movidas.
 
 ```powershell
-python scripts/validar_beru_asset_detail_smoke.py
-python scripts/validar_beru_spot_kline_smoke.py
 python scripts/validar_beru_continuo_smoke.py
 python scripts/validar_beru_cazador_smoke.py
 python scripts/validar_beru_wake_reset0_smoke.py
 python scripts/validar_beru_relevo_cazador_smoke.py
-python scripts/validar_beru_relevo_stress.py
 python scripts/validar_beru_sin_tumores_smoke.py
 python scripts/validar_beru_altar_nativo_smoke.py
 python scripts/validar_beru_rafaga_smoke.py
-python scripts/validar_beru_pulso_paralelo_smoke.py
-python scripts/teatro_beru_rafaga.py
-python scripts/validar_beru_cuatro_grados_stress.py
+python scripts/validar_beru_ojos_smoke.py
 ```

@@ -591,24 +591,9 @@ class TuskBoveda:
         return telemetria_desde_pesos(dict(self.pesos), equity)
 
     def intervalo_reconciliacion_s(self) -> float:
-        """Pulso Tusk: rápido con Igris despierto; lento durante el sueño."""
-        dormido = True
-        activa = None
-        try:
-            from core import igris_mision as imis
-
-            dormido = imis.esta_dormido()
-            activa = imis.mision_activa()
-        except Exception:
-            pass
-        tipo = str((activa or {}).get("tipo") or "").lower()
-        en_asalto = not dormido or tipo in {"sembrar", "engordar", "corregir"}
-        clave = (
-            "TUSK_RECONCILIACION_ASALTO_S"
-            if en_asalto
-            else "TUSK_RECONCILIACION_DORMIDO_S"
-        )
-        default = 20.0 if en_asalto else 60.0
+        """Pulso Tusk — Igris de baja: ritmo dormido por defecto."""
+        clave = "TUSK_RECONCILIACION_DORMIDO_S"
+        default = 60.0
         return max(1.0, float(getattr(config, clave, default) or default))
 
     async def hilo_reconciliacion(self, bridge):

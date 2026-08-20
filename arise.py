@@ -14,7 +14,6 @@ try:
     from generales.tusk import TuskBoveda
     from core.bellion import BellionAuditor
     from generales.tank import TankCluster
-    from generales.igris import IgrisEscudo
     from generales.greed import GreedFrancotirador
     from generales.kaiser import KaiserVocero
     from core.dashboard import PanelDeControl
@@ -30,10 +29,10 @@ async def refrescar_dashboard(panel):
         await asyncio.sleep(1)
 
 
-async def publicar_estado_vivo(bellion, tusk, igris, tank, greed=None, kaiser=None):
+async def publicar_estado_vivo(bellion, tusk, tank, greed=None, kaiser=None):
     await asyncio.sleep(2)
     while True:
-        await bellion.publicar_estado_vivo(tusk, None, igris, tank, kaiser=kaiser)
+        await bellion.publicar_estado_vivo(tusk, None, None, tank, kaiser=kaiser)
         await asyncio.sleep(1)
 
 
@@ -57,7 +56,7 @@ async def arise():
     print("\n" + "═" * 45)
     print(f"    {config.SISTEMA_NOMBRE} VIBRANDO    ")
     print(f"      FASE: {config.FASE_ACTUAL}      ")
-    print("      IGRIS gobierna manto · KAISER vocero      ")
+    print("      IGRIS de baja · BERU protagonista (en camino) · KAISER vocero      ")
     print("═" * 45)
 
     shutdown_event = asyncio.Event()
@@ -82,22 +81,20 @@ async def arise():
             print(f"[BELLION] Recovery: bóveda restaurada.")
 
         kaiser = KaiserVocero(tank, bellion)
-        igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge, kaiser=kaiser)
-        # Greed: caza/arbitraje (hibernación doctrinal del manto); Kaiser alimenta perfiles
+        # Igris de baja — Greed + Kaiser + Tusk + Tank; Beru lo redefine el Monarca.
         greed = GreedFrancotirador(
-            tusk, bellion, tank, bridge=bridge, kaiser=kaiser, igris=igris,
+            tusk, bellion, tank, bridge=bridge, kaiser=kaiser, igris=None,
         )
-        igris.greed = greed
 
         from core.validacion import advertir_gates
         advertir_gates()
 
-        panel = PanelDeControl(tusk, igris, tank)
+        panel = PanelDeControl(tusk, None, tank)
 
-        print(f"\n[⚔️] Igris manto §E paciente → horizonte 95% (colchón, no muro) | ref: {config.TICKER_BASE}")
-        print("[👁️] Kaiser vocero activo — perfiles/alertas filtradas a jurisdicción Igris.")
-        print("[🌑] Beru en hibernación de hilos — lógica de reciclaje/fusión en código lista.")
-        print("[🎯] Greed: arbitraje/VIP sin jurisdicción sobre el escudo L/S.")
+        print(f"\n[⚔️] Igris DE BAJA | ref: {config.TICKER_BASE}")
+        print("[👁️] Kaiser: Greed + indicadores lineales (sin manto).")
+        print("[🌑] Beru: el Monarca reescribe en master — no tocar aquí.")
+        print("[🎯] Greed activo · Tusk bóveda · Tank ojos.")
 
         await asyncio.gather(
             tusk.latido_persistencia([]),
@@ -108,10 +105,9 @@ async def arise():
             *([binance_ref.conectar()] if binance_ref else []),
             bridge.hilo_sincronizacion_nav(),
             kaiser.vigilar_indicadores(),
-            igris.vigilar_manto_operativo(),
             greed.vigilancia_oportunidades(),
             refrescar_dashboard(panel),
-            publicar_estado_vivo(bellion, tusk, igris, tank, greed, kaiser),
+            publicar_estado_vivo(bellion, tusk, tank, greed, kaiser),
             vigilancia_apagado(shutdown_event, bellion, tusk),
         )
 

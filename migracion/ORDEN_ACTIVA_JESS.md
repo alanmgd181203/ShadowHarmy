@@ -2,7 +2,7 @@
 
 **Puerta oficial Jess / Cursor México.**  
 Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`  
-Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
+Puerta única: este archivo. Sin recetas PEGAR (purgadas).
 
 ---
 

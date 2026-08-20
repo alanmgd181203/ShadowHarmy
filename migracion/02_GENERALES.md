@@ -14,7 +14,7 @@ Cada General = **un módulo Python** con un hilo async y contratos claros hacia 
 - Persistir legión en `data/tusk_data.json` (escritura atómica .tmp).
 - Publicar tesorería + lectura de sucio MNT legado — **sin manos**. Potencia del pase = caja USDT, no el short.
 
-**Debe hacer (doctrina, manos aún OFF):** Funding → UTA → **USDT**. Stop. No comprar MNT. No short de equilibrio. Ver [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md).
+**Debe hacer (doctrina, manos aún OFF):** Funding → UTA → **USDT**. Stop. No comprar MNT. No short de equilibrio. Ver (purgado).
 
 **Manual adicional (legacy / no centro hoy):**
 - Gap **2.5×**, Velo del Carnicero, mundos paralelos → posible **Iron** futuro.
@@ -83,9 +83,9 @@ Cada General = **un módulo Python** con un hilo async y contratos claros hacia 
 
 **Sellado 2026-08-13:** sangre **0,9** → Hoz **0,8** · oro/tiempo **1,6** · engorde Hoz por grado · Mega promedio + misma carta → nuevo 0. Manos OFF.
 
-Ver [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) · [`CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md`](CHECKPOINT_MEGA_CIRUGIA_BERU_2026-08-13.md).
+Ver [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) · (purgado).
 
-**Código:** `generales/beru.py`, `core/beru_cazador.py`, `beru_negociador.py`, `beru_cosechador.py`, `beru_fusion.py`, `beru_capital.py`
+**Código:** `generales/beru.py`, `core/beru_cazador.py`, `core/beru_capital.py`, `core/beru_altar_nativo.py`
 
 ---
 
@@ -167,7 +167,7 @@ Corte opcional: `--segundos 120`. Ver también `18_ARRANQUE_TESTNET.md` § ritua
 
 **Caja USDT (2026-08-12):** potencia del pase = USDT en UTA. Convert solo atajo a USDT.  
 Si hay MNT+short legado → sucio (saneo a mano, duda C1). No reconstruir saco.  
-**Manos OFF.** Doctrina: [`CHECKPOINT_TUSK_BOVEDA_MNT.md`](CHECKPOINT_TUSK_BOVEDA_MNT.md) · ejército [`CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md`](CHECKPOINT_MEGA_CIRUGIA_EJERCITO_2026-08-12.md).  
+**Manos OFF.** Doctrina: (purgado) · ejército (purgado).  
 Smoke: `python scripts/validar_tusk_boveda_mnt_smoke.py`
 
 ---

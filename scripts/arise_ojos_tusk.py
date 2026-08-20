@@ -45,7 +45,6 @@ from core import ojos_estrechos  # noqa: E402
 from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402
 from core.dashboard import PanelDeControl  # noqa: E402
-from generales.igris import IgrisEscudo  # noqa: E402
 from generales.kaiser import KaiserVocero  # noqa: E402
 from generales.tank import TankCluster  # noqa: E402
 from generales.tusk import TuskBoveda  # noqa: E402
@@ -154,7 +153,7 @@ async def ritual_ojos(segundos: float = 0.0):
 
         kaiser = KaiserVocero(tank, bellion)
         # Igris solo para banda/snapshot en estado_vivo — SIN vigilar_manto_operativo
-        igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge, kaiser=kaiser)
+        igris = None  # Igris de baja
 
         from core.validacion import advertir_gates
         advertir_gates()

@@ -16,16 +16,19 @@ pip install -r requirements.txt
 #    (MODO_TESTNET abolido 2026-08-11 — solo mainnet; True → ABORT)
 
 # 3. Validar estado (opcional, recomendado)
-python scripts/validar_checklist.py
-python scripts/validar_m2.py          # pentiverso 10 mares (~25s)
-python scripts/probar_ciclo_beru.py   # ciclo Beru CAZA→COSECHA (sim)
+python scripts/validar_beru_sin_tumores_smoke.py
+python scripts/validar_beru_altar_nativo_smoke.py
+python scripts/validar_arise_ojos_smoke.py
 
-# 4. Despertar al ejército
-python arise.py
+# 4. Despertar (rituales vivos; no el arise legacy a ciegas)
+#    python scripts/arise_ojos_tusk.py
+#    python scripts/arise_igris.py
+#    python scripts/arise_beru_flota_viva.py
 
 # 5. Panel visual (en otra terminal)
 streamlit run panel.py
 ```
+
 
 ## Estructura
 
@@ -48,13 +51,9 @@ generales/
   tank.py             ← Visión (10 mares LTC+BTC, semáforo)
   capitanes.py        ← ADN por clima (Ansiedad, Cazador, Berserker)
 scripts/
-  validar_checklist.py
-  validar_m2.py
-  probar_ciclo_beru.py
-data/
-  validacion_checklist.json
-  validacion_m2.json
-  validacion_ciclo_ejercito.json
+  validar_beru_sin_tumores_smoke.py
+  validar_beru_altar_nativo_smoke.py
+  arise_ojos_tusk.py / arise_igris.py / arise_beru_flota_viva.py
 migracion/            ← Codex operativo (planos, checklist, doctrina)
 ```
 

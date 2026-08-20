@@ -25,7 +25,7 @@ Tarea: [concreta]
 ## Cuando dudar del manual original
 
 1. Buscar en `1M.txt` (raíz repo) keyword del glosario.
-2. Bloque completo en `_fuentes_extraidas/sandbox_*.md`.
+2. Bloque completo en `(fuentes crudas — purgadas)sandbox_*.md`.
 3. Chroma vía Monarca solo si hace falta trazabilidad chroma id.
 
 ## Anti-patrones (evitar quimera)

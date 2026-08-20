@@ -13,8 +13,7 @@ from core import beru_continuo
 from core import beru_altar_cazador
 from core import beru_altar_nativo
 from core import beru_rafaga
-# Fósiles históricos se conservan en core para auditoría, pero la ruta viva
-# no los importa: negociar, fusionar, residual y Mega no son Beru vigente.
+# Fósiles (negociar/fusionar/residual/Mega) borrados del campamento.
 from core import beru_wake
 from core import beru_ley
 from core import beru_fantasma
@@ -1156,48 +1155,6 @@ class BeruCazador:
         beru.neg_post_cazador = False
         beru.ciclo_infinito = False
         await self._auditar_gatillo_cazador(beru, precio_actual)
-        return
-
-        # FÓSIL histórico, inalcanzable.
-        distancia = (precio_actual - beru.centro_local) / max(beru.centro_local, 0.0001)
-        if abs(distancia) < 0.0005:
-            return
-        if abs(distancia) < beru.adn_capitan.vacio_adan:
-            return
-
-        act = self._activo_de_barco(beru)
-        masa_fresca = beru_ley.masa_unidad_intercambio_usd(act)
-        if masa_fresca <= 0.0:
-            return
-
-        direccion = "SHORT" if distancia > 0 else "LONG"
-        if self._ensayo_nivel3() and beru_ensayo.solo_long() and direccion != "LONG":
-            beru_ensayo.registrar(
-                "SKIP_SHORT",
-                detalle="ensayo solo LONG (negociador)",
-                uid=beru.uid,
-                activo=act,
-            )
-            return
-        if self._ensayo_nivel3() and beru_ensayo.techo_alcanzado():
-            return
-
-        beru.direccion = direccion
-        beru.estado = "ESPERANDO_MATERIALIZACION"
-
-        ok = await self.tusk.solicitar_reserva(
-            beru.uid, masa_fresca, "BERU", beru.direccion,
-            consumir_auth=beru_ley.consumir_auth_en_reserva(),
-        )
-        if ok:
-            beru.masa = masa_fresca
-            tier = self._tier_barco(beru)
-            paso_oz, paso_red = tier.pasos("NEGOCIADOR")
-            beru.red_adan, beru.oz_adan = beru_tier.precios_red_oz(
-                beru.centro_local, beru.direccion,
-                paso_oz=paso_oz, paso_red=paso_red,
-            )
-            await self._ejecutar_caza(beru)
 
     async def _radar_casa(self, ctx_map, masa, is_long, base: str | None = None):
         lider = self.tank._obtener_lider_verde()
@@ -1465,287 +1422,42 @@ class BeruCazador:
         await self._acordeon_cazador_capas(precio_actual, latidos=latidos)
 
     async def _pulsar_negociador_post_cazador(self, precio_actual: float):
-        """FÓSIL: negociador/ping-pong extirpados. Solo existe el cazador continuo."""
+        """FÓSIL: negociador/ping-pong extirpados."""
         _ = precio_actual
         return
-        for beru in self.legion:  # pragma: no cover
-            if not getattr(beru, "ciclo_infinito", False):
-                continue
-            centro = beru.centro_manto or beru_cazador.centro_manto_desde_tusk(self.tusk)
-            if centro <= 0:
-                continue
-            paso_oz, paso_red = beru_negociador.pasos_negociador(
-                getattr(beru, "tier_id", None) or self._tier_efectivo(),
-            )
-            vacio = beru.adn_capitan.vacio_adan
-
-            if beru.estado == "ESPERANDO_ABISMO":
-                # Reciclaje: espera recompra +2% con vacío Adán (sin orden en exchange)
-                if beru.fase_reciclaje == "ESPERANDO_RECOMPRA" and beru.trigger_recompra > 0:
-                    trig = beru.trigger_recompra
-                    if not beru.bracket_armado:
-                        if not beru_negociador.precio_cerca_de_trigger(precio_actual, trig):
-                            continue
-                        beru.bracket_armado = True
-                        await self.bel.anotar(
-                            "BERU", "ADAN_RECOMPRA",
-                            f"{beru.uid} cerca de recompra {trig:.4f} — armado en memoria.",
-                        )
-                    if not beru_negociador.toca_trigger_precio(
-                        precio_actual, trig, beru.direccion, modo="RECOMPRA",
-                    ):
-                        continue
-                    # Recompra mismo volumen — sin engorde
-                    beru.masa = beru.volumen_reciclaje or beru.masa_congelada
-                    touch_pct = beru_cazador.pct_desde_precio(centro, precio_actual)
-                    self._aplicar_grid_cazador(beru, touch_pct)
-                    beru.modo_combate = "CAZA"
-                    beru.estado = "NEGOCIANDO"
-                    beru.fase_reciclaje = "RECICLANDO"
-                    beru.bracket_armado = False
-                    # Tras recompra, ancla salida −2% otra vez
-                    if precio_actual > 0:
-                        beru.precio_entrada_real = precio_actual
-                        beru.trigger_salida = beru_negociador.trigger_salida_precio(
-                            precio_actual, beru.direccion,
-                        )
-                    await self.bel.anotar(
-                        "BERU", "RECOMPRA_RECICLO",
-                        f"{beru.uid} @ {precio_actual:.4f} vol ${beru.masa:.2f} "
-                        f"(sin engorde) · salida {beru.trigger_salida:.4f}.",
-                    )
-                    continue
-
-                if not beru_negociador.cruzo_gatillo_caza(
-                    precio_actual, centro, vacio, beru.direccion,
-                ):
-                    continue
-                touch_pct = beru_cazador.pct_desde_precio(centro, precio_actual)
-                self._aplicar_grid_cazador(beru, touch_pct)
-                beru.modo_combate = "CAZA"
-                beru.estado = "NEGOCIANDO"
-                beru.masa = beru.masa_congelada
-                await self.bel.anotar(
-                    "BERU", "CAZA_FANTASMA",
-                    f"{beru.uid} abismo cruzado @ {touch_pct*100:.2f}% "
-                    f"oz {beru.oz_pct*100:.2f}% red {beru.red_pct*100:.2f}% "
-                    f"(${beru.masa_congelada:.0f} sin engorde).",
-                )
-                continue
-
-            if beru.estado == "ESPERANDO_CONDICIONAL":
-                # Oro ya plantado en neg_oz_pct, o se deriva del ancla
-                cond = float(beru.neg_oz_pct or 0)
-                if cond == 0.0:
-                    cond = beru_negociador.oz_condicional_pct(beru.ancla_cosecha_pct, vacio)
-                    beru.neg_oz_pct = cond
-                if not beru_negociador.toca_condicional(precio_actual, centro, cond):
-                    continue
-                # Detona → UNA trailing (toda la masa). Sin acordeón.
-                oz_n, red_n = beru_negociador.activar_trailing_unica(cond, paso_oz)
-                beru.neg_oz_pct, beru.neg_red_pct = oz_n, red_n
-                beru.oz_adan, _ = beru_negociador.sincronizar_grid(centro, oz_n, oz_n)
-                beru.red_adan = 0.0
-                beru.estado = "NEGOCIANDO"
-                beru.modo_combate = "NEGOCIADOR"
-                beru.neg_toques_ciclo = 0
-                beru.fase_reciclaje = "TRAILING"
-                beru.bracket_armado = True
-                masa = float(beru.masa_congelada or beru.masa or 0)
-                await self.bel.anotar(
-                    "BERU", "LLAMADO_ORO",
-                    f"{beru.uid} oro {cond*100:.2f}% → trailing única @ {oz_n*100:.2f}% "
-                    f"(masa ${masa:.2f}) — sin acordeón.",
-                )
-                continue
-
-            if beru.estado != "NEGOCIANDO" or beru.modo_combate != "NEGOCIADOR":
-                continue
-
-            # Fill de la única trailing → ping-pong: oro al otro lado (funeral holgado)
-            if not beru_negociador.toca_trailing(precio_actual, centro, beru.neg_oz_pct):
-                continue
-
-            if beru_mega_reset.debe_purgar_mega(beru) or getattr(beru, "es_super_beru", False):
-                # Mega: purga — NO mueve el 0 de Igris
-                await self._purga_mega(beru, precio_actual)
-                continue
-
-            fill_pct = beru_cazador.pct_desde_precio(centro, precio_actual)
-            await self._ping_pong_oro(beru, fill_pct, vacio, precio_actual)
-            continue
 
     async def _purga_mega(self, beru: BeruShip, precio_actual: float):
-        """Mega: suelta masa · purga · cazador nuevo con MISMO centro_manto Igris."""
+        """FÓSIL: Mega extirpado."""
         raise RuntimeError("FOSIL_BLOQUEADO: Mega no pertenece al Beru cazador")
-        masa_suelta = float(beru.masa or beru.masa_congelada or 0)
-        direccion = beru.direccion
-        tier = getattr(beru, "tier_id", "") or self._tier_efectivo()
-        generacion = beru.generacion + 1
-        centro_igris = float(beru.centro_manto or 0) or beru_cazador.centro_manto_desde_tusk(self.tusk)
-        pct_purga = beru_cazador.pct_desde_precio(centro_igris, precio_actual) if centro_igris > 0 else 0.0
-
-        await self._soltar_mega_a_boveda(beru)
-
-        nuevo_uid = f"BERU_MEGA0_{int(time.time())}"
-        semilla = beru_mega_reset.crear_semilla_post_purga(
-            centro_igris,
-            pct_purga=pct_purga,
-            direccion=direccion,
-            tier_id=tier,
-            adn_capitan=self.tank.capitan_activo,
-            generacion=generacion,
-            uid=nuevo_uid,
-        )
-        self.legion.append(semilla)
-        piso = float(getattr(semilla, "piso_sangre_pct", 0) or 0)
-        msg = (
-            f"{beru.uid} purga Mega @ {precio_actual:.2f} (pct {pct_purga*100:.2f}%) → "
-            f"bóveda ${masa_suelta:.0f} · 0 Igris intacto · {nuevo_uid} "
-            f"sangre @{piso*100:.2f}% (masa $0)."
-        )
-        await self.bel.anotar("BERU", "MEGA_PURGA", msg)
-        self._cronica(
-            beru, "MEGA_PURGA", msg,
-            precio=precio_actual, masa=masa_suelta, nuevo_uid=nuevo_uid,
-        )
 
     async def _reset_mega_por_red(self, beru: BeruShip, precio_actual: float):
-        """Alias legado → purga sin mover 0."""
+        """FÓSIL: reset Mega extirpado."""
         raise RuntimeError("FOSIL_BLOQUEADO: reset Mega extirpado")
 
     async def _soltar_mega_a_boveda(self, beru: BeruShip):
-        """Capital del Mega vuelve al margen cruzado (bóveda Tusk); sin reserva exclusiva."""
+        """FÓSIL: suelta Mega extirpada."""
         raise RuntimeError("FOSIL_BLOQUEADO: suelta Mega extirpada")
-        masa = float(beru.masa or beru.masa_congelada or 0)
-        if masa <= 0:
-            beru.estado = "COSECHADO"
-            return
-        uid_cosecha = f"MEGA_SUELTA_{beru.uid}"
-        beru.estado = "ESPERANDO_SUELTA"
-        await self._ejecutar_cosecha(beru, uid_cosecha, forzar=True)
-        if beru.estado == "COSECHADO":
-            return
-        if beru.uid in self.tusk.reservas_activas:
-            await self.tusk.liberar_reserva(beru.uid)
-        beru.masa = 0.0
-        beru.masa_congelada = 0.0
-        beru.estado = "COSECHADO"
 
-    async def _ping_pong_oro(
-        self,
-        beru: BeruShip,
-        fill_pct: float,
-        vacio: float,
-        precio_actual: float,
-    ) -> None:
-        """Trailing llenó → funeral holgado → oro al otro lado del vacío (1.6%)."""
+    async def _ping_pong_oro(self, beru: BeruShip, fill_pct: float, vacio: float, precio_actual: float) -> None:
+        """FÓSIL: ping-pong extirpado."""
         raise RuntimeError("FOSIL_BLOQUEADO: ping-pong extirpado")
-        oro = beru_negociador.oro_orilla_opuesta(fill_pct, vacio)
-        beru.ancla_cosecha_pct = fill_pct
-        beru.neg_oz_pct = oro
-        beru.neg_red_pct = 0.0
-        beru.neg_toques_ciclo = 0
-        beru.estado = "ESPERANDO_CONDICIONAL"
-        beru.modo_combate = "NEGOCIADOR"
-        beru.fase_reciclaje = "PING_PONG"
-        beru.oz_adan = 0.0
-        beru.red_adan = 0.0
-        masa = float(beru.masa_congelada or beru.masa or 0)
-        msg = (
-            f"{beru.uid} trailing fill @ {fill_pct*100:.2f}% → oro orilla "
-            f"{oro*100:.2f}% (masa ${masa:.2f}) — ping-pong."
-        )
-        await self.bel.anotar("BERU", "PING_PONG_ORO", msg)
-        self._cronica(beru, "PING_PONG_ORO", msg, precio=precio_actual)
 
     async def _flip_neg_a_caza(self, beru: BeruShip, precio_actual: float):
-        """LEGADO: redirige a ping-pong oro (ya no vuelve a caza fantasma)."""
+        """FÓSIL: negociador extirpado."""
         raise RuntimeError("FOSIL_BLOQUEADO: negociador extirpado")
-        centro = beru.centro_manto or beru_cazador.centro_manto_desde_tusk(self.tusk)
-        fill_pct = beru_cazador.pct_desde_precio(centro, precio_actual) if centro > 0 else beru.ancla_cosecha_pct
-        vacio = beru.adn_capitan.vacio_adan
-        await self._ping_pong_oro(beru, fill_pct, vacio, precio_actual)
 
     async def _flip_caza_a_neg(self, beru: BeruShip, precio_actual: float):
-        """Oz cazador tocada = red negociador → armar condicional al otro lado."""
+        """FÓSIL: transición a negociador extirpada."""
         raise RuntimeError("FOSIL_BLOQUEADO: transición a negociador extirpada")
-        vacio = beru.adn_capitan.vacio_adan
-        ancla = beru.oz_pct
-        cond = beru_negociador.oz_condicional_pct(ancla, vacio)
-        beru.ancla_cosecha_pct = ancla
-        beru.neg_oz_pct = cond
-        beru.neg_red_pct = 0.0
-        beru.neg_toques_ciclo = 0
-        beru.estado = "ESPERANDO_CONDICIONAL"
-        beru.modo_combate = "NEGOCIADOR"
-        beru.oz_pct = 0.0
-        beru.red_pct = 0.0
-        msg = (
-            f"{beru.uid} oz cazador {ancla*100:.2f}% → condicional {cond*100:.2f}%."
-        )
-        await self.bel.anotar("BERU", "VUELTA_NEG", msg)
-        self._cronica(beru, "VUELTA_NEG", msg, precio=precio_actual)
 
     async def _pulsar_clonacion_residual(self, precio_actual: float):
-        """FÓSIL: capas residuales extirpadas del cazador continuo."""
+        """FÓSIL: capas residuales extirpadas."""
         _ = precio_actual
         return
-        for rr in list(self._redes_residuales):  # pragma: no cover
-            if not rr.activa:
-                continue
-            if not beru_residual.toca_residual(precio_actual, rr):
-                continue
-            rr.activa = False
-            await self._parir_desde_residual(rr, precio_actual)
 
-    async def _parir_desde_residual(self, residual: beru_residual.RedResidual, precio_actual: float):
+    async def _parir_desde_residual(self, residual, precio_actual: float):
+        """FÓSIL: residual/capas extirpados."""
         raise RuntimeError("FOSIL_BLOQUEADO: residual/capas extirpados")
-        # FÓSIL histórico inalcanzable.
-        if not beru_ley.engorde_permitido():
-            residual.activa = False
-            await self.bel.anotar(
-                "BERU", "CLON_BLOQUEADO",
-                "Ley neutro: sin engorde — residual no para capas nuevas.",
-            )
-            return
-        direccion = residual.direccion
-        capa = self._siguiente_capa(direccion)
-        centro = residual.centro_manto or beru_cazador.centro_manto_desde_tusk(self.tusk)
-        if centro <= 0:
-            return
-        touch_pct = beru_cazador.pct_desde_precio(centro, precio_actual)
-        masa = beru_ley.masa_unidad_intercambio_usd(self._activo_casa())
-        if masa <= 0:
-            return
-        nuevo_uid = f"BERU_CAPA{capa}_{self._activo_casa()}_{time.time_ns()}"
-        barco = BeruShip(
-            uid=nuevo_uid,
-            centro_local=precio_actual,
-            centro_manto=centro,
-            masa=masa,
-            direccion=direccion,
-            estado="ESPERANDO_MATERIALIZACION",
-            generacion=1,
-            adn_capitan=beru_wake.adn_capitan_wake(),
-            tier_id=residual.tier_id or self._tier_efectivo(),
-            modo_combate="CAZA",
-            capa=capa,
-        )
-        self._aplicar_grid_cazador(barco, touch_pct)
-        if not await self.tusk.solicitar_reserva(
-            nuevo_uid, masa, "BERU", direccion,
-            consumir_auth=beru_ley.consumir_auth_en_reserva(),
-        ):
-            residual.activa = True
-            return
-        await self._ejecutar_caza(barco)
-        if barco.estado == "NEGOCIANDO":
-            self.legion.append(barco)
-            await self.bel.anotar(
-                "BERU", "CLON_RESIDUAL",
-                f"{nuevo_uid} capa{capa} @ red_residual {residual.precio:.2f} (${masa:.0f}).",
-            )
 
     async def _saltar_redes_latido(
         self, beru: BeruShip, px: float, lat: dict,
@@ -2237,128 +1949,15 @@ class BeruCazador:
             barco, "COSECHA", texto,
             precio=float(p_ef or 0), **extra,
         )
-        if getattr(barco, "ciclo_infinito", False) or getattr(barco, "engorde_bloqueado", False):
-            await self._iniciar_reciclaje_post_venta(barco, float(p_ef or 0))
+        # Reciclaje/ping-pong fósil: no se reanima tras cosecha.
 
     async def _fusion_negociadores_ciclo(self):
-        """Fósil sellado: Beru continuo no fusiona ni crea Mega."""
+        """Fósil: Beru continuo no fusiona ni crea Mega."""
         return
-
-        # FÓSIL histórico, inalcanzable.
-        for grupo in beru_fusion.grupos_colision_oz(self.legion):
-            lider, victimas = beru_fusion.fusionar_colision_oz(grupo)
-            centro = lider.centro_manto or beru_cazador.centro_manto_desde_tusk(self.tusk)
-            if centro > 0:
-                if self._modo_barco(lider) == "NEGOCIADOR":
-                    lider.oz_adan, lider.red_adan = beru_negociador.sincronizar_grid(
-                        centro, lider.neg_oz_pct, lider.neg_red_pct,
-                    )
-                else:
-                    lider.oz_adan, lider.red_adan = beru_cazador.sincronizar_precios_grid(
-                        centro, lider.oz_pct, lider.red_pct,
-                    )
-            for v in victimas:
-                v.estado = "FUSIONADO"
-            lider.engorde_bloqueado = True
-            lider.volumen_reciclaje = float(lider.masa_congelada or lider.masa or 0)
-            lider.precio_fusion_ref = float(lider.oz_adan or 0)
-            lider.es_super_beru = True
-            tag = "NEG" if self._modo_barco(lider) == "NEGOCIADOR" else "CAZA"
-            msg = (
-                f"{lider.uid} <- {len(victimas) + 1} {tag} oz~{lider.oz_adan:.2f} "
-                f"${lider.masa_congelada:.0f} (reciclaje volumen sumado)."
-            )
-            await self.bel.anotar("BERU", "FUSION_COLISION", msg)
-            self._cronica(
-                lider, "FUSION", msg,
-                n_fusionados=len(victimas) + 1, tag=tag,
-            )
-
-        for lider, victimas, prom in beru_fusion.grupos_mega_beru(self.legion):
-            vacio = lider.adn_capitan.vacio_adan
-            beru_fusion.aplicar_mega_beru(lider, victimas, prom, vacio)
-            for v in victimas:
-                v.estado = "FUSIONADO"
-            msg_mega = (
-                f"{lider.uid} prom ancla {prom * 100:.2f}% <- {len(victimas) + 1} barcos "
-                f"(${lider.masa_congelada:.0f}) · cond {lider.neg_oz_pct * 100:.2f}%."
-            )
-            await self.bel.anotar("BERU", "MEGA_BERU", msg_mega)
-            self._cronica(
-                lider, "MEGA_BERU", msg_mega,
-                n_fusionados=len(victimas) + 1, ancla_pct=round(prom * 100.0, 4),
-            )
-
-    # === FUSIÓN Y LIMPIEZA ===
 
     async def evaluar_colisiones_y_fusion(self):
         """Compatibilidad externa: fusión/Mega extirpados."""
         return
-
-        # FÓSIL histórico, inalcanzable.
-        await self._fusion_negociadores_ciclo()
-        precio = self._precio_casa()
-        activos = [
-            b for b in self.legion
-            if b.estado == "NEGOCIANDO"
-            and self._modo_barco(b) != "CAZA"
-            and not getattr(b, "neg_post_cazador", False)
-            and not getattr(b, "ciclo_infinito", False)
-        ]
-        if len(activos) < 2:
-            return
-
-        for direccion in ["LONG", "SHORT"]:
-            grupo = [b for b in activos if b.direccion == direccion]
-            if len(grupo) < 2:
-                continue
-
-            tocado = None
-            for b in grupo:
-                if abs(precio - b.centro_local) / max(b.centro_local, 0.0001) < 0.0005:
-                    tocado = b
-                    break
-
-            if tocado:
-                victimas = (
-                    [b for b in grupo if b.centro_local >= tocado.centro_local and b is not tocado]
-                    if direccion == "LONG"
-                    else [b for b in grupo if b.centro_local <= tocado.centro_local and b is not tocado]
-                )
-                if victimas:
-                    todos = [tocado] + victimas
-                    masa_total = sum(b.masa for b in todos)
-                    p_promedio = sum(b.centro_local * b.masa for b in todos) / masa_total
-                    tocado.masa = masa_total
-                    tocado.centro_local = p_promedio
-                    tocado.max_favor = 0.0
-                    tocado.es_super_beru = True
-                    for b in victimas:
-                        b.estado = "FUSIONADO"
-                    await self.bel.anotar("BERU", "FUSION_CONTACTO", f"{tocado.uid} absorbe {len(victimas)} barcos")
-                continue
-
-            masa_total = sum(b.masa for b in grupo)
-            p_promedio = sum(b.centro_local * b.masa for b in grupo) / masa_total
-            if abs(precio - p_promedio) / max(p_promedio, 0.0001) >= 0.0005:
-                continue
-            perdedores = (
-                [b for b in grupo if b.centro_local >= p_promedio]
-                if direccion == "LONG"
-                else [b for b in grupo if b.centro_local <= p_promedio]
-            )
-            if len(perdedores) < 2:
-                continue
-            lider = perdedores[0]
-            masa_fusionada = sum(b.masa for b in perdedores)
-            p_fusionado = sum(b.centro_local * b.masa for b in perdedores) / masa_fusionada
-            lider.masa = masa_fusionada
-            lider.centro_local = p_fusionado
-            lider.max_favor = 0.0
-            lider.es_super_beru = True
-            for b in perdedores[1:]:
-                b.estado = "FUSIONADO"
-            await self.bel.anotar("BERU", "SUPER_FUSION", f"{lider.uid} absorbe {len(perdedores)-1} perdedores")
 
     def limpiar_legion(self):
         # FOSIL_BLOQUEADO se conserva en cuarentena: no pelea, no detiene a nadie.

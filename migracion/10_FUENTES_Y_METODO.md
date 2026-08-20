@@ -40,7 +40,7 @@ Generado: **2026-06-30**
 
 ## Método
 
-1. **Extracción** — `_destilar_fuentes.py` copia manual → `_fuentes_extraidas/` + `catalog.json`.
+1. **Extracción** — `(destilador — purgado)` copia manual → `(fuentes crudas — purgadas)` + `catalog.json`.
 2. **Clasificación** — cada bloque → tipo REGLA | DISENO | DOCTRINA | CRISTALIZADO | EXPLORACION.
 3. **Síntesis** — documentos 00–08 redactados para implementación (no copia literal sandbox).
 4. **Catálogo** — SA-001…SA-139 en `09_CATALOGO_ESPECIFICACIONES.md`.
@@ -56,7 +56,7 @@ Generado: **2026-06-30**
 ## Re-generar
 
 ```bat
-python migracion\_destilar_fuentes.py
+python migracion\(destilador — purgado)
 ```
 
 Luego revisar manualmente 00–08 si el manual cambió.

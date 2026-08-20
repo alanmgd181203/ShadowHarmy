@@ -140,7 +140,7 @@ def check_ciclo_ejercito(historial: str | None = None) -> CheckResult:
         "3.6.1", "3", "Ciclo CAZA → COSECHA en Bellion",
         "pending",
         f"{detalle} | CAZA={n_caza} COSECHA={n_cosecha}. "
-        "Simular: python scripts/probar_ciclo_beru.py | Live: Arise mainnet con candados",
+        "Simular: smokes Beru altar/ráfaga | Live: Arise con candados del Monarca",
         {"caza": n_caza, "cosecha": n_cosecha},
     )
 

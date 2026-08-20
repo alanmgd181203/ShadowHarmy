@@ -1,8 +1,0 @@
-# PEGAR al Cursor VPS (rellena el token)
-
-1) Monarca: crea token en `migracion/TOKEN_GITHUB_VPS_MONARCA.md`
-2) Abre `migracion/ORDEN_CURSOR_VPS_TUNEL.md`, copia TODO
-3) Sustituye `PEGAR_TOKEN_AQUI` por tu token
-4) Pega el mensaje al Agent del VPS
-
-Sin token → solo puede montar WireGuard; **no** podrá `git push` de los cambios del VPS.

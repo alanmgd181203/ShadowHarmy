@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 import core.config as config
 
-ModoCombate = Literal["CAZA", "NEGOCIADOR"]
+ModoCombate = Literal["CAZA"]
 
 # Trailing simétrico caza: siempre 0.1% (doctrina Monarca 2026-07)
 PASO_TRAILING_CAZA = 0.001
@@ -35,9 +35,9 @@ class BeruGridTier:
     oz_tras_toque_red: float | None = None
 
     def pasos(self, modo: ModoCombate) -> tuple[float, float]:
-        if modo == "CAZA":
-            return self.paso_oz_caza, self.paso_red_caza
-        return self.paso_oz_negociador, self.paso_red_negociador
+        if str(modo or "").upper() != "CAZA":
+            raise RuntimeError("FOSIL_BLOQUEADO: negociador extirpado del grid")
+        return self.paso_oz_caza, self.paso_red_caza
 
 
 BERU_TIERS: dict[str, BeruGridTier] = {
@@ -95,8 +95,7 @@ def tier_por_id(tier_id: str | None = None) -> BeruGridTier:
 
 
 def modo_combate_default() -> ModoCombate:
-    m = str(getattr(config, "BERU_MODO_COMBATE_DEFAULT", "NEGOCIADOR")).upper()
-    return "CAZA" if m == "CAZA" else "NEGOCIADOR"
+    return "CAZA"
 
 
 def precios_red_oz(
@@ -131,7 +130,6 @@ def mover_red(precio_red: float, direccion: str, paso_red: float) -> float:
 def resumen_tiers() -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for t in BERU_TIERS.values():
-        oz_n, red_n = t.pasos("NEGOCIADOR")
         oz_c, red_c = t.pasos("CAZA")
         row: dict[str, Any] = {
             "id": t.id,
@@ -141,8 +139,6 @@ def resumen_tiers() -> list[dict[str, Any]]:
             "caza_oz_pct": round(oz_c * 100, 2),
             "caza_red_pct": round(red_c * 100, 2),
             "clon_red_pct": round(t.distancia_clon_pct * 100, 2),
-            "negociador_oz_pct": round(oz_n * 100, 2),
-            "negociador_red_pct": round(red_n * 100, 2),
         }
         if t.oz_tras_toque_red is not None:
             row["oz_tras_toque_red_pct"] = round(t.oz_tras_toque_red * 100, 2)

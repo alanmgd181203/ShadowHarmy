@@ -79,7 +79,6 @@ from core.bellion import BellionAuditor  # noqa: E402
 from core.bridge import BybitBridge  # noqa: E402
 from core.dashboard import PanelDeControl  # noqa: E402
 from generales.beru import BeruCazador  # noqa: E402
-from generales.igris import IgrisEscudo  # noqa: E402
 from generales.kaiser import KaiserVocero  # noqa: E402
 from generales.tank import TankCluster  # noqa: E402
 from generales.tusk import TuskBoveda, silenciar_recital_manto_en_ritual_beru  # noqa: E402
@@ -483,7 +482,7 @@ async def ritual(segundos: float, activos: list[str]):
 
         kaiser = KaiserVocero(tank, bellion)
         # Igris solo snapshot — SIN vigilar_manto
-        igris = IgrisEscudo(tusk, tank, bellion, bridge=bridge, kaiser=kaiser)
+        igris = None  # Igris de baja
         beru = BeruCazador(tusk, bellion, tank, bridge=bridge, kaiser=kaiser)
         # No sembrar desde la foto restaurada de Bellion. La siembra asistida
         # abrirá este candado solo después de reconciliar el manto con Bybit.

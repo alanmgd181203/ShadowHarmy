@@ -127,7 +127,10 @@ class BellionAuditor:
         peso_s = sum(f["short"] for f in tusk.pesos.values())
         masa_bruta = peso_l + peso_s
 
-        banda_min, banda_max = igris.calcular_banda_delta()
+        if igris is not None and hasattr(igris, "calcular_banda_delta"):
+            banda_min, banda_max = igris.calcular_banda_delta()
+        else:
+            banda_min, banda_max = 0.0, 0.0
         funding_snap = tank.snapshot_funding() if tank else {}
         igris_resumen = resumen_manto(
             margen_ocupado_pct=tusk.margen_ocupado,
@@ -147,154 +150,22 @@ class BellionAuditor:
         eq = float(tusk.masa_bruta_real or tusk.masa_bruta or 0)
         igris_resumen["plan_crecimiento"] = pc.resumen_plan(eq)
         pesos_vw = tusk.pesos or {}
-        exclusivos = [
-            str(a).upper()
-            for a in (getattr(config, "IGRIS_ACTIVOS_EXCLUSIVOS", None) or [])
-            if a
-        ]
-        if exclusivos:
-            # Ventana del canal (ETH), sin mezclar colateral MNT u otros
-            pesos_filtrados = {}
-            for act in exclusivos:
-                try:
-                    fl, fs = im.frentes_bootstrap(act)
-                except Exception:
-                    continue
-                if fl in pesos_vw:
-                    pesos_filtrados[fl] = pesos_vw[fl]
-                if fs in pesos_vw:
-                    pesos_filtrados[fs] = pesos_vw[fs]
-            pesos_vw = pesos_filtrados
         usd_l, usd_s = mv.usd_piernas_desde_pesos(pesos_vw)
-        if usd_l + usd_s <= 0 and not exclusivos:
+        if usd_l + usd_s <= 0:
             usd_l, usd_s = float(peso_l), float(peso_s)
         igris_resumen["ventana_manto"] = mv.resumen_barco(usd_l, usd_s)
-        # Marcha operativa + preferencia Asalto (lectura; no escribe disco)
-        try:
-            from core import pase_director as pd
+        igris_resumen["marcha"] = {
+            "id": None,
+            "titulo": "Igris de baja",
+            "preferencia_asalto": False,
+        }
+        igris_resumen["meta_engorde"] = {"ok": False, "motivo": "igris_de_baja"}
+        igris_resumen["ley_masa"] = {"ok": None, "motivo": "igris_de_baja", "bloqueado": None}
+        igris_resumen["mision"] = {"ok": False, "motivo": "igris_de_baja"}
+        igris_resumen["frecuencia_manto"] = {"de_baja": True}
+        igris_resumen["libros_foco"] = {}
+        igris_resumen["libros_eth"] = {}
 
-            mid = pd.cargar_marcha()
-            payload_m = pd.cargar_marcha_payload() or {}
-            igris_resumen["marcha"] = {
-                "id": mid,
-                "titulo": payload_m.get("titulo") or (
-                    "Asalto Inmediato" if mid == "asalto" else "Marcha Personalizada"
-                ),
-                "preferencia_asalto": True,  # ley Monarca 2026-08-06
-                "duracion_dias": payload_m.get("duracion_dias"),
-                "fill_ratio": payload_m.get("fill_ratio"),
-                "reserva_pasos": payload_m.get("reserva_pasos"),
-                "force_market": payload_m.get("force_market"),
-            }
-            try:
-                igris_resumen["meta_engorde"] = pd.meta_engorde_usd(eq, tusk=tusk, marcha_id=mid)
-            except Exception as e:
-                igris_resumen["meta_engorde"] = {"ok": False, "motivo": str(e)}
-        except Exception as e:
-            igris_resumen["marcha"] = {
-                "id": None,
-                "titulo": None,
-                "preferencia_asalto": True,
-                "error": str(e),
-            }
-            igris_resumen["meta_engorde"] = {"ok": False, "motivo": "sin_director"}
-        # Ley de la Masa — solo lectura (último candado de Igris o sin dato)
-        if hasattr(igris, "snapshot_ley_masa"):
-            try:
-                igris_resumen["ley_masa"] = igris.snapshot_ley_masa()
-            except Exception as e:
-                igris_resumen["ley_masa"] = {"ok": None, "motivo": str(e), "bloqueado": None}
-        else:
-            igris_resumen["ley_masa"] = {
-                "ok": None,
-                "motivo": "sin_puerta_aun",
-                "bloqueado": None,
-            }
-        try:
-            from core import igris_mision as imis
-
-            igris_resumen["mision"] = imis.snapshot_telemetria()
-        except Exception as e:
-            igris_resumen["mision"] = {"ok": False, "motivo": str(e)}
-        # Libros del Santo en foco (meta engorde) → Pergamino; ETH queda como legado
-        if tank is not None:
-            try:
-                from core import igris_despliegue as ides
-                from core import igris_manto as im
-                from core import igris_ojos as ojos
-
-                meta_act = (igris_resumen.get("meta_engorde") or {}).get("activo")
-                activo_lib = str(meta_act or "ETH").upper() or "ETH"
-                frente_inv, frente_lin = im.frentes_bootstrap(activo_lib)
-                detalle_lib: dict = {}
-                ok_alg = False
-                stale_alg = False
-                for f in (frente_lin, frente_inv):
-                    bids, asks = ides.libro_tank(tank, f)
-                    n_b, n_a = len(bids or []), len(asks or [])
-                    meta_l = ojos.meta_libro(tank, f)
-                    detalle_lib[f] = {
-                        "bids": n_b,
-                        "asks": n_a,
-                        "edad_s": meta_l.get("edad_s"),
-                        "stale": meta_l.get("stale"),
-                    }
-                    if n_b > 0 and n_a > 0:
-                        ok_alg = True
-                    if meta_l.get("stale"):
-                        stale_alg = True
-                bloque_lib = {
-                    "ok": ok_alg and not stale_alg,
-                    "activo": activo_lib,
-                    "frentes": detalle_lib,
-                    "stale": stale_alg,
-                }
-                igris_resumen["libros_foco"] = bloque_lib
-                # Compat: claves viejas / heartbeat ETH
-                if activo_lib == "ETH":
-                    igris_resumen["libros_eth"] = bloque_lib
-                else:
-                    # ETH sigue publicándose si el Tank lo trae (ojos canal)
-                    detalle_eth: dict = {}
-                    ok_e = False
-                    stale_e = False
-                    for f in ("ETHUSDT_LINEAL", "ETHUSD_INVERSE"):
-                        bids, asks = ides.libro_tank(tank, f)
-                        n_b, n_a = len(bids or []), len(asks or [])
-                        meta_l = ojos.meta_libro(tank, f)
-                        detalle_eth[f] = {
-                            "bids": n_b,
-                            "asks": n_a,
-                            "edad_s": meta_l.get("edad_s"),
-                            "stale": meta_l.get("stale"),
-                        }
-                        if n_b > 0 and n_a > 0:
-                            ok_e = True
-                        if meta_l.get("stale"):
-                            stale_e = True
-                    igris_resumen["libros_eth"] = {
-                        "ok": ok_e and not stale_e,
-                        "activo": "ETH",
-                        "frentes": detalle_eth,
-                        "stale": stale_e,
-                    }
-            except Exception as e:
-                err = {
-                    "ok": False,
-                    "activo": None,
-                    "frentes": {},
-                    "stale": True,
-                    "error": str(e)[:120],
-                }
-                igris_resumen["libros_foco"] = err
-                igris_resumen["libros_eth"] = dict(err)
-        try:
-            from core import manto_frecuencia as mf
-
-            if getattr(config, "MANTO_FREQ_ACTIVA", True):
-                igris_resumen["frecuencia_manto"] = mf.snapshot_ranking(equity_usd=eq)
-        except Exception as e:
-            igris_resumen["frecuencia_manto"] = {"error": str(e)}
         tusk_libros_snap = tl.snapshot_libros(tusk)
         progresion = bc.telemetria_progresion(eq)
 
@@ -386,11 +257,7 @@ class BellionAuditor:
             "ciclos_consumados": tusk.total_ciclos_consumados,
         }
 
-        try:
-            from core import igris_asset_detail as iad
-            snapshot["igris_asset_details"] = iad.mapa_asset_details(snapshot)
-        except Exception:
-            snapshot["igris_asset_details"] = {}
+        snapshot["igris_asset_details"] = {}
 
         snapshot["beru_asset_details"] = beru_details
         try:

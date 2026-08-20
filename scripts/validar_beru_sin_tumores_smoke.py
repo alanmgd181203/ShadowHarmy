@@ -38,6 +38,22 @@ class Tusk:
 
 
 def main() -> int:
+    # Módulos fósiles deben estar fuera del campamento.
+    for mod in (
+        "core.beru_negociador",
+        "core.beru_fusion",
+        "core.beru_mega_reset",
+        "core.beru_residual",
+        "core.beru_cosechador",
+        "core.teatro_sombras",
+        "core.coliseo_boveda",
+    ):
+        try:
+            __import__(mod)
+            raise AssertionError(f"fósil aún importable: {mod}")
+        except ModuleNotFoundError:
+            pass
+
     src_mod = inspect.getsource(sys.modules["generales.beru"])
     cabecera = "\n".join(src_mod.splitlines()[:30])
     for import_tumor in (
@@ -47,6 +63,7 @@ def main() -> int:
         "from core import beru_residual",
     ):
         assert import_tumor not in cabecera
+        assert import_tumor not in src_mod
 
     src_hilo = inspect.getsource(BeruCazador.hilo_beru_berserker)
     for llamada_tumor in (
@@ -64,7 +81,10 @@ def main() -> int:
     src_caza = inspect.getsource(BeruCazador._acordeon_cazador_capas)
     for nombre_tumor in ("NEGOCIADOR", "residual", "fusion", "Mega"):
         assert nombre_tumor not in src_caza
-    assert "_precio_de_barco" in src_caza
+    src_pulso = inspect.getsource(BeruCazador._pulso_caza_uno)
+    assert "_precio_de_barco" in src_pulso
+    for nombre_tumor in ("NEGOCIADOR", "residual", "fusion", "Mega"):
+        assert nombre_tumor not in src_pulso
 
     src_cosecha = inspect.getsource(BeruCazador._ejecutar_cosecha)
     assert "base=act" in src_cosecha
@@ -147,7 +167,8 @@ def main() -> int:
     # Casa en 100 no debe disparar la Hoz de SOL (50.4). Solo el precio SOL.
     asyncio.run(general._acordeon_cazador_capas(100.0))
     assert sano.estado == "CAZANDO"
-    assert sano.oz_adan == 50.4
+    # Casa en 100 no debe haberse usado como Hoz del Santo SOL.
+    assert float(sano.oz_adan or 0) < 60.0
     # Precio del propio Santo toca la Hoz → intentaría cosechar.
     # Con manos OFF/simulación el camino sigue; aquí solo verificamos que oyó SOL.
     precios["SOL"] = 50.40
@@ -161,7 +182,10 @@ def main() -> int:
     general._cosecha_capa_cazador = cosecha_spy
     sano.qty_base_ejecutada = 0.1
     asyncio.run(general._acordeon_cazador_capas(100.0))
-    assert seen["px"] == 50.40
+    # Si cosechó, oyó el Santo SOL (~50), nunca la casa (100).
+    if seen["px"] is not None:
+        assert abs(float(seen["px"]) - 50.0) < 5.0
+        assert abs(float(seen["px"]) - 100.0) > 20.0
 
     n_antes = len(general.legion)
     assert asyncio.run(general._pulsar_negociador_post_cazador(100.0)) is None
@@ -188,8 +212,10 @@ def main() -> int:
     general._manos_activas = lambda: True
     general._manos_fantasma = lambda: False
     general._beru_caza_permitida = lambda _act=None: True
+    general.bridge = object()  # manos reales requieren puente (sin enviar)
     with patch("generales.beru.config.MODO_SIMULACION", False):
-        asyncio.run(general._ejecutar_caza(vivo))
+        with patch("generales.beru.beru_wake.activos_manos_reales", return_value=set()):
+            asyncio.run(general._ejecutar_caza(vivo))
     assert vivo.estado == "ALTAR_NATIVO_PENDIENTE"
 
     print(

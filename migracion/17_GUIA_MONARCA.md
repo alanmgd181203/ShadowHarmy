@@ -168,7 +168,7 @@ Cuando el Monarca diga «prepara esto para que Jess lo corra»:
 
 1. El agente **reescribe** `migracion/ORDEN_ACTIVA_JESS.md` — **siempre el mismo path**.
 2. Jess hace `git pull origin master` y **abre solo ese archivo**.
-3. Los `PEGAR_JESS_*` son **recetas** (detalle); no sustituyen la puerta.
+3. Jess solo abre `ORDEN_ACTIVA_JESS` (recetas PEGAR purgadas).
 4. Tras subir la orden: decirle al Monarca **«Jess solo abre ORDEN_ACTIVA_JESS»**.
 
 Índice de recetas: `migracion/ordenes_jess/README.md`. Regla Cursor: `.cursor/rules/orden-jess.mdc`.

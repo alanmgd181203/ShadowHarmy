@@ -2,7 +2,7 @@
 
 **Estado:** v2 — Monarca 2026-07-19 (pase Coliseo + rangos Aspirante→Chamán)  
 **Código espejo:** `core/plan_crecimiento.py` · UI `ui/ascensionScaffold.js`  
-**Pase canónico:** [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md)  
+**Pase canónico:** (purgado)  
 **Relacionado:** [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) · [`21_DOCTRINA_IGRIS.md`](21_DOCTRINA_IGRIS.md) · [`20_DOCTRINA_KAISER.md`](20_DOCTRINA_KAISER.md)
 
 ---
@@ -33,7 +33,7 @@ Definir **cómo crece el ejército según el capital (equity UTA) del Monarca**:
 
 Subniveles por **pasos del pase de batalla** (efi Coliseo ÷ costo Igris), no por % suelto.
 
-> **Firma Monarca 2026-07-19** — ver tabla completa en [`PASE_BATALLA_13_SANTOS.md`](PASE_BATALLA_13_SANTOS.md).  
+> **Firma Monarca 2026-07-19** — ver tabla completa en (purgado).  
 > Costo = capital Igris del barco (`X` / rangos del diccionario = margen L+S + colchón 5 %).  
 > Vacío Adán del pase: **1,6 %** · malla normal. Meta teórica 13 Mariscales: **~$3161**.
 
@@ -178,7 +178,7 @@ Código: `core/pase_director.py` · UI altar · `data/marcha_despliegue.json`
 | Pieza | Estado |
 |-------|--------|
 | Doctrina este doc | ✅ v2 (pase 13 Santos) |
-| Pergamino pase | ✅ `PASE_BATALLA_13_SANTOS.md` |
+| Pergamino pase | ✅ (purgado) |
 | `core/plan_crecimiento.py` | ✅ rangos Aspirante→Chamán + umbrales pase |
 | `core/pase_director.py` | ✅ potencia/lote/marchas (2026-07-19) |
 | `core/beru_tier.py` BERUBBY | ✅ |
