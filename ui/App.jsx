@@ -1,5 +1,4 @@
 import { useState } from "react";
-import IgrisPanel from "./IgrisPanel.jsx";
 import BeruPanel from "./BeruPanel.jsx";
 import BellionPanel from "./BellionPanel.jsx";
 import TuskAscension, { TuskOrbButton } from "./TuskAscension.jsx";
@@ -12,7 +11,8 @@ import imgGreed from "../assets/portales/greed.png";
 import imgIgris from "../assets/portales/igris.png";
 
 /**
- * Cascada + umbral Igris/Beru/Bellion + Orbe de Ascensión (Tusk).
+ * Cascada + umbral Beru/Bellion + Orbe de Ascensión (Tusk).
+ * Igris de baja: sello visible, sin umbral (panel retirado).
  * Cosas apagadas: ui/featuresApagadas.js
  */
 const PORTALS = [
@@ -24,10 +24,9 @@ const PORTALS = [
   { id: "igris", src: imgIgris, label: "Igris", aura: "#ff0055", style: { top: "74%", right: "-16%", width: "68%", zIndex: 3 } },
 ];
 
-const UMBRAL_IDS = new Set(["igris", "beru", "bellion"]);
+const UMBRAL_IDS = new Set(["beru", "bellion"]);
 
 const ARIA = {
-  igris: "Abrir Manto · Igris",
   beru: "Abrir flota · Beru",
   bellion: "Abrir oído · Bellion",
 };
@@ -39,9 +38,7 @@ export default function App() {
 
   const umbralActivo =
     isTransitioning &&
-    (activeGeneral === "igris" ||
-      activeGeneral === "beru" ||
-      activeGeneral === "bellion");
+    (activeGeneral === "beru" || activeGeneral === "bellion");
   const vanguardiaOculta = umbralActivo || ascensionOpen;
 
   function openGeneral(id) {
@@ -134,10 +131,6 @@ export default function App() {
           <TuskOrbButton onOpen={() => setAscensionOpen(true)} />
         )}
       </div>
-
-      {activeGeneral === "igris" && (
-        <IgrisPanel onClose={closeGeneral} />
-      )}
 
       {activeGeneral === "beru" && (
         <BeruPanel onClose={closeGeneral} />
