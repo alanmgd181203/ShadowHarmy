@@ -60,6 +60,9 @@ class BeruShip:
     ultima_red_tocada_precio: float = 0.0
     ultima_hoz_tocada_pct: float = 0.0
     ultima_hoz_tocada_precio: float = 0.0
+    # Beru rango (lineal): dirección de la Oz cobrada y lado de la sangre contraria.
+    ultima_hoz_direccion: str = ""
+    sangre_lado: str = ""  # ARRIBA | ABAJO
     # Tras cosecha: sangre 1.1 desde la última Oz cobrada; Red 0.9/0.5/0.3/0.1
     # despierta hijo y APAGA la sangre vieja. Nunca dos llamados vivos.
     oreja_sangre_activa: bool = False

@@ -121,7 +121,20 @@ BERU_RAFAGA_COOLDOWN_S = float(os.getenv("BERU_RAFAGA_COOLDOWN_S", "3") or 3)
 BERU_MANOS_PARALELAS = int(float(os.getenv("BERU_MANOS_PARALELAS", "8") or 8))
 # Si Bybit escupe 10006, ese Santo espera; los otros no se congelan.
 BERU_API_COOLDOWN_S = float(os.getenv("BERU_API_COOLDOWN_S", "0.5") or 0.5)
-# Engorde de Hoz en CAZA (por grado). No engorda escudo Igris. Manos siguen OFF.
+# --- Beru rango (lineal, laterales) 2026-08-20 — oficio NUEVO, no cirugia del spot ---
+# Vacío 1.2 · Oz 0.2 detrás · Red 0.7 desde Oz · sangre 1.1 · masa fija · un vivo · sin engorde
+BERU_RANGO_VACIO_PCT = float(os.getenv("BERU_RANGO_VACIO_PCT", "0.012") or 0.012)
+BERU_RANGO_OZ_GAP_PCT = float(os.getenv("BERU_RANGO_OZ_GAP_PCT", "0.002") or 0.002)
+BERU_RANGO_RED_DESDE_OZ_PCT = float(os.getenv("BERU_RANGO_RED_DESDE_OZ_PCT", "0.007") or 0.007)
+BERU_RANGO_SANGRE_PCT = float(os.getenv("BERU_RANGO_SANGRE_PCT", "0.012") or 0.012)
+BERU_RANGO_MASA_USD = float(os.getenv("BERU_RANGO_MASA_USD", "10") or 10)
+BERU_RANGO_MASA_RED_USD = float(os.getenv("BERU_RANGO_MASA_RED_USD", "5") or 5)
+BERU_RANGO_TRAILING_PCT = float(os.getenv("BERU_RANGO_TRAILING_PCT", "0.002") or 0.002)
+BERU_RANGO_ACTIVO = os.getenv("BERU_RANGO_ACTIVO", "ETH").upper()
+BERU_RANGO_MANOS = os.getenv("BERU_RANGO_MANOS", "false").lower() == "true"
+BERU_RANGO_HILO = os.getenv("BERU_RANGO_HILO", "false").lower() == "true"
+BERU_RANGO_BITACORA = os.getenv("BERU_RANGO_BITACORA", "true").lower() == "true"
+# Engorde de Hoz en caza spot (por grado). No engorda escudo Igris. Manos siguen OFF.
 BERU_ENGORDE_PERMITIDO = os.getenv("BERU_ENGORDE_PERMITIDO", "true").lower() == "true"
 BERU_ABORTAR_SOLO_CEGUERA = os.getenv("BERU_ABORTAR_SOLO_CEGUERA", "true").lower() == "true"
 BERU_CEGUERA_COMA_S = float(os.getenv("BERU_CEGUERA_COMA_S", "15"))
