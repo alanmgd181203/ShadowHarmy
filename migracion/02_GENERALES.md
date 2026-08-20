@@ -12,9 +12,12 @@ Cada General = **un módulo Python** con un hilo async y contratos claros hacia 
 - Sincronizar balance/margen real desde Bybit → `masa_bruta`, `margen_ocupado`, `masa_autorizada` / oxígeno.
 - `solicitar_reserva` / `liberar_reserva` para cada sombra activa.
 - Persistir legión en `data/tusk_data.json` (escritura atómica .tmp).
-- Publicar tesorería + lectura de sucio MNT legado — **sin manos**. Potencia del pase = caja USDT, no el short.
+- Publicar tesorería + lectura de sucio MNT legado. Potencia del pase = caja USDT, no el short.
 
-**Debe hacer (doctrina, manos aún OFF):** Funding → UTA → **USDT**. Stop. No comprar MNT. No short de equilibrio. Ver (purgado).
+**Ritual permanente escalonado:** LTC Funding → USDT Funding → **USDT UTA**.
+Este orden no mezcla el aporte con LTC que ya cubre un inverso. Cada invocación
+mueve como máximo un paso, verifica saldo, rechaza Convert con peaje >0,75% y
+es idempotente. Manos mainnet requieren autorización explícita. No comprar MNT.
 
 **Manual adicional (legacy / no centro hoy):**
 - Gap **2.5×**, Velo del Carnicero, mundos paralelos → posible **Iron** futuro.
@@ -75,17 +78,17 @@ Cada General = **un módulo Python** con un hilo async y contratos claros hacia 
 
 ---
 
-## Beru — Cazador / Negociador / Cosechador / Mega
+## Beru — Cazador continuo (spot · referencia)
 
-**Rol:** Molino spot-margen sobre el manto. Tres vidas + Mega. Llamados solo detonan.
+**Rol:** Molino spot-margen que transmuta el recorrido del manto. Un oficio, un Beru por Santo.  
+**Código:** `generales/beru.py`, `core/beru_continuo.py`, `core/beru_cazador.py`. Manos OFF.  
+**Doctrina:** [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md).
 
-**Capitanes (solo 2):** Ansiedad **1,2 %** vacío | Normal **1,6 %**.
+## Beru rango — Laterales lineal (2026-08-20)
 
-**Sellado 2026-08-13:** sangre **0,9** → Hoz **0,8** · oro/tiempo **1,6** · engorde Hoz por grado · Mega promedio + misma carta → nuevo 0. Manos OFF.
-
-Ver [`22_DOCTRINA_BERU.md`](22_DOCTRINA_BERU.md) · (purgado).
-
-**Código:** `generales/beru.py`, `core/beru_cazador.py`, `core/beru_capital.py`, `core/beru_altar_nativo.py`
+**Rol:** Molino de **rango** en lineal: Vacío 1,2 · Oz 0,2 detrás · Red 0,7 · 0 = Oz · sangre 1,2 · masa $10 · un vivo · sin engorde. Vive de ida y vuelta, no de mega tendencia.  
+**Código:** `generales/beru_rango.py`, `core/beru_rango.py`, `core/beru_rango_altar.py`. Manos OFF.  
+**Doctrina:** [`22_DOCTRINA_BERU_RANGO.md`](22_DOCTRINA_BERU_RANGO.md).
 
 ---
 
@@ -199,6 +202,7 @@ Marcar como **DISENO futuro** salvo promoción explícita.
 | Tank | `generales/tank.py` |
 | Kaiser | `generales/kaiser.py` |
 | Beru | `generales/beru.py` |
+| Beru rango | `generales/beru_rango.py` |
 | Igris | `generales/igris.py` |
 | Greed | `generales/greed.py` |
 | Bellion | `core/bellion.py` |
