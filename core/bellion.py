@@ -169,42 +169,22 @@ class BellionAuditor:
         tusk_libros_snap = tl.snapshot_libros(tusk)
         progresion = bc.telemetria_progresion(eq)
 
-        beru_flota: dict = {"activos": []}
+        beru_flota: dict = {"activos": [], "oficio": "RANGO"}
         beru_details: dict = {}
         legion_resumen: list = []
-        try:
-            from core import beru_asset_detail as bad
-            from core import beru_rail as br
-
-            sem = br.activo_semilla()
-            legion_resumen = bad.enriquecer_legion_resumen(beru_legion or [], sem)
-            beru_flota = bad.flota_resumen(beru_legion or [], semilla=sem)
-            precios_mark: dict[str, float] = {}
-            if tank and hasattr(tank, "_obtener_lider_verde"):
-                lider = tank._obtener_lider_verde()
-                if lider and hasattr(lider, "precios_con_reflejo"):
-                    px = lider.precios_con_reflejo() or {}
-                    for row in beru_flota.get("activos") or []:
-                        a = str(row.get("activo") or "")
-                        for q in ("USDT", "USDC"):
-                            p = float(px.get(f"{a}{q}_SPOT") or 0)
-                            if p > 0:
-                                precios_mark[a] = p
-                                break
-            beru_details = bad.mapa_asset_details(
-                beru_legion or [], precios=precios_mark, semilla=sem,
-            )
-        except Exception as e:
-            beru_flota = {"error": str(e), "activos": []}
-            beru_details = {}
-            for b in (beru_legion or []):
-                legion_resumen.append({
-                    "uid": b.uid, "estado": b.estado, "direccion": b.direccion,
-                    "centro": b.centro_local, "masa": b.masa,
-                    "max_favor": getattr(b, "max_favor", 0.0),
-                    "es_super": getattr(b, "es_super_beru", False),
-                    "generacion": b.generacion,
-                })
+        # Flota spot borrada — resumen genérico del vivo (rango u otros barcos).
+        for b in (beru_legion or []):
+            legion_resumen.append({
+                "uid": getattr(b, "uid", ""),
+                "estado": getattr(b, "estado", ""),
+                "direccion": getattr(b, "direccion", ""),
+                "centro": getattr(b, "centro_local", 0),
+                "masa": getattr(b, "masa", 0),
+                "modo": getattr(b, "modo_combate", ""),
+                "max_favor": getattr(b, "max_favor", 0.0),
+                "es_super": getattr(b, "es_super_beru", False),
+                "generacion": getattr(b, "generacion", 0),
+            })
 
         snapshot = {
             "ts": time.time(),
