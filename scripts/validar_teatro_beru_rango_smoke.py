@@ -38,6 +38,7 @@ def main() -> int:
     oz_ev = next(e for e in sim["eventos"] if e["tipo"] == "OZ_COSECHA")
     assert oz_ev["niveles"].get("fase") == "bifurca"
     assert oz_ev["niveles"].get("sangre") and oz_ev["niveles"].get("red")
+    assert "act" in ((oz_ev["niveles"].get("labels") or {}).get("red") or "").lower()
     out = ROOT / "data" / "coliseo" / "rango_teatro"
     out.mkdir(parents=True, exist_ok=True)
     html = out / "_smoke_teatro_rango.html"
