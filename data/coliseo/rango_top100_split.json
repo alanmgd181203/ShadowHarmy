@@ -1,0 +1,1416 @@
+{
+  "meta": {
+    "n": 100,
+    "dias": 365,
+    "interval": "1m",
+    "market": "linear",
+    "split": "usa_ranks_1_50_jess_51_100",
+    "filtro": "Trading LinearPerpetual USDT cripto (sin ETF/commodity/stock/metales)"
+  },
+  "usa": [
+    {
+      "base": "BTC",
+      "symbol": "BTCUSDT",
+      "turnover24h": 9922883268.9371,
+      "symbolType": "",
+      "rank": 1
+    },
+    {
+      "base": "ETH",
+      "symbol": "ETHUSDT",
+      "turnover24h": 4739610298.3745,
+      "symbolType": "",
+      "rank": 2
+    },
+    {
+      "base": "XRP",
+      "symbol": "XRPUSDT",
+      "turnover24h": 1347996040.7379,
+      "symbolType": "",
+      "rank": 3
+    },
+    {
+      "base": "SOL",
+      "symbol": "SOLUSDT",
+      "turnover24h": 820616901.041,
+      "symbolType": "",
+      "rank": 4
+    },
+    {
+      "base": "HYPE",
+      "symbol": "HYPEUSDT",
+      "turnover24h": 646930793.8111,
+      "symbolType": "",
+      "rank": 5
+    },
+    {
+      "base": "DOGE",
+      "symbol": "DOGEUSDT",
+      "turnover24h": 313791134.2934,
+      "symbolType": "",
+      "rank": 6
+    },
+    {
+      "base": "ZEC",
+      "symbol": "ZECUSDT",
+      "turnover24h": 229572937.5848,
+      "symbolType": "",
+      "rank": 7
+    },
+    {
+      "base": "1000PEPE",
+      "symbol": "1000PEPEUSDT",
+      "turnover24h": 168341527.5604,
+      "symbolType": "",
+      "rank": 8
+    },
+    {
+      "base": "ENA",
+      "symbol": "ENAUSDT",
+      "turnover24h": 142767706.7211,
+      "symbolType": "",
+      "rank": 9
+    },
+    {
+      "base": "ADA",
+      "symbol": "ADAUSDT",
+      "turnover24h": 136842221.7806,
+      "symbolType": "",
+      "rank": 10
+    },
+    {
+      "base": "PUMPFUN",
+      "symbol": "PUMPFUNUSDT",
+      "turnover24h": 113395322.4909,
+      "symbolType": "",
+      "rank": 11
+    },
+    {
+      "base": "ONG",
+      "symbol": "ONGUSDT",
+      "turnover24h": 109886986.9643,
+      "symbolType": "",
+      "rank": 12
+    },
+    {
+      "base": "SUI",
+      "symbol": "SUIUSDT",
+      "turnover24h": 83597105.651,
+      "symbolType": "",
+      "rank": 13
+    },
+    {
+      "base": "BOME",
+      "symbol": "BOMEUSDT",
+      "turnover24h": 81995272.5805,
+      "symbolType": "",
+      "rank": 14
+    },
+    {
+      "base": "BTW",
+      "symbol": "BTWUSDT",
+      "turnover24h": 79983987.6579,
+      "symbolType": "",
+      "rank": 15
+    },
+    {
+      "base": "ACE",
+      "symbol": "ACEUSDT",
+      "turnover24h": 78531145.7085,
+      "symbolType": "",
+      "rank": 16
+    },
+    {
+      "base": "LINK",
+      "symbol": "LINKUSDT",
+      "turnover24h": 70560245.644,
+      "symbolType": "",
+      "rank": 17
+    },
+    {
+      "base": "NEAR",
+      "symbol": "NEARUSDT",
+      "turnover24h": 67807976.2,
+      "symbolType": "",
+      "rank": 18
+    },
+    {
+      "base": "ONDO",
+      "symbol": "ONDOUSDT",
+      "turnover24h": 59169522.0615,
+      "symbolType": "",
+      "rank": 19
+    },
+    {
+      "base": "BEAT",
+      "symbol": "BEATUSDT",
+      "turnover24h": 55091977.0867,
+      "symbolType": "innovation",
+      "rank": 20
+    },
+    {
+      "base": "LIT",
+      "symbol": "LITUSDT",
+      "turnover24h": 54640902.5312,
+      "symbolType": "",
+      "rank": 21
+    },
+    {
+      "base": "WLD",
+      "symbol": "WLDUSDT",
+      "turnover24h": 52431603.1369,
+      "symbolType": "",
+      "rank": 22
+    },
+    {
+      "base": "AVAX",
+      "symbol": "AVAXUSDT",
+      "turnover24h": 47652713.0452,
+      "symbolType": "",
+      "rank": 23
+    },
+    {
+      "base": "BNB",
+      "symbol": "BNBUSDT",
+      "turnover24h": 45601580.532,
+      "symbolType": "",
+      "rank": 24
+    },
+    {
+      "base": "TRUMP",
+      "symbol": "TRUMPUSDT",
+      "turnover24h": 41412783.0385,
+      "symbolType": "",
+      "rank": 25
+    },
+    {
+      "base": "FARTCOIN",
+      "symbol": "FARTCOINUSDT",
+      "turnover24h": 40532849.5068,
+      "symbolType": "",
+      "rank": 26
+    },
+    {
+      "base": "XLM",
+      "symbol": "XLMUSDT",
+      "turnover24h": 37225525.1114,
+      "symbolType": "",
+      "rank": 27
+    },
+    {
+      "base": "TAO",
+      "symbol": "TAOUSDT",
+      "turnover24h": 36309581.5314,
+      "symbolType": "",
+      "rank": 28
+    },
+    {
+      "base": "PENGU",
+      "symbol": "PENGUUSDT",
+      "turnover24h": 31523031.783,
+      "symbolType": "",
+      "rank": 29
+    },
+    {
+      "base": "UNI",
+      "symbol": "UNIUSDT",
+      "turnover24h": 31047942.9584,
+      "symbolType": "",
+      "rank": 30
+    },
+    {
+      "base": "CRV",
+      "symbol": "CRVUSDT",
+      "turnover24h": 29757672.8213,
+      "symbolType": "",
+      "rank": 31
+    },
+    {
+      "base": "MON",
+      "symbol": "MONUSDT",
+      "turnover24h": 27747674.7241,
+      "symbolType": "",
+      "rank": 32
+    },
+    {
+      "base": "AAVE",
+      "symbol": "AAVEUSDT",
+      "turnover24h": 27568137.0624,
+      "symbolType": "",
+      "rank": 33
+    },
+    {
+      "base": "LTC",
+      "symbol": "LTCUSDT",
+      "turnover24h": 27377500.819,
+      "symbolType": "",
+      "rank": 34
+    },
+    {
+      "base": "HEMI",
+      "symbol": "HEMIUSDT",
+      "turnover24h": 24364417.5319,
+      "symbolType": "innovation",
+      "rank": 35
+    },
+    {
+      "base": "ASTER",
+      "symbol": "ASTERUSDT",
+      "turnover24h": 23585707.3971,
+      "symbolType": "",
+      "rank": 36
+    },
+    {
+      "base": "WIF",
+      "symbol": "WIFUSDT",
+      "turnover24h": 22601566.0471,
+      "symbolType": "",
+      "rank": 37
+    },
+    {
+      "base": "BCH",
+      "symbol": "BCHUSDT",
+      "turnover24h": 22546359.364,
+      "symbolType": "",
+      "rank": 38
+    },
+    {
+      "base": "AVAAI",
+      "symbol": "AVAAIUSDT",
+      "turnover24h": 21116407.8469,
+      "symbolType": "",
+      "rank": 39
+    },
+    {
+      "base": "ARB",
+      "symbol": "ARBUSDT",
+      "turnover24h": 20142082.3405,
+      "symbolType": "",
+      "rank": 40
+    },
+    {
+      "base": "1000NEIROCTO",
+      "symbol": "1000NEIROCTOUSDT",
+      "turnover24h": 19863180.9637,
+      "symbolType": "",
+      "rank": 41
+    },
+    {
+      "base": "XMR",
+      "symbol": "XMRUSDT",
+      "turnover24h": 18462228.212,
+      "symbolType": "",
+      "rank": 42
+    },
+    {
+      "base": "ORDI",
+      "symbol": "ORDIUSDT",
+      "turnover24h": 18359926.1206,
+      "symbolType": "",
+      "rank": 43
+    },
+    {
+      "base": "WLFI",
+      "symbol": "WLFIUSDT",
+      "turnover24h": 17519874.0637,
+      "symbolType": "",
+      "rank": 44
+    },
+    {
+      "base": "XPL",
+      "symbol": "XPLUSDT",
+      "turnover24h": 17393749.8228,
+      "symbolType": "",
+      "rank": 45
+    },
+    {
+      "base": "DOT",
+      "symbol": "DOTUSDT",
+      "turnover24h": 17125823.3453,
+      "symbolType": "",
+      "rank": 46
+    },
+    {
+      "base": "MNT",
+      "symbol": "MNTUSDT",
+      "turnover24h": 16447926.5209,
+      "symbolType": "",
+      "rank": 47
+    },
+    {
+      "base": "HBAR",
+      "symbol": "HBARUSDT",
+      "turnover24h": 14947051.6733,
+      "symbolType": "",
+      "rank": 48
+    },
+    {
+      "base": "APT",
+      "symbol": "APTUSDT",
+      "turnover24h": 14799336.4854,
+      "symbolType": "",
+      "rank": 49
+    },
+    {
+      "base": "RE",
+      "symbol": "REUSDT",
+      "turnover24h": 14534938.3496,
+      "symbolType": "",
+      "rank": 50
+    }
+  ],
+  "jess": [
+    {
+      "base": "AKE",
+      "symbol": "AKEUSDT",
+      "turnover24h": 13964718.1688,
+      "symbolType": "innovation",
+      "rank": 51
+    },
+    {
+      "base": "1000BONK",
+      "symbol": "1000BONKUSDT",
+      "turnover24h": 13924896.0931,
+      "symbolType": "",
+      "rank": 52
+    },
+    {
+      "base": "MAGMA",
+      "symbol": "MAGMAUSDT",
+      "turnover24h": 13487738.2239,
+      "symbolType": "innovation",
+      "rank": 53
+    },
+    {
+      "base": "FIL",
+      "symbol": "FILUSDT",
+      "turnover24h": 13456681.324,
+      "symbolType": "",
+      "rank": 54
+    },
+    {
+      "base": "PEOPLE",
+      "symbol": "PEOPLEUSDT",
+      "turnover24h": 13226611.837,
+      "symbolType": "",
+      "rank": 55
+    },
+    {
+      "base": "RED",
+      "symbol": "REDUSDT",
+      "turnover24h": 13205155.9639,
+      "symbolType": "",
+      "rank": 56
+    },
+    {
+      "base": "KAITO",
+      "symbol": "KAITOUSDT",
+      "turnover24h": 13107417.9841,
+      "symbolType": "",
+      "rank": 57
+    },
+    {
+      "base": "CASHCAT",
+      "symbol": "CASHCATUSDT",
+      "turnover24h": 12531142.599,
+      "symbolType": "innovation",
+      "rank": 58
+    },
+    {
+      "base": "GALA",
+      "symbol": "GALAUSDT",
+      "turnover24h": 12369590.0625,
+      "symbolType": "",
+      "rank": 59
+    },
+    {
+      "base": "VIRTUAL",
+      "symbol": "VIRTUALUSDT",
+      "turnover24h": 12216042.9599,
+      "symbolType": "",
+      "rank": 60
+    },
+    {
+      "base": "ONT",
+      "symbol": "ONTUSDT",
+      "turnover24h": 12062040.0864,
+      "symbolType": "",
+      "rank": 61
+    },
+    {
+      "base": "INJ",
+      "symbol": "INJUSDT",
+      "turnover24h": 11956736.9903,
+      "symbolType": "",
+      "rank": 62
+    },
+    {
+      "base": "ATOM",
+      "symbol": "ATOMUSDT",
+      "turnover24h": 11800726.292,
+      "symbolType": "",
+      "rank": 63
+    },
+    {
+      "base": "BIO",
+      "symbol": "BIOUSDT",
+      "turnover24h": 11797697.0725,
+      "symbolType": "",
+      "rank": 64
+    },
+    {
+      "base": "TRX",
+      "symbol": "TRXUSDT",
+      "turnover24h": 11705930.0146,
+      "symbolType": "",
+      "rank": 65
+    },
+    {
+      "base": "POL",
+      "symbol": "POLUSDT",
+      "turnover24h": 11230669.6853,
+      "symbolType": "",
+      "rank": 66
+    },
+    {
+      "base": "ETHFI",
+      "symbol": "ETHFIUSDT",
+      "turnover24h": 11029389.7491,
+      "symbolType": "",
+      "rank": 67
+    },
+    {
+      "base": "TUT",
+      "symbol": "TUTUSDT",
+      "turnover24h": 10693587.3749,
+      "symbolType": "innovation",
+      "rank": 68
+    },
+    {
+      "base": "OP",
+      "symbol": "OPUSDT",
+      "turnover24h": 10421450.1747,
+      "symbolType": "",
+      "rank": 69
+    },
+    {
+      "base": "SHIB1000",
+      "symbol": "SHIB1000USDT",
+      "turnover24h": 10387057.9027,
+      "symbolType": "",
+      "rank": 70
+    },
+    {
+      "base": "ICP",
+      "symbol": "ICPUSDT",
+      "turnover24h": 10137080.2541,
+      "symbolType": "",
+      "rank": 71
+    },
+    {
+      "base": "GRASS",
+      "symbol": "GRASSUSDT",
+      "turnover24h": 9952214.539,
+      "symbolType": "",
+      "rank": 72
+    },
+    {
+      "base": "CHIP",
+      "symbol": "CHIPUSDT",
+      "turnover24h": 9801095.262,
+      "symbolType": "",
+      "rank": 73
+    },
+    {
+      "base": "GRAM",
+      "symbol": "GRAMUSDT",
+      "turnover24h": 9798996.4314,
+      "symbolType": "",
+      "rank": 74
+    },
+    {
+      "base": "H",
+      "symbol": "HUSDT",
+      "turnover24h": 9792548.0088,
+      "symbolType": "",
+      "rank": 75
+    },
+    {
+      "base": "PRL",
+      "symbol": "PRLUSDT",
+      "turnover24h": 9088228.3281,
+      "symbolType": "innovation",
+      "rank": 76
+    },
+    {
+      "base": "VVV",
+      "symbol": "VVVUSDT",
+      "turnover24h": 8151003.0229,
+      "symbolType": "innovation",
+      "rank": 77
+    },
+    {
+      "base": "VELVET",
+      "symbol": "VELVETUSDT",
+      "turnover24h": 8091720.393,
+      "symbolType": "innovation",
+      "rank": 78
+    },
+    {
+      "base": "AERO",
+      "symbol": "AEROUSDT",
+      "turnover24h": 7953330.9786,
+      "symbolType": "",
+      "rank": 79
+    },
+    {
+      "base": "MET",
+      "symbol": "METUSDT",
+      "turnover24h": 7867555.9913,
+      "symbolType": "",
+      "rank": 80
+    },
+    {
+      "base": "ZRO",
+      "symbol": "ZROUSDT",
+      "turnover24h": 7786796.2603,
+      "symbolType": "",
+      "rank": 81
+    },
+    {
+      "base": "USELESS",
+      "symbol": "USELESSUSDT",
+      "turnover24h": 7727087.5487,
+      "symbolType": "innovation",
+      "rank": 82
+    },
+    {
+      "base": "ETC",
+      "symbol": "ETCUSDT",
+      "turnover24h": 7605227.6669,
+      "symbolType": "",
+      "rank": 83
+    },
+    {
+      "base": "JTO",
+      "symbol": "JTOUSDT",
+      "turnover24h": 7590201.0696,
+      "symbolType": "",
+      "rank": 84
+    },
+    {
+      "base": "CAP",
+      "symbol": "CAPUSDT",
+      "turnover24h": 7190661.5487,
+      "symbolType": "innovation",
+      "rank": 85
+    },
+    {
+      "base": "TIA",
+      "symbol": "TIAUSDT",
+      "turnover24h": 7097700.9322,
+      "symbolType": "",
+      "rank": 86
+    },
+    {
+      "base": "MORPHO",
+      "symbol": "MORPHOUSDT",
+      "turnover24h": 6788451.0844,
+      "symbolType": "",
+      "rank": 87
+    },
+    {
+      "base": "SEI",
+      "symbol": "SEIUSDT",
+      "turnover24h": 6626040.3731,
+      "symbolType": "",
+      "rank": 88
+    },
+    {
+      "base": "CYS",
+      "symbol": "CYSUSDT",
+      "turnover24h": 6539608.5681,
+      "symbolType": "innovation",
+      "rank": 89
+    },
+    {
+      "base": "LDO",
+      "symbol": "LDOUSDT",
+      "turnover24h": 6447947.1852,
+      "symbolType": "",
+      "rank": 90
+    },
+    {
+      "base": "GPS",
+      "symbol": "GPSUSDT",
+      "turnover24h": 6271561.7154,
+      "symbolType": "innovation",
+      "rank": 91
+    },
+    {
+      "base": "ALGO",
+      "symbol": "ALGOUSDT",
+      "turnover24h": 6198319.6625,
+      "symbolType": "",
+      "rank": 92
+    },
+    {
+      "base": "STABLE",
+      "symbol": "STABLEUSDT",
+      "turnover24h": 5797279.3265,
+      "symbolType": "",
+      "rank": 93
+    },
+    {
+      "base": "PLUME",
+      "symbol": "PLUMEUSDT",
+      "turnover24h": 5677432.2741,
+      "symbolType": "",
+      "rank": 94
+    },
+    {
+      "base": "PNUT",
+      "symbol": "PNUTUSDT",
+      "turnover24h": 5538960.1066,
+      "symbolType": "",
+      "rank": 95
+    },
+    {
+      "base": "SPX",
+      "symbol": "SPXUSDT",
+      "turnover24h": 5513489.3038,
+      "symbolType": "",
+      "rank": 96
+    },
+    {
+      "base": "DASH",
+      "symbol": "DASHUSDT",
+      "turnover24h": 5321493.7104,
+      "symbolType": "",
+      "rank": 97
+    },
+    {
+      "base": "JUP",
+      "symbol": "JUPUSDT",
+      "turnover24h": 5236854.4784,
+      "symbolType": "",
+      "rank": 98
+    },
+    {
+      "base": "STRK",
+      "symbol": "STRKUSDT",
+      "turnover24h": 5219637.3771,
+      "symbolType": "",
+      "rank": 99
+    },
+    {
+      "base": "PENDLE",
+      "symbol": "PENDLEUSDT",
+      "turnover24h": 5193319.2972,
+      "symbolType": "",
+      "rank": 100
+    }
+  ],
+  "all": [
+    {
+      "base": "BTC",
+      "symbol": "BTCUSDT",
+      "turnover24h": 9922883268.9371,
+      "symbolType": "",
+      "rank": 1
+    },
+    {
+      "base": "ETH",
+      "symbol": "ETHUSDT",
+      "turnover24h": 4739610298.3745,
+      "symbolType": "",
+      "rank": 2
+    },
+    {
+      "base": "XRP",
+      "symbol": "XRPUSDT",
+      "turnover24h": 1347996040.7379,
+      "symbolType": "",
+      "rank": 3
+    },
+    {
+      "base": "SOL",
+      "symbol": "SOLUSDT",
+      "turnover24h": 820616901.041,
+      "symbolType": "",
+      "rank": 4
+    },
+    {
+      "base": "HYPE",
+      "symbol": "HYPEUSDT",
+      "turnover24h": 646930793.8111,
+      "symbolType": "",
+      "rank": 5
+    },
+    {
+      "base": "DOGE",
+      "symbol": "DOGEUSDT",
+      "turnover24h": 313791134.2934,
+      "symbolType": "",
+      "rank": 6
+    },
+    {
+      "base": "ZEC",
+      "symbol": "ZECUSDT",
+      "turnover24h": 229572937.5848,
+      "symbolType": "",
+      "rank": 7
+    },
+    {
+      "base": "1000PEPE",
+      "symbol": "1000PEPEUSDT",
+      "turnover24h": 168341527.5604,
+      "symbolType": "",
+      "rank": 8
+    },
+    {
+      "base": "ENA",
+      "symbol": "ENAUSDT",
+      "turnover24h": 142767706.7211,
+      "symbolType": "",
+      "rank": 9
+    },
+    {
+      "base": "ADA",
+      "symbol": "ADAUSDT",
+      "turnover24h": 136842221.7806,
+      "symbolType": "",
+      "rank": 10
+    },
+    {
+      "base": "PUMPFUN",
+      "symbol": "PUMPFUNUSDT",
+      "turnover24h": 113395322.4909,
+      "symbolType": "",
+      "rank": 11
+    },
+    {
+      "base": "ONG",
+      "symbol": "ONGUSDT",
+      "turnover24h": 109886986.9643,
+      "symbolType": "",
+      "rank": 12
+    },
+    {
+      "base": "SUI",
+      "symbol": "SUIUSDT",
+      "turnover24h": 83597105.651,
+      "symbolType": "",
+      "rank": 13
+    },
+    {
+      "base": "BOME",
+      "symbol": "BOMEUSDT",
+      "turnover24h": 81995272.5805,
+      "symbolType": "",
+      "rank": 14
+    },
+    {
+      "base": "BTW",
+      "symbol": "BTWUSDT",
+      "turnover24h": 79983987.6579,
+      "symbolType": "",
+      "rank": 15
+    },
+    {
+      "base": "ACE",
+      "symbol": "ACEUSDT",
+      "turnover24h": 78531145.7085,
+      "symbolType": "",
+      "rank": 16
+    },
+    {
+      "base": "LINK",
+      "symbol": "LINKUSDT",
+      "turnover24h": 70560245.644,
+      "symbolType": "",
+      "rank": 17
+    },
+    {
+      "base": "NEAR",
+      "symbol": "NEARUSDT",
+      "turnover24h": 67807976.2,
+      "symbolType": "",
+      "rank": 18
+    },
+    {
+      "base": "ONDO",
+      "symbol": "ONDOUSDT",
+      "turnover24h": 59169522.0615,
+      "symbolType": "",
+      "rank": 19
+    },
+    {
+      "base": "BEAT",
+      "symbol": "BEATUSDT",
+      "turnover24h": 55091977.0867,
+      "symbolType": "innovation",
+      "rank": 20
+    },
+    {
+      "base": "LIT",
+      "symbol": "LITUSDT",
+      "turnover24h": 54640902.5312,
+      "symbolType": "",
+      "rank": 21
+    },
+    {
+      "base": "WLD",
+      "symbol": "WLDUSDT",
+      "turnover24h": 52431603.1369,
+      "symbolType": "",
+      "rank": 22
+    },
+    {
+      "base": "AVAX",
+      "symbol": "AVAXUSDT",
+      "turnover24h": 47652713.0452,
+      "symbolType": "",
+      "rank": 23
+    },
+    {
+      "base": "BNB",
+      "symbol": "BNBUSDT",
+      "turnover24h": 45601580.532,
+      "symbolType": "",
+      "rank": 24
+    },
+    {
+      "base": "TRUMP",
+      "symbol": "TRUMPUSDT",
+      "turnover24h": 41412783.0385,
+      "symbolType": "",
+      "rank": 25
+    },
+    {
+      "base": "FARTCOIN",
+      "symbol": "FARTCOINUSDT",
+      "turnover24h": 40532849.5068,
+      "symbolType": "",
+      "rank": 26
+    },
+    {
+      "base": "XLM",
+      "symbol": "XLMUSDT",
+      "turnover24h": 37225525.1114,
+      "symbolType": "",
+      "rank": 27
+    },
+    {
+      "base": "TAO",
+      "symbol": "TAOUSDT",
+      "turnover24h": 36309581.5314,
+      "symbolType": "",
+      "rank": 28
+    },
+    {
+      "base": "PENGU",
+      "symbol": "PENGUUSDT",
+      "turnover24h": 31523031.783,
+      "symbolType": "",
+      "rank": 29
+    },
+    {
+      "base": "UNI",
+      "symbol": "UNIUSDT",
+      "turnover24h": 31047942.9584,
+      "symbolType": "",
+      "rank": 30
+    },
+    {
+      "base": "CRV",
+      "symbol": "CRVUSDT",
+      "turnover24h": 29757672.8213,
+      "symbolType": "",
+      "rank": 31
+    },
+    {
+      "base": "MON",
+      "symbol": "MONUSDT",
+      "turnover24h": 27747674.7241,
+      "symbolType": "",
+      "rank": 32
+    },
+    {
+      "base": "AAVE",
+      "symbol": "AAVEUSDT",
+      "turnover24h": 27568137.0624,
+      "symbolType": "",
+      "rank": 33
+    },
+    {
+      "base": "LTC",
+      "symbol": "LTCUSDT",
+      "turnover24h": 27377500.819,
+      "symbolType": "",
+      "rank": 34
+    },
+    {
+      "base": "HEMI",
+      "symbol": "HEMIUSDT",
+      "turnover24h": 24364417.5319,
+      "symbolType": "innovation",
+      "rank": 35
+    },
+    {
+      "base": "ASTER",
+      "symbol": "ASTERUSDT",
+      "turnover24h": 23585707.3971,
+      "symbolType": "",
+      "rank": 36
+    },
+    {
+      "base": "WIF",
+      "symbol": "WIFUSDT",
+      "turnover24h": 22601566.0471,
+      "symbolType": "",
+      "rank": 37
+    },
+    {
+      "base": "BCH",
+      "symbol": "BCHUSDT",
+      "turnover24h": 22546359.364,
+      "symbolType": "",
+      "rank": 38
+    },
+    {
+      "base": "AVAAI",
+      "symbol": "AVAAIUSDT",
+      "turnover24h": 21116407.8469,
+      "symbolType": "",
+      "rank": 39
+    },
+    {
+      "base": "ARB",
+      "symbol": "ARBUSDT",
+      "turnover24h": 20142082.3405,
+      "symbolType": "",
+      "rank": 40
+    },
+    {
+      "base": "1000NEIROCTO",
+      "symbol": "1000NEIROCTOUSDT",
+      "turnover24h": 19863180.9637,
+      "symbolType": "",
+      "rank": 41
+    },
+    {
+      "base": "XMR",
+      "symbol": "XMRUSDT",
+      "turnover24h": 18462228.212,
+      "symbolType": "",
+      "rank": 42
+    },
+    {
+      "base": "ORDI",
+      "symbol": "ORDIUSDT",
+      "turnover24h": 18359926.1206,
+      "symbolType": "",
+      "rank": 43
+    },
+    {
+      "base": "WLFI",
+      "symbol": "WLFIUSDT",
+      "turnover24h": 17519874.0637,
+      "symbolType": "",
+      "rank": 44
+    },
+    {
+      "base": "XPL",
+      "symbol": "XPLUSDT",
+      "turnover24h": 17393749.8228,
+      "symbolType": "",
+      "rank": 45
+    },
+    {
+      "base": "DOT",
+      "symbol": "DOTUSDT",
+      "turnover24h": 17125823.3453,
+      "symbolType": "",
+      "rank": 46
+    },
+    {
+      "base": "MNT",
+      "symbol": "MNTUSDT",
+      "turnover24h": 16447926.5209,
+      "symbolType": "",
+      "rank": 47
+    },
+    {
+      "base": "HBAR",
+      "symbol": "HBARUSDT",
+      "turnover24h": 14947051.6733,
+      "symbolType": "",
+      "rank": 48
+    },
+    {
+      "base": "APT",
+      "symbol": "APTUSDT",
+      "turnover24h": 14799336.4854,
+      "symbolType": "",
+      "rank": 49
+    },
+    {
+      "base": "RE",
+      "symbol": "REUSDT",
+      "turnover24h": 14534938.3496,
+      "symbolType": "",
+      "rank": 50
+    },
+    {
+      "base": "AKE",
+      "symbol": "AKEUSDT",
+      "turnover24h": 13964718.1688,
+      "symbolType": "innovation",
+      "rank": 51
+    },
+    {
+      "base": "1000BONK",
+      "symbol": "1000BONKUSDT",
+      "turnover24h": 13924896.0931,
+      "symbolType": "",
+      "rank": 52
+    },
+    {
+      "base": "MAGMA",
+      "symbol": "MAGMAUSDT",
+      "turnover24h": 13487738.2239,
+      "symbolType": "innovation",
+      "rank": 53
+    },
+    {
+      "base": "FIL",
+      "symbol": "FILUSDT",
+      "turnover24h": 13456681.324,
+      "symbolType": "",
+      "rank": 54
+    },
+    {
+      "base": "PEOPLE",
+      "symbol": "PEOPLEUSDT",
+      "turnover24h": 13226611.837,
+      "symbolType": "",
+      "rank": 55
+    },
+    {
+      "base": "RED",
+      "symbol": "REDUSDT",
+      "turnover24h": 13205155.9639,
+      "symbolType": "",
+      "rank": 56
+    },
+    {
+      "base": "KAITO",
+      "symbol": "KAITOUSDT",
+      "turnover24h": 13107417.9841,
+      "symbolType": "",
+      "rank": 57
+    },
+    {
+      "base": "CASHCAT",
+      "symbol": "CASHCATUSDT",
+      "turnover24h": 12531142.599,
+      "symbolType": "innovation",
+      "rank": 58
+    },
+    {
+      "base": "GALA",
+      "symbol": "GALAUSDT",
+      "turnover24h": 12369590.0625,
+      "symbolType": "",
+      "rank": 59
+    },
+    {
+      "base": "VIRTUAL",
+      "symbol": "VIRTUALUSDT",
+      "turnover24h": 12216042.9599,
+      "symbolType": "",
+      "rank": 60
+    },
+    {
+      "base": "ONT",
+      "symbol": "ONTUSDT",
+      "turnover24h": 12062040.0864,
+      "symbolType": "",
+      "rank": 61
+    },
+    {
+      "base": "INJ",
+      "symbol": "INJUSDT",
+      "turnover24h": 11956736.9903,
+      "symbolType": "",
+      "rank": 62
+    },
+    {
+      "base": "ATOM",
+      "symbol": "ATOMUSDT",
+      "turnover24h": 11800726.292,
+      "symbolType": "",
+      "rank": 63
+    },
+    {
+      "base": "BIO",
+      "symbol": "BIOUSDT",
+      "turnover24h": 11797697.0725,
+      "symbolType": "",
+      "rank": 64
+    },
+    {
+      "base": "TRX",
+      "symbol": "TRXUSDT",
+      "turnover24h": 11705930.0146,
+      "symbolType": "",
+      "rank": 65
+    },
+    {
+      "base": "POL",
+      "symbol": "POLUSDT",
+      "turnover24h": 11230669.6853,
+      "symbolType": "",
+      "rank": 66
+    },
+    {
+      "base": "ETHFI",
+      "symbol": "ETHFIUSDT",
+      "turnover24h": 11029389.7491,
+      "symbolType": "",
+      "rank": 67
+    },
+    {
+      "base": "TUT",
+      "symbol": "TUTUSDT",
+      "turnover24h": 10693587.3749,
+      "symbolType": "innovation",
+      "rank": 68
+    },
+    {
+      "base": "OP",
+      "symbol": "OPUSDT",
+      "turnover24h": 10421450.1747,
+      "symbolType": "",
+      "rank": 69
+    },
+    {
+      "base": "SHIB1000",
+      "symbol": "SHIB1000USDT",
+      "turnover24h": 10387057.9027,
+      "symbolType": "",
+      "rank": 70
+    },
+    {
+      "base": "ICP",
+      "symbol": "ICPUSDT",
+      "turnover24h": 10137080.2541,
+      "symbolType": "",
+      "rank": 71
+    },
+    {
+      "base": "GRASS",
+      "symbol": "GRASSUSDT",
+      "turnover24h": 9952214.539,
+      "symbolType": "",
+      "rank": 72
+    },
+    {
+      "base": "CHIP",
+      "symbol": "CHIPUSDT",
+      "turnover24h": 9801095.262,
+      "symbolType": "",
+      "rank": 73
+    },
+    {
+      "base": "GRAM",
+      "symbol": "GRAMUSDT",
+      "turnover24h": 9798996.4314,
+      "symbolType": "",
+      "rank": 74
+    },
+    {
+      "base": "H",
+      "symbol": "HUSDT",
+      "turnover24h": 9792548.0088,
+      "symbolType": "",
+      "rank": 75
+    },
+    {
+      "base": "PRL",
+      "symbol": "PRLUSDT",
+      "turnover24h": 9088228.3281,
+      "symbolType": "innovation",
+      "rank": 76
+    },
+    {
+      "base": "VVV",
+      "symbol": "VVVUSDT",
+      "turnover24h": 8151003.0229,
+      "symbolType": "innovation",
+      "rank": 77
+    },
+    {
+      "base": "VELVET",
+      "symbol": "VELVETUSDT",
+      "turnover24h": 8091720.393,
+      "symbolType": "innovation",
+      "rank": 78
+    },
+    {
+      "base": "AERO",
+      "symbol": "AEROUSDT",
+      "turnover24h": 7953330.9786,
+      "symbolType": "",
+      "rank": 79
+    },
+    {
+      "base": "MET",
+      "symbol": "METUSDT",
+      "turnover24h": 7867555.9913,
+      "symbolType": "",
+      "rank": 80
+    },
+    {
+      "base": "ZRO",
+      "symbol": "ZROUSDT",
+      "turnover24h": 7786796.2603,
+      "symbolType": "",
+      "rank": 81
+    },
+    {
+      "base": "USELESS",
+      "symbol": "USELESSUSDT",
+      "turnover24h": 7727087.5487,
+      "symbolType": "innovation",
+      "rank": 82
+    },
+    {
+      "base": "ETC",
+      "symbol": "ETCUSDT",
+      "turnover24h": 7605227.6669,
+      "symbolType": "",
+      "rank": 83
+    },
+    {
+      "base": "JTO",
+      "symbol": "JTOUSDT",
+      "turnover24h": 7590201.0696,
+      "symbolType": "",
+      "rank": 84
+    },
+    {
+      "base": "CAP",
+      "symbol": "CAPUSDT",
+      "turnover24h": 7190661.5487,
+      "symbolType": "innovation",
+      "rank": 85
+    },
+    {
+      "base": "TIA",
+      "symbol": "TIAUSDT",
+      "turnover24h": 7097700.9322,
+      "symbolType": "",
+      "rank": 86
+    },
+    {
+      "base": "MORPHO",
+      "symbol": "MORPHOUSDT",
+      "turnover24h": 6788451.0844,
+      "symbolType": "",
+      "rank": 87
+    },
+    {
+      "base": "SEI",
+      "symbol": "SEIUSDT",
+      "turnover24h": 6626040.3731,
+      "symbolType": "",
+      "rank": 88
+    },
+    {
+      "base": "CYS",
+      "symbol": "CYSUSDT",
+      "turnover24h": 6539608.5681,
+      "symbolType": "innovation",
+      "rank": 89
+    },
+    {
+      "base": "LDO",
+      "symbol": "LDOUSDT",
+      "turnover24h": 6447947.1852,
+      "symbolType": "",
+      "rank": 90
+    },
+    {
+      "base": "GPS",
+      "symbol": "GPSUSDT",
+      "turnover24h": 6271561.7154,
+      "symbolType": "innovation",
+      "rank": 91
+    },
+    {
+      "base": "ALGO",
+      "symbol": "ALGOUSDT",
+      "turnover24h": 6198319.6625,
+      "symbolType": "",
+      "rank": 92
+    },
+    {
+      "base": "STABLE",
+      "symbol": "STABLEUSDT",
+      "turnover24h": 5797279.3265,
+      "symbolType": "",
+      "rank": 93
+    },
+    {
+      "base": "PLUME",
+      "symbol": "PLUMEUSDT",
+      "turnover24h": 5677432.2741,
+      "symbolType": "",
+      "rank": 94
+    },
+    {
+      "base": "PNUT",
+      "symbol": "PNUTUSDT",
+      "turnover24h": 5538960.1066,
+      "symbolType": "",
+      "rank": 95
+    },
+    {
+      "base": "SPX",
+      "symbol": "SPXUSDT",
+      "turnover24h": 5513489.3038,
+      "symbolType": "",
+      "rank": 96
+    },
+    {
+      "base": "DASH",
+      "symbol": "DASHUSDT",
+      "turnover24h": 5321493.7104,
+      "symbolType": "",
+      "rank": 97
+    },
+    {
+      "base": "JUP",
+      "symbol": "JUPUSDT",
+      "turnover24h": 5236854.4784,
+      "symbolType": "",
+      "rank": 98
+    },
+    {
+      "base": "STRK",
+      "symbol": "STRKUSDT",
+      "turnover24h": 5219637.3771,
+      "symbolType": "",
+      "rank": 99
+    },
+    {
+      "base": "PENDLE",
+      "symbol": "PENDLEUSDT",
+      "turnover24h": 5193319.2972,
+      "symbolType": "",
+      "rank": 100
+    }
+  ]
+}
