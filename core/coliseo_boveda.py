@@ -219,6 +219,15 @@ def max_ts(con: sqlite3.Connection, base: str) -> int | None:
     return int(row[0])
 
 
+def min_ts(con: sqlite3.Connection, base: str) -> int | None:
+    row = con.execute(
+        "SELECT MIN(ts) FROM candles WHERE base=?", (base.upper(),)
+    ).fetchone()
+    if not row or row[0] is None:
+        return None
+    return int(row[0])
+
+
 def load_candles(
     con: sqlite3.Connection,
     base: str,

@@ -157,30 +157,44 @@ def ingest_one(
     sleep_s: float,
     interval: str = "1",
 ) -> dict[str, Any]:
-    """Descarga un activo×mercado y escribe a su bóveda bajo lock."""
+    """Descarga un activo×mercado y escribe a su bóveda bajo lock.
+
+    Si ya hay velas recientes (p. ej. 90d), también rellena hacia atrás hasta
+    la ventana `--dias` (p. ej. 365d) usando min_ts.
+    """
     symbol = _symbol_for(base, market)
     category = market.lower()
     iv = (interval or bov.get_interval()).strip()
     session = _session()
     now_ms = int(time.time() * 1000)
-    start_ms = now_ms - dias * 86_400_000
+    target_start_ms = now_ms - dias * 86_400_000
     db = bov.boveda_path(category)
     step_ms = 1000 if iv == "1s" else 60_000
     fresh_ms = 2_000 if iv == "1s" else 60_000
 
     with _WRITE_LOCK:
         con = bov.connect(db)
-        existing = bov.max_ts(con, base)
+        existing_max = bov.max_ts(con, base)
+        existing_min = bov.min_ts(con, base)
         con.close()
 
-    if existing:
-        start_ms = max(start_ms, existing * 1000 + step_ms)
-    if start_ms >= now_ms - fresh_ms:
+    windows: list[tuple[int, int]] = []
+    # Adelante: desde el último tick hasta ahora
+    fwd_start = target_start_ms
+    if existing_max is not None:
+        fwd_start = max(target_start_ms, existing_max * 1000 + step_ms)
+    if fwd_start < now_ms - fresh_ms:
+        windows.append((fwd_start, now_ms))
+    # Atrás: si el historial no alcanza la ventana pedida
+    if existing_min is not None and existing_min * 1000 > target_start_ms + step_ms:
+        windows.append((target_start_ms, existing_min * 1000 - step_ms))
+
+    if not windows:
         with _WRITE_LOCK:
             con = bov.connect(db)
             n = bov.count_candles(con, base)
             bov.set_ingest_meta(
-                con, base, symbol=symbol, last_ts=existing or 0, rows=n, status="ok"
+                con, base, symbol=symbol, last_ts=existing_max or 0, rows=n, status="ok"
             )
             con.commit()
             con.close()
@@ -196,15 +210,21 @@ def ingest_one(
 
     _hb("ingest", f"Descargando {category}/{symbol} interval={iv}…")
     t0 = time.time()
-    rows = _fetch_klines(
-        session,
-        symbol,
-        category=category,
-        start_ms=start_ms,
-        end_ms=now_ms,
-        sleep_s=sleep_s,
-        interval=iv,
-    )
+    rows: list[tuple[int, float, float, float, float]] = []
+    for w_start, w_end in windows:
+        if w_start >= w_end:
+            continue
+        rows.extend(
+            _fetch_klines(
+                session,
+                symbol,
+                category=category,
+                start_ms=w_start,
+                end_ms=w_end,
+                sleep_s=sleep_s,
+                interval=iv,
+            )
+        )
     with _WRITE_LOCK:
         con = bov.connect(db)
         added = bov.upsert_candles(con, base, rows)
@@ -289,10 +309,21 @@ def run_ingest(
             order = ["linear", "inverse"]
     jobs: list[tuple[str, str]] = [(b, m) for m in order for b in flota]
 
+    # ~85% de la ventana pedida (1m = 1440 velas/día; 1s = 86400)
+    bars_per_day = 86_400 if iv == "1s" else 1_440
+    min_rows_ok = max(1, int(dias * bars_per_day * 0.85))
+
     cp = bov.load_checkpoint()
     done_ok: set[str] = set()
     for k, meta in (cp.get("bases") or {}).items():
         if (meta or {}).get("status") != "ok":
+            continue
+        try:
+            rows_ck = int((meta or {}).get("rows") or 0)
+        except (TypeError, ValueError):
+            rows_ck = 0
+        # No saltar si el checkpoint es de una ventana más corta (90d → 365d)
+        if rows_ck and rows_ck < min_rows_ok:
             continue
         done_ok.add(str(k))
         if "@" not in str(k):
