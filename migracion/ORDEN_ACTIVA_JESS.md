@@ -5,11 +5,16 @@ Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`
 
 ---
 
-## 1) Arranque
+## 1) Arranque (rama de esta misión)
+
+En `master` el ritual de bóveda fue purgado con Beru spot. **Esta noche** se toma de la rama de la misión:
 
 ```
-git pull origin master
+git fetch origin
+git checkout orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md scripts/jess_boveda_coliseo_noche.py data/coliseo/rango_top50_jess.txt data/coliseo/rango_top50_usa.txt data/coliseo/rango_top50_split.json data/coliseo/INSTRUCCIONES_MERGE_RANGO_TOP50.md
 ```
+
+Confirmar que existe: `scripts/jess_boveda_coliseo_noche.py`
 
 ---
 
@@ -52,6 +57,7 @@ Detalle progreso: `data/coliseo/PROGRESO.md` · latido: `data/coliseo/heartbeat.
 - No `--interval 1s` ni spot/inverse en esta misión.
 - No subir `.env` ni secretos.
 - No borrar bóvedas ajenas.
+- No hacer `git pull` que pise esta misión a mitad de descarga.
 
 ---
 
@@ -66,7 +72,7 @@ Detalle progreso: `data/coliseo/PROGRESO.md` · latido: `data/coliseo/heartbeat.
 
 ## 5) HECHO
 
-- [ ] `git pull origin master`
+- [ ] Archivos de la rama `orden-jess-boveda-rango-top50` en el disco
 - [ ] Descarga 25 santos linear 1m 90d terminada
 - [ ] Zip en Drive + aviso al Monarca
 
