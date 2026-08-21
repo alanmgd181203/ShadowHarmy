@@ -1,0 +1,716 @@
+{
+  "meta": {
+    "n": 50,
+    "dias": 90,
+    "interval": "1m",
+    "market": "linear",
+    "split": "usa_ranks_1_25_jess_26_50",
+    "filtro": "Trading LinearPerpetual USDT cripto (sin ETF/commodity/stock/metales)"
+  },
+  "usa": [
+    {
+      "rank": 1,
+      "base": "BTC",
+      "symbol": "BTCUSDT",
+      "turnover24h": 9896102424.861,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 2,
+      "base": "ETH",
+      "symbol": "ETHUSDT",
+      "turnover24h": 4748115281.1126,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 3,
+      "base": "XRP",
+      "symbol": "XRPUSDT",
+      "turnover24h": 1334582112.0321,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 4,
+      "base": "SOL",
+      "symbol": "SOLUSDT",
+      "turnover24h": 817152727.262,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 5,
+      "base": "HYPE",
+      "symbol": "HYPEUSDT",
+      "turnover24h": 649300617.4302,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 6,
+      "base": "DOGE",
+      "symbol": "DOGEUSDT",
+      "turnover24h": 312220624.6251,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 7,
+      "base": "ZEC",
+      "symbol": "ZECUSDT",
+      "turnover24h": 229990889.3628,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 8,
+      "base": "1000PEPE",
+      "symbol": "1000PEPEUSDT",
+      "turnover24h": 169757750.0987,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 9,
+      "base": "ENA",
+      "symbol": "ENAUSDT",
+      "turnover24h": 140937910.7031,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 10,
+      "base": "ADA",
+      "symbol": "ADAUSDT",
+      "turnover24h": 135828560.6131,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 11,
+      "base": "PUMPFUN",
+      "symbol": "PUMPFUNUSDT",
+      "turnover24h": 114309196.4436,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 12,
+      "base": "ONG",
+      "symbol": "ONGUSDT",
+      "turnover24h": 107952294.5926,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 13,
+      "base": "SUI",
+      "symbol": "SUIUSDT",
+      "turnover24h": 82849195.393,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 14,
+      "base": "BOME",
+      "symbol": "BOMEUSDT",
+      "turnover24h": 81778641.1055,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 15,
+      "base": "BTW",
+      "symbol": "BTWUSDT",
+      "turnover24h": 80529789.6749,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 16,
+      "base": "ACE",
+      "symbol": "ACEUSDT",
+      "turnover24h": 78718705.9731,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 17,
+      "base": "LINK",
+      "symbol": "LINKUSDT",
+      "turnover24h": 70327237.603,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 18,
+      "base": "NEAR",
+      "symbol": "NEARUSDT",
+      "turnover24h": 67059245.1477,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 19,
+      "base": "ONDO",
+      "symbol": "ONDOUSDT",
+      "turnover24h": 59087313.964,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 20,
+      "base": "LIT",
+      "symbol": "LITUSDT",
+      "turnover24h": 54686539.708,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 21,
+      "base": "BEAT",
+      "symbol": "BEATUSDT",
+      "turnover24h": 54489011.4808,
+      "symbolType": "innovation"
+    },
+    {
+      "rank": 22,
+      "base": "WLD",
+      "symbol": "WLDUSDT",
+      "turnover24h": 52252842.6083,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 23,
+      "base": "AVAX",
+      "symbol": "AVAXUSDT",
+      "turnover24h": 47502077.8511,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 24,
+      "base": "BNB",
+      "symbol": "BNBUSDT",
+      "turnover24h": 45414159.305,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 25,
+      "base": "TRUMP",
+      "symbol": "TRUMPUSDT",
+      "turnover24h": 42096985.6316,
+      "symbolType": "crypto"
+    }
+  ],
+  "jess": [
+    {
+      "rank": 26,
+      "base": "FARTCOIN",
+      "symbol": "FARTCOINUSDT",
+      "turnover24h": 40700783.161,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 27,
+      "base": "XLM",
+      "symbol": "XLMUSDT",
+      "turnover24h": 37128077.2561,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 28,
+      "base": "TAO",
+      "symbol": "TAOUSDT",
+      "turnover24h": 36226870.6083,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 29,
+      "base": "PENGU",
+      "symbol": "PENGUUSDT",
+      "turnover24h": 31404697.9136,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 30,
+      "base": "UNI",
+      "symbol": "UNIUSDT",
+      "turnover24h": 30762329.8947,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 31,
+      "base": "CRV",
+      "symbol": "CRVUSDT",
+      "turnover24h": 28243367.4889,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 32,
+      "base": "MON",
+      "symbol": "MONUSDT",
+      "turnover24h": 27873046.9763,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 33,
+      "base": "AAVE",
+      "symbol": "AAVEUSDT",
+      "turnover24h": 27193432.4496,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 34,
+      "base": "LTC",
+      "symbol": "LTCUSDT",
+      "turnover24h": 27185988.117,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 35,
+      "base": "HEMI",
+      "symbol": "HEMIUSDT",
+      "turnover24h": 24330820.5994,
+      "symbolType": "innovation"
+    },
+    {
+      "rank": 36,
+      "base": "ASTER",
+      "symbol": "ASTERUSDT",
+      "turnover24h": 23651378.8104,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 37,
+      "base": "WIF",
+      "symbol": "WIFUSDT",
+      "turnover24h": 22672447.1778,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 38,
+      "base": "BCH",
+      "symbol": "BCHUSDT",
+      "turnover24h": 22292885.49,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 39,
+      "base": "AVAAI",
+      "symbol": "AVAAIUSDT",
+      "turnover24h": 21009364.0077,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 40,
+      "base": "ARB",
+      "symbol": "ARBUSDT",
+      "turnover24h": 20029787.0499,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 41,
+      "base": "1000NEIROCTO",
+      "symbol": "1000NEIROCTOUSDT",
+      "turnover24h": 19808927.4572,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 42,
+      "base": "XMR",
+      "symbol": "XMRUSDT",
+      "turnover24h": 18477406.0154,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 43,
+      "base": "ORDI",
+      "symbol": "ORDIUSDT",
+      "turnover24h": 18359771.7342,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 44,
+      "base": "XPL",
+      "symbol": "XPLUSDT",
+      "turnover24h": 17585330.5664,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 45,
+      "base": "WLFI",
+      "symbol": "WLFIUSDT",
+      "turnover24h": 17441225.717,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 46,
+      "base": "DOT",
+      "symbol": "DOTUSDT",
+      "turnover24h": 16991939.4531,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 47,
+      "base": "MNT",
+      "symbol": "MNTUSDT",
+      "turnover24h": 16576349.4936,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 48,
+      "base": "HBAR",
+      "symbol": "HBARUSDT",
+      "turnover24h": 14917692.0876,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 49,
+      "base": "APT",
+      "symbol": "APTUSDT",
+      "turnover24h": 14752812.2617,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 50,
+      "base": "RE",
+      "symbol": "REUSDT",
+      "turnover24h": 14590999.1164,
+      "symbolType": "crypto"
+    }
+  ],
+  "all": [
+    {
+      "rank": 1,
+      "base": "BTC",
+      "symbol": "BTCUSDT",
+      "turnover24h": 9896102424.861,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 2,
+      "base": "ETH",
+      "symbol": "ETHUSDT",
+      "turnover24h": 4748115281.1126,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 3,
+      "base": "XRP",
+      "symbol": "XRPUSDT",
+      "turnover24h": 1334582112.0321,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 4,
+      "base": "SOL",
+      "symbol": "SOLUSDT",
+      "turnover24h": 817152727.262,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 5,
+      "base": "HYPE",
+      "symbol": "HYPEUSDT",
+      "turnover24h": 649300617.4302,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 6,
+      "base": "DOGE",
+      "symbol": "DOGEUSDT",
+      "turnover24h": 312220624.6251,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 7,
+      "base": "ZEC",
+      "symbol": "ZECUSDT",
+      "turnover24h": 229990889.3628,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 8,
+      "base": "1000PEPE",
+      "symbol": "1000PEPEUSDT",
+      "turnover24h": 169757750.0987,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 9,
+      "base": "ENA",
+      "symbol": "ENAUSDT",
+      "turnover24h": 140937910.7031,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 10,
+      "base": "ADA",
+      "symbol": "ADAUSDT",
+      "turnover24h": 135828560.6131,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 11,
+      "base": "PUMPFUN",
+      "symbol": "PUMPFUNUSDT",
+      "turnover24h": 114309196.4436,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 12,
+      "base": "ONG",
+      "symbol": "ONGUSDT",
+      "turnover24h": 107952294.5926,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 13,
+      "base": "SUI",
+      "symbol": "SUIUSDT",
+      "turnover24h": 82849195.393,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 14,
+      "base": "BOME",
+      "symbol": "BOMEUSDT",
+      "turnover24h": 81778641.1055,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 15,
+      "base": "BTW",
+      "symbol": "BTWUSDT",
+      "turnover24h": 80529789.6749,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 16,
+      "base": "ACE",
+      "symbol": "ACEUSDT",
+      "turnover24h": 78718705.9731,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 17,
+      "base": "LINK",
+      "symbol": "LINKUSDT",
+      "turnover24h": 70327237.603,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 18,
+      "base": "NEAR",
+      "symbol": "NEARUSDT",
+      "turnover24h": 67059245.1477,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 19,
+      "base": "ONDO",
+      "symbol": "ONDOUSDT",
+      "turnover24h": 59087313.964,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 20,
+      "base": "LIT",
+      "symbol": "LITUSDT",
+      "turnover24h": 54686539.708,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 21,
+      "base": "BEAT",
+      "symbol": "BEATUSDT",
+      "turnover24h": 54489011.4808,
+      "symbolType": "innovation"
+    },
+    {
+      "rank": 22,
+      "base": "WLD",
+      "symbol": "WLDUSDT",
+      "turnover24h": 52252842.6083,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 23,
+      "base": "AVAX",
+      "symbol": "AVAXUSDT",
+      "turnover24h": 47502077.8511,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 24,
+      "base": "BNB",
+      "symbol": "BNBUSDT",
+      "turnover24h": 45414159.305,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 25,
+      "base": "TRUMP",
+      "symbol": "TRUMPUSDT",
+      "turnover24h": 42096985.6316,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 26,
+      "base": "FARTCOIN",
+      "symbol": "FARTCOINUSDT",
+      "turnover24h": 40700783.161,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 27,
+      "base": "XLM",
+      "symbol": "XLMUSDT",
+      "turnover24h": 37128077.2561,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 28,
+      "base": "TAO",
+      "symbol": "TAOUSDT",
+      "turnover24h": 36226870.6083,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 29,
+      "base": "PENGU",
+      "symbol": "PENGUUSDT",
+      "turnover24h": 31404697.9136,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 30,
+      "base": "UNI",
+      "symbol": "UNIUSDT",
+      "turnover24h": 30762329.8947,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 31,
+      "base": "CRV",
+      "symbol": "CRVUSDT",
+      "turnover24h": 28243367.4889,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 32,
+      "base": "MON",
+      "symbol": "MONUSDT",
+      "turnover24h": 27873046.9763,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 33,
+      "base": "AAVE",
+      "symbol": "AAVEUSDT",
+      "turnover24h": 27193432.4496,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 34,
+      "base": "LTC",
+      "symbol": "LTCUSDT",
+      "turnover24h": 27185988.117,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 35,
+      "base": "HEMI",
+      "symbol": "HEMIUSDT",
+      "turnover24h": 24330820.5994,
+      "symbolType": "innovation"
+    },
+    {
+      "rank": 36,
+      "base": "ASTER",
+      "symbol": "ASTERUSDT",
+      "turnover24h": 23651378.8104,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 37,
+      "base": "WIF",
+      "symbol": "WIFUSDT",
+      "turnover24h": 22672447.1778,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 38,
+      "base": "BCH",
+      "symbol": "BCHUSDT",
+      "turnover24h": 22292885.49,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 39,
+      "base": "AVAAI",
+      "symbol": "AVAAIUSDT",
+      "turnover24h": 21009364.0077,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 40,
+      "base": "ARB",
+      "symbol": "ARBUSDT",
+      "turnover24h": 20029787.0499,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 41,
+      "base": "1000NEIROCTO",
+      "symbol": "1000NEIROCTOUSDT",
+      "turnover24h": 19808927.4572,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 42,
+      "base": "XMR",
+      "symbol": "XMRUSDT",
+      "turnover24h": 18477406.0154,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 43,
+      "base": "ORDI",
+      "symbol": "ORDIUSDT",
+      "turnover24h": 18359771.7342,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 44,
+      "base": "XPL",
+      "symbol": "XPLUSDT",
+      "turnover24h": 17585330.5664,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 45,
+      "base": "WLFI",
+      "symbol": "WLFIUSDT",
+      "turnover24h": 17441225.717,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 46,
+      "base": "DOT",
+      "symbol": "DOTUSDT",
+      "turnover24h": 16991939.4531,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 47,
+      "base": "MNT",
+      "symbol": "MNTUSDT",
+      "turnover24h": 16576349.4936,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 48,
+      "base": "HBAR",
+      "symbol": "HBARUSDT",
+      "turnover24h": 14917692.0876,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 49,
+      "base": "APT",
+      "symbol": "APTUSDT",
+      "turnover24h": 14752812.2617,
+      "symbolType": "crypto"
+    },
+    {
+      "rank": 50,
+      "base": "RE",
+      "symbol": "REUSDT",
+      "turnover24h": 14590999.1164,
+      "symbolType": "crypto"
+    }
+  ]
+}

@@ -1,73 +1,75 @@
 # ORDEN ACTIVA (única)
 
 **Puerta oficial Jess / Cursor México.**  
-Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`  
-Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
+Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`
 
 ---
 
-## 1) Arranque (obligatorio)
+## 1) Arranque
 
 ```
 git pull origin master
 ```
 
-Luego **abre solo este archivo** y ejecuta la misión de abajo.
-
 ---
 
-## 2) Misión actual — Revisar Beru rango (Oz trailing)
+## 2) Misión — Mitad Jess: bóveda linear 1m (top 50 cripto, 90 días)
 
-**Qué es:** el Monarca selló Beru rango como **trailing de activación**:
-Vacío/sangre act. **1,2** · Oz callback **0,2** · **Red también trailing**
-(act. **0,7** + callback 0,2 · $5). Sangre cancela Red pendiente.
-Jess **revisa** (smokes + teatro). **No** manos ni Bybit live.
+**Qué es:** ojos only. Descargar **velas de 1 minuto** · mercado **linear** · **90 días** · **25 santos** (mitad del top 50 por volumen, sin ETF/oro/acciones).
 
-**Receta / detalle:** ninguna · doctrina [`22_DOCTRINA_BERU_RANGO.md`](22_DOCTRINA_BERU_RANGO.md)
+**La otra mitad** la baja el Monarca en USA. Al terminar, Jess **empaqueta** y sube el zip a **Drive** para que el Monarca una las dos bóvedas.
 
-### Comandos exactos
+**Lista fija Jess (no inventar otras):**
 
 ```
-git pull origin master
-python scripts/validar_beru_rango_smoke.py
-python scripts/validar_teatro_beru_rango_smoke.py
-python scripts/teatro_beru_rango.py --activo HYPE --dias 3 --abrir
+FARTCOIN,XLM,TAO,PENGU,UNI,CRV,MON,AAVE,LTC,HEMI,ASTER,WIF,BCH,AVAAI,ARB,1000NEIROCTO,XMR,ORDI,XPL,WLFI,DOT,MNT,HBAR,APT,RE
 ```
 
-Lee la crónica y el HTML del teatro (Play). Comprueba que la narración diga
-trailing (Vacío arma rastro · Oz detona al pullback/rebote · Red→$5).
+(Misma lista en `data/coliseo/rango_top50_jess.txt`.)
+
+### Comando exacto
+
+```
+python -u scripts/jess_boveda_coliseo_noche.py --dias 90 --interval 1 --markets linear --workers 3 --sleep 0.12 --watchdog --ritual rango_top50_jess --only FARTCOIN,XLM,TAO,PENGU,UNI,CRV,MON,AAVE,LTC,HEMI,ASTER,WIF,BCH,AVAAI,ARB,1000NEIROCTO,XMR,ORDI,XPL,WLFI,DOT,MNT,HBAR,APT,RE
+```
+
+Dejar correr hasta `NOCHE BÓVEDA DONE`. Si se cae la luz/Cursor, **re-lanzar el mismo comando** (checkpoint reanuda).
+
+### Al terminar — Drive
+
+1. El ritual crea un zip bajo `data/coliseo/` tipo `ShadowHarmy_Coliseo_1m_….zip` (incluye `boveda_linear_1m.sqlite`).
+2. Subir **ese zip** a Drive (carpeta que use el Monarca).
+3. Avisar al Monarca: *«Mitad Jess lista · zip en Drive · nombre del archivo»*.
+
+Detalle progreso: `data/coliseo/PROGRESO.md` · latido: `data/coliseo/heartbeat.json`
 
 ---
 
 ## 3) Qué NO hacer
 
-- No `BERU_RANGO_MANOS=true` ni place_order / Bridge live.
-- No despertar Beru spot / flota / `arise_beru_*` / Igris / Greed.
-- No cancelar ni tocar órdenes en Bybit.
-- No regenerar pase / ranking.
+- No manos / no órdenes / no arise Beru ni Igris.
+- No tocar la mitad USA (BTC…TRUMP); solo la lista de arriba.
+- No `--interval 1s` ni spot/inverse en esta misión.
 - No subir `.env` ni secretos.
-- No mezclar este oficio con el Beru spot fósil.
+- No borrar bóvedas ajenas.
 
 ---
 
-## 4) Qué mirar al terminar
+## 4) Qué mirar
 
-1. Ambos smokes: línea `OK validar_beru_rango_smoke` y `OK validar_teatro_beru_rango_smoke`.
-2. Teatro: `data/coliseo/rango_teatro/teatro_HYPE_3d.html` + `cronica_HYPE_3d.md`.
-3. Doctrina `22_DOCTRINA_BERU_RANGO.md`: Oz = trailing 0,2; sangre 1,2; Red→$5.
-4. Marcar **HECHO** y avisar al Monarca: smokes OK/FALLO + 2–3 frases de si el
-   teatro se entiende (trailing vs Oz fija).
-
----
-
-## 5) HECHO (Jess / Cursor marca)
-
-- [ ] `git pull origin master` hecho
-- [ ] `validar_beru_rango_smoke` OK
-- [ ] `validar_teatro_beru_rango_smoke` OK
-- [ ] Teatro HYPE 3d abierto / crónica leída
-- [ ] Aviso al Monarca con veredicto corto
+1. Probe Bybit OK (México).
+2. En `PROGRESO.md`: los 25 bases `linear` en **ok** con filas ~100k+ por santo (90d × 1m).
+3. Zip creado y subido a Drive.
+4. Aviso al Monarca con el nombre del zip.
 
 ---
 
-*Shadow Army · puerta única · Beru rango Oz trailing · sin manos*
+## 5) HECHO
+
+- [ ] `git pull origin master`
+- [ ] Descarga 25 santos linear 1m 90d terminada
+- [ ] Zip en Drive + aviso al Monarca
+
+---
+
+*Shadow Army · bóveda rango top50 mitad Jess · ojos only*

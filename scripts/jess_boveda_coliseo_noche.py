@@ -609,8 +609,14 @@ def main() -> int:
     )
 
     try:
-        probe_cat = "linear" if iv == "1s" else "spot"
-        probe_sym = "ETHUSDT" if iv == "1s" else "BTCUSDT"
+        # Probe según mercado pedido (USA puede bajar linear 1m sin pasar por spot).
+        probe_cat = "linear" if ("linear" in markets or iv == "1s") else markets[0]
+        if probe_cat == "inverse":
+            probe_sym = "ETHUSD"
+        elif probe_cat == "spot":
+            probe_sym = "BTCUSDT"
+        else:
+            probe_sym = "ETHUSDT"
         _session().get_kline(
             category=probe_cat, symbol=probe_sym, interval=iv, limit=1
         )
