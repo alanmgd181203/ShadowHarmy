@@ -22,6 +22,7 @@ git checkout origin/orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS
 
 Luego **abre solo** `migracion/ORDEN_ACTIVA_JESS.md` y ejecuta la misión.  
 Confirmar que existen los paths de arriba.
+
 ---
 
 ## 2) Misión — Mega bóveda 1m · MITAD JESS (BLEND → ZRX)
@@ -35,7 +36,6 @@ Después el Monarca **une** las dos bóvedas (no lo haces tú).
 ### Comandos exactos
 
 ```
-git pull origin master
 python -u scripts/coliseo_mega_boveda.py --dias 365 --workers 2 --sleep 0.12 --watchdog --only-file data/coliseo/mega_boveda/lista_jess_mitad.txt
 ```
 
