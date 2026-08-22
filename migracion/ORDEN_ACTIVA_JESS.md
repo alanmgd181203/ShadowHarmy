@@ -10,18 +10,18 @@ Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
 
 ```
 git fetch origin
-git checkout orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md scripts/coliseo_mega_boveda.py data/coliseo/mega_boveda/lista_jess_mitad.txt data/coliseo/mega_boveda/lista_jess_mitad.csv data/coliseo/mega_boveda/split_mega_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
+git checkout orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md core/coliseo_catalogo.py scripts/coliseo_mega_boveda.py data/coliseo/mega_boveda/lista_jess_mitad.txt data/coliseo/mega_boveda/lista_jess_mitad.csv data/coliseo/mega_boveda/split_mega_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
 ```
 
 Si la rama no está local:
 
 ```
 git fetch origin orden-jess-boveda-rango-top50
-git checkout origin/orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md scripts/coliseo_mega_boveda.py data/coliseo/mega_boveda/lista_jess_mitad.txt data/coliseo/mega_boveda/lista_jess_mitad.csv data/coliseo/mega_boveda/split_mega_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
+git checkout origin/orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md core/coliseo_catalogo.py scripts/coliseo_mega_boveda.py data/coliseo/mega_boveda/lista_jess_mitad.txt data/coliseo/mega_boveda/lista_jess_mitad.csv data/coliseo/mega_boveda/split_mega_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
 ```
 
 Luego **abre solo** `migracion/ORDEN_ACTIVA_JESS.md` y ejecuta la misión.  
-Confirmar que existen los paths de arriba.
+Confirmar que existen los paths de arriba (sobre todo `core/coliseo_catalogo.py`).
 
 ---
 
