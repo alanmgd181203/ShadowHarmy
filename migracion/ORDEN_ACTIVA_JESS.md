@@ -1,63 +1,83 @@
 # ORDEN ACTIVA (única)
 
 **Puerta oficial Jess / Cursor México.**  
-Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`
+Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`  
+Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
 
 ---
 
-## 1) Arranque (rama de esta misión)
+## 1) Arranque (obligatorio)
 
 ```
 git fetch origin
-git checkout orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md scripts/jess_boveda_coliseo_noche.py data/coliseo/rango_top100_jess.txt data/coliseo/rango_top100_jess_hasta44.txt data/coliseo/rango_top100_usa_cola_jess.txt data/coliseo/INSTRUCCIONES_MERGE_RANGO_TOP100.md
+git checkout orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md scripts/coliseo_mega_boveda.py data/coliseo/mega_boveda/lista_jess_mitad.txt data/coliseo/mega_boveda/lista_jess_mitad.csv data/coliseo/mega_boveda/split_mega_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
 ```
 
-Confirmar: `scripts/jess_boveda_coliseo_noche.py`
+Si la rama no está local:
 
+```
+git fetch origin orden-jess-boveda-rango-top50
+git checkout origin/orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md scripts/coliseo_mega_boveda.py data/coliseo/mega_boveda/lista_jess_mitad.txt data/coliseo/mega_boveda/lista_jess_mitad.csv data/coliseo/mega_boveda/split_mega_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
+```
+
+Luego **abre solo** `migracion/ORDEN_ACTIVA_JESS.md` y ejecuta la misión.  
+Confirmar que existen los paths de arriba.
 ---
 
-## 2) Misión — Jess hasta #44 (PLUME inclusive)
+## 2) Misión — Mega bóveda 1m · MITAD JESS (BLEND → ZRX)
 
-Tu lista oficial son los **primeros 44** de `rango_top100_jess.txt` (índices 0–43), hasta **PLUME** inclusive.  
-Archivo listo: `data/coliseo/rango_top100_jess_hasta44.txt`
+**Qué es:** completar la **mitad restante** del catálogo linear USDT 1m (365d) en **tu máquina**.  
+USA ya tiene ~mitad en su lap y ahora solo remata **AAL→BITO**. Tú bajas **BLEND→ZRX** (183 bases). Mismos `workers=2` y `sleep=0.12` para terminar **más o menos a la vez**.  
+Después el Monarca **une** las dos bóvedas (no lo haces tú).
 
-**USA** ya terminó su top50 propio y ahora baja **solo los últimos 6 de tu lista, de abajo hacia arriba**:
+**Anexo merge (solo lectura):** [`data/coliseo/INSTRUCCIONES_MERGE_MEGA.md`](../data/coliseo/INSTRUCCIONES_MERGE_MEGA.md)
 
-`PENDLE,STRK,JUP,DASH,SPX,PNUT`
-
-No bajes esos 6. Tú te detienes en **PLUME**.
-
-### Comando (reanuda checkpoint — solo hasta #44)
+### Comandos exactos
 
 ```
-python -u scripts/jess_boveda_coliseo_noche.py --dias 365 --interval 1 --markets linear --workers 3 --sleep 0.12 --watchdog --ritual rango_top100_jess --only AKE,1000BONK,MAGMA,FIL,PEOPLE,RED,KAITO,CASHCAT,GALA,VIRTUAL,ONT,INJ,ATOM,BIO,TRX,POL,ETHFI,TUT,OP,SHIB1000,ICP,GRASS,CHIP,GRAM,H,PRL,VVV,VELVET,AERO,MET,ZRO,USELESS,ETC,JTO,CAP,TIA,MORPHO,SEI,CYS,LDO,GPS,ALGO,STABLE,PLUME
+git pull origin master
+python -u scripts/coliseo_mega_boveda.py --dias 365 --workers 2 --sleep 0.12 --watchdog --only-file data/coliseo/mega_boveda/lista_jess_mitad.txt
 ```
 
-Al terminar: zip → Drive → avisar Monarca.
+Dejar corriendo (watchdog relanza si cae). No cortes a mano salvo orden del Monarca.
+
+### Qué mirar mientras corre
+
+1. `data/coliseo/mega_boveda/PROGRESO_MEGA.md` — bases de tu lista pasando a **ok**.  
+2. `data/coliseo/heartbeat.json` — `fase` ingest / detalle con símbolos de tu mitad (BLEND…ZRX).  
+3. `data/coliseo/boveda_linear_1m.sqlite` crece (es **tu** bóveda local).
+
+### Al terminar (obligatorio)
+
+1. Comprobar que las **183** de `lista_jess_mitad.txt` están en ok (o avisar huecos).  
+2. Zip de:
+   - `data/coliseo/boveda_linear_1m.sqlite`
+   - `data/coliseo/mega_boveda/checkpoint_mega_1m.json`
+   - `data/coliseo/mega_boveda/PROGRESO_MEGA.md`
+3. Subir zip a **Drive** (carpeta del ejército).  
+4. Avisar al Monarca: «mitad Jess mega lista · Drive».
 
 ---
 
 ## 3) Qué NO hacer
 
-- No manos / arise / Igris.
-- No subir `.env`.
-- No borrar bóvedas.
-- No bajar `PNUT,SPX,DASH,JUP,STRK,PENDLE` (esos van por USA, cola de abajo).
+- No manos / arise / Igris / Beru live.  
+- No subir `.env` ni secretos.  
+- No borrar bóvedas USA ni las tuyas a lo bruto.  
+- **No bajar** bases de la lista USA (`lista_usa_resto.txt` · AAL→BITO).  
+- No hagas el merge tú (eso es USA después).  
+- No cambies `--workers` ni `--sleep` (rompería el ritmo pareja).  
+- No uses otro script de bóveda viejo (`jess_boveda_coliseo_noche`) para esta misión.
 
 ---
 
-## 4) Qué mirar
+## 4) HECHO
 
-1. `PROGRESO.md`: bases AKE…PLUME en ok (44).
-2. Zip en Drive + aviso.
-
----
-
-## 5) HECHO
-
-- [ ] 44 bases hasta PLUME en ok (o huecos rematados)
-- [ ] Zip en Drive + aviso al Monarca
+- [ ] Arranque desde rama `orden-jess-boveda-rango-top50` (archivos de la misión)  
+- [ ] Ritual mega corriendo con `--only-file …/lista_jess_mitad.txt`  
+- [ ] 183 bases BLEND→ZRX en ok (o huecos reportados)  
+- [ ] Zip en Drive + aviso al Monarca  
 
 ---
 
-*Shadow Army · Jess #1–44 hasta PLUME · USA cola 6 abajo→arriba*
+*Shadow Army · mega 1m mitad Jess BLEND→ZRX · USA AAL→BITO · luego merge*

@@ -1,0 +1,12 @@
+{
+  "pending": 366,
+  "usa": 183,
+  "jess": 183,
+  "usa_from": "AAL",
+  "usa_to": "BITO",
+  "jess_from": "BLEND",
+  "jess_to": "ZRX",
+  "workers": 2,
+  "sleep": 0.12,
+  "dias": 365
+}
