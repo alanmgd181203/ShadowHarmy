@@ -38,6 +38,43 @@ def _assert_mecha_red() -> None:
     print("  mecha Red (high toca, last no) OK")
 
 
+def _assert_misma_vela_sangre_antes_que_red() -> None:
+    """Doctrina: misma vela → sangre primero (aunque el high toque Red)."""
+    b = BeruShip(uid="M1S", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
+    br.despertar(b, 100.0, activo="ETH")
+    br.toca_vacio(b, 100.0)
+    br.armar_tramo_desde_vacio(b, "ARRIBA", precio=101.2)
+    br.actualizar_trailing_oz(b, 101.2)
+    br.cosechar_oz_y_mover_cero(b, float(b.oz_adan or 0) or 101.0)
+    assert str(b.sangre_lado).upper() == "ABAJO"
+    assert bool(b.oreja_sangre_activa) and bool(b.oreja_red_activa)
+    sangre_px = 100.0 * (1.0 - br.sangre_contraria_pct())
+    red_px = float(b.red_adan)
+    assert red_px > 100.0
+    # Vela ancha: high toca Red, low toca sangre, last en medio.
+    lat = {
+        "last": 100.0,
+        "high": red_px + 0.05,
+        "low": sangre_px - 0.05,
+        "prints": [],
+    }
+    assert br.toca_sangre_en_latido(b, lat["last"], lat)
+    assert br.toca_red_activacion_en_latido(b, lat["last"], lat)
+    # Orden doctrinal del for anidado (como en generales.beru_rango.pulso):
+    trig = ""
+    for sample in br.secuencia_latido(lat["last"], lat):
+        if br.toca_sangre(b, sample):
+            trig = "SANGRE"
+            break
+    if not trig:
+        for sample in br.secuencia_latido(lat["last"], lat):
+            if br.toca_red_activacion(b, sample):
+                trig = "RED"
+                break
+    assert trig == "SANGRE", f"misma vela debe ganar sangre, got {trig}"
+    print("  misma vela sangre antes que Red OK")
+
+
 def _assert_tank_latido() -> None:
     tank = TankCluster(Tusk(), Bel(), ticker_base="ETH")
     tank.expandir_frentes(["ETHUSDT_LINEAL"])
@@ -69,6 +106,7 @@ def _assert_latido_sugerido() -> None:
 def main() -> int:
     print("=== validar_beru_rango_ojos_smoke ===")
     _assert_mecha_red()
+    _assert_misma_vela_sangre_antes_que_red()
     _assert_tank_latido()
     _assert_latido_sugerido()
     print("OK")

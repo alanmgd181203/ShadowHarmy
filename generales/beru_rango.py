@@ -107,16 +107,19 @@ class BeruRango:
             if bool(getattr(beru, "es_relevo_cazador", False)) or float(
                 getattr(beru, "ultima_hoz_tocada_precio", 0) or 0
             ) > 0:
-                # Mecha: sangre primero (cosecha parcial), luego Red.
+                # Misma vela: sangre gana el latido entero, luego Red.
+                # (Antes: high tocaba Red y cortaba el for → nunca oía el low de sangre.)
                 trig = ""
                 px_arm = px
                 for sample in beru_rango.secuencia_latido(px, lat):
                     if beru_rango.toca_sangre(beru, sample):
                         trig, px_arm = "SANGRE", sample
                         break
-                    if beru_rango.toca_red_activacion(beru, sample):
-                        trig, px_arm = "RED", sample
-                        break
+                if not trig:
+                    for sample in beru_rango.secuencia_latido(px, lat):
+                        if beru_rango.toca_red_activacion(beru, sample):
+                            trig, px_arm = "RED", sample
+                            break
                 if trig == "SANGRE":
                     masa = beru_rango.armar_tramo_desde_sangre(beru, precio=px_arm)
                     if masa <= 0:
