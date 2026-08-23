@@ -4,8 +4,8 @@
 Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`  
 Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
 
-**Cambio 2026-08-22 noche:** USA ya remató AAL→BITO y ahora baja **BLEND→ZRX** en su lap.  
-**Tú bajas la otra mitad: AAL→BITO** (`lista_usa_resto.txt`). No improvises paths.
+**Actualización 2026-08-22 ~19:15 local USA:**  
+Si ya casi terminas **AAL→BITO** (~151+), **no pares el zip**. Cuando esa lista esté OK, lanza **ya** la cola extra **W→ZRX** (38 bases). USA sigue **SUSHI→VET** en paralelo. Luego merge en USA.
 
 ---
 
@@ -15,14 +15,14 @@ Desde la raíz del repo:
 
 ```
 git fetch origin
-git checkout orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md core/coliseo_catalogo.py core/coliseo_boveda.py scripts/coliseo_mega_boveda.py scripts/jess_boveda_coliseo_noche.py data/coliseo/mega_boveda/lista_usa_resto.txt data/coliseo/mega_boveda/lista_usa_resto.csv data/coliseo/mega_boveda/split_mega_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
+git checkout orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md core/coliseo_catalogo.py core/coliseo_boveda.py scripts/coliseo_mega_boveda.py scripts/jess_boveda_coliseo_noche.py data/coliseo/mega_boveda/lista_usa_resto.txt data/coliseo/mega_boveda/lista_usa_resto.csv data/coliseo/mega_boveda/lista_jess_extra_blend.txt data/coliseo/mega_boveda/lista_jess_extra_blend.csv data/coliseo/mega_boveda/split_blend_cola_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
 ```
 
 Si la rama no está local:
 
 ```
 git fetch origin orden-jess-boveda-rango-top50
-git checkout origin/orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md core/coliseo_catalogo.py core/coliseo_boveda.py scripts/coliseo_mega_boveda.py scripts/jess_boveda_coliseo_noche.py data/coliseo/mega_boveda/lista_usa_resto.txt data/coliseo/mega_boveda/lista_usa_resto.csv data/coliseo/mega_boveda/split_mega_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
+git checkout origin/orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS.md core/coliseo_catalogo.py core/coliseo_boveda.py scripts/coliseo_mega_boveda.py scripts/jess_boveda_coliseo_noche.py data/coliseo/mega_boveda/lista_usa_resto.txt data/coliseo/mega_boveda/lista_usa_resto.csv data/coliseo/mega_boveda/lista_jess_extra_blend.txt data/coliseo/mega_boveda/lista_jess_extra_blend.csv data/coliseo/mega_boveda/split_blend_cola_usa_jess.json data/coliseo/INSTRUCCIONES_MERGE_MEGA.md
 ```
 
 ### Comprobar que existen (si falta uno → PARA y avisa; no inventes)
@@ -33,49 +33,55 @@ git checkout origin/orden-jess-boveda-rango-top50 -- migracion/ORDEN_ACTIVA_JESS
 - `scripts/coliseo_mega_boveda.py`
 - `scripts/jess_boveda_coliseo_noche.py`
 - `data/coliseo/mega_boveda/lista_usa_resto.txt`
+- `data/coliseo/mega_boveda/lista_jess_extra_blend.txt`
 
-### Humo de import (obligatorio antes del mega)
+### Humo de import (si aún no lo corriste hoy)
 
 ```
-python -c "from core import coliseo_catalogo, coliseo_boveda; import scripts.coliseo_mega_boveda; print('OK imports mega')"
+python -c "from core import coliseo_catalogo, coliseo_boveda; print('OK imports mega')"
 ```
 
-Si eso falla: **no corras el mega**. Avisa al Monarca con el error exacto.
+Si falla: **no corras el mega**. Avisa al Monarca con el error exacto.
 
-Luego **abre solo** esta orden y ejecuta la misión.
+Luego **abre solo** esta orden y ejecuta.
 
 ---
 
-## 2) Misión — Mega bóveda 1m · MITAD JESS (AAL → BITO)
+## 2) Misión — dos pasos en tu misma bóveda
 
-**Qué es:** completar **183** bases linear USDT 1m (365d) en **tu** máquina: lista `lista_usa_resto.txt` (AAL→BITO).  
-USA en paralelo baja BLEND→ZRX. Después el Monarca **une** las dos bóvedas (no lo haces tú).
-
-**Anexo merge (solo lectura):** [`data/coliseo/INSTRUCCIONES_MERGE_MEGA.md`](../data/coliseo/INSTRUCCIONES_MERGE_MEGA.md)
-
-### Comando exacto (uno solo)
+### Paso A — terminar AAL→BITO (si aún no acabas)
 
 ```
 python -u scripts/coliseo_mega_boveda.py --dias 365 --workers 2 --sleep 0.12 --watchdog --only-file data/coliseo/mega_boveda/lista_usa_resto.txt
 ```
 
-Dejar corriendo (watchdog relanza si cae). No cortes a mano salvo orden del Monarca.
+Si **ya** tienes las 183 AAL→BITO en ok: **salta al Paso B** (no relances A).
 
-### Qué mirar mientras corre
+### Paso B — cola extra W→ZRX (38 bases) · YA
 
-1. `data/coliseo/mega_boveda/PROGRESO_MEGA.md` — bases AAL…BITO pasando a **ok**.  
-2. `data/coliseo/heartbeat.json` — `fase` mega_ingest / detalle con esos símbolos.  
-3. `data/coliseo/boveda_linear_1m.sqlite` crece (es **tu** bóveda local).
+Misma bóveda local (`boveda_linear_1m.sqlite`). No borres nada.
+
+```
+python -u scripts/coliseo_mega_boveda.py --dias 365 --workers 2 --sleep 0.12 --watchdog --only-file data/coliseo/mega_boveda/lista_jess_extra_blend.txt
+```
+
+Lista: **W → ZRX** (38). USA en paralelo hace **SUSHI → VET** (38). No bajes la cola USA.
+
+### Qué mirar
+
+1. `data/coliseo/mega_boveda/PROGRESO_MEGA.md` — ok en AAL…BITO y luego W…ZRX.  
+2. `data/coliseo/heartbeat.json` — símbolos de tu lista.  
+3. `data/coliseo/boveda_linear_1m.sqlite` crece.
 
 ### Al terminar (obligatorio)
 
-1. Comprobar que las **183** de `lista_usa_resto.txt` están en ok (o avisar huecos).  
+1. 183 AAL→BITO ok **y** 38 W→ZRX ok (o huecos reportados).  
 2. Zip de:
    - `data/coliseo/boveda_linear_1m.sqlite`
    - `data/coliseo/mega_boveda/checkpoint_mega_1m.json`
    - `data/coliseo/mega_boveda/PROGRESO_MEGA.md`
-3. Subir zip a **Drive** (carpeta del ejército).  
-4. Avisar al Monarca: «mitad Jess mega AAL-BITO lista · Drive».
+3. Subir zip a **Drive**.  
+4. Avisar: «Jess mega AAL-BITO + extra W-ZRX lista · Drive».
 
 ---
 
@@ -83,23 +89,21 @@ Dejar corriendo (watchdog relanza si cae). No cortes a mano salvo orden del Mona
 
 - No manos / arise / Igris / Beru live.  
 - No subir `.env` ni secretos.  
-- No borrar bóvedas a lo bruto.  
-- **No bajar** `lista_jess_mitad.txt` (BLEND→ZRX) — esa es USA ahora.  
-- No hagas el merge tú.  
+- No borrar la bóveda.  
+- **No bajar** `lista_usa_blend_cola.txt` (SUSHI→VET) — eso es USA.  
+- No hagas el merge.  
 - No cambies `--workers` ni `--sleep`.  
-- No uses `jess_boveda_coliseo_noche` como comando principal (solo es dependencia del mega).  
-- No inventes archivos ni copies de otro path si falta un pergamino: **para y avisa**.
+- No inventes archivos: si falta pergamino → **para y avisa**.
 
 ---
 
 ## 4) HECHO
 
-- [ ] Arranque: checkout del paquete completo desde `orden-jess-boveda-rango-top50`  
-- [ ] Humo de imports OK  
-- [ ] Ritual mega corriendo con `--only-file …/lista_usa_resto.txt`  
-- [ ] 183 bases AAL→BITO en ok (o huecos reportados)  
-- [ ] Zip en Drive + aviso al Monarca  
+- [ ] Checkout del paquete (incluye `lista_jess_extra_blend.txt`)  
+- [ ] Paso A: 183 AAL→BITO ok (o ya estaba)  
+- [ ] Paso B: 38 W→ZRX ok  
+- [ ] Zip Drive + aviso al Monarca  
 
 ---
 
-*Shadow Army · Jess AAL→BITO · USA BLEND→ZRX · luego merge*
+*Shadow Army · Jess AAL→BITO + extra W→ZRX · USA cola SUSHI→VET · luego merge*

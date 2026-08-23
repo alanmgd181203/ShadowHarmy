@@ -1,19 +1,21 @@
-# Unir mega bóveda USA + Jess (linear 1m · catálogo 725)
+# Unir mega bóveda USA + Jess (linear 1m)
 
-**Roles 2026-08-22 noche (swap):** Jess no pudo arrancar BLEND→ZRX; USA ya tenía AAL→BITO y ahora baja BLEND→ZRX. Jess baja AAL→BITO.
+**Roles noche 2026-08-22 (actualizado cola):**
 
-| Lap | Lista | Rango |
-|-----|-------|-------|
-| USA (Monarca) | `data/coliseo/mega_boveda/lista_jess_mitad.txt` | BLEND → ZRX (183) |
-| Jess (México) | `data/coliseo/mega_boveda/lista_usa_resto.txt` | AAL → BITO (183) |
+| Lap | Listas | Rango |
+|-----|--------|-------|
+| USA | (ya OK) AAL→BITO en bóveda USA · ahora `lista_usa_blend_cola.txt` | SUSHI → VET (38) |
+| Jess | `lista_usa_resto.txt` + luego `lista_jess_extra_blend.txt` | AAL → BITO (183) + W → ZRX (38) |
+
+Sello del split cola: `data/coliseo/mega_boveda/split_blend_cola_usa_jess.json`.
 
 Mismos parámetros: `--dias 365 --workers 2 --sleep 0.12`.
 
-## Cuando ambas mitades estén OK
+## Cuando ambas partes estén OK
 
-1. Jess sube zip Drive → Monarca lo deja en `data/coliseo/` como p. ej. `boveda_linear_1m_jess.sqlite` (+ su checkpoint si hace falta).
-2. **Backup** de la bóveda USA antes de fusionar.
-3. Fusionar (Agent/Monarca):
+1. Jess sube zip Drive → Monarca lo deja como `data/coliseo/boveda_linear_1m_jess.sqlite`.
+2. **Backup** bóveda USA.
+3. Fusionar:
 
 ```powershell
 python -c "from pathlib import Path; import sqlite3; usa=Path('data/coliseo/boveda_linear_1m.sqlite'); jess=Path('data/coliseo/boveda_linear_1m_jess.sqlite'); bak=usa.with_name(usa.stem+'_pre_merge_jess.sqlite'); import shutil; shutil.copy2(usa, bak); con=sqlite3.connect(usa); con.execute('ATTACH ? AS j', (str(jess),)); con.execute('INSERT OR IGNORE INTO candles SELECT * FROM j.candles'); con.execute('INSERT OR REPLACE INTO ingest_meta SELECT * FROM j.ingest_meta'); con.commit(); print('usa_rows', con.execute('select count(*) from candles').fetchone()[0]); print('bases', con.execute('select count(distinct base) from candles').fetchone()[0]); con.close(); print('backup', bak)"
@@ -23,5 +25,5 @@ python -c "from pathlib import Path; import sqlite3; usa=Path('data/coliseo/bove
 
 ## Notas
 
-- Cada lap escribe su propio `boveda_linear_1m.sqlite` local — no compartir el archivo a medias mientras descargan.  
-- Si una base quedó corta (<85 % de 365d×1440), el mega la vuelve a pedir: normal en TradeFi nuevos.
+- Cada lap escribe su propio `boveda_linear_1m.sqlite` — no compartir a medias.  
+- `INSERT OR IGNORE` tolera solapes si algún Santo se bajó dos veces.
