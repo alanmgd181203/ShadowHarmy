@@ -1,11 +1,11 @@
 # Unir mega bóveda USA + Jess (linear 1m · catálogo 725)
 
-**Contexto:** split 50/50 de **pendientes** al sello `split_mega_usa_jess.json`.
+**Roles 2026-08-22 noche (swap):** Jess no pudo arrancar BLEND→ZRX; USA ya tenía AAL→BITO y ahora baja BLEND→ZRX. Jess baja AAL→BITO.
 
 | Lap | Lista | Rango |
 |-----|-------|-------|
-| USA (Monarca) | `data/coliseo/mega_boveda/lista_usa_resto.txt` | AAL → BITO (183) |
-| Jess (México) | `data/coliseo/mega_boveda/lista_jess_mitad.txt` | BLEND → ZRX (183) |
+| USA (Monarca) | `data/coliseo/mega_boveda/lista_jess_mitad.txt` | BLEND → ZRX (183) |
+| Jess (México) | `data/coliseo/mega_boveda/lista_usa_resto.txt` | AAL → BITO (183) |
 
 Mismos parámetros: `--dias 365 --workers 2 --sleep 0.12`.
 
