@@ -16,14 +16,26 @@ const COLOR = {
   last: "#cbd5e1",
   buy: "#34d399",
   sell: "#f87171",
+  posicion_long: "#34d399",
+  posicion_short: "#f472b6",
 };
 
 const LEYENDA = [
   { rol: "manto", label: "Manto" },
-  { rol: "wake", label: "Wake" },
+  { rol: "wake", label: "Wake / 0" },
   { rol: "vacio", label: "Vacío" },
-  { rol: "oz", label: "Hoz" },
+  { rol: "oz", label: "Hoz / Oz" },
   { rol: "red", label: "Red" },
+  { rol: "last", label: "Last" },
+];
+
+const LEYENDA_RANGO = [
+  { rol: "wake", label: "0" },
+  { rol: "vacio", label: "Sangre" },
+  { rol: "oz", label: "Oz" },
+  { rol: "red", label: "Red" },
+  { rol: "posicion_long", label: "Pos LONG" },
+  { rol: "posicion_short", label: "Pos SHORT" },
   { rol: "last", label: "Last" },
 ];
 
@@ -37,6 +49,8 @@ const HIT = 28;
 const UMBRAL_ARRASTRE = 8;
 const CHIP_W = 152;
 const CHIP_H = 78;
+const CHIP_LAST_H = 56;
+const METRO_LAST_HIT = 44;
 
 function esRolManto(rol) {
   return rol === "manto" || rol === "centro";
@@ -58,6 +72,13 @@ function fmtPctSigned(n) {
   return v > 0 ? `+${body}` : `−${body}`;
 }
 
+function pctVsLast(precio, last) {
+  const px = Number(precio);
+  const base = Number(last);
+  if (!(px > 0) || !(base > 0)) return null;
+  return ((px - base) / base) * 100;
+}
+
 function idNivel(n) {
   const id = String(n?.id || "").trim();
   if (id) return id;
@@ -68,13 +89,24 @@ function optsNivel(n) {
   const esManto = esRolManto(n.rol);
   const esVacio = n.rol === "vacio";
   const esWake = n.rol === "wake";
+  const esPos =
+    n.rol === "posicion_long" ||
+    n.rol === "posicion_short" ||
+    n.rol === "posicion";
+  let title = "";
+  if (esPos) {
+    const lado = String(n.lado || (n.rol === "posicion_short" ? "SHORT" : "LONG")).toUpperCase();
+    const qty = Number(n.qty);
+    const qtyTxt = Number.isFinite(qty) && qty > 0 ? qty.toPrecision(4) : "";
+    title = qtyTxt ? `${lado} ${qtyTxt}` : lado;
+  }
   return {
     price: n.precio,
-    color: COLOR[n.rol] || COLOR.manto,
-    lineWidth: esManto || n.rol === "red_engorde" ? 2 : 1,
-    lineStyle: esWake ? 1 : esManto || esVacio ? 2 : 0,
+    color: COLOR[n.rol] || (esPos ? COLOR.posicion_long : COLOR.manto),
+    lineWidth: esManto || n.rol === "red_engorde" || esPos ? 2 : 1,
+    lineStyle: esWake ? 1 : esManto || esVacio ? 2 : esPos ? 0 : 0,
     axisLabelVisible: !esWake,
-    title: "",
+    title,
   };
 }
 
@@ -88,25 +120,27 @@ function datosVelas(rows) {
   }));
 }
 
-function colocarFicha(x, y, boxW, boxH, { parked }) {
+function colocarFicha(x, y, boxW, boxH, { parked, chipH = CHIP_H }) {
   let left;
   let top;
+  const h = chipH;
   if (parked) {
     left = 10;
-    top = y - CHIP_H / 2;
+    top = y - h / 2;
   } else {
     left = x > boxW * 0.55 ? x - 16 - CHIP_W : x + 16;
-    top = y - CHIP_H - 14;
+    top = y - h - 14;
     if (top < 8) top = y + 18;
   }
   left = Math.max(8, Math.min(left, boxW - CHIP_W - 8));
-  top = Math.max(8, Math.min(top, boxH - CHIP_H - 8));
+  top = Math.max(8, Math.min(top, boxH - h - 8));
   return { left, top };
 }
 
 /**
- * Velas spot + rayas del combate Beru.
- * reglaManto: metro nativo (asa + simulación + ficha al lado del dedo).
+ * Velas spot/linear + rayas del combate Beru.
+ * reglaManto: metro nativo vs 0/manto (asa).
+ * metroLast: toca el lado derecho → % vs precio actual (last), estilo Bybit.
  */
 export default function BeruSpotChart({
   symbol,
@@ -115,6 +149,9 @@ export default function BeruSpotChart({
   altura = 300,
   llenar = false,
   reglaManto = false,
+  metroLast = true,
+  category = "spot",
+  leyendaRango = false,
 }) {
   const wrapRef = useRef(null);
   const paneRef = useRef(null);
@@ -127,6 +164,7 @@ export default function BeruSpotChart({
   const originYRef = useRef(0);
   const startLineYRef = useRef(0);
   const sesionSoloArmarRef = useRef(false);
+  const metroDragRef = useRef(false);
   const [iv, setIv] = useState("15");
   const [velas, setVelas] = useState([]);
   const [meta, setMeta] = useState(null);
@@ -137,6 +175,9 @@ export default function BeruSpotChart({
   const [etiquetas, setEtiquetas] = useState([]);
   const [marcasCaza, setMarcasCaza] = useState([]);
   const [armado, setArmado] = useState(false);
+  const [metroPx, setMetroPx] = useState(null);
+  const [metroY, setMetroY] = useState(null);
+  const [metroFicha, setMetroFicha] = useState(null);
 
   const niveles = useMemo(() => {
     const raw = Array.isArray(grafica?.niveles) ? grafica.niveles : [];
@@ -166,6 +207,15 @@ export default function BeruSpotChart({
   velasRef.current = velas;
 
   const hayVelas = velas.length > 0;
+  const lastPrecio = useMemo(() => {
+    const fromMeta = Number(meta?.last ?? meta?.spot_last);
+    if (fromMeta > 0) return fromMeta;
+    const fromGraf = Number(grafica?.spot_last ?? grafica?.last_lineal);
+    if (fromGraf > 0) return fromGraf;
+    const close = Number(velas[velas.length - 1]?.close);
+    return close > 0 ? close : 0;
+  }, [meta, grafica?.spot_last, grafica?.last_lineal, velas]);
+
   const mantoReal = useMemo(() => {
     const n = niveles.find((x) => esRolManto(x.rol));
     const c = n?.precio > 0 ? n.precio : Number(grafica?.centro_manto || manto?.cero || 0);
@@ -185,8 +235,9 @@ export default function BeruSpotChart({
     async function load() {
       setError("");
       try {
+        const cat = category || (String(grafica?.mercado || "").toLowerCase() === "linear" ? "linear" : "spot");
         const res = await fetch(
-          `${KLINE_URL}?symbol=${encodeURIComponent(s)}&interval=${iv}&limit=240&t=${Date.now()}`,
+          `${KLINE_URL}?symbol=${encodeURIComponent(s)}&interval=${iv}&limit=240&category=${encodeURIComponent(cat)}&t=${Date.now()}`,
           { cache: "no-store" },
         );
         const data = res.ok ? await res.json() : null;
@@ -219,7 +270,7 @@ export default function BeruSpotChart({
       alive = false;
       clearInterval(t);
     };
-  }, [symbol, iv]);
+  }, [symbol, iv, category, grafica?.mercado]);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -364,7 +415,23 @@ export default function BeruSpotChart({
       const seenY = new Set();
       for (const n of nivelesRef.current) {
         const masa = Number(n.masa_usd);
-        if (!(masa > 0) || (n.rol !== "vacio" && n.rol !== "oz" && n.rol !== "red" && n.rol !== "red_engorde")) {
+        const esPos =
+          n.rol === "posicion_long" ||
+          n.rol === "posicion_short" ||
+          n.rol === "posicion";
+        if (
+          !(masa > 0) &&
+          !esPos
+        ) {
+          continue;
+        }
+        if (
+          !esPos &&
+          n.rol !== "vacio" &&
+          n.rol !== "oz" &&
+          n.rol !== "red" &&
+          n.rol !== "red_engorde"
+        ) {
           continue;
         }
         const y = series.priceToCoordinate(n.precio);
@@ -372,10 +439,16 @@ export default function BeruSpotChart({
         const yk = y.toFixed(1);
         if (seenY.has(yk)) continue;
         seenY.add(yk);
+        const lado = String(n.lado || "").toUpperCase();
+        const qty = Number(n.qty);
+        const label = esPos
+          ? `${lado || "POS"}${Number.isFinite(qty) && qty > 0 ? ` ${qty.toPrecision(3)}` : ""}`
+          : null;
         tags.push({
           key: `${n.rol}:${n.id || n.precio}`,
           y,
-          masa,
+          masa: masa > 0 ? masa : null,
+          label,
           color: COLOR[n.rol] || COLOR.vacio,
         });
       }
@@ -504,10 +577,14 @@ export default function BeruSpotChart({
     armadoRef.current = false;
     dragRef.current = false;
     sesionSoloArmarRef.current = false;
+    metroDragRef.current = false;
     simRef.current = null;
     setArmado(false);
     setSimPrecio(null);
     setFicha(null);
+    setMetroPx(null);
+    setMetroY(null);
+    setMetroFicha(null);
   }, [symbol]);
 
   function precioDesdeYPane(yPane) {
@@ -529,6 +606,67 @@ export default function BeruSpotChart({
     if (!box) return;
     const rect = box.getBoundingClientRect();
     setFicha(colocarFicha(clientX - rect.left, clientY - rect.top, rect.width, rect.height, { parked }));
+  }
+
+  function aplicarMetroLast(yPane, clientX, clientY, parked) {
+    const p = precioDesdeYPane(yPane);
+    if (!(p > 0)) return;
+    setMetroPx(p);
+    setMetroY(yPane);
+    const box = paneRef.current;
+    if (!box) return;
+    const rect = box.getBoundingClientRect();
+    const x = clientX != null ? clientX - rect.left : rect.width - METRO_LAST_HIT / 2;
+    const y = clientY != null ? clientY - rect.top : yPane;
+    setMetroFicha(
+      colocarFicha(x, y, rect.width, rect.height, {
+        parked: Boolean(parked),
+        chipH: CHIP_LAST_H,
+      }),
+    );
+  }
+
+  function onMetroLastDown(ev) {
+    if (!metroLast || !(lastPrecio > 0)) return;
+    metroDragRef.current = true;
+    const rect = paneRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const yPane = ev.clientY - rect.top;
+    aplicarMetroLast(yPane, ev.clientX, ev.clientY, false);
+    try {
+      ev.currentTarget.setPointerCapture(ev.pointerId);
+    } catch {
+      /* ignore */
+    }
+    ev.preventDefault();
+    ev.stopPropagation();
+  }
+
+  function onMetroLastMove(ev) {
+    if (!metroDragRef.current) return;
+    const rect = paneRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    aplicarMetroLast(ev.clientY - rect.top, ev.clientX, ev.clientY, false);
+    ev.preventDefault();
+  }
+
+  function onMetroLastUp(ev) {
+    if (!metroDragRef.current) return;
+    metroDragRef.current = false;
+    const rect = paneRef.current?.getBoundingClientRect();
+    if (rect) {
+      const yPane = ev?.clientY != null ? ev.clientY - rect.top : metroY;
+      if (typeof yPane === "number") aplicarMetroLast(yPane, null, null, true);
+    }
+    ev?.preventDefault?.();
+  }
+
+  function cerrarMetroLast(ev) {
+    ev?.stopPropagation?.();
+    metroDragRef.current = false;
+    setMetroPx(null);
+    setMetroY(null);
+    setMetroFicha(null);
   }
 
   function onAsaDown(ev) {
@@ -619,6 +757,7 @@ export default function BeruSpotChart({
 
   const regla = armado ? reglaEnPunto(manto || { cero: mantoReal }, simPrecio || mantoReal) : null;
   const agua = reglaManto ? marcaAguaManto(manto, fmtUsd) : "";
+  const metroPct = metroPx != null ? pctVsLast(metroPx, lastPrecio) : null;
 
   return (
     <div className={llenar ? "h-full flex flex-col min-h-0" : ""}>
@@ -639,6 +778,7 @@ export default function BeruSpotChart({
         ))}
         <span className="ml-auto text-[10px] text-white/30 self-center tabular-nums">
           {meta?.symbol || ""} · {velas.length || 0}
+          {metroLast && lastPrecio > 0 ? " · lado→% last" : ""}
         </span>
       </div>
       {velas.length ? (
@@ -654,7 +794,7 @@ export default function BeruSpotChart({
               className="absolute z-[8] pointer-events-none left-2 -translate-y-1/2 tabular-nums text-[10px] font-semibold tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]"
               style={{ top: t.y, color: t.color }}
             >
-              {fmtUsd(t.masa)}
+              {t.label || (t.masa != null ? fmtUsd(t.masa) : "")}
             </div>
           ))}
           {marcasCaza.map((m) => (
@@ -667,6 +807,49 @@ export default function BeruSpotChart({
               ×
             </div>
           ))}
+          {metroLast && metroY != null ? (
+            <div
+              className="absolute left-0 right-0 z-[9] pointer-events-none border-t border-dashed border-cyan-300/80"
+              style={{ top: Math.max(0, metroY) }}
+            />
+          ) : null}
+          {metroLast && lastPrecio > 0 ? (
+            <div
+              role="slider"
+              aria-label="Metro vs last"
+              className="absolute top-0 bottom-0 right-0 z-[11] cursor-ns-resize"
+              style={{ width: METRO_LAST_HIT, touchAction: "none" }}
+              onPointerDown={onMetroLastDown}
+              onPointerMove={onMetroLastMove}
+              onPointerUp={onMetroLastUp}
+              onPointerCancel={onMetroLastUp}
+            />
+          ) : null}
+          {metroLast && metroPct != null && metroFicha ? (
+            <div
+              className="absolute z-20 rounded-lg border border-cyan-400/35 bg-[#0a0c10]/95 px-2.5 py-2 shadow-lg pointer-events-auto"
+              style={{ left: metroFicha.left, top: metroFicha.top, width: CHIP_W }}
+            >
+              <div className="flex items-start justify-between gap-1">
+                <p className="text-sm font-semibold tabular-nums text-cyan-200 leading-tight">
+                  {fmtPctSigned(metroPct)}
+                </p>
+                <button
+                  type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={cerrarMetroLast}
+                  aria-label="Cerrar metro vs last"
+                  className="w-6 h-6 -mt-0.5 -mr-0.5 flex items-center justify-center rounded text-white/70 text-base leading-none"
+                >
+                  ×
+                </button>
+              </div>
+              <p className="text-[11px] tabular-nums text-white/85 leading-tight mt-0.5">
+                {fmtNum(metroPx, decimalesPrecio(metroPx || 1))}
+              </p>
+              <p className="text-[10px] text-white/45 leading-tight">vs last {fmtNum(lastPrecio, decimalesPrecio(lastPrecio || 1))}</p>
+            </div>
+          ) : null}
           {reglaManto && agua ? (
             <div className="absolute top-2 left-2 z-[8] pointer-events-none text-[10px] tracking-wide text-white/40">
               {agua}
@@ -732,14 +915,20 @@ export default function BeruSpotChart({
         </div>
       ) : (
         <p className="text-sm text-white/40 py-8 text-center">
-          {error || "Esperando velas de spot…"}
+          {error || (category === "linear" ? "Esperando velas linear…" : "Esperando velas de spot…")}
         </p>
       )}
       <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px] text-white/45 shrink-0">
-        {LEYENDA.filter((x) => {
+        {(leyendaRango ? LEYENDA_RANGO : LEYENDA).filter((x) => {
           if (x.rol === "last") return true;
           if (x.rol === "oz" || x.rol === "red") {
             return niveles.some((n) => n.rol === x.rol || (x.rol === "red" && n.rol === "red_engorde"));
+          }
+          if (leyendaRango && x.rol === "vacio") {
+            return niveles.some((n) => n.rol === "vacio");
+          }
+          if (x.rol === "posicion_long" || x.rol === "posicion_short") {
+            return niveles.some((n) => n.rol === x.rol);
           }
           return true;
         }).map((x) => (

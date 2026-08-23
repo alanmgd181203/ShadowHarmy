@@ -162,9 +162,54 @@ class TankCluster:
         self.panorama_global: list[dict] = []
         self.ref_binance: dict = {}
         self._ultimo_calc_spreads = 0.0
+        # Latido lineal (mecha): tratos/ticks entre pulsos de Beru rango.
+        self._latidos_lineal: dict[str, dict] = {}
+        self.ts_rio_lineal_ws = 0.0
+        self._latido_prints_max = int(
+            getattr(config, "BERU_RANGO_LATIDO_PRINTS_MAX", 500) or 500
+        )
 
     def inyectar_ref_binance(self, base: str, mid: float, ts: float):
         self.ref_binance[base.upper()] = {"mid": mid, "ts": ts}
+
+    def registrar_print_lineal(self, f_key: str, price: float, *, fuente_ws: bool = True) -> None:
+        """Acumula un trato/tick en el vaso del latido lineal (no limpia)."""
+        frente = str(f_key or "").upper()
+        px = float(price or 0)
+        if not frente.endswith("USDT_LINEAL") or px <= 0:
+            return
+        bucket = self._latidos_lineal.get(frente)
+        if not bucket:
+            bucket = {"last": 0.0, "high": 0.0, "low": 0.0, "prints": []}
+            self._latidos_lineal[frente] = bucket
+        bucket["last"] = px
+        hi = float(bucket.get("high") or 0)
+        lo = float(bucket.get("low") or 0)
+        bucket["high"] = px if hi <= 0 else max(hi, px)
+        bucket["low"] = px if lo <= 0 else min(lo, px)
+        prints = bucket.setdefault("prints", [])
+        prints.append(px)
+        max_n = max(20, int(self._latido_prints_max or 200))
+        if len(prints) > max_n:
+            del prints[: len(prints) - max_n]
+        if fuente_ws:
+            self.ts_rio_lineal_ws = time.time()
+
+    def consumir_latido_lineal(self, f_key: str) -> dict:
+        """Devuelve y vacía el latido lineal de ese frente."""
+        frente = str(f_key or "").upper()
+        bucket = self._latidos_lineal.pop(frente, None) or {}
+        last = float(bucket.get("last") or 0)
+        hi = float(bucket.get("high") or 0)
+        lo = float(bucket.get("low") or 0)
+        prints = [float(p) for p in (bucket.get("prints") or []) if float(p or 0) > 0]
+        if last <= 0 and prints:
+            last = float(prints[-1])
+        if hi <= 0 and last > 0:
+            hi = last
+        if lo <= 0 and last > 0:
+            lo = last
+        return {"last": last, "high": hi, "low": lo, "prints": prints}
 
     def expandir_frentes(self, frentes):
         for nodo in self.nodos:

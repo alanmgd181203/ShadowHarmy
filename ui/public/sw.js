@@ -1,6 +1,7 @@
 /* Service Worker — Pergamino Cascada (React).
-   La foto viva (/data/) nunca se cachea. */
-const CACHE = "shadow-army-cascada-v19";
+   La foto viva (/data/) nunca se cachea.
+   Necesario para instalar PWA standalone (sin barra URL). */
+const CACHE = "shadow-army-cascada-v21";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
@@ -25,7 +26,13 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(req)
       .then((res) => {
-        if (res.ok && (url.pathname.startsWith("/assets/") || url.pathname.endsWith("manifest.json"))) {
+        if (
+          res.ok &&
+          (url.pathname.startsWith("/assets/") ||
+            url.pathname.startsWith("/icons/") ||
+            url.pathname.endsWith("manifest.json") ||
+            url.pathname === "/sw.js")
+        ) {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
         }

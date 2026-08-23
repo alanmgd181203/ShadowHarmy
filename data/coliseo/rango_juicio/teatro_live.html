@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teatro Beru — ranking vivo</title>
+  <style>
+    :root {
+      --bg: #0c1017;
+      --panel: #141a24;
+      --ink: #d5dde8;
+      --dim: #7a8699;
+      --line: rgba(255,255,255,0.08);
+      --verde: #3dd68c;
+      --amarillo: #e6c35c;
+      --rojo: #e07070;
+      --cyan: #5ec8e8;
+      --feria: #c9a227;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 20% -10%, #1a2436 0%, var(--bg) 55%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    header {
+      padding: 1.25rem 1.5rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    header p {
+      margin: 0.35rem 0 0;
+      color: var(--dim);
+      font-size: 0.85rem;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      align-items: center;
+    }
+    .tab {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .tab.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+    .tab.feria.active { border-color: var(--feria); color: var(--feria); }
+    .badge {
+      font-size: 0.75rem;
+      color: var(--dim);
+      margin-left: auto;
+    }
+    .badge.ok { color: var(--verde); }
+    .badge.run { color: var(--amarillo); }
+    .badge.wait { color: var(--dim); }
+    main { padding: 0 1.5rem 2rem; }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 0.5rem 0 1rem;
+      font-size: 0.8rem;
+      color: var(--dim);
+    }
+    .meta strong { color: var(--ink); font-weight: 500; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    th, td {
+      padding: 0.45rem 0.55rem;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+    }
+    th:nth-child(2), td:nth-child(2) { text-align: left; }
+    th {
+      color: var(--dim);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 1;
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    td.santo {
+      color: var(--cyan);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .luz-VERDE { color: var(--verde); }
+    .luz-AMARILLO { color: var(--amarillo); }
+    .luz-ROJO { color: var(--rojo); }
+    .empty {
+      padding: 2rem;
+      color: var(--dim);
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+    }
+    .grid-slots {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.5rem;
+      padding: 0 1.5rem 0.5rem;
+    }
+    .slot-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      font-size: 0.78rem;
+    }
+    .slot-card .t { color: var(--dim); margin-bottom: 0.25rem; }
+    .slot-card .n { font-size: 1.1rem; font-weight: 600; }
+
+    .drawer-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 40;
+    }
+    .drawer-bg.open { opacity: 1; pointer-events: auto; }
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(420px, 94vw);
+      height: 100%;
+      background: var(--panel);
+      border-left: 1px solid var(--line);
+      box-shadow: -12px 0 40px rgba(0,0,0,0.35);
+      transform: translateX(105%);
+      transition: transform 0.22s ease;
+      z-index: 50;
+      padding: 1.25rem 1.35rem 2rem;
+      overflow-y: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer h2 {
+      margin: 0 0 0.25rem;
+      font-size: 1.25rem;
+      letter-spacing: 0.03em;
+    }
+    .drawer .sub {
+      color: var(--dim);
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .drawer .blurb {
+      line-height: 1.5;
+      font-size: 0.9rem;
+      margin: 0 0 0.85rem;
+      color: var(--ink);
+    }
+    .drawer dl {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 0.35rem 0.75rem;
+      margin: 0;
+      font-size: 0.82rem;
+    }
+    .drawer dt { color: var(--dim); }
+    .drawer dd { margin: 0; }
+    .drawer .cmp {
+      margin-top: 1.1rem;
+      padding-top: 0.9rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.82rem;
+    }
+    .drawer .cmp h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.85rem;
+      color: var(--dim);
+      font-weight: 500;
+    }
+    .close-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.85rem;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 0.25rem 0.55rem;
+      cursor: pointer;
+    }
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      padding: 0 1.5rem 0.75rem;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--dim);
+    }
+    .filtros label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 0.3rem 0.55rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--ink);
+    }
+    .filtros label input { accent-color: var(--cyan); }
+    .section {
+      margin-top: 1.25rem;
+    }
+    .section h2 {
+      margin: 0 0 0.35rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .section .hint {
+      margin: 0 0 0.65rem;
+      color: var(--dim);
+      font-size: 0.78rem;
+    }
+    .section.nevera h2 { color: #9bb0c9; }
+    .section.campo h2 { color: var(--feria); }
+    .section.oficio h2 { color: #a88; }
+    .section.vida h2 { color: var(--rojo); }
+    .tag-motivo {
+      font-size: 0.7rem;
+      color: var(--dim);
+      margin-left: 0.35rem;
+    }
+    tr.frozen td { opacity: 0.78; }
+    tr.frozen td.santo { color: #9bb0c9; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TEATRO BERU — ranking vivo</h1>
+    <p>Caza limpia · nevera (oficio / vida) · click en un Santo para ver <strong>qué es</strong> ·
+      <a href="teatro_fusion.html" style="color:var(--cyan)">panel fusionado</a></p>
+  </header>
+
+  <div class="grid-slots" id="cards"></div>
+
+  <div class="toolbar">
+    <button class="tab active" data-slot="normal_reciente">Normal · 7/30/90</button>
+    <button class="tab feria" data-slot="feria_reciente">Feria · 7/30/90</button>
+    <button class="tab" data-slot="normal_anual">Normal · año</button>
+    <button class="tab feria" data-slot="feria_anual">Feria · año</button>
+    <span class="badge" id="status">cargando…</span>
+  </div>
+
+  <div class="filtros" id="filtros">
+    <span>Nevera:</span>
+    <label><input type="checkbox" id="show-oficio" checked /> oficio (TradeFi/stables)</label>
+    <label><input type="checkbox" id="show-vida" /> vida baja</label>
+  </div>
+
+  <main>
+    <div class="meta" id="meta"></div>
+    <div id="table-wrap"><div class="empty">Esperando datos del slot…</div></div>
+  </main>
+
+  <div class="drawer-bg" id="drawer-bg"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <button class="close-btn" id="drawer-close" type="button">cerrar</button>
+    <div id="drawer-body"></div>
+  </aside>
+
+  <script>
+    const SLOTS = [
+      "normal_reciente",
+      "feria_reciente",
+      "normal_anual",
+      "feria_anual",
+    ];
+    const STABLES = new Set(["USDC", "USDE", "USD1", "RLUSD", "USDT"]);
+    let active = "normal_reciente";
+    const cache = {};
+    let fichas = {};
+
+    function fmt(n, d = 3) {
+      if (n == null || Number.isNaN(n)) return "—";
+      return Number(n).toFixed(d);
+    }
+
+    function fichaOf(activo) {
+      return fichas[activo] || fichas[String(activo || "").toUpperCase()] || {};
+    }
+
+    /** Filtro 2 — oficio: TradeFi, stables, apalancados listados. */
+    function esOficio(activo) {
+      const f = fichaOf(activo);
+      const t = String(f.symbol_type || "").toLowerCase();
+      const b = String(activo || "").toUpperCase();
+      if (f.tradefi) return true;
+      if (["stock", "commodity", "etf", "fx", "forex"].includes(t)) return true;
+      if (STABLES.has(b)) return true;
+      if (/2L$|3L$/.test(b) || b.startsWith("CSOP")) return true;
+      return false;
+    }
+
+    function median(nums) {
+      const a = nums.filter((x) => typeof x === "number" && !Number.isNaN(x)).slice().sort((x, y) => x - y);
+      if (!a.length) return 0;
+      const m = Math.floor(a.length / 2);
+      return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+    }
+
+    /**
+     * Parte el ranking (filtros 2 y 3; el 4 innovation está apagado):
+     *  caza   = no-oficio + vida OK (meme/innovation OK si se mueve)
+     *  oficio = TradeFi / stables / 2L
+     *  vida   = resto (calor/cosechas flojos)
+     */
+    function clasificar(ranking) {
+      const rows = Array.isArray(ranking) ? ranking : [];
+      const pool = rows.filter((r) => !esOficio(r.activo));
+      const calors = pool.map((r) => Number(r.calor || 0));
+      const coses = pool.map((r) => Number(r.cosechas_larga || 0));
+      const medCalor = median(calors);
+      const medCos = median(coses);
+      const minCos = Math.max(30, medCos * 0.5);
+      const umbrales = { medCalor, minCos, nPool: pool.length };
+
+      const caza = [];
+      const oficio = [];
+      const vida = [];
+
+      for (const r of rows) {
+        if (esOficio(r.activo)) {
+          oficio.push({ ...r, _motivo: "oficio" });
+          continue;
+        }
+        const calor = Number(r.calor || 0);
+        const cos = Number(r.cosechas_larga || 0);
+        const vidaOk = calor > medCalor && cos >= minCos;
+        if (!vidaOk) {
+          vida.push({ ...r, _motivo: "vida" });
+          continue;
+        }
+        caza.push({ ...r, _motivo: "caza" });
+      }
+      return { caza, oficio, vida, umbrales };
+    }
+
+    function findRow(slotId, activo) {
+      const d = cache[slotId];
+      if (!d || !d.ranking) return null;
+      return d.ranking.find((r) => r.activo === activo) || null;
+    }
+
+    function pairSlot(slotId) {
+      if (slotId.startsWith("normal_")) return slotId.replace("normal_", "feria_");
+      if (slotId.startsWith("feria_")) return slotId.replace("feria_", "normal_");
+      return null;
+    }
+
+    function openDrawer(activo) {
+      const f = fichaOf(activo);
+      const cur = findRow(active, activo);
+      const otherId = pairSlot(active);
+      const other = otherId ? findRow(otherId, activo) : null;
+      const tiempo = (active || "").includes("anual") ? "año" : "7/30/90";
+      let veredicto = "Aún faltan datos de un lado para comparar.";
+      if (cur && other) {
+        const cn = Number(cur.calor || 0);
+        const on = Number(other.calor || 0);
+        const curName = active.startsWith("feria") ? "Feria" : "Normal";
+        const othName = curName === "Feria" ? "Normal" : "Feria";
+        if (Math.abs(cn - on) < 1e-6) veredicto = `Empate en calor (${tiempo}).`;
+        else if (cn > on) veredicto = `En ${tiempo}, gana <strong>${curName}</strong> (calor ${fmt(cn)} vs ${fmt(on)}).`;
+        else veredicto = `En ${tiempo}, gana <strong>${othName}</strong> (calor ${fmt(on)} vs ${fmt(cn)}).`;
+      }
+      let estante = "caza";
+      if (esOficio(activo)) estante = "nevera · oficio";
+      else if (cur) {
+        const cls = clasificar((cache[active] && cache[active].ranking) || []);
+        if (cls.vida.some((r) => r.activo === activo)) estante = "nevera · vida baja";
+      }
+      const paras = Array.isArray(f.parrafos) && f.parrafos.length
+        ? f.parrafos
+        : String(f.descripcion || f.blurb || "")
+            .split(/\n\n+/)
+            .map((p) => p.trim())
+            .filter(Boolean);
+      const parasHtml = paras.length
+        ? paras.map((p) => `<p class="blurb">${p}</p>`).join("")
+        : `<p class="blurb">Sin descripción larga aún.</p>`;
+      const body = document.getElementById("drawer-body");
+      body.innerHTML = `
+        <h2>${activo}</h2>
+        <div class="sub">${f.nombre || f.display_name || activo} · ${(f.symbol_type || "?").toUpperCase()}${f.tradefi ? " · TradeFi" : ""} · ${f.symbol || (activo + "USDT")} · <em>${estante}</em></div>
+        <h3 style="margin:0 0 0.5rem;font-size:0.85rem;color:var(--dim);font-weight:500">Qué es</h3>
+        ${parasHtml}
+        <dl>
+          <dt>Nombre</dt><dd>${f.nombre || f.display_name || "—"}</dd>
+          <dt>Tipo Bybit</dt><dd>${f.symbol_type || "—"}</dd>
+          <dt>Apalanc. máx</dt><dd>${f.max_leverage || "—"}x</dd>
+          <dt>Estante</dt><dd>${estante}</dd>
+          <dt>Slot actual</dt><dd>${active}</dd>
+          <dt>Calor aquí</dt><dd>${cur ? fmt(cur.calor) : "—"} · ${cur ? (cur.semaforo || "") : ""} · #${cur ? cur.rank_calor : "—"}</dd>
+          <dt>Cosechas</dt><dd>${cur ? (cur.cosechas_larga ?? "—") : "—"}</dd>
+          <dt>Neto</dt><dd>${cur ? fmt(cur.neto_larga, 2) : "—"}</dd>
+        </dl>
+        <div class="cmp">
+          <h3>Normal vs feria (${tiempo})</h3>
+          <p>${veredicto}</p>
+          <dl style="margin-top:0.6rem">
+            <dt>Normal</dt><dd>${(() => {
+              const id = active.startsWith("normal") ? active : pairSlot(active);
+              const r = id ? findRow(id, activo) : null;
+              return r ? `#${r.rank_calor} · calor ${fmt(r.calor)}` : "—";
+            })()}</dd>
+            <dt>Feria</dt><dd>${(() => {
+              const id = active.startsWith("feria") ? active : pairSlot(active);
+              const r = id ? findRow(id, activo) : null;
+              return r ? `#${r.rank_calor} · calor ${fmt(r.calor)}` : "—";
+            })()}</dd>
+          </dl>
+        </div>
+      `;
+      document.getElementById("drawer").classList.add("open");
+      document.getElementById("drawer-bg").classList.add("open");
+      document.getElementById("drawer").setAttribute("aria-hidden", "false");
+    }
+
+    function closeDrawer() {
+      document.getElementById("drawer").classList.remove("open");
+      document.getElementById("drawer-bg").classList.remove("open");
+      document.getElementById("drawer").setAttribute("aria-hidden", "true");
+    }
+
+    function renderCards() {
+      const el = document.getElementById("cards");
+      el.innerHTML = SLOTS.map((id) => {
+        const d = cache[id];
+        const estado = (d && d.estado) || "preparado";
+        const n = (d && d.n_ok) || 0;
+        const cls = d && d.ranking ? clasificar(d.ranking) : null;
+        const top = cls && cls.caza[0] ? cls.caza[0].activo : (d && d.ranking && d.ranking[0] ? d.ranking[0].activo : "—");
+        const nc = cls ? cls.caza.length : "—";
+        return `<div class="slot-card">
+          <div class="t">${id.replace("_", " · ")}</div>
+          <div class="n">${n} ok</div>
+          <div class="t">${estado} · caza ${nc} · top ${top}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function rowsHtml(list, { frozen = false, reRank = true } = {}) {
+      return list.map((r, i) => `
+        <tr class="${frozen ? "frozen" : ""}">
+          <td>${reRank ? (i + 1) : (r.rank_calor ?? "—")}<span class="tag-motivo">#${r.rank_calor ?? "—"}</span></td>
+          <td class="santo" data-activo="${r.activo}">${r.activo}</td>
+          <td>${fmt(r.calor)}</td>
+          <td class="luz-${r.semaforo || ""}">${r.semaforo || "—"}</td>
+          <td>${fmt(r.efi_corta)}</td>
+          <td>${fmt(r.efi_media)}</td>
+          <td>${fmt(r.efi_larga)}</td>
+          <td>${r.cosechas_larga ?? "—"}</td>
+          <td>${fmt(r.neto_larga, 2)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function tableBlock(title, hint, list, sectionClass, opts) {
+      if (!list.length) return "";
+      return `<section class="section ${sectionClass}">
+        <h2>${title} <span class="tag-motivo">(${list.length})</span></h2>
+        <p class="hint">${hint}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Santo</th><th>Calor</th><th>Luz</th>
+              <th>Efi corta</th><th>Efi media</th><th>Efi larga</th>
+              <th>Cosechas</th><th>Neto</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHtml(list, opts)}</tbody>
+        </table>
+      </section>`;
+    }
+
+    function renderTable(data) {
+      const wrap = document.getElementById("table-wrap");
+      const meta = document.getElementById("meta");
+      const st = document.getElementById("status");
+      if (!data || !data.ranking || !data.ranking.length) {
+        wrap.innerHTML = `<div class="empty">${(data && data.nota) || "Sin ranking aún — slot no iniciado o vacío."}</div>`;
+        meta.innerHTML = "";
+        st.textContent = (data && data.estado) || "preparado";
+        st.className = "badge wait";
+        return;
+      }
+      const estado = data.estado || "?";
+      const cls = clasificar(data.ranking);
+      const showOficio = document.getElementById("show-oficio").checked;
+      const showVida = document.getElementById("show-vida").checked;
+
+      st.textContent = `${estado} · caza ${cls.caza.length} · nevera ${cls.oficio.length + cls.vida.length} · ${data.ts_utc || ""}`;
+      st.className = "badge " + (estado === "hecho" ? "ok" : estado === "corriendo" ? "run" : "wait");
+      const v = data.ventanas_dias || [];
+      meta.innerHTML = `
+        <span>Beru <strong>${data.beru_perfil || "—"}</strong></span>
+        <span>Tiempo <strong>${data.tiempo_perfil || "—"}</strong></span>
+        <span>Ventanas <strong>${v.join(" / ") || "—"}</strong></span>
+        <span>Filtros · calor &gt; <strong>${fmt(cls.umbrales.medCalor)}</strong>
+          · cosechas ≥ <strong>${fmt(cls.umbrales.minCos, 0)}</strong>
+          · sin TradeFi/stables</span>
+        <span>Geometría Vacío <strong>${fmt((data.geometria||{}).vacio_pct * 100, 1)}%</strong>
+          · Oz <strong>${fmt((data.geometria||{}).oz_gap_pct * 100, 1)}%</strong>
+          · Red <strong>${fmt((data.geometria||{}).red_activacion_pct * 100, 1)}%</strong></span>
+      `;
+
+      let html = tableBlock(
+        "Caza",
+        "Pasan oficio + vida. Meme/innovation OK si el zigzag aguanta.",
+        cls.caza,
+        "caza",
+        { frozen: false, reRank: true }
+      );
+      if (showOficio) {
+        html += tableBlock(
+          "Nevera · oficio",
+          "TradeFi, ETF, commodity, stables, apalancados listados — fuera del oficio Beru rango.",
+          cls.oficio,
+          "nevera oficio",
+          { frozen: true, reRank: false }
+        );
+      }
+      if (showVida) {
+        html += tableBlock(
+          "Nevera · vida baja",
+          "Calor ≤ mediana del pool cripto o pocas cosechas Oz en el horizonte largo.",
+          cls.vida,
+          "nevera vida",
+          { frozen: true, reRank: false }
+        );
+      }
+      if (!html) {
+        html = `<div class="empty">Todos los Santos están en nevera oculta — activa un estante arriba.</div>`;
+      }
+      wrap.innerHTML = html;
+      wrap.querySelectorAll("td.santo").forEach((td) => {
+        td.addEventListener("click", () => openDrawer(td.dataset.activo));
+      });
+    }
+
+    async function fetchSlot(id) {
+      try {
+        const r = await fetch(`matriz/${id}/checkpoint_parcial.json?t=${Date.now()}`, {
+          cache: "no-store",
+        });
+        if (!r.ok) throw new Error(String(r.status));
+        cache[id] = await r.json();
+      } catch (e) {
+        cache[id] = cache[id] || {
+          estado: "sin_datos",
+          nota: "Aún no hay parcial (o el server no ve la carpeta).",
+          ranking: [],
+        };
+      }
+    }
+
+    async function loadFichas() {
+      try {
+        const r = await fetch(`santos_ficha.json?t=${Date.now()}`, { cache: "no-store" });
+        if (!r.ok) return;
+        const j = await r.json();
+        fichas = j.por_base || {};
+      } catch (e) {
+        fichas = {};
+      }
+    }
+
+    async function tick() {
+      await Promise.all(SLOTS.map(fetchSlot));
+      renderCards();
+      renderTable(cache[active]);
+    }
+
+    document.querySelectorAll(".tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        active = btn.dataset.slot;
+        renderTable(cache[active]);
+      });
+    });
+    ["show-oficio", "show-vida"].forEach((id) => {
+      document.getElementById(id).addEventListener("change", () => renderTable(cache[active]));
+    });
+    document.getElementById("drawer-close").addEventListener("click", closeDrawer);
+    document.getElementById("drawer-bg").addEventListener("click", closeDrawer);
+
+    loadFichas().then(tick);
+    setInterval(tick, 3000);
+    setInterval(loadFichas, 60000);
+  </script>
+</body>
+</html>

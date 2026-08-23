@@ -2,7 +2,7 @@
   "name": "Shadow Army — Cascada de las Sombras",
   "short_name": "Shadow Army",
   "description": "Pergamino del Monarca · seis sellos · foto viva del ejército",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "id": "/",
   "scope": "/",
   "display": "standalone",
@@ -13,16 +13,22 @@
   "lang": "es",
   "icons": [
     {
-      "src": "/portales/igris.png",
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/portales/beru.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }

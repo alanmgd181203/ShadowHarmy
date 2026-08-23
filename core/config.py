@@ -121,15 +121,86 @@ BERU_RAFAGA_COOLDOWN_S = float(os.getenv("BERU_RAFAGA_COOLDOWN_S", "3") or 3)
 BERU_MANOS_PARALELAS = int(float(os.getenv("BERU_MANOS_PARALELAS", "8") or 8))
 # Si Bybit escupe 10006, ese Santo espera; los otros no se congelan.
 BERU_API_COOLDOWN_S = float(os.getenv("BERU_API_COOLDOWN_S", "0.5") or 0.5)
-# --- Beru rango (lineal, laterales) 2026-08-20 — oficio NUEVO, no cirugia del spot ---
-# Vacío 1.2 · Oz 0.2 detrás · Red 0.7 desde Oz · sangre 1.1 · masa fija · un vivo · sin engorde
-BERU_RANGO_VACIO_PCT = float(os.getenv("BERU_RANGO_VACIO_PCT", "0.012") or 0.012)
-BERU_RANGO_OZ_GAP_PCT = float(os.getenv("BERU_RANGO_OZ_GAP_PCT", "0.002") or 0.002)
-BERU_RANGO_RED_DESDE_OZ_PCT = float(os.getenv("BERU_RANGO_RED_DESDE_OZ_PCT", "0.007") or 0.007)
-BERU_RANGO_SANGRE_PCT = float(os.getenv("BERU_RANGO_SANGRE_PCT", "0.012") or 0.012)
-BERU_RANGO_MASA_USD = float(os.getenv("BERU_RANGO_MASA_USD", "10") or 10)
-BERU_RANGO_MASA_RED_USD = float(os.getenv("BERU_RANGO_MASA_RED_USD", "5") or 5)
-BERU_RANGO_TRAILING_PCT = float(os.getenv("BERU_RANGO_TRAILING_PCT", "0.002") or 0.002)
+# --- Beru rango (lineal) 2026-08-22 — wake eterno · Red desde Oz · engorde CAZANDO ---
+# Perfiles: normal (default) · feria (orejas x2 · engorde +$1/0.2% · masa $5)
+# Checkpoint normal: data/beru/rango/checkpoint_doctrina_normal.json
+BERU_RANGO_PERFILES = {
+    "normal": {
+        "VACIO_PCT": 0.012,
+        "OZ_GAP_PCT": 0.002,
+        "RED_DESDE_OZ_PCT": 0.007,
+        "SANGRE_PCT": 0.012,
+        "MASA_USD": 5.0,
+        "MASA_RED_USD": 5.0,
+        "MASA_SANGRE_USD": 5.0,
+        "ENGORDE_USD": 1.0,
+        "ENGORDE_PASO_PCT": 0.001,
+        "TRAILING_PCT": 0.002,
+    },
+    "feria": {
+        # Monedas violentas: silbatos duplicados · engorde más lento ($1 / 0.2%)
+        "VACIO_PCT": 0.024,
+        "OZ_GAP_PCT": 0.004,
+        "RED_DESDE_OZ_PCT": 0.014,
+        "SANGRE_PCT": 0.024,
+        "MASA_USD": 5.0,
+        "MASA_RED_USD": 5.0,
+        "MASA_SANGRE_USD": 5.0,
+        "ENGORDE_USD": 1.0,
+        "ENGORDE_PASO_PCT": 0.002,
+        "TRAILING_PCT": 0.004,
+    },
+}
+
+
+def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
+    """Aplica geometría de un perfil. Default = BERU_RANGO_PERFIL / normal.
+
+    No inventa números: solo 'normal' o 'feria'. Env individuales pisan
+    después si el Monarca las fija a propósito.
+    """
+    global BERU_RANGO_PERFIL, BERU_RANGO_VACIO_PCT, BERU_RANGO_OZ_GAP_PCT
+    global BERU_RANGO_RED_DESDE_OZ_PCT, BERU_RANGO_SANGRE_PCT
+    global BERU_RANGO_MASA_USD, BERU_RANGO_MASA_RED_USD, BERU_RANGO_MASA_SANGRE_USD
+    global BERU_RANGO_ENGORDE_USD, BERU_RANGO_ENGORDE_PASO_PCT, BERU_RANGO_TRAILING_PCT
+
+    nombre = str(perfil or os.getenv("BERU_RANGO_PERFIL", "normal") or "normal").strip().lower()
+    if nombre not in BERU_RANGO_PERFILES:
+        nombre = "normal"
+    p = BERU_RANGO_PERFILES[nombre]
+    BERU_RANGO_PERFIL = nombre
+    BERU_RANGO_VACIO_PCT = float(p["VACIO_PCT"])
+    BERU_RANGO_OZ_GAP_PCT = float(p["OZ_GAP_PCT"])
+    BERU_RANGO_RED_DESDE_OZ_PCT = float(p["RED_DESDE_OZ_PCT"])
+    BERU_RANGO_SANGRE_PCT = float(p["SANGRE_PCT"])
+    BERU_RANGO_MASA_USD = float(p["MASA_USD"])
+    BERU_RANGO_MASA_RED_USD = float(p["MASA_RED_USD"])
+    BERU_RANGO_MASA_SANGRE_USD = float(p["MASA_SANGRE_USD"])
+    BERU_RANGO_ENGORDE_USD = float(p["ENGORDE_USD"])
+    BERU_RANGO_ENGORDE_PASO_PCT = float(p["ENGORDE_PASO_PCT"])
+    BERU_RANGO_TRAILING_PCT = float(p["TRAILING_PCT"])
+    # Overrides explícitos del entorno (solo si el Monarca los puso)
+    if os.getenv("BERU_RANGO_VACIO_PCT"):
+        BERU_RANGO_VACIO_PCT = float(os.getenv("BERU_RANGO_VACIO_PCT") or BERU_RANGO_VACIO_PCT)
+    if os.getenv("BERU_RANGO_OZ_GAP_PCT"):
+        BERU_RANGO_OZ_GAP_PCT = float(os.getenv("BERU_RANGO_OZ_GAP_PCT") or BERU_RANGO_OZ_GAP_PCT)
+    if os.getenv("BERU_RANGO_RED_DESDE_OZ_PCT"):
+        BERU_RANGO_RED_DESDE_OZ_PCT = float(
+            os.getenv("BERU_RANGO_RED_DESDE_OZ_PCT") or BERU_RANGO_RED_DESDE_OZ_PCT
+        )
+    if os.getenv("BERU_RANGO_SANGRE_PCT"):
+        BERU_RANGO_SANGRE_PCT = float(os.getenv("BERU_RANGO_SANGRE_PCT") or BERU_RANGO_SANGRE_PCT)
+    if os.getenv("BERU_RANGO_ENGORDE_PASO_PCT"):
+        BERU_RANGO_ENGORDE_PASO_PCT = float(
+            os.getenv("BERU_RANGO_ENGORDE_PASO_PCT") or BERU_RANGO_ENGORDE_PASO_PCT
+        )
+    if os.getenv("BERU_RANGO_TRAILING_PCT"):
+        BERU_RANGO_TRAILING_PCT = float(os.getenv("BERU_RANGO_TRAILING_PCT") or BERU_RANGO_TRAILING_PCT)
+    return nombre
+
+
+BERU_RANGO_PERFIL = str(os.getenv("BERU_RANGO_PERFIL", "normal") or "normal").strip().lower()
+aplicar_perfil_beru_rango(BERU_RANGO_PERFIL)
 BERU_RANGO_ACTIVO = os.getenv("BERU_RANGO_ACTIVO", "ETH").upper()
 BERU_RANGO_MANOS = os.getenv("BERU_RANGO_MANOS", "false").lower() == "true"
 BERU_RANGO_HILO = os.getenv("BERU_RANGO_HILO", "false").lower() == "true"
@@ -727,6 +798,12 @@ BRIDGE_WS_SOLO_SPOT = os.getenv("BRIDGE_WS_SOLO_SPOT", "false").lower() == "true
 BRIDGE_WS_PUBLIC_TRADES_SPOT = os.getenv(
     "BRIDGE_WS_PUBLIC_TRADES_SPOT", "false"
 ).lower() == "true"
+# Tratos públicos lineal (mecha Beru rango). Tickers siguen; esto oye roces.
+BRIDGE_WS_PUBLIC_TRADES_LINEAR = os.getenv(
+    "BRIDGE_WS_PUBLIC_TRADES_LINEAR", "false"
+).lower() == "true"
+# Ritual Beru rango: solo lineal USDT (ciego a spot/inverso en el puente).
+BRIDGE_WS_SOLO_LINEAR = os.getenv("BRIDGE_WS_SOLO_LINEAR", "false").lower() == "true"
 
 # Bybit HTTP: recv_window (ms). Skew ~5s del Mac→10002; 60s da colchón.
 BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))

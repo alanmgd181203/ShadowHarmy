@@ -1,0 +1,159 @@
+{
+  "meta": {
+    "version": "teatro_beru_rango_juicio_v1",
+    "ts_utc": "2026-08-21T06:34:03.811365+00:00",
+    "actor": "Beru rango (trailing activacion + Oz callback)",
+    "mercado": "linear_1m_boveda",
+    "geometria": {
+      "oficio": "RANGO",
+      "mercado": "linear",
+      "vacio_pct": 0.012,
+      "vacio_rol": "activacion_trailing",
+      "oz_gap_pct": 0.002,
+      "oz_modo": "trailing_callback",
+      "red_activacion_pct": 0.007,
+      "red_desde_oz_pct": 0.007,
+      "red_modo": "trailing",
+      "red_callback_pct": 0.002,
+      "sangre_pct": 0.012,
+      "sangre_rol": "activacion_trailing",
+      "masa_usd": 10.0,
+      "masa_red_usd": 5.0,
+      "trailing_pct": 0.002,
+      "engorde": 0.0,
+      "ladder_red": "si"
+    },
+    "horizonte_dias": 3,
+    "calor": {
+      "3d": 0.2,
+      "30d": 0.5,
+      "horizonte": 0.3
+    },
+    "metrica": "botin_neto_trail_Oz / (masa_vacio + masa_red)",
+    "fee_pct": 0.0006,
+    "fin_ts": 1787292120,
+    "pase": "NO modifica manos ni pase"
+  },
+  "ranking": [
+    {
+      "activo": "HYPE",
+      "datos": "OK",
+      "calor": 0.0882,
+      "margen_usd": 15.0,
+      "d3": {
+        "activo": "HYPE",
+        "datos": "OK",
+        "velas": 4227,
+        "latidos": 16908,
+        "cosechas": 134,
+        "armados_red": 79,
+        "armados_sangre": 54,
+        "armados_vacio": 1,
+        "botin_bruto_usd": 1.89,
+        "fees_usd": 0.567,
+        "botin_neto_usd": 1.323,
+        "eficiencia": 0.0882,
+        "margen_usd": 15.0,
+        "fee_pct": 0.0006
+      },
+      "m30": {
+        "activo": "HYPE",
+        "datos": "OK",
+        "velas": 4227,
+        "latidos": 16908,
+        "cosechas": 134,
+        "armados_red": 79,
+        "armados_sangre": 54,
+        "armados_vacio": 1,
+        "botin_bruto_usd": 1.89,
+        "fees_usd": 0.567,
+        "botin_neto_usd": 1.323,
+        "eficiencia": 0.0882,
+        "margen_usd": 15.0,
+        "fee_pct": 0.0006
+      },
+      "horizonte": {
+        "activo": "HYPE",
+        "datos": "OK",
+        "velas": 4227,
+        "latidos": 16908,
+        "cosechas": 134,
+        "armados_red": 79,
+        "armados_sangre": 54,
+        "armados_vacio": 1,
+        "botin_bruto_usd": 1.89,
+        "fees_usd": 0.567,
+        "botin_neto_usd": 1.323,
+        "eficiencia": 0.0882,
+        "margen_usd": 15.0,
+        "fee_pct": 0.0006
+      },
+      "rank_calor": 1,
+      "semaforo": "VERDE"
+    },
+    {
+      "activo": "ETH",
+      "datos": "OK",
+      "calor": 0.035,
+      "margen_usd": 15.0,
+      "d3": {
+        "activo": "ETH",
+        "datos": "OK",
+        "velas": 4222,
+        "latidos": 16888,
+        "cosechas": 57,
+        "armados_red": 39,
+        "armados_sangre": 17,
+        "armados_vacio": 1,
+        "botin_bruto_usd": 0.75,
+        "fees_usd": 0.225,
+        "botin_neto_usd": 0.525,
+        "eficiencia": 0.035,
+        "margen_usd": 15.0,
+        "fee_pct": 0.0006
+      },
+      "m30": {
+        "activo": "ETH",
+        "datos": "OK",
+        "velas": 4222,
+        "latidos": 16888,
+        "cosechas": 57,
+        "armados_red": 39,
+        "armados_sangre": 17,
+        "armados_vacio": 1,
+        "botin_bruto_usd": 0.75,
+        "fees_usd": 0.225,
+        "botin_neto_usd": 0.525,
+        "eficiencia": 0.035,
+        "margen_usd": 15.0,
+        "fee_pct": 0.0006
+      },
+      "horizonte": {
+        "activo": "ETH",
+        "datos": "OK",
+        "velas": 4222,
+        "latidos": 16888,
+        "cosechas": 57,
+        "armados_red": 39,
+        "armados_sangre": 17,
+        "armados_vacio": 1,
+        "botin_bruto_usd": 0.75,
+        "fees_usd": 0.225,
+        "botin_neto_usd": 0.525,
+        "eficiencia": 0.035,
+        "margen_usd": 15.0,
+        "fee_pct": 0.0006
+      },
+      "rank_calor": 2,
+      "semaforo": "AMARILLO"
+    }
+  ],
+  "candidatos_top20": [
+    "HYPE",
+    "ETH"
+  ],
+  "candidatos_top50": [
+    "HYPE",
+    "ETH"
+  ]
+}

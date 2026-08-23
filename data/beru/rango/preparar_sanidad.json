@@ -1,0 +1,86 @@
+{
+  "ts": 1787423318.1707032,
+  "ts_utc": "2026-08-22T18:28:38.170706+00:00",
+  "ok": true,
+  "fallos": 0,
+  "checks": [
+    {
+      "check": "doctrina",
+      "ok": true,
+      "detalle": "geo={'cero': 'wake', 'nacimiento': 'cinco_usd', 'engorde': 'desde_activacion', 'saco_techo': 'meta_menos_ya', 'masa_usd': 5.0, 'vacio_pct': 0.012, 'red_activacion_pct': 0.007}"
+    },
+    {
+      "check": "manos_off",
+      "ok": true,
+      "detalle": "BERU_RANGO_MANOS=False"
+    },
+    {
+      "check": "bridge_propio_por_santo",
+      "ok": true,
+      "detalle": "ids_distintos=3 bases=[('AAA',), ('BBB',), ('CCC',)]"
+    },
+    {
+      "check": "paths_por_santo",
+      "ok": true,
+      "detalle": "ej=ojos_eventos.jsonl vs ojos_eventos.jsonl"
+    },
+    {
+      "check": "scripts",
+      "ok": true,
+      "detalle": "ojos=True manos=True juicio=True"
+    },
+    {
+      "check": "boveda_linear",
+      "ok": true,
+      "detalle": "bases=513 velas=171262041 err=—"
+    },
+    {
+      "check": "juicio_import",
+      "ok": true,
+      "detalle": "simular_rango_juicio OK · fill≠wake en cosecha"
+    }
+  ],
+  "geometria": {
+    "oficio": "RANGO",
+    "mercado": "linear",
+    "vacio_pct": 0.012,
+    "vacio_rol": "activacion_trailing",
+    "oz_gap_pct": 0.002,
+    "oz_modo": "trailing_callback",
+    "red_activacion_pct": 0.007,
+    "red_desde_oz_pct": 0.007,
+    "red_modo": "trailing",
+    "red_callback_pct": 0.002,
+    "sangre_pct": 0.012,
+    "sangre_rol": "activacion_trailing",
+    "masa_usd": 5.0,
+    "masa_red_usd": 5.0,
+    "masa_sangre_usd": 5.0,
+    "trailing_pct": 0.002,
+    "engorde_usd": 1.0,
+    "engorde_paso_pct": 0.001,
+    "cero": "wake",
+    "nacimiento": "cinco_usd",
+    "engorde": "desde_activacion",
+    "saco_techo": "meta_menos_ya",
+    "ladder_red": "si"
+  },
+  "boveda": {
+    "ok": true,
+    "bases": 513,
+    "velas": 171262041,
+    "error": ""
+  },
+  "arquitectura": {
+    "ojos": "bridge_propio_por_santo",
+    "manos": "un_santo_por_proceso_hasta_GO",
+    "panel": "rango_vivo.json merge",
+    "teatro": "teatro_beru_rango_juicio.py perfil reciente"
+  },
+  "listo_para": {
+    "ojos_cuando_nombres": "python scripts/arise_beru_rango_ojos.py --santos A,B,C",
+    "juicio_ahora": "python -u scripts/teatro_beru_rango_juicio.py --perfil reciente",
+    "manos_solo_con_go": "python scripts/arise_beru_rango_manos.py --activo X --manos-go"
+  },
+  "nota": "Ejército formado en patio. Sin wake. Cada Santo pedirá a la API con su propio puente cuando nombres la lista."
+}

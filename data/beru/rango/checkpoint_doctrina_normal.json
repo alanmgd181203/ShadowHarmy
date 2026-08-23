@@ -1,0 +1,24 @@
+{
+  "sello": "2026-08-22",
+  "perfil": "normal",
+  "nota": "Checkpoint Monarca: Beru rango canónico intacto. Perfil feria vive en paralelo (BERU_RANGO_PERFIL=feria).",
+  "geometria": {
+    "vacio_sangre_pct": 0.012,
+    "oz_callback_pct": 0.002,
+    "red_pct": 0.007,
+    "masa_nacimiento_usd": 5.0,
+    "engorde_usd": 1.0,
+    "engorde_paso_pct": 0.001,
+    "cero": "wake_eterno",
+    "saco_techo": "meta_menos_ya"
+  },
+  "feria_paralelo": {
+    "activar": "BERU_RANGO_PERFIL=feria",
+    "vacio_sangre_pct": 0.024,
+    "oz_callback_pct": 0.004,
+    "red_pct": 0.014,
+    "masa_nacimiento_usd": 5.0,
+    "engorde_usd": 1.0,
+    "engorde_paso_pct": 0.002
+  }
+}

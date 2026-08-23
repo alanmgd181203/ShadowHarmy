@@ -6,14 +6,13 @@ import {
   fmtPct,
   fmtNum,
   detalleCosecha,
+  cargarSnapBeru,
 } from "./beruAssetDetailModel.js";
 import FotoCruda from "./FotoCruda.jsx";
 import BeruSpotChart from "./BeruSpotChart.jsx";
 
-const ESTADO_URL = "/data/estado_vivo.json";
-
 /**
- * Sub-Santuario Beru — ficha por moneda (caza / neg / red engorde / gráfica).
+ * Sub-Santuario Beru — ficha por moneda (caza / rango / red / gráfica).
  */
 export default function BeruAssetDetail({ symbol, onClose, onChart }) {
   const [visible, setVisible] = useState(false);
@@ -29,19 +28,14 @@ export default function BeruAssetDetail({ symbol, onClose, onChart }) {
     let alive = true;
     async function load() {
       try {
-        const res = await fetch(`${ESTADO_URL}?t=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) {
-          if (alive) setData(snapshotCero(symbol));
-          return;
-        }
-        const snap = await res.json();
+        const snap = await cargarSnapBeru();
         if (alive) setData(desdeEstadoVivo(symbol, snap));
       } catch {
         if (alive) setData(snapshotCero(symbol));
       }
     }
     load();
-    const t = setInterval(load, 3000);
+    const t = setInterval(load, 2000);
     return () => {
       alive = false;
       clearInterval(t);
@@ -126,11 +120,19 @@ export default function BeruAssetDetail({ symbol, onClose, onChart }) {
           )}
         </Section>
 
-        <Section title="Velas de spot + combate">
-          <BeruSpotChart symbol={data.symbol || symbol} grafica={graf} altura={280} />
+        <Section title={String(data.oficio || "").toUpperCase() === "RANGO" ? "Velas linear + combate rango" : "Velas de spot + combate"}>
+          <BeruSpotChart
+            symbol={data.symbol || symbol}
+            grafica={graf}
+            altura={280}
+            category={String(data.oficio || graf?.oficio || "").toUpperCase() === "RANGO" || data.mercado === "linear" ? "linear" : "spot"}
+            leyendaRango={String(data.oficio || graf?.oficio || "").toUpperCase() === "RANGO"}
+            reglaManto={String(data.oficio || "").toUpperCase() !== "RANGO"}
+          />
           <p className="text-[10px] text-white/30 mt-2 leading-relaxed">
-            Velas de la casa spot. Las rayas son el combate: manto, wake, Vacío, Hoz y Red.
-            No es el gráfico del celular de Bybit.
+            {String(data.oficio || "").toUpperCase() === "RANGO"
+              ? "Rayas: 0, Sangre, Red, Oz. Toca el lado derecho de la gráfica → % vs last."
+              : "Velas spot + combate. Lado derecho → % vs last. Asa blanca → metro del manto."}
           </p>
         </Section>
 

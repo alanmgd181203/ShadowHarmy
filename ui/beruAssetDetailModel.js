@@ -199,6 +199,26 @@ function cazasDeCronica(cronica, tsCorte) {
 
 function geometriaNiveles(snap, vivo) {
   const g = snap?.grafica && typeof snap.grafica === "object" ? snap.grafica : {};
+  // Oficio rango: niveles ya vienen armados (0 / sangre / Red / Oz).
+  if (
+    String(g.oficio || snap?.oficio || "").toUpperCase() === "RANGO" &&
+    Array.isArray(g.niveles) &&
+    g.niveles.length
+  ) {
+    const cero = Number(vivo?.ancla_tramo || vivo?.centro_local || g.centro_0) || 0;
+    const tsCorte = tsCorteDe(snap);
+    const cazasRaw = Array.isArray(g.cazas) ? g.cazas : [];
+    const cazas = (cazasRaw.length ? cazasRaw : cazasDeCronica(snap?.cronica, tsCorte)).filter(
+      (c) => !(tsCorte > 0 && Number(c.ts) + 1e-6 < tsCorte),
+    );
+    const out = { ...g, niveles: g.niveles.slice(), cazas };
+    if (cero > 0) {
+      out.centro_0 = cero;
+      out.centro_wake = cero;
+      out.centro_manto = Number(g.centro_manto) || cero;
+    }
+    return out;
+  }
   const niveles = [];
   for (const n of Array.isArray(g.niveles) ? g.niveles : []) {
     const rol = String(n?.rol || "");
@@ -390,10 +410,15 @@ function ultimaLecturasDe(det) {
 }
 
 /**
- * Flota para el Pergamino: solo Santos con Beru y manto.
- * Si la foto vieja no trae grado, se lee de la ficha / legión (nunca 00).
+ * Flota para el Pergamino.
+ * Si hay Beru rango vivo → solo esos Santos activos (hoy HYPE).
+ * Si no → flota cazador legacy (con manto).
  */
 export function flotaDesdeEstado(snap) {
+  const rango = snap?.beru_rango;
+  if (rango && Array.isArray(rango.activos) && rango.activos.length) {
+    return flotaDesdeRango(snap, rango);
+  }
   const f = snap?.beru_flota || {};
   const details = snap?.beru_asset_details || {};
   const legion = Array.isArray(snap?.legion) ? snap.legion : [];
@@ -438,6 +463,72 @@ export function flotaDesdeEstado(snap) {
       ultima_lecturas: row.ultima_lecturas || ultimaLecturasDe(det),
     });
   }
+  return cerrarFlota(activos, f.semilla || snap?.ticker_base || "ETH");
+}
+
+function flotaDesdeRango(snap, rango) {
+  const details = {
+    ...(snap?.beru_asset_details || {}),
+    ...(rango.details || {}),
+  };
+  const activos = [];
+  for (const row of rango.activos || []) {
+    const act = String(row?.activo || "").toUpperCase();
+    if (!act) continue;
+    const detRaw = details[act] && typeof details[act] === "object" ? details[act] : {};
+    const det = enriquecerSnapshot({
+      ...snapshotCero(act),
+      ...detRaw,
+      symbol: act,
+      oficio: "RANGO",
+    });
+    const vivo = barcoVivoDe(det.barcos) || {};
+    const oficio = String(row.oficio || oficioDe(row, det, vivo) || "acechando").toLowerCase();
+    const last = Number(row.last ?? det.spot_last ?? det.last_lineal) || 0;
+    const cero = Number(row.cero ?? vivo.centro_local) || 0;
+    let dist = 1e9;
+    if (last > 0 && cero > 0) {
+      for (const n of det.grafica?.niveles || []) {
+        const rol = String(n?.rol || "");
+        if (!["vacio", "red", "oz"].includes(rol)) continue;
+        const px = Number(n?.precio) || 0;
+        if (!(px > 0)) continue;
+        const d = Math.abs(last - px) / cero;
+        if (d < dist) dist = d;
+      }
+    }
+    activos.push({
+      ...row,
+      activo: act,
+      n_barcos: 1,
+      centro_manto: cero,
+      grado: "GENERAL",
+      oficio,
+      engorde_paso_usd: 0,
+      n_cazas: Number(row.n_cazas ?? row.cosechas) || 0,
+      saco_usd: Number(vivo.masa) || Number(det.G_min) || 10,
+      dist_silbato: dist < 1e8 ? dist : null,
+      calor_banda: calorBanda(oficio, vivo, dist),
+      es_relevo: false,
+      mercado: "linear",
+      oficio_beru: "RANGO",
+      last,
+      cero,
+      red: Number(row.red) || 0,
+      oz: Number(row.oz) || 0,
+      sangre_lado: row.sangre_lado || "",
+      manos: Boolean(row.manos ?? det.manos),
+      ultima_lecturas: null,
+    });
+  }
+  return cerrarFlota(activos, rango.activo_foco || "HYPE", {
+    modo: "RANGO",
+    latido_vivo: Boolean(rango.latido_vivo),
+    ts: rango.ts,
+  });
+}
+
+function cerrarFlota(activos, semilla, extra = {}) {
   activos.sort((a, b) => {
     const rank = (of) => {
       const o = String(of || "").toLowerCase();
@@ -458,13 +549,45 @@ export function flotaDesdeEstado(snap) {
     if (conteo[a.grado] != null) conteo[a.grado] += 1;
   }
   return {
-    semilla: f.semilla || snap?.ticker_base || "ETH",
+    semilla,
     n_activos: activos.length,
     n_barcos_total: activos.reduce((s, a) => s + (Number(a.n_barcos) || 0), 0),
     n_santos: activos.length,
     conteo_grados: conteo,
     activos,
+    ...extra,
   };
+}
+
+/** Une estado_vivo + foto rango (solo activos del oficio nuevo). */
+export async function cargarSnapBeru() {
+  const out = {};
+  try {
+    const res = await fetch(`/data/estado_vivo.json?t=${Date.now()}`, { cache: "no-store" });
+    if (res.ok) Object.assign(out, await res.json());
+  } catch {
+    /* silencio */
+  }
+  try {
+    const res = await fetch(`/data/beru/rango_vivo.json?t=${Date.now()}`, { cache: "no-store" });
+    if (res.ok) {
+      const r = await res.json();
+      out.beru_rango = r;
+      if (Array.isArray(r?.activos) && r.activos.length) {
+        out.beru_flota = {
+          activos: r.activos,
+          semilla: r.activo_foco || "HYPE",
+        };
+        out.beru_asset_details = {
+          ...(out.beru_asset_details || {}),
+          ...(r.details || {}),
+        };
+      }
+    }
+  } catch {
+    /* silencio */
+  }
+  return out;
 }
 
 export function detalleCosecha(ev) {

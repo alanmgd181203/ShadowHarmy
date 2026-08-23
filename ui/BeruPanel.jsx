@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import BeruAssetDetail from "./BeruAssetDetail.jsx";
 import BeruChartScreen from "./BeruChartScreen.jsx";
-import { flotaDesdeEstado, fmtUsd, fmtDistSilbato } from "./beruAssetDetailModel.js";
+import { flotaDesdeEstado, fmtUsd, fmtDistSilbato, cargarSnapBeru } from "./beruAssetDetailModel.js";
 import { nombreGrado } from "./beruMantoRegla.js";
-
-const ESTADO_URL = "/data/estado_vivo.json";
 
 const COLOR_GRADO = {
   SOLDADO: "#1e3a5f",
@@ -51,16 +49,14 @@ export default function BeruPanel({ onClose }) {
     let alive = true;
     async function load() {
       try {
-        const res = await fetch(`${ESTADO_URL}?t=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) return;
-        const snap = await res.json();
+        const snap = await cargarSnapBeru();
         if (alive) setFlota(flotaDesdeEstado(snap));
       } catch {
         /* silencio */
       }
     }
     load();
-    const t = setInterval(load, 3000);
+    const t = setInterval(load, 2000);
     return () => {
       alive = false;
       clearInterval(t);
@@ -185,7 +181,7 @@ export default function BeruPanel({ onClose }) {
       <div className="px-4 pt-4 pb-10 space-y-2">
         {activos.length === 0 ? (
           <p className="text-center text-white/40 text-sm py-8">
-            {filtroGrado ? "Ningún Santo de este rango." : "Legión vacía — esperando semilla."}
+            {filtroGrado ? "Ningún Santo de este rango." : "Nadie activo — Beru rango en silencio."}
           </p>
         ) : (
           activos.map((a) => {
@@ -216,10 +212,12 @@ export default function BeruPanel({ onClose }) {
                     type="button"
                     onClick={() => setSelected({ symbol: a.activo, vista: "chart" })}
                     className="text-lg font-semibold tracking-wide text-left active:scale-[0.98]"
-                    aria-label={`Velas spot ${a.activo}`}
+                    aria-label={`Velas ${a.activo}`}
                   >
                     {a.activo}
-                    {a.es_semilla ? (
+                    {a.oficio_beru === "RANGO" ? (
+                      <span className="ml-2 text-[10px] uppercase text-cyan-400/80">rango</span>
+                    ) : a.es_semilla ? (
                       <span className="ml-2 text-[10px] uppercase text-emerald-400/80">semilla</span>
                     ) : null}
                   </button>
@@ -227,9 +225,11 @@ export default function BeruPanel({ onClose }) {
                     type="button"
                     onClick={() => setSelected({ symbol: a.activo, vista: "ficha" })}
                     className="text-xs text-white/70 tabular-nums active:scale-[0.98]"
-                    aria-label={`Saco Hoz ${a.activo}`}
+                    aria-label={`Precio ${a.activo}`}
                   >
-                    {fmtUsd(cerrado ? null : saco)}
+                    {a.oficio_beru === "RANGO"
+                      ? (a.last > 0 ? Number(a.last).toFixed(2) : "—")
+                      : fmtUsd(cerrado ? null : saco)}
                   </button>
                 </div>
                 <button
@@ -245,21 +245,34 @@ export default function BeruPanel({ onClose }) {
                       textShadow: mariscal ? "0 0 10px rgba(103,232,249,0.55)" : "none",
                     }}
                   >
-                    {rango === "00" ? "" : rango}
-                    {!cerrado && Number.isFinite(paso) && paso > 0 ? (
+                    {a.oficio_beru === "RANGO"
+                      ? `0=${a.cero > 0 ? Number(a.cero).toFixed(2) : "—"} · Red=${a.red > 0 ? Number(a.red).toFixed(2) : "—"}`
+                      : rango === "00"
+                        ? ""
+                        : rango}
+                    {a.oficio_beru === "RANGO" && a.sangre_lado ? (
+                      <span className="ml-2 text-[11px] font-normal opacity-90">
+                        sangre {a.sangre_lado}
+                      </span>
+                    ) : !cerrado && Number.isFinite(paso) && paso > 0 ? (
                       <span className="ml-2 text-[11px] font-normal tabular-nums opacity-90">
                         +{fmtUsd(paso)} / 0,1
                       </span>
                     ) : null}
                   </p>
                   <div className="flex justify-between text-[11px] text-white/55">
-                    <span>{etiquetaOficio(a.oficio)}</span>
+                    <span>
+                      {etiquetaOficio(a.oficio)}
+                      {a.manos ? " · manos ON" : ""}
+                    </span>
                     <span className="tabular-nums">
-                      {cerrado
-                        ? (cazas > 0 ? `${cazas} ${cazas === 1 ? "caza" : "cazas"}` : "")
-                        : distTxt
-                          ? distTxt
-                          : `${cazas} ${cazas === 1 ? "caza" : "cazas"}`}
+                      {a.oficio_beru === "RANGO"
+                        ? (cazas > 0 ? `${cazas} oz` : distTxt || "")
+                        : cerrado
+                          ? (cazas > 0 ? `${cazas} ${cazas === 1 ? "caza" : "cazas"}` : "")
+                          : distTxt
+                            ? distTxt
+                            : `${cazas} ${cazas === 1 ? "caza" : "cazas"}`}
                     </span>
                   </div>
                   {a.ultima_lecturas ? (

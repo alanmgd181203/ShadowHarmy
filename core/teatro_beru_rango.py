@@ -132,7 +132,7 @@ def _niveles_de(
             out["sangre"] = cero * (1 + sang)
         out["labels"] = {
             "cero": "0 = Oz",
-            "sangre": f"Sangre act. {sang*100:.1f}% → trail $10",
+            "sangre": f"Sangre act. {sang*100:.1f}% → trail $5",
             "red": (
                 f"Red act. {beru_rango.red_activacion_pct()*100:.1f}% → "
                 f"trail callback {beru_rango.trailing_dist_pct()*100:.1f}% · $5"
@@ -166,17 +166,19 @@ def _narrar_armar(beru, origen: str, precio: float, precio_antes: float) -> tupl
         detalle = (
             f"Precio {_fmt_px(precio_antes)} → {_fmt_px(precio)}. "
             f"Toco la activacion Red (0,7% desde la Oz). "
-            f"Enciende trailing {d} ${beru.masa:.2f}: callback {trail*100:.1f}% "
+            f"Trailing {d} ${beru.masa:.2f} (nace $5; engorde desde activacion; techo meta−saco): "
+            f"callback {trail*100:.1f}% "
             f"(Oz ahora {_fmt_px(oz)} detrás de extremo {_fmt_px(extremo)}). "
-            f"Si sigue, la Oz persigue; al voltear y tocar Oz, entra el ${beru.masa:.0f}."
+            f"Si sigue, la Oz persigue; al voltear y tocar Oz, entra."
         )
         return titulo, detalle
     if origen.startswith("VACIO"):
         titulo = f"Vacío act. {lado} — trailing {d} ${beru.masa:.0f}"
         detalle = (
             f"Precio {_fmt_px(precio_antes)} → {_fmt_px(precio)}. "
-            f"Activacion Vacío ±{vac*100:.1f}% enciende trailing {d} ${beru.masa:.2f}: "
-            f"callback {trail*100:.1f}% · Oz {_fmt_px(oz)} (extremo {_fmt_px(extremo)}). "
+            f"Activacion Vacío ±{vac*100:.1f}%: trailing {d} ${beru.masa:.2f} "
+            f"(nace $5; engorde luego desde activacion). "
+            f"Callback {trail*100:.1f}% · Oz {_fmt_px(oz)} (extremo {_fmt_px(extremo)}). "
             f"Persigue si sigue; al tocar la Oz, entra."
         )
     else:
@@ -184,8 +186,8 @@ def _narrar_armar(beru, origen: str, precio: float, precio_antes: float) -> tupl
         detalle = (
             f"Precio {_fmt_px(precio_antes)} → {_fmt_px(precio)}. "
             f"Activacion sangre {beru_rango.sangre_contraria_pct()*100:.1f}%: "
-            f"trailing {d} ${beru.masa:.2f} (callback {trail*100:.1f}%). "
-            f"La Red que esperaba mas shorts/longs se elimino."
+            f"trailing {d} ${beru.masa:.2f} (nace $5; engorde luego desde activacion). "
+            f"La Red que esperaba se elimino."
         )
     return titulo, detalle
 
@@ -198,17 +200,19 @@ def _narrar_oz(
     direccion: str,
     masa: float,
     red_tramo: float,
+    wake: float | None = None,
 ) -> tuple[str, str]:
     lado = str(getattr(beru, "sangre_lado", "") or "")
     sang = beru_rango.sangre_contraria_pct()
-    sangre_px = fill * (1 - sang) if lado == "ABAJO" else fill * (1 + sang)
+    wake_px = float(wake or 0) or beru_rango.cero_wake(beru) or float(fill or 0)
+    sangre_px = wake_px * (1 - sang) if lado == "ABAJO" else wake_px * (1 + sang)
     red_act = float(getattr(beru, "red_adan", 0) or 0)
     trail = beru_rango.trailing_dist_pct()
     titulo = f"Callback Oz — {direccion} ${masa:.0f}"
     detalle = (
         f"El trailing se disparo ({_fmt_px(precio_antes)} → Oz {_fmt_px(fill)}). "
-        f"Entra {direccion} ${masa:.0f}. 0 = {_fmt_px(fill)}. "
-        f"Planta: sangre act. {lado} {sang*100:.1f}% → {_fmt_px(sangre_px)} (trail $10), "
+        f"Entra {direccion} ${masa:.0f}. wake/0 = {_fmt_px(wake_px)} (eterno). "
+        f"Planta: sangre act. {lado} {sang*100:.1f}% → {_fmt_px(sangre_px)} (trail $5), "
         f"y Red trailing act. {_fmt_px(red_act)} "
         f"(0,7% · callback {trail*100:.1f}% · $5). "
         f"Si sangre gana primero, la Red se cancela."
@@ -307,7 +311,7 @@ async def simular_rango(
             f"(arriba {_fmt_px(px0*(1+vac))}, abajo {_fmt_px(px0*(1-vac))}). "
             f"Masa por tramo ${beru_rango.masa_tramo_usd():.2f}. "
             f"Al tocar un lado, el otro se pega a ±1,2% de la Oz. "
-            f"Un vivo, sin engorde."
+            f"Un vivo · wake eterno · engorde $1/0.1%."
         ),
         precio=px0,
         niveles=_niveles_de(beru),
@@ -372,7 +376,15 @@ async def simular_rango(
                 ))
             elif ev == "OZ_COSECHA":
                 cosechas += 1
-                fill = float(r.get("cero") or beru.centro_local or px)
+                # Tras cirugía: cero=wake; fill/oz = peldaño de entrada
+                wake = float(r.get("cero") or beru_rango.cero_wake(beru) or 0)
+                fill = float(
+                    r.get("fill")
+                    or r.get("oz")
+                    or r.get("oz_despliegue")
+                    or oz_pre
+                    or px
+                )
                 d_mark = dir_pre or str(getattr(beru, "ultima_hoz_direccion", "") or "")
                 red_mark = red_pre or float(getattr(beru, "red_adan", 0) or fill)
                 masa_mark = float(r.get("masa_hecha") or masa_pre or beru_rango.masa_tramo_usd())
@@ -384,6 +396,7 @@ async def simular_rango(
                     direccion=d_mark or "OZ",
                     masa=masa_mark,
                     red_tramo=red_mark,
+                    wake=wake,
                 )
                 marca = {
                     "i": i,
@@ -433,6 +446,145 @@ async def simular_rango(
             }
             for e in eventos
         ],
+    }
+
+
+async def simular_rango_juicio(
+    candles: list[tuple[int, float, float, float, float]],
+    *,
+    activo: str = "ETH",
+    fee_pct: float = 0.0006,
+) -> dict[str, Any]:
+    """Juicio ligero: botín papel de las Oz (sin HTML ni serie de precios)."""
+    latidos = expandir_ohlc(candles)
+    if not latidos:
+        return {
+            "activo": str(activo).upper(),
+            "datos": "INSUFICIENTES",
+            "velas": len(candles),
+            "latidos": 0,
+            "cosechas": 0,
+            "armados_red": 0,
+            "armados_sangre": 0,
+            "armados_vacio": 0,
+            "botin_bruto_usd": 0.0,
+            "fees_usd": 0.0,
+            "botin_neto_usd": 0.0,
+            "eficiencia": 0.0,
+            "margen_usd": 0.0,
+            "pico_saco_long_usd": 0.0,
+            "pico_saco_short_usd": 0.0,
+            "pico_lado_long_usd": 0.0,
+            "pico_lado_short_usd": 0.0,
+            "pico_lado_usd": 0.0,
+        }
+
+    tank = _Tank()
+    g = BeruRango(object(), _BelMudo(), tank, bridge=None)
+    import core.config as config
+
+    prev = getattr(config, "BERU_RANGO_BITACORA", True)
+    config.BERU_RANGO_BITACORA = False
+    fee = max(0.0, float(fee_pct or 0.0))
+    margen = float(beru_rango.masa_tramo_usd()) + float(beru_rango.masa_red_usd())
+
+    cosechas = 0
+    armados_red = 0
+    armados_sangre = 0
+    armados_vacio = 0
+    bruto = 0.0
+    fees = 0.0
+    pico_saco_long = 0.0
+    pico_saco_short = 0.0
+    pico_lado_long = 0.0
+    pico_lado_short = 0.0
+
+    def _tomar_picos(beru: Any) -> None:
+        nonlocal pico_saco_long, pico_saco_short, pico_lado_long, pico_lado_short
+        if beru is None:
+            return
+        sl = float(beru_rango.saco_lado_usd(beru, "LONG"))
+        ss = float(beru_rango.saco_lado_usd(beru, "SHORT"))
+        pico_saco_long = max(pico_saco_long, sl)
+        pico_saco_short = max(pico_saco_short, ss)
+        masa = float(getattr(beru, "masa", 0) or 0)
+        d = str(getattr(beru, "direccion", "") or "").upper()
+        est = str(getattr(beru, "estado", "") or "").upper()
+        viva_l = masa if (est == "CAZANDO" and d == "LONG") else 0.0
+        viva_s = masa if (est == "CAZANDO" and d == "SHORT") else 0.0
+        pico_lado_long = max(pico_lado_long, sl + viva_l)
+        pico_lado_short = max(pico_lado_short, ss + viva_s)
+
+    try:
+        px0 = float(latidos[0][1])
+        await g.despertar(px0, activo=activo)
+        _tomar_picos(g.vivo)
+        for i, (ts, px) in enumerate(latidos):
+            _ = ts
+            if i == 0:
+                continue
+            act_u = str(activo).upper()
+            tank.precios[f"{act_u}USDT_LINEAL"] = float(px)
+            beru_pre = g.vivo
+            extremo_pre = float(getattr(beru_pre, "trail_extremo", 0) or 0) if beru_pre else 0.0
+            masa_pre = float(getattr(beru_pre, "masa", 0) or 0) if beru_pre else 0.0
+            dir_pre = str(getattr(beru_pre, "direccion", "") or "") if beru_pre else ""
+            r = await g.pulso(float(px))
+            _tomar_picos(g.vivo)
+            ev = str((r or {}).get("evento") or "")
+            if ev == "ARMAR_RED":
+                armados_red += 1
+            elif ev == "ARMAR_SANGRE":
+                armados_sangre += 1
+            elif ev.startswith("ARMAR_"):
+                armados_vacio += 1
+            elif ev == "OZ_COSECHA":
+                cosechas += 1
+                # Fill = plata (Tusk). Wake eterno NO es el fill.
+                fill = float(
+                    (r or {}).get("fill")
+                    or (r or {}).get("oz")
+                    or (r or {}).get("oz_despliegue")
+                    or px
+                )
+                masa = float((r or {}).get("masa_hecha") or masa_pre or beru_rango.masa_tramo_usd())
+                extremo = extremo_pre if extremo_pre > 0 else fill
+                if extremo > 0 and fill > 0 and masa > 0:
+                    d = dir_pre.upper()
+                    if d == "SHORT":
+                        bruto += masa * max(0.0, (extremo - fill) / extremo)
+                    elif d == "LONG":
+                        bruto += masa * max(0.0, (fill - extremo) / extremo)
+                    else:
+                        bruto += masa * abs(extremo - fill) / extremo
+                fees += fee * masa
+                _tomar_picos(g.vivo)
+    finally:
+        config.BERU_RANGO_BITACORA = prev
+
+    neto = bruto - fees
+    efi = (neto / margen) if margen > 0 else 0.0
+    pico_lado = max(pico_lado_long, pico_lado_short)
+    return {
+        "activo": str(activo).upper(),
+        "datos": "OK",
+        "velas": len(candles),
+        "latidos": len(latidos),
+        "cosechas": cosechas,
+        "armados_red": armados_red,
+        "armados_sangre": armados_sangre,
+        "armados_vacio": armados_vacio,
+        "botin_bruto_usd": round(bruto, 6),
+        "fees_usd": round(fees, 6),
+        "botin_neto_usd": round(neto, 6),
+        "eficiencia": round(efi, 6),
+        "margen_usd": round(margen, 6),
+        "fee_pct": fee,
+        "pico_saco_long_usd": round(pico_saco_long, 4),
+        "pico_saco_short_usd": round(pico_saco_short, 4),
+        "pico_lado_long_usd": round(pico_lado_long, 4),
+        "pico_lado_short_usd": round(pico_lado_short, 4),
+        "pico_lado_usd": round(pico_lado, 4),
     }
 
 
@@ -494,7 +646,7 @@ def escribir_html(sim: dict[str, Any], path: Path) -> None:
 <body>
 <header>
   <h1>Teatro Beru rango — {sim['activo']}</h1>
-  <p>Vacío/sangre = activación 1,2 · Oz = callback 0,2 · Red = trailing act. 0,7 + callback 0,2 ($5).
+  <p>Vacío/Red/sangre nacen $5 · engorde solo desde activación · techo meta−ya.
      Cosechas: {sim['cosechas']} · Eventos: {sim['n_eventos']} · Latidos: {sim['n_latidos']}</p>
 </header>
 <div class="layout">
@@ -514,8 +666,9 @@ def escribir_html(sim: dict[str, Any], path: Path) -> None:
       <button id="btnReset" type="button">Inicio</button>
       <label>Velocidad
         <select id="speed">
-          <option value="40">lenta</option>
-          <option value="16" selected>media</option>
+          <option value="120">muy lenta</option>
+          <option value="40" selected>lenta</option>
+          <option value="16">media</option>
           <option value="4">rapida</option>
           <option value="1">muy rapida</option>
         </select>

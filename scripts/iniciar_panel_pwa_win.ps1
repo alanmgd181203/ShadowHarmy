@@ -8,7 +8,6 @@
 #   .\scripts\iniciar_panel_pwa_win.ps1 -Puerto 8080
 #
 # Requisitos: cloudflared en PATH, o se descarga portable a tools\
-#   https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
 param(
     [int]$Puerto = 8080
 )
@@ -71,8 +70,7 @@ if (-not $cf) {
         Write-Host ("  OK: {0}" -f $cf) -ForegroundColor Green
     } catch {
         Write-Host "No se pudo descargar cloudflared." -ForegroundColor Red
-        Write-Host "Instala a mano: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/"
-        Write-Host "O coloca cloudflared.exe en tools\ y vuelve a correr este script."
+        Write-Host "Instala a mano o coloca cloudflared.exe en tools\"
         exit 1
     }
 }
@@ -118,14 +116,14 @@ for ($i = 0; $i -lt 40; $i++) {
 Write-Host ""
 if ($httpsUrl) {
     $dash = "$httpsUrl/dashboard_sombras.html"
-    Write-Host "LISTO — usa ESTA URL en el celular (no la IP http):" -ForegroundColor Green
+    Write-Host "LISTO - usa ESTA URL en el celular (no la IP http):" -ForegroundColor Green
     Write-Host ("  {0}" -f $dash) -ForegroundColor Cyan
     Write-Host ""
     Write-Host "En Android Chrome:"
-    Write-Host "  1) Abre la URL https de arriba"
-    Write-Host "  2) Menu -> Instalar app (o Anadir a pantalla de inicio)"
-    Write-Host "  3) Borra el icono VIEJO (el de la IP http)"
-    Write-Host "  4) Abre el icono NUEVO — ahi si sin barra URL"
+    Write-Host "  1. Abre la URL https de arriba"
+    Write-Host "  2. Menu -> Instalar app (o Anadir a pantalla de inicio)"
+    Write-Host "  3. Borra el icono VIEJO (el de la IP http)"
+    Write-Host "  4. Abre el icono NUEVO - ahi si sin barra URL"
     Write-Host ""
     try { Set-Clipboard -Value $dash } catch {}
     Write-Host "(URL copiada al portapapeles si se pudo)"

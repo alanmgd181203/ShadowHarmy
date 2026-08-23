@@ -82,7 +82,7 @@ def _latencia_ws_ajustada_ms(payload: dict, feed: dict, now_ms: float | None = N
     return max(0.0, delta - float(baseline))
 
 
-def _feeds_completos():
+def _feeds_completos(bases_override=None):
     """Ojos mainnet: spot + perps + futuros dated Bybit (sharded)."""
     spot_tuples = _pares_a_tuples(getattr(config, "SPOT_ALL_PARES", []))
     linear_tuples = _pares_a_tuples(
@@ -92,15 +92,22 @@ def _feeds_completos():
         getattr(config, "INVERSE_PERP_PARES", []) + getattr(config, "INVERSE_FUTURES_PARES", [])
     )
 
-    bases = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
+    if bases_override is not None:
+        bases = [str(b).strip().upper() for b in bases_override if str(b).strip()]
+    else:
+        bases = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
     if bases:
         spot_tuples = _filtrar_tuples_por_bases(spot_tuples, bases)
         linear_tuples = _filtrar_tuples_por_bases(linear_tuples, bases)
         inverse_tuples = _filtrar_tuples_por_bases(inverse_tuples, bases)
 
     solo_spot = bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False))
+    solo_linear = bool(getattr(config, "BRIDGE_WS_SOLO_LINEAR", False))
     if solo_spot:
         linear_tuples = []
+        inverse_tuples = []
+    if solo_linear:
+        spot_tuples = []
         inverse_tuples = []
 
     spot_shard = getattr(config, "SPOT_WS_SHARD_SIZE", 150)
@@ -114,27 +121,43 @@ def _feeds_completos():
             "linear",
             deriv_shard,
         ))
+        if not solo_linear:
+            feeds.extend(_feeds_sharded(
+                "wss://stream.bybit.com/v5/public/inverse",
+                inverse_tuples,
+                "inverse",
+                deriv_shard,
+            ))
+    if not solo_linear:
         feeds.extend(_feeds_sharded(
-            "wss://stream.bybit.com/v5/public/inverse",
-            inverse_tuples,
-            "inverse",
-            deriv_shard,
+            "wss://stream.bybit.com/v5/public/spot",
+            spot_tuples,
+            "spot",
+            spot_shard,
         ))
-    feeds.extend(_feeds_sharded(
-        "wss://stream.bybit.com/v5/public/spot",
-        spot_tuples,
-        "spot",
-        spot_shard,
-    ))
     return feeds
 
 
 class BybitBridge:
-    def __init__(self, tank_cluster, tusk, bellion, api_key=None, api_secret=None):
+    def __init__(
+        self,
+        tank_cluster,
+        tusk,
+        bellion,
+        api_key=None,
+        api_secret=None,
+        *,
+        ws_bases=None,
+    ):
         self.tank = tank_cluster
         self.tusk = tusk
         self.bel = bellion
-        self.feeds = _feeds_completos()
+        # Bases WS propias del puente (multi-Santo sin pisar config global).
+        if ws_bases is not None:
+            self.ws_bases = [str(b).strip().upper() for b in ws_bases if str(b).strip()]
+        else:
+            self.ws_bases = None
+        self.feeds = _feeds_completos(self.ws_bases)
         self.session = None
 
         self._nav_errores_consecutivos = 0
@@ -171,14 +194,21 @@ class BybitBridge:
 
         await trinidad.refrescar_si_stale()
         trinidad.inicializar_config(config)
-        self.feeds = _feeds_completos()
-        bases = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
+        if self.ws_bases is not None:
+            bases = list(self.ws_bases)
+        else:
+            bases = list(getattr(config, "BRIDGE_WS_BASES", None) or [])
+        self.feeds = _feeds_completos(bases if self.ws_bases is not None else None)
         books_on = bool(getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", True))
         solo_spot = bool(getattr(config, "BRIDGE_WS_SOLO_SPOT", False))
+        solo_linear = bool(getattr(config, "BRIDGE_WS_SOLO_LINEAR", False))
         # Expandir solo frentes que vamos a escuchar (menos RAM en Tank).
         if solo_spot:
             from core import beru_ojos
             frentes = beru_ojos.frentes_spot_tank(bases)
+        elif solo_linear:
+            from core import beru_rango_ojos
+            frentes = beru_rango_ojos.frentes_lineal_tank(bases)
         elif bases:
             frentes = [
                 f for f in (getattr(config, "FRENTES_TANK", None) or [])
@@ -189,15 +219,22 @@ class BybitBridge:
         else:
             frentes = list(getattr(config, "FRENTES_TANK", None) or [])
         self.tank.expandir_frentes(frentes)
-        nspot = len(getattr(config, "FRENTES_SPOT_ALL", []))
+        nspot = 0 if solo_linear else len(getattr(config, "FRENTES_SPOT_ALL", []))
         nlin = 0 if solo_spot else len(getattr(config, "FRENTES_LINEAR_PERP", []))
         nlinf = 0 if solo_spot else len(getattr(config, "FRENTES_LINEAR_FUTURES", []))
-        ninv = 0 if solo_spot else len(getattr(config, "FRENTES_INVERSE_PERP", []))
-        ninvf = 0 if solo_spot else len(getattr(config, "FRENTES_INVERSE_FUTURES", []))
+        ninv = 0 if solo_spot or solo_linear else len(getattr(config, "FRENTES_INVERSE_PERP", []))
+        ninvf = 0 if solo_spot or solo_linear else len(getattr(config, "FRENTES_INVERSE_FUTURES", []))
         nshards = sum(1 for f in self.feeds if f.get("label"))
         n_tick = sum(len(f.get("tickers") or []) for f in self.feeds)
+        trades_on = bool(
+            (solo_linear and getattr(config, "BRIDGE_WS_PUBLIC_TRADES_LINEAR", False))
+            or (solo_spot and getattr(config, "BRIDGE_WS_PUBLIC_TRADES_SPOT", False))
+            or getattr(config, "BRIDGE_WS_PUBLIC_TRADES_LINEAR", False)
+        )
         if solo_spot:
             modo = "beru_spot"
+        elif solo_linear:
+            modo = "beru_rango"
         elif bases or not books_on:
             modo = "estrecho"
         else:
@@ -206,6 +243,7 @@ class BybitBridge:
             "BRIDGE", "TRINIDAD",
             f"Sentidos[{modo}]: catalog {nlin}+{nlinf} lin | {ninv}+{ninvf} inv | {nspot} spot · "
             f"WS {nshards} shards · tickers={n_tick} · books={'ON' if books_on else 'OFF'}"
+            f" · trades={'ON' if trades_on else 'OFF'}"
             + (f" · bases={','.join(bases)}" if bases else ""),
         )
 
@@ -227,6 +265,16 @@ class BybitBridge:
         args = []
         for sym, _ in feed.get("tickers", []):
             args.append(f"tickers.{sym}")
+        # Mecha: tratos públicos (Beru rango lineal / spot fósil).
+        label = str(feed.get("label") or "")
+        es_linear = label.startswith("linear")
+        es_spot = label.startswith("spot")
+        if es_linear and bool(getattr(config, "BRIDGE_WS_PUBLIC_TRADES_LINEAR", False)):
+            for sym, _ in feed.get("tickers", []):
+                args.append(f"publicTrade.{sym}")
+        if es_spot and bool(getattr(config, "BRIDGE_WS_PUBLIC_TRADES_SPOT", False)):
+            for sym, _ in feed.get("tickers", []):
+                args.append(f"publicTrade.{sym}")
         # Muros orderbook: pesados en RAM/red. Ritiales estrechos (Igris sim / lap) pueden apagarlos.
         if getattr(config, "BRIDGE_WS_SUBSCRIBE_BOOKS", True):
             book_bases = [
@@ -348,6 +396,14 @@ class BybitBridge:
                     nodo.ultima_actualizacion = time.time()
                     nodo.latencia_ms = latencia_local
                     nodo.inyectar_verdad_real(frente, precio, latencia_local)
+                # Latido lineal: cada last del ticker alimenta mecha entre pulsos.
+                if str(frente).endswith("USDT_LINEAL") and hasattr(
+                    self.tank, "registrar_print_lineal"
+                ):
+                    try:
+                        self.tank.registrar_print_lineal(frente, precio, fuente_ws=True)
+                    except Exception:
+                        pass
                 fr_raw = ticker.get("fundingRate")
                 if fr_raw not in (None, ""):
                     try:
@@ -363,6 +419,35 @@ class BybitBridge:
                         for nodo in self.tank.nodos:
                             nodo.inyectar_index(frente, idx)
                     except (TypeError, ValueError):
+                        pass
+
+        elif topic.startswith("publicTrade."):
+            sym = topic.split(".", 1)[1]
+            frente = self._symbol_a_frente(sym, feed)
+            raw = payload.get("data") or []
+            if isinstance(raw, dict):
+                raw = [raw]
+            if not frente or not isinstance(raw, list):
+                return
+            for row in raw:
+                if not isinstance(row, dict):
+                    continue
+                try:
+                    precio = float(row.get("p") or row.get("price") or 0)
+                except (TypeError, ValueError):
+                    continue
+                if precio <= 0:
+                    continue
+                for nodo in self.tank.nodos:
+                    nodo.ultima_actualizacion = time.time()
+                    nodo.latencia_ms = latencia_local
+                    nodo.inyectar_verdad_real(frente, precio, latencia_local)
+                if str(frente).endswith("USDT_LINEAL") and hasattr(
+                    self.tank, "registrar_print_lineal"
+                ):
+                    try:
+                        self.tank.registrar_print_lineal(frente, precio, fuente_ws=True)
+                    except Exception:
                         pass
 
         elif topic.startswith("orderbook."):

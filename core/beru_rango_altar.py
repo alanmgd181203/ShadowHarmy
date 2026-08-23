@@ -21,6 +21,30 @@ TERMINALES = frozenset({
 })
 
 
+def limpiar_sello_altar(beru: Any) -> None:
+    """Borra metadatos del Stop en el vivo (acecho sin sello colgado)."""
+    if beru is None:
+        return
+    beru.altar_link_id = ""
+    beru.altar_order_id = ""
+    beru.altar_order_status = ""
+    beru.altar_trigger_price = 0.0
+    beru.altar_cancel_confirmado = False
+
+
+def stop_trigger_valido(beru: Any, precio: float) -> bool:
+    """False si el last ya pasó la Oz → Bybit rechaza el Stop (110092)."""
+    d = str(getattr(beru, "direccion", "") or "").upper()
+    oz = float(getattr(beru, "oz_adan", 0) or 0)
+    px = float(precio or 0)
+    if oz <= 0 or px <= 0 or d not in ("LONG", "SHORT"):
+        return True
+    eps = max(oz * 1e-6, 1e-9)
+    if d == "LONG":
+        return px < oz - eps
+    return px > oz + eps
+
+
 @dataclass(frozen=True)
 class PlanLinealRango:
     symbol: str
@@ -62,7 +86,12 @@ def plan_trailing_entrada(
     oz = float(trigger_price if trigger_price is not None else getattr(beru, "oz_adan", 0) or 0)
     if oz <= 0:
         raise ValueError("beru_rango_altar: Oz trailing sin precio")
-    masa = float(masa_usd if masa_usd is not None else beru_rango.masa_tramo_usd())
+    try:
+        oz = float(lote_bybit.cuantizar_precio(oz, frente) or oz)
+    except Exception:
+        pass
+    masa = float(masa_usd if masa_usd is not None else getattr(beru, "masa", 0) or beru_rango.masa_tramo_usd())
+    masa = beru_rango.piso_masa_usd(masa)
     if masa <= 0:
         raise ValueError("beru_rango_altar: masa ≤ 0")
     qty_bruta = masa / oz
@@ -113,13 +142,18 @@ async def armar_condicional(bridge: Any, beru: Any, plan: PlanLinealRango):
         status = str(
             (previa.datos or {}).get("orderStatus") or previa.mensaje or ""
         )
-        if status == "Filled":
-            beru.altar_order_id = str(getattr(previa, "order_id", "") or "")
-            beru.altar_link_id = plan.link_id
-            beru.altar_order_status = "Filled"
-            beru.altar_trigger_price = float(plan.trigger_price)
-            return previa
-        if status not in TERMINALES:
+        # Fill/terminal de un sello VIEJO no sirve: hay que nacer otro link.
+        if status in TERMINALES or status == "Filled":
+            beru.altar_revision = int(getattr(beru, "altar_revision", 0) or 0) + 1
+            sym = str(plan.symbol or "")
+            act = sym[:-4] if sym.upper().endswith("USDT") else sym
+            plan = plan_trailing_entrada(
+                beru,
+                activo=act,
+                masa_usd=float(plan.masa_usd or 0) or None,
+                trigger_price=float(plan.trigger_price or 0) or None,
+            )
+        elif status not in TERMINALES:
             beru.altar_order_id = str(getattr(previa, "order_id", "") or "")
             beru.altar_link_id = plan.link_id
             beru.altar_order_status = status
@@ -158,10 +192,19 @@ async def seguir_trailing(bridge: Any, beru: Any, *, activo: str) -> Any:
     link = str(getattr(beru, "altar_link_id", "") or "")
     if oz <= 0 or not link or bridge is None:
         return None
-    prev = float(getattr(beru, "altar_trigger_price", 0) or 0)
-    if prev > 0 and abs(oz - prev) / prev < 1e-6:
-        return None
     act = str(activo or "").upper()
+    frente = f"{act}USDT_LINEAL"
+    try:
+        oz = float(lote_bybit.cuantizar_precio(oz, frente) or oz)
+        beru.oz_adan = oz
+    except Exception:
+        pass
+    prev = float(getattr(beru, "altar_trigger_price", 0) or 0)
+    if prev > 0 and abs(oz - prev) / max(prev, 1e-12) < 1e-9:
+        return None
+    # Si el tick no cambió el trigger, no martillar amend.
+    if prev > 0 and abs(oz - prev) < 1e-12:
+        return None
     symbol = f"{act}USDT"
     amend = await bridge.amend_order(
         symbol,
@@ -171,7 +214,107 @@ async def seguir_trailing(bridge: Any, beru: Any, *, activo: str) -> Any:
     )
     if getattr(amend, "exito", False):
         beru.altar_trigger_price = oz
+    else:
+        msg = str(getattr(amend, "mensaje", "") or "amend_fallido")
+        bel = getattr(bridge, "bel", None)
+        if bel is not None:
+            try:
+                await bel.anotar(
+                    "BERU_RANGO", "ALTAR_AMEND_FALLIDO",
+                    f"{act} link={link} oz={oz} prev={prev} · {msg}",
+                )
+            except Exception:
+                pass
     return amend
+
+
+async def cancelar_pendiente(
+    bridge: Any,
+    beru: Any,
+    *,
+    activo: str,
+    motivo: str = "LIMPIEZA",
+) -> Any:
+    """Cancela el Stop del altar si sigue vivo (salida limpia / wake fresco)."""
+    link = str(getattr(beru, "altar_link_id", "") or "")
+    oid = str(getattr(beru, "altar_order_id", "") or "")
+    if bridge is None or (not link and not oid):
+        return None
+    act = str(activo or "").upper()
+    symbol = f"{act}USDT"
+    res = await bridge.cancel_order(
+        symbol,
+        order_id=oid or None,
+        link_id=link or None,
+        category="linear",
+        order_filter="StopOrder",
+    )
+    bel = getattr(bridge, "bel", None)
+    ok = bool(getattr(res, "exito", False))
+    msg = str(getattr(res, "mensaje", "") or "")
+    fantasma = (
+        "110001" in msg
+        or "not exist" in msg.lower()
+        or "too late to cancel" in msg.lower()
+    )
+    if fantasma:
+        ok = True
+    if bel is not None:
+        try:
+            await bel.anotar(
+                "BERU_RANGO",
+                "ALTAR_CANCEL" if ok else "ALTAR_CANCEL_FALLIDO",
+                f"{act} {motivo} link={link or oid} · "
+                f"{msg or ('ok' if ok else 'fail')}",
+            )
+        except Exception:
+            pass
+    if ok:
+        beru.altar_order_status = "Cancelled" if not fantasma else "Gone"
+        beru.altar_cancel_confirmado = True
+        limpiar_sello_altar(beru)
+    return res
+
+
+async def reenganchar_o_rearmar(
+    bridge: Any,
+    beru: Any,
+    *,
+    activo: str,
+) -> Any:
+    """Tras CONTINUAR en CAZANDO: si el Stop sigue, reusa; si no, arma de nuevo."""
+    link = str(getattr(beru, "altar_link_id", "") or "")
+    act = str(activo or "").upper()
+    if bridge is None or not act:
+        return None
+    if link:
+        estado = await bridge.get_order_status(
+            f"{act}USDT",
+            link_id=link,
+            category="linear",
+            order_filter="StopOrder",
+        )
+        if getattr(estado, "exito", False):
+            st = str((estado.datos or {}).get("orderStatus") or estado.mensaje or "")
+            if st and st not in TERMINALES and st != "Filled":
+                beru.altar_order_status = st
+                trig = float(
+                    (estado.datos or {}).get("triggerPrice")
+                    or getattr(beru, "altar_trigger_price", 0)
+                    or 0
+                )
+                if trig > 0:
+                    beru.altar_trigger_price = trig
+                return estado
+        beru.altar_revision = int(getattr(beru, "altar_revision", 0) or 0) + 1
+        beru.altar_link_id = ""
+        beru.altar_order_id = ""
+    plan = plan_trailing_entrada(
+        beru,
+        activo=act,
+        masa_usd=float(getattr(beru, "masa", 0) or 0) or None,
+    )
+    return await armar_condicional(bridge, beru, plan)
 
 
 async def disparar_entrada_market(

@@ -85,20 +85,53 @@ class BeruRango:
         self._bitacora("WAKE", detalle=f"0={px}", precio=px, masa_usd=beru_rango.masa_tramo_usd())
         return beru
 
-    async def pulso(self, precio: float | None = None) -> dict[str, Any]:
+    async def pulso(
+        self,
+        precio: float | None = None,
+        latido: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         beru = self.vivo
         if beru is None or beru.estado in ("COSECHADO", "FOSIL_BLOQUEADO"):
             return {"ok": False, "motivo": "sin_vivo"}
-        px = float(precio or 0) or self._precio_lineal(self._activo)
+        lat = dict(latido or {})
+        px = (
+            float(precio or 0)
+            or float(lat.get("last") or 0)
+            or self._precio_lineal(self._activo)
+        )
         if px <= 0:
             return {"ok": False, "motivo": "sin_precio"}
 
         if beru.estado == "ACECHANDO":
+            await self._purgar_altar_acecho(beru)
             if bool(getattr(beru, "es_relevo_cazador", False)) or float(
                 getattr(beru, "ultima_hoz_tocada_precio", 0) or 0
             ) > 0:
-                if beru_rango.toca_red_activacion(beru, px):
-                    masa = beru_rango.armar_tramo_desde_red(beru, precio=px)
+                # Mecha: sangre primero (cosecha parcial), luego Red.
+                trig = ""
+                px_arm = px
+                for sample in beru_rango.secuencia_latido(px, lat):
+                    if beru_rango.toca_sangre(beru, sample):
+                        trig, px_arm = "SANGRE", sample
+                        break
+                    if beru_rango.toca_red_activacion(beru, sample):
+                        trig, px_arm = "RED", sample
+                        break
+                if trig == "SANGRE":
+                    masa = beru_rango.armar_tramo_desde_sangre(beru, precio=px_arm)
+                    if masa <= 0:
+                        return {"ok": True, "evento": "ACECHO", "nota": "sangre_sin_masa"}
+                    await self._tras_armar(beru, origen="SANGRE", masa=masa)
+                    return {
+                        "ok": True,
+                        "evento": "ARMAR_SANGRE",
+                        "masa": masa,
+                        "dir": beru.direccion,
+                    }
+                if trig == "RED":
+                    masa = beru_rango.armar_tramo_desde_red(beru, precio=px_arm)
+                    if masa <= 0:
+                        return {"ok": True, "evento": "ACECHO", "nota": "saco_lleno_red"}
                     beru.uid = (
                         f"RANGO_{self._activo}_R"
                         f"{int(getattr(beru, 'rango_escalones_red', 1) or 1)}_"
@@ -111,65 +144,130 @@ class BeruRango:
                         "masa": masa,
                         "dir": beru.direccion,
                         "escalon": int(getattr(beru, "rango_escalones_red", 0) or 0),
-                        "nota": "Red activacion 0.7 -> trailing callback 0.2",
+                        "nota": "Red meta-saco -> trailing callback 0.2",
                     }
-                if beru_rango.toca_sangre(beru, px):
-                    masa = beru_rango.armar_tramo_desde_sangre(beru, precio=px)
-                    await self._tras_armar(beru, origen="SANGRE", masa=masa)
-                    return {"ok": True, "evento": "ARMAR_SANGRE", "masa": masa, "dir": beru.direccion}
             else:
-                lado = beru_rango.toca_vacio(beru, px)
+                lado = (
+                    beru_rango.toca_vacio_en_latido(beru, px, lat)
+                    or beru_rango.toca_vacio(beru, px)
+                )
                 if lado:
                     masa = beru_rango.armar_tramo_desde_vacio(beru, lado, precio=px)
+                    if masa <= 0:
+                        return {"ok": True, "evento": "ACECHO", "nota": "saco_lleno_vacio"}
                     await self._tras_armar(beru, origen=f"VACIO_{lado}", masa=masa)
-                    return {"ok": True, "evento": f"ARMAR_{lado}", "masa": masa, "dir": beru.direccion}
+                    return {
+                        "ok": True,
+                        "evento": f"ARMAR_{lado}",
+                        "masa": masa,
+                        "dir": beru.direccion,
+                    }
             return {"ok": True, "evento": "ACECHO"}
 
         if beru.estado == "CAZANDO":
-            beru_rango.actualizar_trailing_oz(beru, px)
+            # Ojos: primero beber alto/bajo del vaso (mecha), luego last.
+            px_trail = beru_rango.extremo_latido_trailing(beru, px, lat) or px
+            if str(beru.direccion or "").upper() == "SHORT":
+                hi = float(lat.get("high") or 0)
+                if hi > px_trail:
+                    px_trail = hi
+            elif str(beru.direccion or "").upper() == "LONG":
+                lo = float(lat.get("low") or 0)
+                if lo > 0 and (px_trail <= 0 or lo < px_trail):
+                    px_trail = lo
+            beru_rango.actualizar_trailing_oz(beru, px_trail)
             if self._manos():
                 await beru_rango_altar.seguir_trailing(
                     self.bridge, beru, activo=self._activo,
                 )
-            if beru_rango.toca_oz(beru, px):
-                fill = float(beru.oz_adan or px)
+            if beru_rango.toca_oz_en_latido(beru, px, lat) or beru_rango.toca_oz(beru, px):
+                oz_viva = float(beru.oz_adan or 0)
+                # Peldaño = Oz viva; fill = plata Tusk (no mueve wake ni mapa base).
+                fill = oz_viva or float(px)
                 masa_hecha = float(getattr(beru, "masa", 0) or 0)
+                extremo = float(getattr(beru, "trail_extremo", 0) or 0)
+                dir_caza = str(getattr(beru, "direccion", "") or "").upper()
+                wake = beru_rango.cero_wake(beru)
                 if self._manos():
                     fill_casa = await self._consultar_fill(beru)
                     if fill_casa:
                         fill = float(fill_casa.get("avgPrice") or fill)
                     else:
-                        # Cerebro detona: Market de entrada en Bybit
+                        # Evita doble fill: cancela Stop vivo antes del Market.
+                        await beru_rango_altar.cancelar_pendiente(
+                            self.bridge,
+                            beru,
+                            activo=self._activo,
+                            motivo="PRE_MARKET_OZ",
+                        )
+                        beru_rango_altar.limpiar_sello_altar(beru)
                         await beru_rango_altar.disparar_entrada_market(
                             self.bridge, beru, activo=self._activo, masa_usd=masa_hecha,
                         )
-                        fill = float(px)
-                beru_rango.cosechar_oz_y_mover_cero(beru, fill)
+                        fill = oz_viva or float(px)
+                beru_rango.cosechar_oz_y_mover_cero(
+                    beru, fill, oz_despliegue=oz_viva or None,
+                )
+                if self._manos():
+                    await beru_rango_altar.cancelar_pendiente(
+                        self.bridge,
+                        beru,
+                        activo=self._activo,
+                        motivo="POST_OZ_COSECHA",
+                    )
+                    beru_rango_altar.limpiar_sello_altar(beru)
                 await self.bel.anotar(
                     "BERU_RANGO", "OZ_COSECHA",
-                    f"{beru.uid} trailing Oz @{fill:.6f} → 0 · sangre act. {beru.sangre_lado} "
+                    f"{beru.uid} Oz peldaño @{oz_viva:.6f} fill @{fill:.6f} · wake={wake:.6f} · "
+                    f"sangre act. {beru.sangre_lado} "
                     f"{beru_rango.sangre_contraria_pct()*100:.1f}% · "
                     f"Red trailing act. @{beru.red_adan:.6f} "
                     f"(callback {beru_rango.trailing_dist_pct()*100:.1f}% · "
-                    f"${beru_rango.masa_red_usd():.0f}).",
+                    f"${beru_rango.masa_red_usd():.0f}) · extremo={extremo:.6f}.",
                 )
                 self._bitacora(
                     "OZ_COSECHA",
-                    detalle=f"0={fill} sangre={beru.sangre_lado} red={beru.red_adan}",
+                    detalle=(
+                        f"wake={wake} oz={oz_viva} fill={fill} sangre={beru.sangre_lado} "
+                        f"red={beru.red_adan} extremo={extremo}"
+                    ),
                     precio=fill,
                     masa_usd=masa_hecha,
                 )
                 return {
                     "ok": True,
                     "evento": "OZ_COSECHA",
-                    "cero": fill,
+                    "cero": wake,
+                    "fill": fill,
+                    "oz_despliegue": oz_viva,
                     "sangre": getattr(beru, "sangre_lado", ""),
                     "red": beru.red_adan,
                     "masa_hecha": masa_hecha,
+                    "trail_extremo": extremo,
+                    "oz": oz_viva,
+                    "dir": dir_caza,
                 }
             return {"ok": True, "evento": "CAZA"}
 
         return {"ok": False, "motivo": f"estado_{beru.estado}"}
+
+    async def _purgar_altar_acecho(self, beru: BeruShip) -> None:
+        """Acecho sin Oz no debe arrastrar Stop del altar (sello huérfano)."""
+        if not self._manos():
+            return
+        if float(getattr(beru, "oz_adan", 0) or 0) > 0:
+            return
+        link = str(getattr(beru, "altar_link_id", "") or "")
+        oid = str(getattr(beru, "altar_order_id", "") or "")
+        if not link and not oid:
+            return
+        await beru_rango_altar.cancelar_pendiente(
+            self.bridge,
+            beru,
+            activo=self._activo,
+            motivo="ACECHO_SIN_OZ",
+        )
+        beru_rango_altar.limpiar_sello_altar(beru)
 
     async def _tras_armar(self, beru: BeruShip, *, origen: str, masa: float) -> None:
         await self.bel.anotar(
@@ -188,11 +286,32 @@ class BeruRango:
             trail_extremo=getattr(beru, "trail_extremo", None),
         )
         if self._manos():
+            px_now = self._precio_lineal(self._activo)
+            if not beru_rango_altar.stop_trigger_valido(beru, px_now):
+                await self.bel.anotar(
+                    "BERU_RANGO",
+                    "ALTAR_SKIP_STOP",
+                    f"{beru.uid} {origen}: last={px_now:.6f} ya pasó Oz "
+                    f"@{float(getattr(beru, 'oz_adan', 0) or 0):.6f} · "
+                    f"entrada en Oz vía Market",
+                )
+                return
             try:
                 plan = beru_rango_altar.plan_trailing_entrada(
                     beru, activo=self._activo, masa_usd=masa,
                 )
-                await beru_rango_altar.armar_condicional(self.bridge, beru, plan)
+                res = await beru_rango_altar.armar_condicional(
+                    self.bridge, beru, plan,
+                )
+                if not getattr(res, "exito", False):
+                    msg = str(getattr(res, "mensaje", "") or "")
+                    if "110092" in msg or "expect Rising" in msg or "expect Falling" in msg:
+                        await self.bel.anotar(
+                            "BERU_RANGO",
+                            "ALTAR_STOP_INVALIDO",
+                            f"{beru.uid}: {msg} · sin Stop · Oz→Market",
+                        )
+                        beru_rango_altar.limpiar_sello_altar(beru)
             except ValueError as exc:
                 await self.bel.anotar(
                     "BERU_RANGO", "ALTAR_PLAN_FALLIDO", f"{beru.uid}: {exc}",
@@ -209,12 +328,25 @@ class BeruRango:
         )
         if not getattr(estado, "exito", False):
             return None
-        status = str((estado.datos or {}).get("orderStatus") or estado.mensaje or "")
+        datos = estado.datos or {}
+        status = str(datos.get("orderStatus") or estado.mensaje or "")
         if status != "Filled":
             return None
+        # Rechazar fill fantasma: lado distinto o precio lejos de la Oz viva.
+        side = str(datos.get("side") or "").upper()
+        d = str(getattr(beru, "direccion", "") or "").upper()
+        if d == "SHORT" and side == "BUY":
+            return None
+        if d == "LONG" and side == "SELL":
+            return None
+        avg = float(datos.get("avgPrice") or 0)
+        oz = float(getattr(beru, "oz_adan", 0) or 0)
+        if avg > 0 and oz > 0 and abs(avg - oz) / oz > 0.01:
+            # >1% de la Oz: casi seguro sello viejo o slip extremo — no contaminar 0.
+            return None
         return {
-            "avgPrice": float((estado.datos or {}).get("avgPrice") or beru.oz_adan or 0),
-            "cumExecQty": float((estado.datos or {}).get("cumExecQty") or 0),
+            "avgPrice": avg if avg > 0 else oz,
+            "cumExecQty": float(datos.get("cumExecQty") or 0),
             "orderStatus": status,
         }
 
@@ -234,13 +366,22 @@ class BeruRango:
             "uid": beru.uid,
             "estado": beru.estado,
             "direccion": beru.direccion,
-            "cero": beru.centro_local,
+            "cero": beru_rango.cero_wake(beru),
             "oz": beru.oz_adan,
+            "oz_despliegue": float(getattr(beru, "oz_despliegue_px", 0) or 0),
             "red": beru.red_adan,
             "trail_extremo": getattr(beru, "trail_extremo", 0),
             "masa": beru.masa,
+            "saco_long": float(getattr(beru, "saco_long_usd", 0) or 0),
+            "saco_short": float(getattr(beru, "saco_short_usd", 0) or 0),
             "sangre_lado": getattr(beru, "sangre_lado", ""),
             "cosechas": int(getattr(beru, "cosechas_continuas", 0) or 0),
             "escalones_red": int(getattr(beru, "rango_escalones_red", 0) or 0),
+            "ultima_hoz_direccion": getattr(beru, "ultima_hoz_direccion", "") or "",
+            "altar_link_id": getattr(beru, "altar_link_id", "") or "",
+            "altar_order_id": getattr(beru, "altar_order_id", "") or "",
+            "altar_trigger_price": float(getattr(beru, "altar_trigger_price", 0) or 0),
+            "altar_revision": int(getattr(beru, "altar_revision", 0) or 0),
+            "altar_order_status": getattr(beru, "altar_order_status", "") or "",
         }
         return out

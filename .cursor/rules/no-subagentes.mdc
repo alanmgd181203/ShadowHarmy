@@ -1,0 +1,22 @@
+---
+description: Prohibido Task/subagentes en ShadowHarmy — el Monarca ordenó no usarlos
+alwaysApply: true
+---
+
+# PROHIBIDO — Subagentes / Task tool
+
+**Orden del Monarca (2026-08-22):** no lanzar subagentes (`Task`, explore/worker/best-of-n, etc.) en este repo.
+
+## Por qué
+
+Los subagentes **casi nunca** traen el contexto doctrinal completo (Beru, wake, Oz, Red, sangre, Tusk). Cuando se usan, **nacen tumores**: código a medias, reglas contradictorias, “0 = fill” otra vez.
+
+## Qué hacer en su lugar
+
+- Leer y operar **tú mismo** con las herramientas normales (Read, Grep, Edit, Shell).
+- Si la tarea es grande: fases en el mismo hilo, checklist propio — **sin** delegar a otro agente.
+- Explorar el codebase con Grep/Read, no con `Task` explore.
+
+## Excepción
+
+Solo si el Monarca **pide explícitamente** un subagente por nombre. Si no lo pide: **no**.

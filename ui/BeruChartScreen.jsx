@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import BeruSpotChart from "./BeruSpotChart.jsx";
-import { snapshotCero, desdeEstadoVivo as beruDesdeEstado } from "./beruAssetDetailModel.js";
+import { snapshotCero, desdeEstadoVivo as beruDesdeEstado, cargarSnapBeru } from "./beruAssetDetailModel.js";
 import { desdeEstadoVivo as igrisDesdeEstado } from "./assetDetailModel.js";
 import { mantoDesdeFuentes } from "./beruMantoRegla.js";
 
-const ESTADO_URL = "/data/estado_vivo.json";
-
 /**
- * Lienzo grande: velas spot + combate Beru + metro nativo del manto.
+ * Lienzo grande: velas + combate Beru (rango linear o cazador spot).
  */
 export default function BeruChartScreen({ symbol, onClose, onFicha }) {
   const [visible, setVisible] = useState(false);
@@ -28,9 +26,7 @@ export default function BeruChartScreen({ symbol, onClose, onFicha }) {
     let alive = true;
     async function load() {
       try {
-        const res = await fetch(`${ESTADO_URL}?t=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) return;
-        const snap = await res.json();
+        const snap = await cargarSnapBeru();
         if (!alive) return;
         setData(beruDesdeEstado(symbol, snap));
         setIgris(igrisDesdeEstado(symbol, snap));
@@ -47,6 +43,8 @@ export default function BeruChartScreen({ symbol, onClose, onFicha }) {
   }, [symbol]);
 
   const manto = useMemo(() => mantoDesdeFuentes(symbol, data, igris), [symbol, data, igris]);
+  const esRango = String(data?.oficio || data?.grafica?.oficio || "").toUpperCase() === "RANGO";
+  const category = esRango || data?.mercado === "linear" ? "linear" : "spot";
 
   return (
     <div
@@ -68,6 +66,7 @@ export default function BeruChartScreen({ symbol, onClose, onFicha }) {
         </button>
         <h1 className="absolute left-1/2 -translate-x-1/2 text-xl italic font-bold tracking-widest pointer-events-none">
           {data.symbol || symbol}
+          {esRango ? <span className="ml-2 text-[10px] not-italic font-normal text-cyan-400/80">LINEAR</span> : null}
         </h1>
         <button
           type="button"
@@ -84,7 +83,9 @@ export default function BeruChartScreen({ symbol, onClose, onFicha }) {
             grafica={data.grafica}
             manto={manto}
             llenar
-            reglaManto
+            reglaManto={!esRango}
+            category={category}
+            leyendaRango={esRango}
           />
         </div>
       </div>

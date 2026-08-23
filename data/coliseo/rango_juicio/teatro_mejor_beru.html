@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Teatro Beru — mejor Beru (todos)</title>
+  <style>
+    :root {
+      --bg: #0c1017;
+      --panel: #141a24;
+      --ink: #d5dde8;
+      --dim: #7a8699;
+      --line: rgba(255,255,255,0.08);
+      --verde: #3dd68c;
+      --amarillo: #e6c35c;
+      --rojo: #e07070;
+      --cyan: #5ec8e8;
+      --feria: #c9a227;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 20% -10%, #1a2436 0%, var(--bg) 55%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    header { padding: 1.25rem 1.5rem 0.75rem; border-bottom: 1px solid var(--line); }
+    header h1 { margin: 0; font-size: 1.15rem; font-weight: 600; letter-spacing: 0.04em; }
+    header p { margin: 0.35rem 0 0; color: var(--dim); font-size: 0.85rem; }
+    header a { color: var(--cyan); text-decoration: none; }
+    header a:hover { text-decoration: underline; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+    }
+    .slot-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      font-size: 0.78rem;
+    }
+    .slot-card .t { color: var(--dim); margin-bottom: 0.25rem; }
+    .slot-card .n { font-size: 1.1rem; font-weight: 600; }
+    .toolbar, .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0 1.5rem 0.75rem;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--dim);
+    }
+    .toolbar input[type="search"] {
+      min-width: 160px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 0.35rem 0.55rem;
+    }
+    .filtros label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 0.3rem 0.55rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--ink);
+    }
+    .filtros label input { accent-color: var(--cyan); }
+    .badge { font-size: 0.75rem; color: var(--dim); margin-left: auto; }
+    .badge.ok { color: var(--verde); }
+    .badge.run { color: var(--amarillo); }
+    main { padding: 0 1.5rem 2rem; }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 0 0 0.75rem;
+      font-size: 0.8rem;
+      color: var(--dim);
+    }
+    .table-scroll { overflow-x: auto; max-height: calc(100vh - 320px); overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th, td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+    th:nth-child(3), td:nth-child(3), th:nth-child(7), td:nth-child(7), th:nth-child(12), td:nth-child(12) { text-align: left; }
+    .section { margin-top: 1.25rem; }
+    .section h2 { margin: 0 0 0.35rem; font-size: 0.9rem; font-weight: 600; color: var(--rojo); }
+    .section .hint { margin: 0 0 0.5rem; font-size: 0.75rem; color: var(--dim); }
+    th { color: var(--dim); font-weight: 500; position: sticky; top: 0; background: var(--bg); z-index: 2; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    tr.rng-verde td { background: rgba(61, 214, 140, 0.11); }
+    tr.rng-amarillo td { background: rgba(230, 195, 92, 0.13); }
+    tr.rng-rojo td { background: rgba(224, 112, 112, 0.14); }
+    tr.rng-verde:hover td { background: rgba(61, 214, 140, 0.17); }
+    tr.rng-amarillo:hover td { background: rgba(230, 195, 92, 0.19); }
+    tr.rng-rojo:hover td { background: rgba(224, 112, 112, 0.2); }
+    td.santo { color: var(--cyan); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+    .tf-ok { color: var(--verde); font-weight: 700; margin-right: 0.2rem; }
+    .beru-normal { color: var(--cyan); font-weight: 600; }
+    .beru-feria { color: var(--feria); font-weight: 600; }
+    .beru-empate { color: var(--amarillo); font-weight: 600; }
+    .chip {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      margin: 0.05rem 0.15rem 0.05rem 0;
+      border: 1px solid var(--line);
+      color: var(--dim);
+    }
+    .chip.ok { color: var(--verde); border-color: rgba(61,214,140,0.35); }
+    .chip.warn { color: var(--amarillo); border-color: rgba(230,195,92,0.35); }
+    .chip.bad { color: var(--rojo); border-color: rgba(224,112,112,0.35); }
+    .empty { padding: 2rem; color: var(--dim); text-align: center; }
+    .drawer-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 40; }
+    .drawer-bg.open { opacity: 1; pointer-events: auto; }
+    .drawer {
+      position: fixed; top: 0; right: 0; width: min(420px, 94vw); height: 100%;
+      background: var(--panel); border-left: 1px solid var(--line);
+      transform: translateX(105%); transition: transform 0.22s; z-index: 50;
+      padding: 1.25rem 1.35rem 2rem; overflow-y: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer h2 { margin: 0 0 0.25rem; font-size: 1.25rem; }
+    .drawer .sub { color: var(--dim); font-size: 0.8rem; margin-bottom: 1rem; }
+    .drawer .blurb { line-height: 1.5; font-size: 0.9rem; margin: 0 0 0.85rem; }
+    .drawer dl { display: grid; grid-template-columns: 110px 1fr; gap: 0.35rem 0.75rem; font-size: 0.82rem; }
+    .drawer dt { color: var(--dim); }
+    .drawer dd { margin: 0; }
+    .close-btn {
+      position: absolute; top: 0.75rem; right: 0.85rem;
+      border: 1px solid var(--line); background: transparent; color: var(--ink);
+      border-radius: 6px; padding: 0.25rem 0.55rem; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TEATRO BERU — mejor Beru (todos los pares)</h1>
+    <p>
+      Una fila por Santo · reciente 7/30/90 · métricas del <strong>lado ganador</strong> (original o volátil) ·
+      fuera automático: ≤BTC · libro fino · min orden &gt; $6 · apalanc &lt; 10x · rango 1a &gt;200% · crypto &lt;3 meses ·
+      sombreado fila: <span style="color:var(--verde)">■</span> ≤50% ·
+      <span style="color:var(--amarillo)">■</span> ≤200% ·
+      <span style="color:var(--rojo)">■</span> ≤300% ·
+      <span style="color:var(--verde)">✓</span> TradeFi ·
+      <a href="teatro_fusion.html">panel caza filtrada</a> ·
+      <a href="teatro_live.html">matriz 4 salas</a>
+    </p>
+  </header>
+
+  <div class="summary" id="cards"></div>
+
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="Buscar Santo…" autocomplete="off" />
+    <span class="badge" id="status">cargando…</span>
+  </div>
+
+  <div class="filtros">
+    <span>Ver:</span>
+    <label><input type="radio" name="mejor" value="all" checked /> todos</label>
+    <label><input type="radio" name="mejor" value="normal" /> gana original</label>
+    <label><input type="radio" name="mejor" value="feria" /> gana volátil</label>
+    <label><input type="checkbox" id="ver-fuera" /> ver descartados (≤BTC · liquidez · min&gt;$6 · apalanc&lt;10x)</label>
+  </div>
+
+  <main>
+    <div class="meta" id="meta"></div>
+    <div class="table-scroll" id="table-wrap"><div class="empty">Esperando juicios…</div></div>
+  </main>
+
+  <div class="drawer-bg" id="drawer-bg"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <button class="close-btn" id="drawer-close" type="button">cerrar</button>
+    <div id="drawer-body"></div>
+  </aside>
+
+  <script>
+    const PANEL_REV = "2026-08-23h";
+    const STABLES = new Set(["USDC", "USDE", "USD1", "RLUSD", "USDT"]);
+    const EMPATE_EPS = 1e-6;
+    const MIN_LEVERAGE = 10;
+    const RNG_VERDE_MAX = 50;
+    const RNG_AMARILLO_MAX = 200;
+    const RNG_FUERA_MAX = 300;
+    const RNG_FUERA_LISTA_MIN = 700;
+    const FUERA_RANK_ORIG_MAX = 500;
+    let cache = { normal: null, feria: null };
+    let fusion = [];
+    let fichas = {};
+    let filtrosAbs = {};
+    let pisoBtc = 0;
+
+    function fmt(n, d = 3) {
+      if (n == null || Number.isNaN(n)) return "—";
+      return Number(n).toFixed(d);
+    }
+
+    function fichaOf(a) {
+      return fichas[a] || fichas[String(a || "").toUpperCase()] || {};
+    }
+
+    function filtroOf(a) {
+      return filtrosAbs[String(a || "").toUpperCase()] || {};
+    }
+
+    function esOficio(activo) {
+      const f = fichaOf(activo);
+      const t = String(f.symbol_type || "").toLowerCase();
+      const b = String(activo || "").toUpperCase();
+      if (f.tradefi) return true;
+      if (["stock", "commodity", "etf", "fx", "forex"].includes(t)) return true;
+      if (STABLES.has(b)) return true;
+      if (/2L$|3L$/.test(b) || b.startsWith("CSOP")) return true;
+      return false;
+    }
+
+    function minOrdenFuera(fx) {
+      if (fx.min_orden_fuera) return true;
+      const motivos = Array.isArray(fx.motivos) ? fx.motivos : [];
+      return motivos.some((m) => String(m).startsWith("min_orden_gt_"));
+    }
+
+    function liquidezFuera(fx) {
+      if (fx.liquidez_fuera) return true;
+      const motivos = Array.isArray(fx.motivos) ? fx.motivos : [];
+      return motivos.some((m) => ["turnover_bajo", "libro_agotado", "slip_ge_1pct", "orderbook_error"].includes(m));
+    }
+
+    function maxLeverageOf(activo) {
+      const f = fichaOf(activo);
+      const fx = filtroOf(activo);
+      const lev = Number(fx.max_leverage ?? f.max_leverage);
+      return Number.isFinite(lev) && lev > 0 ? lev : null;
+    }
+
+    function apalancamientoFuera(activo) {
+      const fx = filtroOf(activo);
+      if (fx.leverage_fuera) return true;
+      const motivos = Array.isArray(fx.motivos) ? fx.motivos : [];
+      if (motivos.includes("apalanc_lt_10")) return true;
+      const lev = maxLeverageOf(activo);
+      if (lev == null) return false;
+      return lev < MIN_LEVERAGE;
+    }
+
+    function rangoAnualPct(activo) {
+      const fx = filtroOf(activo);
+      const pct = Number(fx.rango_anual_pct);
+      return Number.isFinite(pct) ? pct : null;
+    }
+
+    function rangoAnualBanda(activo) {
+      const fx = filtroOf(activo);
+      if (fx.rango_anual_banda && fx.rango_anual_banda !== "fuera") return fx.rango_anual_banda;
+      const pct = rangoAnualPct(activo);
+      if (pct == null) return null;
+      if (pct <= RNG_VERDE_MAX) return "verde";
+      if (pct <= RNG_AMARILLO_MAX) return "amarillo";
+      if (pct <= RNG_FUERA_MAX) return "rojo";
+      return "fuera";
+    }
+
+    function rangoAnualFuera(activo) {
+      const fx = filtroOf(activo);
+      if (fx.rango_anual_fuera) return true;
+      const motivos = Array.isArray(fx.motivos) ? fx.motivos : [];
+      if (motivos.includes("rango_anual_gt_300") || motivos.includes("rango_anual_gt_800") || motivos.includes("rango_anual_gt_1200")) return true;
+      const pct = rangoAnualPct(activo);
+      return pct != null && pct > RNG_FUERA_MAX;
+    }
+
+    function rowRangoClass(activo) {
+      if (rangoAnualFuera(activo)) return "";
+      const b = rangoAnualBanda(activo);
+      if (b === "verde") return "rng-verde";
+      if (b === "amarillo") return "rng-amarillo";
+      if (b === "rojo") return "rng-rojo";
+      return "";
+    }
+
+    function esTradeFiExento(activo) {
+      const f = fichaOf(activo);
+      const t = String(f.symbol_type || "").toLowerCase();
+      if (f.tradefi) return true;
+      return ["stock", "commodity", "etf", "fx", "forex"].includes(t);
+    }
+
+    function listadoEdadDias(activo) {
+      const fx = filtroOf(activo);
+      const d = Number(fx.listado_edad_dias);
+      return Number.isFinite(d) ? d : null;
+    }
+
+    function listadoRecienteFuera(activo) {
+      if (esTradeFiExento(activo)) return false;
+      const fx = filtroOf(activo);
+      if (fx.listado_reciente_fuera) return true;
+      const motivos = Array.isArray(fx.motivos) ? fx.motivos : [];
+      if (motivos.includes("listado_lt_90d")) return true;
+      const dias = listadoEdadDias(activo);
+      return dias != null && dias < 90;
+    }
+
+    function rangoRojoFuera(activo) {
+      if (esTradeFiExento(activo)) return false;
+      return rangoAnualBanda(activo) === "rojo";
+    }
+
+    function muertaFuera(activo) {
+      const fx = filtroOf(activo);
+      if (fx.muerta_fuera) return true;
+      const motivos = Array.isArray(fx.motivos) ? fx.motivos : [];
+      return motivos.some((m) => String(m).startsWith("muerta_"));
+    }
+
+    function santoCell(activo) {
+      const mark = esTradeFiExento(activo) ? '<span class="tf-ok" title="TradeFi">✓</span>' : "";
+      return `${mark}${activo}`;
+    }
+
+    function luzRojoFuera(r) {
+      return String(r.semaforo || "").toUpperCase() === "ROJO";
+    }
+
+    function fueraAbsoluto(r) {
+      const fx = filtroOf(r.activo);
+      if (Number(r.calor_mejor || 0) <= pisoBtc) return true;
+      if (liquidezFuera(fx)) return true;
+      if (minOrdenFuera(fx)) return true;
+      if (apalancamientoFuera(r.activo)) return true;
+      if (rangoAnualFuera(r.activo)) return true;
+      if (rangoRojoFuera(r.activo)) return true;
+      if (listadoRecienteFuera(r.activo)) return true;
+      if (muertaFuera(r.activo)) return true;
+      if (luzRojoFuera(r)) return true;
+      return false;
+    }
+
+    function tagsAbs(r) {
+      const chips = [];
+      const fx = filtroOf(r.activo);
+      if (esOficio(r.activo)) chips.push({ t: "oficio", c: "bad" });
+      if (Number(r.calor_mejor || 0) <= pisoBtc) chips.push({ t: "≤BTC", c: "bad" });
+      if (minOrdenFuera(fx)) chips.push({ t: "min>$6", c: "bad" });
+      if (fx.extremo_fuera) chips.push({ t: "extremo", c: "warn" });
+      if (liquidezFuera(fx)) chips.push({ t: "libro", c: "bad" });
+      if (apalancamientoFuera(r.activo)) chips.push({ t: "lev<10", c: "bad" });
+      if (listadoRecienteFuera(r.activo)) chips.push({ t: "<3m", c: "bad" });
+      if (rangoRojoFuera(r.activo)) chips.push({ t: "rojo 1a", c: "bad" });
+      if (muertaFuera(r.activo)) chips.push({ t: "muerta", c: "bad" });
+      if (luzRojoFuera(r)) chips.push({ t: "luz ROJO", c: "bad" });
+      const rng = rangoAnualPct(r.activo);
+      const rb = rangoAnualBanda(r.activo);
+      if (rng != null && rb) chips.push({ t: `1a ${fmt(rng, 0)}%`, c: rb === "verde" ? "ok" : rb === "amarillo" ? "warn" : "bad" });
+      if (fx.pico_masa_fuera) chips.push({ t: "pico", c: "bad" });
+      if (!chips.length) chips.push({ t: "vivo", c: "ok" });
+      return chips;
+    }
+
+    function pasaRanking(r) {
+      return !fueraAbsoluto(r);
+    }
+
+    function indexByActivo(ranking) {
+      const m = new Map();
+      for (const r of ranking || []) {
+        const a = String(r.activo || "").toUpperCase();
+        if (a) m.set(a, r);
+      }
+      return m;
+    }
+
+    function buildFusion(normalData, feriaData) {
+      const nMap = indexByActivo(normalData && normalData.ranking);
+      const fMap = indexByActivo(feriaData && feriaData.ranking);
+      const keys = new Set([...nMap.keys(), ...fMap.keys()]);
+      const rows = [];
+      for (const activo of keys) {
+        const n = nMap.get(activo) || null;
+        const f = fMap.get(activo) || null;
+        const cn = n ? Number(n.calor || 0) : null;
+        const cf = f ? Number(f.calor || 0) : null;
+        if (cn == null && cf == null) continue;
+        let mejor = "—";
+        let calorMejor = 0;
+        let winner = null;
+        if (cn == null) {
+          mejor = "feria";
+          calorMejor = cf;
+          winner = f;
+        } else if (cf == null) {
+          mejor = "normal";
+          calorMejor = cn;
+          winner = n;
+        } else if (Math.abs(cn - cf) < EMPATE_EPS) {
+          mejor = "empate";
+          calorMejor = cn;
+          winner = n;
+        } else if (cn > cf) {
+          mejor = "normal";
+          calorMejor = cn;
+          winner = n;
+        } else {
+          mejor = "feria";
+          calorMejor = cf;
+          winner = f;
+        }
+        rows.push({
+          activo,
+          calor_normal: cn,
+          calor_feria: cf,
+          delta: cn != null && cf != null ? cn - cf : null,
+          mejor,
+          calor_mejor: calorMejor,
+          rank_normal: n ? n.rank_calor : null,
+          rank_feria: f ? f.rank_calor : null,
+          cosechas: winner ? winner.cosechas_larga : null,
+          neto: winner ? winner.neto_larga : null,
+          efi_larga: winner ? winner.efi_larga : null,
+          semaforo: winner ? winner.semaforo : null,
+        });
+      }
+      rows.sort((a, b) => Number(b.calor_mejor || 0) - Number(a.calor_mejor || 0));
+      rows.forEach((r, i) => {
+        r.rank_fusion = i + 1;
+      });
+      return rows;
+    }
+
+    function fueraRango700TopList(list) {
+      return list
+        .filter((r) => {
+          const pct = rangoAnualPct(r.activo);
+          const rk = Number(r.rank_fusion);
+          return (
+            pct != null &&
+            pct > RNG_FUERA_LISTA_MIN &&
+            rangoAnualFuera(r.activo) &&
+            Number.isFinite(rk) &&
+            rk <= FUERA_RANK_ORIG_MAX
+          );
+        })
+        .sort((a, b) => Number(a.rank_fusion || 9999) - Number(b.rank_fusion || 9999));
+    }
+
+    function labelBeru(mejor) {
+      if (mejor === "normal") return `<span class="beru-normal">Original</span>`;
+      if (mejor === "feria") return `<span class="beru-feria">Volátil</span>`;
+      if (mejor === "empate") return `<span class="beru-empate">Empate</span>`;
+      return "—";
+    }
+
+    function chipsHtml(chips) {
+      return chips.map((c) => `<span class="chip ${c.c}">${c.t}</span>`).join("");
+    }
+
+    function filtrarLista(list) {
+      const q = String(document.getElementById("q").value || "").trim().toUpperCase();
+      const mejor = document.querySelector('input[name="mejor"]:checked')?.value || "all";
+      const verFuera = document.getElementById("ver-fuera").checked;
+      return list.filter((r) => {
+        if (!verFuera && fueraAbsoluto(r)) return false;
+        const rk = Number(r.rank_fusion);
+        if (!Number.isFinite(rk) || rk > FUERA_RANK_ORIG_MAX) return false;
+        if (q && !String(r.activo).toUpperCase().includes(q)) return false;
+        if (mejor !== "all" && r.mejor !== mejor) return false;
+        return true;
+      });
+    }
+
+    function openDrawer(activo) {
+      const f = fichaOf(activo);
+      const row = fusion.find((r) => r.activo === activo) || null;
+      const paras = Array.isArray(f.parrafos) && f.parrafos.length
+        ? f.parrafos
+        : String(f.descripcion || f.blurb || "").split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
+      const parasHtml = paras.length
+        ? paras.map((p) => `<p class="blurb">${p}</p>`).join("")
+        : `<p class="blurb">Sin descripción larga aún.</p>`;
+      const fx = filtroOf(activo);
+      document.getElementById("drawer-body").innerHTML = `
+        <h2>${activo}</h2>
+        <div class="sub">${f.nombre || activo} · ${(f.symbol_type || "?").toUpperCase()}${f.tradefi ? " · TradeFi" : ""}</div>
+        ${parasHtml}
+        <dl>
+          <dt>Mejor Beru</dt><dd>${labelBeru(row ? row.mejor : "—")}</dd>
+          <dt>Calor mejor</dt><dd>${row ? fmt(row.calor_mejor) : "—"}</dd>
+          <dt>Original</dt><dd>${row && row.calor_normal != null ? fmt(row.calor_normal) : "—"} · #${row && row.rank_normal != null ? row.rank_normal : "—"}</dd>
+          <dt>Volátil</dt><dd>${row && row.calor_feria != null ? fmt(row.calor_feria) : "—"} · #${row && row.rank_feria != null ? row.rank_feria : "—"}</dd>
+          <dt>Cosechas 90d</dt><dd>${row ? (row.cosechas ?? "—") : "—"} <em>(lado ganador)</em></dd>
+          <dt>Neto 90d</dt><dd>${row ? fmt(row.neto, 2) : "—"}</dd>
+          <dt>Efi 90d</dt><dd>${row && row.efi_larga != null ? fmt(row.efi_larga) : "—"}</dd>
+          <dt>Tags</dt><dd>${row ? chipsHtml(tagsAbs(row)) : "—"}</dd>
+          <dt>Min orden</dt><dd>${fx.min_orden_usd != null ? fmt(fx.min_orden_usd, 2) + " USD" : "—"}</dd>
+          <dt>Apalanc. máx</dt><dd>${maxLeverageOf(activo) != null ? fmt(maxLeverageOf(activo), 0) + "x" + (apalancamientoFuera(activo) ? " · fuera" : "") : "—"}</dd>
+          <dt>Rango 1 año</dt><dd>${rangoAnualPct(activo) != null ? fmt(rangoAnualPct(activo), 1) + "% · " + (rangoAnualBanda(activo) || "—") + (rangoAnualFuera(activo) ? " · fuera" : "") : "—"}</dd>
+          <dt>Edad listado</dt><dd>${listadoEdadDias(activo) != null ? fmt(listadoEdadDias(activo), 0) + " días" + (esTradeFiExento(activo) ? " · TradeFi exento" : listadoRecienteFuera(activo) ? " · fuera" : "") : "—"}</dd>
+          <dt>Pico / last</dt><dd>${fx.muerta_pico_usd != null ? "pico $" + fmt(fx.muerta_pico_usd, 4) + " · last $" + fmt(fx.muerta_last_usd, 6) + (muertaFuera(activo) ? " · muerta" : "") : "—"}</dd>
+          <dt>Pos bóveda</dt><dd>${fx.pos_rango != null ? fmt(Number(fx.pos_rango) * 100, 1) + "%" : "—"}</dd>
+        </dl>`;
+      document.getElementById("drawer").classList.add("open");
+      document.getElementById("drawer-bg").classList.add("open");
+    }
+
+    function closeDrawer() {
+      document.getElementById("drawer").classList.remove("open");
+      document.getElementById("drawer-bg").classList.remove("open");
+    }
+
+    function renderAll() {
+      const wrap = document.getElementById("table-wrap");
+      const meta = document.getElementById("meta");
+      const st = document.getElementById("status");
+      const n = cache.normal;
+      const f = cache.feria;
+      if (!n || !f || !n.ranking || !f.ranking) {
+        wrap.innerHTML = `<div class="empty">Faltan juicios reciente (normal y/o feria).</div>`;
+        st.textContent = "esperando";
+        return;
+      }
+      fusion = buildFusion(n, f);
+      const btcRow = fusion.find((r) => r.activo === "BTC");
+      pisoBtc = btcRow ? Number(btcRow.calor_mejor || 0) : 0;
+
+      const nNorm = fusion.filter((r) => r.mejor === "normal").length;
+      const nFer = fusion.filter((r) => r.mejor === "feria").length;
+      const nEmp = fusion.filter((r) => r.mejor === "empate").length;
+      const nVivos = fusion.filter(pasaRanking).length;
+      const nFuera = fusion.length - nVivos;
+      const visibles = filtrarLista(fusion);
+      const fueraR700 = fueraRango700TopList(fusion);
+
+      const estado = n.estado === "hecho" && f.estado === "hecho" ? "hecho" : "parcial";
+      st.textContent = `${estado} · ${visibles.length}/${fusion.length} visibles · rev ${PANEL_REV}`;
+      st.className = "badge " + (estado === "hecho" ? "ok" : "run");
+
+      document.getElementById("cards").innerHTML = `
+        <div class="slot-card"><div class="t">Santos</div><div class="n">${fusion.length}</div></div>
+        <div class="slot-card"><div class="t">En ranking</div><div class="n" style="color:var(--verde)">${nVivos}</div></div>
+        <div class="slot-card"><div class="t">Fuera (≤BTC·liq·min·lev)</div><div class="n" style="color:var(--rojo)">${nFuera}</div></div>
+        <div class="slot-card"><div class="t">Gana original</div><div class="n" style="color:var(--cyan)">${nNorm}</div></div>
+        <div class="slot-card"><div class="t">Gana volátil</div><div class="n" style="color:var(--feria)">${nFer}</div></div>
+        <div class="slot-card"><div class="t">Piso BTC</div><div class="n">${fmt(pisoBtc)}</div></div>`;
+
+      meta.innerHTML = `
+        <span>Horizonte <strong>reciente 7/30/90</strong></span>
+        <span>Calor / cosechas / neto = del <strong>mejor Beru</strong> por Santo</span>
+        <span>Descartados sin preguntar: <strong>≤ BTC</strong> · <strong>libro fino</strong> · <strong>min orden &gt; $6</strong> · <strong>apalanc &lt; 10x</strong> · <strong>rango 1a &gt;200%</strong> · <strong>crypto &lt;3 meses</strong></span>
+        <span>Sombreado 1 año: <strong style="color:var(--verde)">0–50%</strong> · <strong style="color:var(--amarillo)">50–200%</strong> · <strong style="color:var(--rojo)">200–300%</strong></span>`;
+
+      const rows = visibles
+        .map(
+          (r, i) => `
+        <tr class="${rowRangoClass(r.activo)}">
+          <td>${i + 1}</td>
+          <td>${r.rank_fusion ?? "—"}</td>
+          <td class="santo" data-activo="${r.activo}">${santoCell(r.activo)}</td>
+          <td>${fmt(r.calor_mejor)}</td>
+          <td>${fmt(r.calor_normal)}</td>
+          <td>${fmt(r.calor_feria)}</td>
+          <td>${labelBeru(r.mejor)}</td>
+          <td>${r.delta == null ? "—" : (r.delta > 0 ? "+" : "") + fmt(r.delta)}</td>
+          <td>${r.cosechas ?? "—"}</td>
+          <td>${fmt(r.neto, 2)}</td>
+          <td>${r.semaforo || "—"}</td>
+          <td>${chipsHtml(tagsAbs(r))}</td>
+        </tr>`
+        )
+        .join("");
+
+      const fueraR700Html = fueraR700.length
+        ? `<section class="section">
+            <h2>Fuera · rango &gt;700% · top 500 <span class="chip bad">${fueraR700.length}</span></h2>
+            <p class="hint">Sacadas por rango 1a &gt;300% y &gt;700% vs precio hoy. Solo <strong># orig ≤ 500</strong>.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th># orig</th><th>Santo</th><th>Rango 1a</th><th>Calor mejor</th>
+                  <th>Original</th><th>Volátil</th><th>Mejor Beru</th>
+                </tr>
+              </thead>
+              <tbody>${fueraR700
+                .map(
+                  (r, i) => `
+                <tr>
+                  <td>${i + 1}</td>
+                  <td>${r.rank_fusion ?? "—"}</td>
+                  <td class="santo" data-activo="${r.activo}">${santoCell(r.activo)}</td>
+                  <td>${fmt(rangoAnualPct(r.activo), 0)}%</td>
+                  <td>${fmt(r.calor_mejor)}</td>
+                  <td>${fmt(r.calor_normal)}</td>
+                  <td>${fmt(r.calor_feria)}</td>
+                  <td>${labelBeru(r.mejor)}</td>
+                </tr>`
+                )
+                .join("")}</tbody>
+            </table>
+          </section>`
+        : "";
+
+      wrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th title="Ranking por calor mejor antes de filtros"># orig</th><th>Santo</th><th>Calor mejor</th>
+              <th>Original</th><th>Volátil</th><th>Mejor Beru</th>
+              <th>Δ N−F</th><th>Cosechas</th><th>Neto</th><th>Luz</th><th>Tags</th>
+            </tr>
+          </thead>
+          <tbody>${rows || `<tr><td colspan="12" class="empty">Sin filas con ese filtro</td></tr>`}</tbody>
+        </table>${fueraR700Html}`;
+      wrap.querySelectorAll("td.santo").forEach((td) => {
+        td.addEventListener("click", () => openDrawer(td.dataset.activo));
+      });
+    }
+
+    async function fetchSlot(path) {
+      const r = await fetch(`${path}?t=${Date.now()}`, { cache: "no-store" });
+      if (!r.ok) throw new Error(String(r.status));
+      return r.json();
+    }
+
+    async function tick() {
+      try {
+        const [normal, feria] = await Promise.all([
+          fetchSlot("matriz/normal_reciente/checkpoint_parcial.json"),
+          fetchSlot("matriz/feria_reciente/checkpoint_parcial.json"),
+        ]);
+        cache.normal = normal;
+        cache.feria = feria;
+      } catch (e) { /* keep */ }
+      renderAll();
+    }
+
+    async function loadExtras() {
+      try {
+        const [fj, fa] = await Promise.all([
+          fetch(`santos_ficha.json?t=${Date.now()}`, { cache: "no-store" }),
+          fetch(`filtros_absolutos.json?t=${Date.now()}`, { cache: "no-store" }),
+        ]);
+        if (fj.ok) fichas = (await fj.json()).por_base || {};
+        if (fa.ok) filtrosAbs = (await fa.json()).activos || {};
+      } catch (e) {
+        fichas = {};
+        filtrosAbs = {};
+      }
+    }
+
+    document.getElementById("q").addEventListener("input", renderAll);
+    document.querySelectorAll('input[name="mejor"]').forEach((el) => el.addEventListener("change", renderAll));
+    document.getElementById("ver-fuera").addEventListener("change", renderAll);
+    document.getElementById("drawer-close").addEventListener("click", closeDrawer);
+    document.getElementById("drawer-bg").addEventListener("click", closeDrawer);
+
+    loadExtras().then(tick);
+    setInterval(tick, 5000);
+  </script>
+</body>
+</html>

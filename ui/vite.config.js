@@ -73,6 +73,52 @@ function serveDataPlugin() {
           res.end("method not allowed");
           return;
         }
+
+        // Velas Beru (spot|linear) — ojos Bybit vía ritual Python
+        if (rel === "beru_kline.json") {
+          try {
+            const u = new URL(req.url, "http://local");
+            const symbol = u.searchParams.get("symbol") || "ETH";
+            const interval = u.searchParams.get("interval") || "15";
+            const limit = u.searchParams.get("limit") || "240";
+            const category = u.searchParams.get("category") || "spot";
+            const py = path.join(rootDir, "scripts", "beru_spot_kline.py");
+            const r = spawnSync(
+              "python",
+              [
+                py,
+                "--symbol",
+                String(symbol),
+                "--interval",
+                String(interval),
+                "--limit",
+                String(limit),
+                "--category",
+                String(category),
+              ],
+              { cwd: rootDir, encoding: "utf8", timeout: 20000 },
+            );
+            if (r.status !== 0) {
+              res.statusCode = 502;
+              res.setHeader("Content-Type", "application/json; charset=utf-8");
+              res.end(
+                JSON.stringify({
+                  velas: [],
+                  error: (r.stderr || r.stdout || "kline failed").trim().slice(0, 200),
+                }),
+              );
+              return;
+            }
+            res.setHeader("Content-Type", "application/json; charset=utf-8");
+            res.setHeader("Cache-Control", "no-store");
+            res.end(r.stdout || "{}");
+          } catch (e) {
+            res.statusCode = 500;
+            res.end(String(e?.message || e));
+          }
+          return;
+        }
+
         if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
           res.statusCode = 404;
           res.end("not found");
