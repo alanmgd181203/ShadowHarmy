@@ -10,81 +10,98 @@ const dataDir = path.resolve(__dirname, "../data");
 const rootDir = path.resolve(__dirname, "..");
 const cli = path.join(rootDir, "scripts", "set_marcha_cli.py");
 
-function serveDataPlugin() {
-  return {
-    name: "serve-shadow-data",
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        if (!req.url?.startsWith("/data/")) return next();
-        const rel = decodeURIComponent(req.url.slice("/data/".length).split("?")[0]);
-        const file = path.normalize(path.join(dataDir, rel));
-        if (!file.startsWith(dataDir)) {
-          res.statusCode = 403;
-          res.end("forbidden");
+function pythonBin() {
+  const fromEnv = process.env.PYTHON || process.env.PYTHON_BIN;
+  if (fromEnv) return fromEnv;
+  // Windows: preferir el pythoncore real (no el stub WindowsApps).
+  const candidates = [
+    path.join(process.env.LOCALAPPDATA || "", "Python", "pythoncore-3.14-64", "python.exe"),
+    path.join(process.env.LOCALAPPDATA || "", "Programs", "Python", "Python312", "python.exe"),
+    "C:\\Python314\\python.exe",
+    "python",
+  ];
+  for (const c of candidates) {
+    if (c === "python") return c;
+    try {
+      if (c && fs.existsSync(c)) return c;
+    } catch {
+      /* ignore */
+    }
+  }
+  return "python";
+}
+
+function dataMiddleware(req, res, next) {
+  if (!req.url?.startsWith("/data/")) return next();
+  const rel = decodeURIComponent(req.url.slice("/data/".length).split("?")[0]);
+  const file = path.normalize(path.join(dataDir, rel));
+  if (!file.startsWith(dataDir)) {
+    res.statusCode = 403;
+    res.end("forbidden");
+    return;
+  }
+
+  // POST marcha → CLI calibrada (no escritura cruda)
+  if (req.method === "POST" && rel === "marcha_despliegue.json") {
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => {
+      try {
+        const raw = Buffer.concat(chunks).toString("utf8");
+        const data = JSON.parse(raw);
+        if (!data.marcha_id || typeof data.marcha_id !== "string") {
+          res.statusCode = 400;
+          res.end("marcha_id required");
           return;
         }
-
-        // POST marcha → CLI calibrada (no escritura cruda)
-        if (req.method === "POST" && rel === "marcha_despliegue.json") {
-          const chunks = [];
-          req.on("data", (c) => chunks.push(c));
-          req.on("end", () => {
-            try {
-              const raw = Buffer.concat(chunks).toString("utf8");
-              const data = JSON.parse(raw);
-              if (!data.marcha_id || typeof data.marcha_id !== "string") {
-                res.statusCode = 400;
-                res.end("marcha_id required");
-                return;
-              }
-              const args = [cli, "--id", data.marcha_id, "--json-out"];
-              const dias = data.duracion_dias ?? data.duracionDias;
-              if (dias != null && Number(dias) > 0) {
-                args.push("--dias", String(dias));
-              }
-              const eq = data.equity_usd ?? data.equity;
-              if (eq != null && Number(eq) > 0) {
-                args.push("--equity", String(eq));
-              }
-              const r = spawnSync("python", args, { cwd: rootDir, encoding: "utf8" });
+        const args = [cli, "--id", data.marcha_id, "--json-out"];
+        const dias = data.duracion_dias ?? data.duracionDias;
+        if (dias != null && Number(dias) > 0) {
+          args.push("--dias", String(dias));
+        }
+        const eq = data.equity_usd ?? data.equity;
+        if (eq != null && Number(eq) > 0) {
+          args.push("--equity", String(eq));
+        }
+              const r = spawnSync(pythonBin(), args, { cwd: rootDir, encoding: "utf8" });
               if (r.status !== 0) {
                 res.statusCode = 400;
                 res.end((r.stderr || r.stdout || "set_marcha_cli failed").trim());
                 return;
               }
-              let payload;
-              try {
-                payload = JSON.parse(r.stdout || "{}");
-              } catch {
-                payload = { ok: true, raw: r.stdout };
-              }
-              res.setHeader("Content-Type", "application/json; charset=utf-8");
-              res.end(JSON.stringify({ ok: true, ...payload }));
-            } catch (e) {
-              res.statusCode = 400;
-              res.end(String(e?.message || e));
-            }
-          });
-          return;
+        let payload;
+        try {
+          payload = JSON.parse(r.stdout || "{}");
+        } catch {
+          payload = { ok: true, raw: r.stdout };
         }
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({ ok: true, ...payload }));
+      } catch (e) {
+        res.statusCode = 400;
+        res.end(String(e?.message || e));
+      }
+    });
+    return;
+  }
 
-        if (req.method !== "GET" && req.method !== "HEAD") {
-          res.statusCode = 405;
-          res.end("method not allowed");
-          return;
-        }
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    res.statusCode = 405;
+    res.end("method not allowed");
+    return;
+  }
 
-        // Velas Beru (spot|linear) — ojos Bybit vía ritual Python
-        if (rel === "beru_kline.json") {
-          try {
-            const u = new URL(req.url, "http://local");
-            const symbol = u.searchParams.get("symbol") || "ETH";
-            const interval = u.searchParams.get("interval") || "15";
-            const limit = u.searchParams.get("limit") || "240";
-            const category = u.searchParams.get("category") || "spot";
-            const py = path.join(rootDir, "scripts", "beru_spot_kline.py");
+  // Velas Beru (spot|linear) — ojos Bybit vía ritual Python
+  if (rel === "beru_kline.json") {
+    try {
+      const u = new URL(req.url, "http://local");
+      const symbol = u.searchParams.get("symbol") || "ETH";
+      const interval = u.searchParams.get("interval") || "15";
+      const limit = u.searchParams.get("limit") || "240";
+      const category = u.searchParams.get("category") || "spot";
+      const py = path.join(rootDir, "scripts", "beru_spot_kline.py");
             const r = spawnSync(
-              "python",
+              pythonBin(),
               [
                 py,
                 "--symbol",
@@ -98,36 +115,45 @@ function serveDataPlugin() {
               ],
               { cwd: rootDir, encoding: "utf8", timeout: 20000 },
             );
-            if (r.status !== 0) {
-              res.statusCode = 502;
-              res.setHeader("Content-Type", "application/json; charset=utf-8");
-              res.end(
-                JSON.stringify({
-                  velas: [],
-                  error: (r.stderr || r.stdout || "kline failed").trim().slice(0, 200),
-                }),
-              );
-              return;
-            }
-            res.setHeader("Content-Type", "application/json; charset=utf-8");
-            res.setHeader("Cache-Control", "no-store");
-            res.end(r.stdout || "{}");
-          } catch (e) {
-            res.statusCode = 500;
-            res.end(String(e?.message || e));
-          }
-          return;
-        }
-
-        if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
-          res.statusCode = 404;
-          res.end("not found");
-          return;
-        }
+      if (r.status !== 0) {
+        res.statusCode = 502;
         res.setHeader("Content-Type", "application/json; charset=utf-8");
-        res.setHeader("Cache-Control", "no-store");
-        fs.createReadStream(file).pipe(res);
-      });
+        res.end(
+          JSON.stringify({
+            velas: [],
+            error: (r.stderr || r.stdout || "kline failed").trim().slice(0, 200),
+          }),
+        );
+        return;
+      }
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store");
+      res.end(r.stdout || "{}");
+    } catch (e) {
+      res.statusCode = 500;
+      res.end(String(e?.message || e));
+    }
+    return;
+  }
+
+  if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+    res.statusCode = 404;
+    res.end("not found");
+    return;
+  }
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  fs.createReadStream(file).pipe(res);
+}
+
+function serveDataPlugin() {
+  return {
+    name: "serve-shadow-data",
+    configureServer(server) {
+      server.middlewares.use(dataMiddleware);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(dataMiddleware);
     },
   };
 }

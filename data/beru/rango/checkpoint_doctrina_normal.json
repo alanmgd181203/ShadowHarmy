@@ -10,7 +10,7 @@
     "engorde_usd": 1.0,
     "engorde_paso_pct": 0.001,
     "cero": "wake_eterno",
-    "saco_techo": "meta_menos_ya"
+    "saco_techo": "sin_tope"
   },
   "feria_paralelo": {
     "activar": "BERU_RANGO_PERFIL=feria",

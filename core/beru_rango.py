@@ -1,10 +1,11 @@
-"""Beru rango (lineal) — wake eterno · Red desde Oz · saco meta−ya · sangre $5+.
+"""Beru rango (lineal) — wake eterno · Red desde Oz · saco ledger · sangre $5+.
 
-Doctrina Monarca 2026-08-22 (cirugía saco):
+Doctrina Monarca 2026-08-22 (cirugía saco) · sin tope meta−ya (2026-08-23):
   · 0 absoluto = wake (no se mueve con Oz ni fill)
   · Perfil normal: Vacío/sangre ±1,2 % · Oz 0,2 % · Red 0,7 % · +$1/0,1 %
   · Perfil feria (paralelo): ±2,4 % · Oz 0,4 % · Red 1,4 % · +$1/0,2 %
-  · Vacío/Red/Sangre nacen $5; engorde desde activación; techo meta−ya
+  · Vacío/Red/Sangre nacen $5; engorde desde activación; escalera sin tope
+  · Ledger saco = bitácora (no bloquea Vacío/Red)
   · Misma vela: sangre primero · sangre mata Red
   · Un vivo · manos OFF por defecto · lineal · BERU_RANGO_PERFIL
 """
@@ -105,39 +106,40 @@ def registrar_saco(beru: Any, lado: str, masa: float) -> None:
         beru.saco_short_usd = saco_lado_usd(beru, "SHORT") + m
 
 
-def cupo_lado_usd(beru: Any, *, lado: str, precio: float, origen: str) -> float:
-    """Techo del saco en ese lado: meta(wake,px) − ya cosechado (anti-stack)."""
-    d = str(lado or "").upper()
+def meta_en_profundidad_usd(
+    beru: Any, *, lado: str, precio: float, origen: str,
+) -> float:
+    """Meta informativa a esta profundidad ($5 + peldaños desde wake). No bloquea armas."""
+    _ = str(lado or "").upper()
     px = float(precio or 0)
     origen_u = str(origen or "").upper()
     base = masa_red_usd() if origen_u == "RED" else masa_tramo_usd()
-    meta = meta_saco_usd(cero_wake(beru), px, base=base)
-    ya = saco_lado_usd(beru, d)
-    return max(0.0, meta - ya)
+    return meta_saco_usd(cero_wake(beru), px, base=base)
+
+
+def cupo_lado_usd(beru: Any, *, lado: str, precio: float, origen: str) -> float:
+    """Alias histórico = meta a profundidad (ya no resta saco ni frena la escalera)."""
+    return meta_en_profundidad_usd(beru, lado=lado, precio=precio, origen=origen)
 
 
 def orden_nacimiento_usd(beru: Any, *, lado: str, precio: float, origen: str) -> float:
-    """Vacío/Red nacen en $5 (o menos si el cupo meta−saco es menor)."""
+    """Vacío/Red nacen en $5 siempre (saco acumulado no corta el oficio)."""
+    _ = (lado, precio)
     origen_u = str(origen or "").upper()
     base = masa_red_usd() if origen_u == "RED" else masa_tramo_usd()
-    cupo = cupo_lado_usd(beru, lado=lado, precio=precio, origen=origen_u)
-    if cupo <= 1e-12:
-        return 0.0
-    return min(base, cupo)
+    return max(0.0, base)
 
 
-# Alias: cupo restante (smokes / lectura)
-orden_vacio_red_usd = cupo_lado_usd
+# Alias: meta a profundidad (panel / lectura)
+orden_vacio_red_usd = meta_en_profundidad_usd
 
 
 def masa_tramo_viva_usd(beru: Any, precio: float | None = None) -> float:
     """Masa del tramo vivo — misma regla Vacío / Red / Sangre.
 
     Nace en $5. Engorda $1 por cada 0,1 % solo desde el precio de activación.
-    Vacío/Red además no pasan el cupo meta(wake) − saco ya del lado.
     """
     origen = str(getattr(beru, "origen_tramo", "") or "").upper()
-    d = str(getattr(beru, "direccion", "") or "").upper()
     px = float(precio or 0) or float(getattr(beru, "trail_extremo", 0) or 0)
     if origen == "SANGRE":
         base = masa_sangre_usd()
@@ -150,13 +152,7 @@ def masa_tramo_viva_usd(beru: Any, precio: float | None = None) -> float:
         viva = base
     else:
         viva = base + float(peldaños_entre(ancla, px)) * engorde_paso_usd()
-    if origen == "SANGRE" or d not in ("LONG", "SHORT"):
-        return max(0.0, viva)
-    origen_arm = "RED" if origen == "RED" else "VACIO"
-    cupo = cupo_lado_usd(beru, lado=d, precio=px, origen=origen_arm)
-    if cupo <= 1e-12:
-        return 0.0
-    return min(viva, cupo)
+    return max(0.0, viva)
 
 
 def masa_engordada_usd(beru: Any, precio: float | None = None) -> float:
@@ -165,7 +161,7 @@ def masa_engordada_usd(beru: Any, precio: float | None = None) -> float:
 
 
 def actualizar_engorde(beru: Any, precio: float) -> bool:
-    """Engorda el tramo vivo desde ancla ($5 + peldaños); Vacío/Red respetan cupo."""
+    """Engorda el tramo vivo desde ancla ($5 + peldaños)."""
     if bool(getattr(beru, "engorde_bloqueado", True)):
         return False
     if str(getattr(beru, "estado", "") or "").upper() != "CAZANDO":
@@ -281,6 +277,7 @@ def despertar(beru: Any, precio: float, *, activo: str = "") -> None:
     beru.saco_long_usd = 0.0
     beru.saco_short_usd = 0.0
     beru.sangre_lado = ""
+    beru.sangre_adan = 0.0
     beru.rango_escalones_red = 0
     beru.origen_tramo = ""
     if activo:
@@ -360,7 +357,7 @@ def _plantar_trailing(
     beru.altar_order_id = ""
     beru.altar_order_status = ""
     beru.altar_trigger_price = 0.0
-    # Recalcula: engorde desde ancla; Vacío/Red pueden crecer hasta el cupo.
+    # Recalcula: engorde desde ancla.
     actualizar_engorde(beru, px)
     return float(getattr(beru, "masa", 0) or masa_f)
 
@@ -439,7 +436,7 @@ def toca_oz(beru: Any, precio: float) -> bool:
 
 
 def toca_sangre(beru: Any, precio: float) -> bool:
-    """Activación 1,2 contraria desde wake (trailing opuesto $5)."""
+    """Activación sangre post-Oz: 1,2 % del peldaño Oz (contraria), no del last lejos."""
     if not bool(getattr(beru, "oreja_sangre_activa", False)):
         return False
     if str(getattr(beru, "estado", "") or "") != "ACECHANDO":
@@ -449,9 +446,25 @@ def toca_sangre(beru: Any, precio: float) -> bool:
         or float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0) > 0
     ):
         return False
-    sil = float(getattr(beru, "llamado_tramo_pct", 0) or sangre_contraria_pct())
-    pct = pct_desde_cero(beru, precio)
+    px = float(precio or 0)
+    if px <= 0:
+        return False
     lado = str(getattr(beru, "sangre_lado", "") or "").upper()
+    sangre_px = float(getattr(beru, "sangre_adan", 0) or 0)
+    if sangre_px > 0:
+        if lado == "ABAJO":
+            return px <= sangre_px + 1e-12
+        if lado == "ARRIBA":
+            return px >= sangre_px - 1e-12
+        oz_dir = str(getattr(beru, "ultima_hoz_direccion", "") or "").upper()
+        if oz_dir == "SHORT":
+            return px <= sangre_px + 1e-12
+        if oz_dir == "LONG":
+            return px >= sangre_px - 1e-12
+        return False
+    # Respaldo legacy: ±1,2 desde wake (semillas viejas sin sangre_adan).
+    sil = float(getattr(beru, "llamado_tramo_pct", 0) or sangre_contraria_pct())
+    pct = pct_desde_cero(beru, px)
     if lado == "ABAJO":
         return pct <= -sil + 1e-12
     if lado == "ARRIBA":
@@ -608,11 +621,16 @@ def latido_sugerido_s(
         candidatos.extend([cero * (1.0 + vac), cero * (1.0 - vac)])
     lado = str(getattr(beru, "sangre_lado", "") or "").upper()
     sil = sangre_contraria_pct()
-    if cero > 0 and bool(getattr(beru, "oreja_sangre_activa", False)):
-        if lado == "ABAJO":
-            candidatos.append(cero * (1.0 - sil))
-        elif lado == "ARRIBA":
-            candidatos.append(cero * (1.0 + sil))
+    if bool(getattr(beru, "oreja_sangre_activa", False)):
+        sangre_px = float(getattr(beru, "sangre_adan", 0) or 0)
+        if sangre_px > 0:
+            candidatos.append(sangre_px)
+        elif cero > 0:
+            # Semilla / sello legacy sin sangre_adan: ±1,2 desde wake.
+            if lado == "ABAJO":
+                candidatos.append(cero * (1.0 - sil))
+            elif lado == "ARRIBA":
+                candidatos.append(cero * (1.0 + sil))
     for nivel in candidatos:
         if nivel <= 0:
             continue
@@ -629,7 +647,11 @@ def _cancelar_red(beru: Any) -> None:
 
 
 def _plantar_orejas_post_oz(beru: Any, ancla_red: float, direccion: str) -> None:
-    """Tras Oz: sangre 1,2 desde wake + Red 0,7 desde ancla (peldaño/fill peor)."""
+    """Tras Oz: sangre 1,2 % del peldaño Oz (contraria) + Red 0,7 % del mismo ancla.
+
+    Wake (0) sigue eterno para meta/saco. El *llamado* de sangre no se queda
+    clavado al wake: si la Red escala el frente, la sangre renace junto al Oz.
+    """
     sil = sangre_contraria_pct()
     red_act = red_activacion_pct()
     beru.llamado_tramo_pct = sil
@@ -637,10 +659,12 @@ def _plantar_orejas_post_oz(beru: Any, ancla_red: float, direccion: str) -> None
     ancla = float(ancla_red or 0)
     if d == "SHORT":
         beru.sangre_lado = "ABAJO"
+        beru.sangre_adan = ancla * (1.0 - sil) if ancla > 0 else 0.0
         beru.red_adan = ancla * (1.0 + red_act) if ancla > 0 else 0.0
         beru.red_pct = red_act
     else:
         beru.sangre_lado = "ARRIBA"
+        beru.sangre_adan = ancla * (1.0 + sil) if ancla > 0 else 0.0
         beru.red_adan = ancla * (1.0 - red_act) if ancla > 0 else 0.0
         beru.red_pct = -red_act
     beru.oreja_sangre_activa = True
@@ -657,6 +681,8 @@ def restaurar_acecho_post_oz(
     escalones_red: int = 0,
     cosechas: int = 0,
     oz_despliegue: float = 0.0,
+    saco_long: float = 0.0,
+    saco_short: float = 0.0,
 ) -> None:
     """Reengancha acecho tras sello: wake / Red / sangre (sin nuevo wake)."""
     wake = float(cero or 0)
@@ -692,10 +718,27 @@ def restaurar_acecho_post_oz(
     beru.llamado_tramo_pct = sangre_contraria_pct()
     beru.red_adan = red_px
     beru.red_pct = red_act if beru.sangre_lado == "ABAJO" else -red_act
+    # Misma ancla que la Red viva (fill peor puede haber subido el peldaño).
+    # Oz_despliegue / wake solo si aún no hay Red en el sello.
+    sil = sangre_contraria_pct()
+    ancla_sangre = 0.0
+    if red_px > 0:
+        if beru.sangre_lado == "ABAJO":
+            ancla_sangre = red_px / (1.0 + red_act) if red_act < 1 else red_px
+        else:
+            ancla_sangre = red_px / (1.0 - red_act) if red_act < 1 else red_px
+    if ancla_sangre <= 0:
+        ancla_sangre = oz_dep if oz_dep > 0 else wake
+    if beru.sangre_lado == "ABAJO":
+        beru.sangre_adan = ancla_sangre * (1.0 - sil)
+    else:
+        beru.sangre_adan = ancla_sangre * (1.0 + sil)
     beru.oreja_sangre_activa = True
     beru.oreja_red_activa = True
     beru.rango_escalones_red = int(escalones_red or 0)
     beru.cosechas_continuas = int(cosechas or 0)
+    beru.saco_long_usd = max(0.0, float(saco_long or 0))
+    beru.saco_short_usd = max(0.0, float(saco_short or 0))
     beru.altar_link_id = ""
     beru.altar_order_id = ""
     beru.altar_order_status = ""
@@ -826,16 +869,17 @@ def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
     lado = str(getattr(beru, "sangre_lado", "") or "").upper()
     masa = masa_sangre_usd()
     vac = vacio_adan_pct()
+    sangre_px = float(getattr(beru, "sangre_adan", 0) or 0)
 
     def _arm(short: bool, px: float) -> float:
         beru.origen_tramo = "SANGRE"
         return _plantar_trailing(beru, short=short, masa=masa, precio_activacion=px)
 
     if lado == "ABAJO":
-        px = float(precio or 0) or precio_desde_cero(beru, -vac)
+        px = float(precio or 0) or sangre_px or precio_desde_cero(beru, -vac)
         return _arm(False, px)
     if lado == "ARRIBA":
-        px = float(precio or 0) or precio_desde_cero(beru, vac)
+        px = float(precio or 0) or sangre_px or precio_desde_cero(beru, vac)
         return _arm(True, px)
     oz_dir = str(getattr(beru, "ultima_hoz_direccion", "") or "").upper()
     if oz_dir == "SHORT":
@@ -848,7 +892,7 @@ def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
 
 
 def armar_tramo_desde_red(beru: Any, precio: float | None = None) -> float:
-    """Red → nace en $5; engorde desde activación; cupo = meta − saco (anti-stack)."""
+    """Red → nace en $5; engorde desde activación (saco no frena)."""
     red = float(getattr(beru, "red_adan", 0) or 0)
     px = float(precio or 0) or red
     if px <= 0:
@@ -894,6 +938,6 @@ def resumen_geometria() -> dict[str, float | str]:
         "cero": "wake",
         "nacimiento": "cinco_usd",
         "engorde": "desde_activacion",
-        "saco_techo": "meta_menos_ya",
+        "saco_techo": "sin_tope",
         "ladder_red": "si",
     }

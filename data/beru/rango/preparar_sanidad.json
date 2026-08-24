@@ -1,13 +1,13 @@
 {
-  "ts": 1787423318.1707032,
-  "ts_utc": "2026-08-22T18:28:38.170706+00:00",
-  "ok": true,
-  "fallos": 0,
+  "ts": 1787543234.1008549,
+  "ts_utc": "2026-08-24T03:47:14.100857+00:00",
+  "ok": false,
+  "fallos": 1,
   "checks": [
     {
       "check": "doctrina",
       "ok": true,
-      "detalle": "geo={'cero': 'wake', 'nacimiento': 'cinco_usd', 'engorde': 'desde_activacion', 'saco_techo': 'meta_menos_ya', 'masa_usd': 5.0, 'vacio_pct': 0.012, 'red_activacion_pct': 0.007}"
+      "detalle": "geo={'cero': 'wake', 'nacimiento': 'cinco_usd', 'engorde': 'desde_activacion', 'saco_techo': 'sin_tope', 'masa_usd': 5.0, 'vacio_pct': 0.012, 'red_activacion_pct': 0.007}"
     },
     {
       "check": "manos_off",
@@ -31,8 +31,8 @@
     },
     {
       "check": "boveda_linear",
-      "ok": true,
-      "detalle": "bases=513 velas=171262041 err=—"
+      "ok": false,
+      "detalle": "bases=0 velas=0 err=—"
     },
     {
       "check": "juicio_import",
@@ -42,6 +42,7 @@
   ],
   "geometria": {
     "oficio": "RANGO",
+    "perfil": "normal",
     "mercado": "linear",
     "vacio_pct": 0.012,
     "vacio_rol": "activacion_trailing",
@@ -62,13 +63,13 @@
     "cero": "wake",
     "nacimiento": "cinco_usd",
     "engorde": "desde_activacion",
-    "saco_techo": "meta_menos_ya",
+    "saco_techo": "sin_tope",
     "ladder_red": "si"
   },
   "boveda": {
-    "ok": true,
-    "bases": 513,
-    "velas": 171262041,
+    "ok": false,
+    "bases": 0,
+    "velas": 0,
     "error": ""
   },
   "arquitectura": {

@@ -1,0 +1,2 @@
+{"ts": 1787608366.9161308, "activo": "MUBARAK", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1787608381.9276378, "activo": "MUBARAK", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 0.024069, "fill": 0.023777, "oz_despliegue": 0.023777, "sangre": "ARRIBA", "red": 0.023610561, "masa_hecha": 7.0, "trail_extremo": 0.02373, "oz": 0.023777, "dir": "LONG"}}

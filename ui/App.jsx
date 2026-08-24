@@ -3,6 +3,7 @@ import IgrisPanel from "./IgrisPanel.jsx";
 import BeruPanel from "./BeruPanel.jsx";
 import BellionPanel from "./BellionPanel.jsx";
 import TuskAscension, { TuskOrbButton } from "./TuskAscension.jsx";
+import PortalErrorBoundary from "./PortalErrorBoundary.jsx";
 
 import imgTusk from "../assets/portales/tusk.png";
 import imgBeru from "../assets/portales/beru.png";
@@ -136,15 +137,21 @@ export default function App() {
       </div>
 
       {activeGeneral === "igris" && (
-        <IgrisPanel onClose={closeGeneral} />
+        <PortalErrorBoundary onClose={closeGeneral}>
+          <IgrisPanel onClose={closeGeneral} />
+        </PortalErrorBoundary>
       )}
 
       {activeGeneral === "beru" && (
-        <BeruPanel onClose={closeGeneral} />
+        <PortalErrorBoundary onClose={closeGeneral}>
+          <BeruPanel onClose={closeGeneral} />
+        </PortalErrorBoundary>
       )}
 
       {activeGeneral === "bellion" && (
-        <BellionPanel onClose={closeGeneral} />
+        <PortalErrorBoundary onClose={closeGeneral}>
+          <BellionPanel onClose={closeGeneral} />
+        </PortalErrorBoundary>
       )}
 
       {ascensionOpen && (

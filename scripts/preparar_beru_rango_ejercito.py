@@ -2,7 +2,7 @@
 """Prepara ejército Beru rango + teatro de sombras — SIN despertar Santos.
 
 Comprueba:
-  · doctrina viva (nace $5 · engorde desde activación · techo meta−ya)
+  · doctrina viva (nace $5 · engorde desde activación · escalera sin tope)
   · flota multi: un Bridge por Santo (no una boca hablando por todos)
   · paths por Santo · juicio importable · bóveda al alcance
   · manos OFF por defecto
@@ -53,7 +53,7 @@ def main() -> int:
     doctrina_ok = (
         geo.get("nacimiento") == "cinco_usd"
         and geo.get("engorde") == "desde_activacion"
-        and geo.get("saco_techo") == "meta_menos_ya"
+        and geo.get("saco_techo") == "sin_tope"
         and geo.get("cero") == "wake"
         and abs(float(geo.get("masa_usd") or 0) - 5.0) < 1e-9
     )

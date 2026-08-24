@@ -1,0 +1,82 @@
+{
+  "ts": 1787609095.2501898,
+  "duracion_s": 26448.1,
+  "manos": true,
+  "mercado": "linear",
+  "activo": "ZEREBRO",
+  "contadores": {
+    "eventos": 74,
+    "errores": 0,
+    "por_evento": {
+      "ARMAR_ABAJO": 1,
+      "OZ_COSECHA": 37,
+      "ARMAR_RED": 20,
+      "ARMAR_SANGRE": 16
+    }
+  },
+  "last_lineal": 0.03738,
+  "snapshot": {
+    "oficio": "RANGO",
+    "activo": "ZEREBRO",
+    "manos": true,
+    "geometria": {
+      "oficio": "RANGO",
+      "perfil": "normal",
+      "mercado": "linear",
+      "vacio_pct": 0.012,
+      "vacio_rol": "activacion_trailing",
+      "oz_gap_pct": 0.002,
+      "oz_modo": "trailing_callback",
+      "red_activacion_pct": 0.007,
+      "red_desde_oz_pct": 0.007,
+      "red_modo": "trailing",
+      "red_callback_pct": 0.002,
+      "sangre_pct": 0.012,
+      "sangre_rol": "activacion_trailing",
+      "masa_usd": 5.0,
+      "masa_red_usd": 5.0,
+      "masa_sangre_usd": 5.0,
+      "trailing_pct": 0.002,
+      "engorde_usd": 1.0,
+      "engorde_paso_pct": 0.001,
+      "cero": "wake",
+      "nacimiento": "cinco_usd",
+      "engorde": "desde_activacion",
+      "saco_techo": "sin_tope",
+      "ladder_red": "si"
+    },
+    "vivo": {
+      "uid": "RANGO_ZEREBRO_R20_e94faf",
+      "estado": "ACECHANDO",
+      "direccion": "",
+      "cero": 0.03852,
+      "oz": 0.0,
+      "oz_despliegue": 0.037364,
+      "red": 0.037102452,
+      "trail_extremo": 0.0,
+      "masa": 0.0,
+      "saco_long": 105.0,
+      "saco_short": 97.0,
+      "sangre_lado": "ARRIBA",
+      "sangre": 0.037812368,
+      "sangre_adan": 0.037812368,
+      "cosechas": 37,
+      "escalones_red": 20,
+      "ultima_hoz_direccion": "LONG",
+      "altar_link_id": "",
+      "altar_order_id": "",
+      "altar_trigger_price": 0.0,
+      "altar_revision": 10,
+      "altar_order_status": ""
+    }
+  },
+  "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\ZEREBRO\\manos_eventos.jsonl",
+  "posicion": [
+    {
+      "lado": "LONG",
+      "qty": 427.0,
+      "precio": 0.03751554,
+      "masa_usd": 16.0191
+    }
+  ]
+}

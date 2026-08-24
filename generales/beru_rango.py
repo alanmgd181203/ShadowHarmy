@@ -134,7 +134,7 @@ class BeruRango:
                 if trig == "RED":
                     masa = beru_rango.armar_tramo_desde_red(beru, precio=px_arm)
                     if masa <= 0:
-                        return {"ok": True, "evento": "ACECHO", "nota": "saco_lleno_red"}
+                        return {"ok": True, "evento": "ACECHO", "nota": "red_sin_masa"}
                     beru.uid = (
                         f"RANGO_{self._activo}_R"
                         f"{int(getattr(beru, 'rango_escalones_red', 1) or 1)}_"
@@ -157,7 +157,7 @@ class BeruRango:
                 if lado:
                     masa = beru_rango.armar_tramo_desde_vacio(beru, lado, precio=px)
                     if masa <= 0:
-                        return {"ok": True, "evento": "ACECHO", "nota": "saco_lleno_vacio"}
+                        return {"ok": True, "evento": "ACECHO", "nota": "vacio_sin_masa"}
                     await self._tras_armar(beru, origen=f"VACIO_{lado}", masa=masa)
                     return {
                         "ok": True,
@@ -378,6 +378,8 @@ class BeruRango:
             "saco_long": float(getattr(beru, "saco_long_usd", 0) or 0),
             "saco_short": float(getattr(beru, "saco_short_usd", 0) or 0),
             "sangre_lado": getattr(beru, "sangre_lado", ""),
+            "sangre": float(getattr(beru, "sangre_adan", 0) or 0),
+            "sangre_adan": float(getattr(beru, "sangre_adan", 0) or 0),
             "cosechas": int(getattr(beru, "cosechas_continuas", 0) or 0),
             "escalones_red": int(getattr(beru, "rango_escalones_red", 0) or 0),
             "ultima_hoz_direccion": getattr(beru, "ultima_hoz_direccion", "") or "",

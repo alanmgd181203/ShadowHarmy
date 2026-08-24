@@ -54,7 +54,18 @@ def main() -> int:
     assert "wake" in roles
     assert "vacio" in roles
     assert "red" in roles
+    # Sin sangre_adan: respaldo wake±1,2 (semilla / sello viejo).
     assert abs(next(n["precio"] for n in niv if n["id"] == "sangre_dn") - 98.8) < 1e-9
+
+    # Tras Oz: sangre del peldaño, no del wake (LIT ~3% era tumor wake-fijo).
+    vivo_oz = dict(vivo)
+    vivo_oz["sangre"] = 100.7 * 0.988  # Oz ancla 100.7 · sangre ABAJO 1,2 %
+    vivo_oz["sangre_adan"] = vivo_oz["sangre"]
+    vivo_oz["oz_despliegue"] = 100.7
+    niv_oz = beru_rango_panel.niveles_combate(vivo_oz, geom)
+    sangre_panel = next(n["precio"] for n in niv_oz if n["id"] == "sangre_dn")
+    assert abs(sangre_panel - 100.7 * 0.988) < 1e-9
+    assert abs(sangre_panel - 98.8) > 0.5
     payload = beru_rango_panel.armar_payload(
         snapshot={"geometria": geom, "vivo": vivo, "manos": True, "activo": "HYPE"},
         last=99.5,

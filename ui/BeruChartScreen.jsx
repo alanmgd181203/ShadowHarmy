@@ -24,18 +24,29 @@ export default function BeruChartScreen({ symbol, onClose, onFicha }) {
 
   useEffect(() => {
     let alive = true;
+    let lastKey = "";
     async function load() {
       try {
         const snap = await cargarSnapBeru();
         if (!alive) return;
-        setData(beruDesdeEstado(symbol, snap));
+        const next = beruDesdeEstado(symbol, snap);
+        const niv = next?.grafica?.niveles || [];
+        const key = [
+          next?.oficio,
+          next?.mercado,
+          next?.spot_last ?? next?.last_lineal,
+          ...niv.map((n) => `${n.id || n.rol}:${Number(n.precio || 0).toFixed(6)}`),
+        ].join("|");
+        if (key === lastKey) return;
+        lastKey = key;
+        setData(next);
         setIgris(igrisDesdeEstado(symbol, snap));
       } catch {
-        /* silencio */
+        /* silencio — no borrar data viva (evita rayas duales → semilla) */
       }
     }
     load();
-    const t = setInterval(load, 1000);
+    const t = setInterval(load, 2000);
     return () => {
       alive = false;
       clearInterval(t);

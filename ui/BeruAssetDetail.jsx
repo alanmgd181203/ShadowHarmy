@@ -26,12 +26,23 @@ export default function BeruAssetDetail({ symbol, onClose, onChart }) {
 
   useEffect(() => {
     let alive = true;
+    let lastKey = "";
     async function load() {
       try {
         const snap = await cargarSnapBeru();
-        if (alive) setData(desdeEstadoVivo(symbol, snap));
+        if (!alive) return;
+        const next = desdeEstadoVivo(symbol, snap);
+        const niv = next?.grafica?.niveles || [];
+        const key = [
+          next?.oficio,
+          ...niv.map((n) => `${n.id || n.rol}:${Number(n.precio || 0).toFixed(6)}`),
+          next?.spot_last,
+        ].join("|");
+        if (key === lastKey) return;
+        lastKey = key;
+        setData(next);
       } catch {
-        if (alive) setData(snapshotCero(symbol));
+        /* silencio — no volver a snapshotCero (parpadeo de rayas) */
       }
     }
     load();

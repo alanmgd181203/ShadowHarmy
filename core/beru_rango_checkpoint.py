@@ -2,8 +2,8 @@
 
 Arranque:
   · Sello fresco → retoma fiel (caza o acecho post-Oz)
-  · Sello vivo pero viejo → mismo lado; 0 = last (ajuste)
-  · Sin sello útil + posición Tusk → siembra acecho post-Oz desde el lado
+  · Sello vivo pero viejo → mismo lado; wake del sello (eterno); Red del sello
+  · Sin sello útil + posición Tusk → siembra acecho post-Oz (0 = last, campaña nueva)
   · Sin nada → semilla (Vacío ±1,2, sin Red)
 
 Edades (s) por env o defaults.
@@ -247,17 +247,22 @@ def decidir_arranque(
         hoz = _infer_hoz(vivo, sangre)
         if not sangre:
             sangre = "ABAJO" if hoz == "SHORT" else "ARRIBA"
-        cero = px if px > 0 else float(vivo.get("cero") or 0)
+        cero_sello = float(vivo.get("cero") or 0)
+        cero = cero_sello if cero_sello > 0 else (px if px > 0 else 0.0)
+        oz_dep = float(vivo.get("oz_despliegue") or 0)
+        red_sello = float(vivo.get("red") or 0)
+        ancla = oz_dep if oz_dep > 0 else cero
+        red = red_sello if red_sello > 0 else _red_desde_ancla(ancla, sangre, hoz)
         return PlanArranque(
             modo="ACECHO_AJUSTE",
             sello=sello,
             vivo=vivo,
             edad_s=edad,
             cero=cero,
-            red=_red_desde_cero(cero, sangre, hoz),
+            red=red,
             sangre_lado=sangre,
             hoz_dir=hoz,
-            nota=f"sello antiguo {edad:.0f}s sin posición · ajuste",
+            nota=f"sello antiguo {edad:.0f}s sin posición · wake sello",
         )
 
     return PlanArranque(
@@ -287,6 +292,8 @@ def aplicar_plan(beru: Any, plan: PlanArranque) -> None:
         escalones_red=int(vivo.get("escalones_red") or 0),
         cosechas=max(1, int(vivo.get("cosechas") or 0)) if plan.modo == "SEMBRAR_POS" else int(vivo.get("cosechas") or 0),
         oz_despliegue=float(vivo.get("oz_despliegue") or 0),
+        saco_long=float(vivo.get("saco_long") or 0),
+        saco_short=float(vivo.get("saco_short") or 0),
     )
 
 

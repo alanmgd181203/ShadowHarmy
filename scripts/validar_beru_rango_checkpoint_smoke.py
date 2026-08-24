@@ -89,6 +89,26 @@ def main() -> int:
     assert abs(p.red - 0.387) < 1e-9  # Red del sello si existe
     print("  sello 1h → ACECHO_AJUSTE wake sello OK")
 
+    # Sello >6h sin posición: wake/Red del sello (no last).
+    s_viejo = _sello(
+        {
+            "estado": "ACECHANDO",
+            "cero": 0.39,
+            "red": 0.387,
+            "sangre_lado": "ARRIBA",
+            "cosechas": 2,
+            "oz_despliegue": 0.391,
+        },
+        ts=ahora - 25000,
+    )
+    p = cp.decidir_arranque(
+        activo="WLD", last=0.50, posiciones=[], sello=s_viejo, ahora=ahora,
+    )
+    assert p.modo == "ACECHO_AJUSTE", p
+    assert abs(p.cero - 0.39) < 1e-9
+    assert abs(p.red - 0.387) < 1e-9
+    print("  sello 7h sin pos → wake sello OK")
+
     # Sin sello útil + LONG → sembrar
     p = cp.decidir_arranque(
         activo="WLD",

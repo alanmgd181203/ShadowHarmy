@@ -63,7 +63,10 @@ class BeruShip:
     # Beru rango (lineal): dirección de la Oz cobrada y lado de la sangre contraria.
     ultima_hoz_direccion: str = ""
     sangre_lado: str = ""  # ARRIBA | ABAJO
-    # Tras cosecha: sangre 1.1 desde la última Oz cobrada; Red 0.9/0.5/0.3/0.1
+    # Precio del llamado de sangre post-Oz (1,2 % del peldaño Oz, lado contrario).
+    # Vacío semilla sigue midiendo ±1,2 % desde wake; este campo solo vive tras Oz.
+    sangre_adan: float = 0.0
+    # Tras cosecha spot: sangre 1.1 desde la última Oz cobrada; Red…
     # despierta hijo y APAGA la sangre vieja. Nunca dos llamados vivos.
     oreja_sangre_activa: bool = False
     oreja_red_activa: bool = False

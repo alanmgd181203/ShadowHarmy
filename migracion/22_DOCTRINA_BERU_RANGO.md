@@ -1,6 +1,6 @@
 # 22b — Doctrina Beru rango (trailing de activación)
 
-**Estado:** sellado Monarca **2026-08-22** · Vacío/Red/Sangre nacen $5 · engorde desde activación · techo meta−ya  
+**Estado:** sellado Monarca **2026-08-22** · Vacío/Red/Sangre nacen $5 · engorde desde activación · **escalera sin tope** (2026-08-23)  
 **Referencia:** Beru spot (`22_DOCTRINA_BERU.md`) = fósil · no se mezcla.
 
 ## Veredicto
@@ -13,20 +13,20 @@ Todo el molino es **trailing stop**:
 **Fill = plata (Tusk)** · **Peldaño Oz = mapa (Red)**.  
 **Nacimiento = $5** en Vacío, Red y Sangre.  
 **Engorde = +$1 / 0,1 % solo desde el precio de activación** (no recontar el camino desde wake).  
-**Techo del saco = meta − ya en el lado** (anti-stack: no volver a meter la profundidad entera).
+**Ledger saco** = bitácora LONG/SHORT (panel · teatro) — **no frena** Vacío ni Red.
 
 ## Geometría
 
 | Pieza | Rol | Valor |
 |-------|-----|------:|
 | Wake / 0 | Referencia absoluta | precio al despertar |
-| Vacío / sangre | **Activación** | ±**1,2 %** desde el **wake** |
+| Vacío (semilla) | **Activación** | ±**1,2 %** desde el **wake** |
+| Sangre (post-Oz) | **Activación** | ±**1,2 %** desde el **peldaño Oz** (lado contrario) |
 | Oz | **Callback** | **0,2 %** detrás del extremo |
 | Red | **Activación** | **0,7 %** desde **Oz desplegada** |
-| Meta saco | Techo a profundidad | **$5 + $1 × peldaños 0,1 % desde wake** |
-| Nacimiento Vacío / Red / Sangre | Lo que se arma al nacer | **$5** (o menos si el cupo es menor) |
+| Meta saco | Referencia a profundidad | **$5 + $1 × peldaños 0,1 % desde wake** (informativa) |
+| Nacimiento Vacío / Red / Sangre | Lo que se arma al nacer | **$5** |
 | Engorde (todos) | Mientras CAZA | **+$1 / 0,1 % desde precio de activación** |
-| Cupo Vacío / Red | Techo del tramo | **min(viva, meta − saco ya)** |
 | Sangre gana | | **elimina** Red · arma trailing $5 |
 | Misma vela | | **sangre primero** |
 
@@ -39,9 +39,9 @@ Todo el molino es **trailing stop**:
 ## Oficio
 
 1. Wake → **0 absoluto** · ledger saco LONG/SHORT = 0.  
-2. Vacío → **$5** · trailing; si Oz sigue desde la activación, engorda (techo meta).  
-3. Oz detona → suma masa al saco del lado · wake intacto · planta sangre + Red.  
-4. Red → **$5** · engorde desde activación · cupo = meta − saco (si 0, no arma).  
+2. Vacío → **$5** · trailing; si Oz sigue desde la activación, engorda.  
+3. Oz detona → suma masa al saco del lado · wake intacto · planta sangre (1,2 % del peldaño Oz, contraria) + Red (0,7 % del mismo ancla).  
+4. Red → **$5** · engorde desde activación · **siempre puede re-armar** (saco no corta) · al cosechar Oz otra vez, la sangre **renace** junto al nuevo peldaño (no se queda en el wake).  
 5. Sangre → **$5** · engorde desde activación · mata Red.  
 6. Manos ON: Stop Oz + amend; Market si hace falta.
 
@@ -61,7 +61,7 @@ No sustituye al normal. Checkpoint del canónico: `data/beru/rango/checkpoint_do
 
 | Pieza | Normal | Feria |
 |-------|-------:|------:|
-| Vacío / sangre | 1,2 % | **2,4 %** |
+| Vacío (semilla) / sangre (post-Oz) | 1,2 % | **2,4 %** |
 | Oz callback | 0,2 % | **0,4 %** |
 | Red | 0,7 % | **1,4 %** |
 | Engorde | +$1 / 0,1 % | +$1 / **0,2 %** |
@@ -90,4 +90,4 @@ python scripts/arise_beru_rango_manos.py --activo X --manos-go
 
 **Arquitectura flota ojos:** cada Santo = Bridge propio + Tank propio + pulso propio. El panel fusiona; no hay fila única hablando por todos.
 
-— Shadow Army · wake eterno · nace $5 · engorde desde activación · techo meta−ya · perfil normal|feria · flota multi —
+— Shadow Army · wake eterno · nace $5 · engorde desde activación · escalera sin tope · perfil normal|feria · flota multi —

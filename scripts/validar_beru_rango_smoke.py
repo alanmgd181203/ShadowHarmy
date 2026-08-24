@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke doctrinal — Beru rango: nace $5, engorde desde activación, techo meta−ya."""
+"""Smoke doctrinal — Beru rango: nace $5, engorde desde activación, escalera sin tope."""
 from __future__ import annotations
 
 import asyncio
@@ -38,14 +38,14 @@ def _assert_geometria() -> None:
     assert g["cero"] == "wake"
     assert g["nacimiento"] == "cinco_usd"
     assert g["engorde"] == "desde_activacion"
-    assert g["saco_techo"] == "meta_menos_ya"
+    assert g["saco_techo"] == "sin_tope"
     assert abs(br.meta_saco_usd(100.0, 101.2) - 17.0) < 1e-9  # techo 1.2% → 12+$5
     assert abs(br.meta_saco_usd(100.0, 102.0) - 25.0) < 1e-9  # techo 2.0% → 20+$5
     print("  geometria + meta_saco numeros OK")
 
 
-def _assert_vacio_cinco_y_cupo() -> None:
-    """Vacío nace $5 (no $17); engorde desde ancla; Red también $5; cupo anti-stack."""
+def _assert_vacio_cinco_y_escalera() -> None:
+    """Vacío nace $5; engorde desde ancla; Red también $5; saco no frena re-entrada."""
     b = BeruShip(uid="S1", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
     br.despertar(b, 100.0, activo="ETH")
     br.toca_vacio(b, 100.0)
@@ -58,19 +58,39 @@ def _assert_vacio_cinco_y_cupo() -> None:
     assert abs(br.saco_lado_usd(b, "LONG") - 8.0) < 1e-9
     assert abs(br.cero_wake(b) - 100.0) < 1e-9
 
-    # Red a ~2.2%: cupo = 27 − 8 = 19 → nace $5 (no el cupo entero)
+    # Red a ~2.2%: meta informativa 27; saco 8 no bloquea → nace $5
     assert float(b.red_adan) > 0
     b.red_adan = 97.8
-    cupo = br.cupo_lado_usd(b, lado="LONG", precio=97.8, origen="RED")
-    assert abs(cupo - 19.0) < 1e-9, cupo
+    meta = br.meta_en_profundidad_usd(b, lado="LONG", precio=97.8, origen="RED")
+    assert abs(meta - 27.0) < 1e-9, meta
     m2 = br.armar_tramo_desde_red(b, precio=97.8)
     assert abs(m2 - 5.0) < 1e-9, f"Red debe nacer en 5, got {m2}"
-    # Engorde hasta el techo del cupo (~14 peldaños → $19)
+    # Engorde libre (~14 peldaños → $19)
     br.actualizar_trailing_oz(b, 97.8 * (1.0 - 0.014))
-    assert abs(float(b.masa) - 19.0) < 1e-9, f"Red engorda hasta cupo 19, got {b.masa}"
+    assert abs(float(b.masa) - 19.0) < 1e-9, f"Red engorda hasta 19, got {b.masa}"
     br.cosechar_oz_y_mover_cero(b, float(b.oz_adan))
     assert abs(br.saco_lado_usd(b, "LONG") - 27.0) < 1e-9
-    print("  Vacío/Red $5 + engorde + cupo meta-ya OK")
+    print("  Vacío/Red $5 + engorde + escalera sin tope OK")
+
+
+def _assert_retrace_saco_gordo_no_bloquea() -> None:
+    """Retroceso tras racha: saco >> meta local pero Red/Vacío siguen armando."""
+    b = BeruShip(uid="RB", centro_local=2.743, masa=0.0, direccion="", estado="ACECHANDO")
+    br.despertar(b, 2.743, activo="MORPHO")
+    b.saco_long_usd = 57.0
+    b.es_relevo_cazador = True
+    b.ultima_hoz_direccion = "LONG"
+    b.red_adan = 2.77
+    b.rango_escalones_red = 22
+    m_red = br.armar_tramo_desde_red(b, precio=2.77)
+    assert abs(m_red - 5.0) < 1e-9, f"Red con saco 57 debe armar $5, got {m_red}"
+
+    b2 = BeruShip(uid="VB", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
+    br.despertar(b2, 100.0, activo="ETH")
+    b2.saco_short_usd = 80.0
+    m_vacio = br.armar_tramo_desde_vacio(b2, "ARRIBA", precio=101.2)
+    assert abs(m_vacio - 5.0) < 1e-9, f"Vacío con saco 80 debe armar $5, got {m_vacio}"
+    print("  retrace saco gordo no bloquea OK")
 
 
 def _assert_sangre_cinco_luego_engorde() -> None:
@@ -153,11 +173,59 @@ def _assert_plan_y_restaurar() -> None:
     print("  plan + restaurar OK")
 
 
+def _assert_sangre_desde_oz_no_wake() -> None:
+    """Tras Oz: sangre ±1,2 del peldaño; wake solo meta. Tumor LIT era wake-fijo."""
+    b = BeruShip(uid="SOZ", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
+    br.despertar(b, 100.0, activo="ETH")
+    br.toca_vacio(b, 100.0)
+    br.armar_tramo_desde_vacio(b, "ARRIBA", precio=101.2)
+    br.actualizar_trailing_oz(b, 101.2)
+    oz = float(b.oz_adan)
+    br.cosechar_oz_y_mover_cero(b, oz * 0.999, oz_despliegue=oz)
+    sil = br.sangre_contraria_pct()
+    ancla = br.ancla_mapa_red(oz, oz * 0.999, "SHORT")
+    esperado = ancla * (1.0 - sil)
+    assert abs(float(b.sangre_adan) - esperado) < 1e-9, (b.sangre_adan, esperado)
+    wake_legacy = 100.0 * (1.0 - sil)
+    assert abs(float(b.sangre_adan) - wake_legacy) > 0.2
+    assert br.toca_sangre(b, esperado)
+    assert not br.toca_sangre(b, esperado * 1.005)  # aún arriba del llamado
+    # Restaurar sello: sangre de la misma ancla que la Red (no del wake).
+    b2 = BeruShip(uid="SOZ2", centro_local=1.0, masa=0.0, direccion="", estado="ACECHANDO")
+    br.restaurar_acecho_post_oz(
+        b2,
+        cero=100.0,
+        red=ancla * 1.007,
+        sangre_lado="ABAJO",
+        ultima_hoz_direccion="SHORT",
+        oz_despliegue=oz,
+    )
+    assert abs(float(b2.sangre_adan) - ancla * (1.0 - sil)) < 1e-9
+    # Fill peor: Red nació más lejos; al continuar la sangre no vuelve al Oz viejo.
+    fill_peor = oz * 1.004
+    ancla_peor = br.ancla_mapa_red(oz, fill_peor, "SHORT")
+    red_peor = ancla_peor * 1.007
+    b3 = BeruShip(uid="SOZ3", centro_local=1.0, masa=0.0, direccion="", estado="ACECHANDO")
+    br.restaurar_acecho_post_oz(
+        b3,
+        cero=100.0,
+        red=red_peor,
+        sangre_lado="ABAJO",
+        ultima_hoz_direccion="SHORT",
+        oz_despliegue=oz,
+    )
+    assert abs(float(b3.sangre_adan) - ancla_peor * (1.0 - sil)) < 1e-9
+    assert abs(float(b3.sangre_adan) - oz * (1.0 - sil)) > 1e-6
+    print("  sangre desde Oz (no wake) OK")
+
+
 def main() -> int:
     print("[SMOKE] beru rango doctrina nace $5 / engorde 2026-08-22")
     _assert_geometria()
-    _assert_vacio_cinco_y_cupo()
+    _assert_vacio_cinco_y_escalera()
+    _assert_retrace_saco_gordo_no_bloquea()
     _assert_sangre_cinco_luego_engorde()
+    _assert_sangre_desde_oz_no_wake()
     _assert_red_fill_asimetrica()
     _assert_plan_y_restaurar()
     asyncio.run(_assert_general())

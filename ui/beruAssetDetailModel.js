@@ -496,6 +496,13 @@ function flotaDesdeRango(snap, rango) {
         const d = Math.abs(last - px) / cero;
         if (d < dist) dist = d;
       }
+      // Respaldo: sangre del vivo (post-Oz) si la foto aún no trae niveles frescos.
+      const sangrePx =
+        Number(row.sangre ?? row.sangre_adan ?? vivo.sangre ?? vivo.sangre_adan) || 0;
+      if (sangrePx > 0) {
+        const d = Math.abs(last - sangrePx) / cero;
+        if (d < dist) dist = d;
+      }
     }
     activos.push({
       ...row,

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createChart } from "lightweight-charts";
+import { createChart, CandlestickSeries } from "lightweight-charts";
 import { fmtUsd, fmtNum, decimalesPrecio } from "./beruAssetDetailModel.js";
 import { marcaAguaManto, reglaEnPunto } from "./beruMantoRegla.js";
 
@@ -187,8 +187,12 @@ export default function BeruSpotChart({
       const precio = Number(n?.precio);
       const rol = String(n?.rol || "");
       if (!(precio > 0) || rol === "spot") continue;
-      if (rol === "oz" && !n.carta_colgada) continue;
-      const key = `${rol}:${precio.toFixed(6)}`;
+      // Oz del cazador spot exige carta; en rango la raya Oz vale sin ese flag.
+      const oficioRango =
+        String(grafica?.oficio || "").toUpperCase() === "RANGO" ||
+        String(grafica?.mercado || "").toLowerCase() === "linear";
+      if (rol === "oz" && !n.carta_colgada && !oficioRango) continue;
+      const key = `${String(n?.id || rol)}:${precio.toFixed(6)}`;
       if (seen.has(key)) continue;
       seen.add(key);
       out.push({ ...n, precio, rol });
@@ -196,6 +200,15 @@ export default function BeruSpotChart({
     }
     return out;
   }, [grafica]);
+
+  const nivelesKey = useMemo(
+    () =>
+      niveles
+        .map((n) => `${n.id || n.rol}:${Number(n.precio).toFixed(6)}`)
+        .join("|"),
+    [niveles],
+  );
+  const nivelesKeyRef = useRef("");
 
   const cazas = useMemo(() => {
     const raw = Array.isArray(grafica?.cazas) ? grafica.cazas : [];
@@ -231,11 +244,14 @@ export default function BeruSpotChart({
     let alive = true;
     const s = String(symbol || "ETH").toUpperCase();
     encajarRef.current = true;
+    // Vaciar solo al cambiar de Santo / intervalo / mercado — no en cada tick de combate.
     setVelas([]);
+    setError("");
     async function load() {
-      setError("");
       try {
-        const cat = category || (String(grafica?.mercado || "").toLowerCase() === "linear" ? "linear" : "spot");
+        const cat =
+          category ||
+          (String(grafica?.mercado || "").toLowerCase() === "linear" ? "linear" : "spot");
         const res = await fetch(
           `${KLINE_URL}?symbol=${encodeURIComponent(s)}&interval=${iv}&limit=240&category=${encodeURIComponent(cat)}&t=${Date.now()}`,
           { cache: "no-store" },
@@ -256,11 +272,21 @@ export default function BeruSpotChart({
           }
           return rows;
         });
-        setMeta(data);
+        setMeta((prev) => {
+          if (
+            prev &&
+            Number(prev.precision) === Number(data?.precision) &&
+            Number(prev.min_move) === Number(data?.min_move) &&
+            Number(prev.last ?? prev.spot_last) === Number(data?.last ?? data?.spot_last)
+          ) {
+            return prev;
+          }
+          return data;
+        });
         if (!rows.length) setError(data?.error || "Sin velas aún");
       } catch (e) {
         if (!alive) return;
-        setVelas([]);
+        // No vaciar velas ya pintadas por un fallo puntual (evita parpadeo negro).
         setError(String(e?.message || e));
       }
     }
@@ -270,14 +296,18 @@ export default function BeruSpotChart({
       alive = false;
       clearInterval(t);
     };
-  }, [symbol, iv, category, grafica?.mercado]);
+    // category basta: no amarrar a grafica.mercado (cambia cada 1s y destruía el lienzo).
+  }, [symbol, iv, category]);
 
   useEffect(() => {
     const el = wrapRef.current;
     if (!el || !hayVelas) return undefined;
 
+    let chart;
+    let series;
+    try {
     const h = llenar ? Math.max(180, el.clientHeight || altura) : altura;
-    const chart = createChart(el, {
+    chart = createChart(el, {
       width: el.clientWidth,
       height: h,
       layout: {
@@ -299,7 +329,8 @@ export default function BeruSpotChart({
     });
     const prec = Number.isInteger(Number(meta?.precision)) ? Number(meta.precision) : 4;
     const move = Number(meta?.min_move) > 0 ? Number(meta.min_move) : Number((10 ** -prec).toFixed(prec));
-    const series = chart.addCandlestickSeries({
+    // lightweight-charts v5: addSeries(CandlestickSeries) — no addCandlestickSeries
+    series = chart.addSeries(CandlestickSeries, {
       upColor: "#34d399",
       downColor: "#fb7185",
       borderVisible: false,
@@ -331,7 +362,10 @@ export default function BeruSpotChart({
         return { ...def, priceRange: { minValue: min - pad, maxValue: max + pad } };
       },
     });
-
+    } catch (e) {
+      setError(String(e?.message || e || "fallo al forjar velas"));
+      return undefined;
+    }
     const lines = new Map();
     let mantoLines = [];
     let ghostLine = null;
@@ -546,7 +580,8 @@ export default function BeruSpotChart({
       setMarcasCaza([]);
       chart.remove();
     };
-  }, [hayVelas, altura, llenar, meta?.precision, meta?.min_move]);
+    // No remount por meta.precision: eso recreaba el chart y parpadeaba sangre/Red.
+  }, [hayVelas, altura, llenar, symbol, iv, category]);
 
   useEffect(() => {
     const api = apiRef.current;
@@ -555,9 +590,11 @@ export default function BeruSpotChart({
   }, [velas]);
 
   useEffect(() => {
+    if (nivelesKeyRef.current === nivelesKey) return;
+    nivelesKeyRef.current = nivelesKey;
     apiRef.current?.syncRayas?.();
     apiRef.current?.syncAsa?.();
-  }, [niveles, cazas]);
+  }, [nivelesKey, cazas]);
 
   useEffect(() => {
     apiRef.current?.setMantoIlumina?.(armado);

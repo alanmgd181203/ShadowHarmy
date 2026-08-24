@@ -44,7 +44,8 @@ def niveles_combate(vivo: dict[str, Any], geom: dict[str, Any]) -> list[dict[str
     lado = str(vivo.get("sangre_lado") or "").upper()
     up = cero * (1.0 + sp)
     dn = cero * (1.0 - sp)
-    # Semilla: ambas activaciones. Tras Oz: solo el lado de sangre.
+    # Semilla: ambas activaciones desde wake. Tras Oz: sangre del peldaño (sangre_adan).
+    sangre_px = _f(vivo.get("sangre") or vivo.get("sangre_adan"))
     if not lado:
         niveles.append(
             {
@@ -67,22 +68,24 @@ def niveles_combate(vivo: dict[str, Any], geom: dict[str, Any]) -> list[dict[str
             }
         )
     elif lado == "ARRIBA":
+        px_s = sangre_px if sangre_px > 0 else up
         niveles.append(
             {
                 "id": "sangre_up",
-                "precio": up,
-                "pct": sp * 100.0,
+                "precio": px_s,
+                "pct": ((px_s / cero) - 1.0) * 100.0 if cero > 0 else sp * 100.0,
                 "rol": "vacio",
                 "label": "Sangre",
                 "masa_usd": masa,
             }
         )
     elif lado == "ABAJO":
+        px_s = sangre_px if sangre_px > 0 else dn
         niveles.append(
             {
                 "id": "sangre_dn",
-                "precio": dn,
-                "pct": -sp * 100.0,
+                "precio": px_s,
+                "pct": ((px_s / cero) - 1.0) * 100.0 if cero > 0 else -sp * 100.0,
                 "rol": "vacio",
                 "label": "Sangre",
                 "masa_usd": masa,
@@ -357,15 +360,16 @@ def armar_payload(
         "carta_colgada": _f(vivo.get("oz")) > 0,
     }
     lado = str(vivo.get("sangre_lado") or "").upper()
+    sangre_px = _f(vivo.get("sangre") or vivo.get("sangre_adan"))
     if not lado:
         barco["vacio_arriba"] = cero * (1.0 + sp) if cero > 0 else 0.0
         barco["vacio_abajo"] = cero * (1.0 - sp) if cero > 0 else 0.0
     elif lado == "ARRIBA":
-        barco["vacio_arriba"] = cero * (1.0 + sp) if cero > 0 else 0.0
+        barco["vacio_arriba"] = sangre_px if sangre_px > 0 else (cero * (1.0 + sp) if cero > 0 else 0.0)
         barco["vacio_abajo"] = 0.0
     else:
         barco["vacio_arriba"] = 0.0
-        barco["vacio_abajo"] = cero * (1.0 - sp) if cero > 0 else 0.0
+        barco["vacio_abajo"] = sangre_px if sangre_px > 0 else (cero * (1.0 - sp) if cero > 0 else 0.0)
 
     detail = {
         "symbol": act,
@@ -484,11 +488,25 @@ def _fusionar(
         act = str(row.get("activo") or "").upper()
         if not act:
             continue
+        prev = by_act.get(act)
+        # Manos ON gana a ojos (manos OFF): no dejar que un wake fresco
+        # de la flota de ojos tape sangre/Red/cero del combate real.
+        if (
+            prev is not None
+            and bool(prev.get("manos"))
+            and not bool(row.get("manos"))
+        ):
+            continue
         by_act[act] = row
     for act, det in (piece.get("details") or {}).items():
         a = str(act).upper()
-        if a and isinstance(det, dict):
-            details[a] = det
+        if not a or not isinstance(det, dict):
+            continue
+        prev_row = by_act.get(a) or {}
+        # Si el activo sigue gobernado por manos, no pisar su detail con ojos.
+        if bool(prev_row.get("manos")) and not bool(det.get("manos")):
+            continue
+        details[a] = det
 
     activos = sorted(by_act.values(), key=lambda r: str(r.get("activo") or ""))
     foco = str(piece.get("activo_foco") or base.get("activo_foco") or "")
