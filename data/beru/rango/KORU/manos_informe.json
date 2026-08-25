@@ -1,20 +1,20 @@
 {
-  "ts": 1787609100.4018962,
-  "duracion_s": 26451.5,
+  "ts": 1787618836.8810775,
+  "duracion_s": 394.6,
   "manos": true,
   "mercado": "linear",
   "activo": "KORU",
   "contadores": {
-    "eventos": 194,
+    "eventos": 226,
     "errores": 0,
     "por_evento": {
       "ARMAR_ABAJO": 1,
-      "OZ_COSECHA": 97,
-      "ARMAR_RED": 62,
-      "ARMAR_SANGRE": 34
+      "OZ_COSECHA": 113,
+      "ARMAR_RED": 77,
+      "ARMAR_SANGRE": 35
     }
   },
-  "last_lineal": 18.78,
+  "last_lineal": 18.69,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "KORU",
@@ -46,30 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_KORU_R62_a33d04",
+      "uid": "RANGO_KORU_R77_de0795",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 21.22,
       "oz": 0.0,
-      "oz_despliegue": 18.7,
-      "red": 18.5691,
+      "oz_despliegue": 18.75,
+      "red": 18.881249999999998,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 329.0,
-      "saco_short": 235.0,
-      "sangre_lado": "ARRIBA",
-      "sangre": 18.9244,
-      "sangre_adan": 18.9244,
-      "cosechas": 97,
-      "escalones_red": 62,
-      "ultima_hoz_direccion": "LONG",
+      "saco_long": 375.0,
+      "saco_short": 285.0,
+      "sangre_lado": "ABAJO",
+      "sangre": 18.525,
+      "sangre_adan": 18.525,
+      "cosechas": 113,
+      "escalones_red": 77,
+      "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 24,
+      "altar_revision": 1,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\KORU\\manos_eventos.jsonl",
-  "posicion": []
+  "posicion": [
+    {
+      "lado": "SHORT",
+      "qty": 0.03,
+      "precio": 18.62,
+      "masa_usd": 0.5586
+    }
+  ]
 }

@@ -773,9 +773,10 @@ class BybitBridge:
             params["triggerPrice"] = str(new_trigger_price)
 
         try:
+            # Éxito silencioso: en caza Beru el amend es latido crítico (Oz).
+            # Bellion no anota cada ORDEN_MODIFICADA — solo fallos (altar / retCode).
             response = await asyncio.to_thread(self.session.amend_order, **params)
             if response.get("retCode") == 0:
-                await self.bel.anotar("BRIDGE", "ORDEN_MODIFICADA", f"ID:{order_id or link_id}")
                 return OrdenResultado(True, order_id=order_id or "", link_id=link_id or "", datos=response.get("result", {}))
             msg = response.get("retMsg", "Error desconocido")
             return OrdenResultado(False, mensaje=msg)

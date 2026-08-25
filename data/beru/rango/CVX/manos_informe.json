@@ -1,20 +1,20 @@
 {
-  "ts": 1787609095.7110183,
-  "duracion_s": 25861.9,
+  "ts": 1787618831.2470236,
+  "duracion_s": 437.2,
   "manos": true,
   "mercado": "linear",
   "activo": "CVX",
   "contadores": {
-    "eventos": 34,
+    "eventos": 43,
     "errores": 0,
     "por_evento": {
       "ARMAR_ARRIBA": 1,
-      "OZ_COSECHA": 17,
-      "ARMAR_RED": 10,
-      "ARMAR_SANGRE": 6
+      "OZ_COSECHA": 21,
+      "ARMAR_RED": 13,
+      "ARMAR_SANGRE": 8
     }
   },
-  "last_lineal": 2.2117,
+  "last_lineal": 2.2334,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "CVX",
@@ -46,37 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_CVX_R10_821996",
-      "estado": "ACECHANDO",
-      "direccion": "",
+      "uid": "RANGO_CVX_R13_b55894",
+      "estado": "CAZANDO",
+      "direccion": "SHORT",
       "cero": 2.1484,
-      "oz": 0.0,
-      "oz_despliegue": 2.2094,
-      "red": 2.2248658,
-      "trail_extremo": 0.0,
-      "masa": 0.0,
-      "saco_long": 37.0,
-      "saco_short": 58.0,
+      "oz": 2.2289,
+      "oz_despliegue": 2.2168,
+      "red": 0.0,
+      "trail_extremo": 2.2334,
+      "masa": 5.0,
+      "saco_long": 47.0,
+      "saco_short": 72.0,
       "sangre_lado": "ABAJO",
-      "sangre": 2.1828872,
-      "sangre_adan": 2.1828872,
-      "cosechas": 17,
-      "escalones_red": 10,
+      "sangre": 2.1901984,
+      "sangre_adan": 2.1901984,
+      "cosechas": 21,
+      "escalones_red": 13,
       "ultima_hoz_direccion": "SHORT",
-      "altar_link_id": "",
-      "altar_order_id": "",
-      "altar_trigger_price": 0.0,
-      "altar_revision": 17,
-      "altar_order_status": ""
+      "altar_link_id": "BRG-TRA-2-d4dcb1d1edd74a",
+      "altar_order_id": "1473a914-7216-4769-adb2-a3a5ca11b608",
+      "altar_trigger_price": 2.2283,
+      "altar_revision": 2,
+      "altar_order_status": "Untriggered"
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\CVX\\manos_eventos.jsonl",
   "posicion": [
     {
       "lado": "SHORT",
-      "qty": 7.56,
-      "precio": 2.19829939,
-      "masa_usd": 16.6191
+      "qty": 9.31,
+      "precio": 2.21056947,
+      "masa_usd": 20.5804
     }
   ]
 }

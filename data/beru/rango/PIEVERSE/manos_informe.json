@@ -1,20 +1,20 @@
 {
-  "ts": 1787609104.6694615,
-  "duracion_s": 25871.7,
+  "ts": 1787618847.6687636,
+  "duracion_s": 273.2,
   "manos": true,
   "mercado": "linear",
   "activo": "PIEVERSE",
   "contadores": {
-    "eventos": 32,
+    "eventos": 40,
     "errores": 0,
     "por_evento": {
       "ARMAR_ARRIBA": 1,
-      "OZ_COSECHA": 16,
-      "ARMAR_RED": 9,
+      "OZ_COSECHA": 20,
+      "ARMAR_RED": 13,
       "ARMAR_SANGRE": 6
     }
   },
-  "last_lineal": 1.0165,
+  "last_lineal": 1.0422,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "PIEVERSE",
@@ -46,37 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_PIEVERSE_R9_18c074",
+      "uid": "RANGO_PIEVERSE_R13_b131c8",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 1.038,
       "oz": 0.0,
-      "oz_despliegue": 1.0199,
-      "red": 1.0270393,
+      "oz_despliegue": 1.0462532999999998,
+      "red": 1.0535770730999998,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 63.0,
-      "saco_short": 40.0,
+      "saco_long": 0.0,
+      "saco_short": 6.0,
       "sangre_lado": "ABAJO",
-      "sangre": 1.0076612,
-      "sangre_adan": 1.0076612,
-      "cosechas": 16,
-      "escalones_red": 9,
+      "sangre": 1.0336982603999998,
+      "sangre_adan": 1.0336982603999998,
+      "cosechas": 20,
+      "escalones_red": 13,
       "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 16,
+      "altar_revision": 21,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\PIEVERSE\\manos_eventos.jsonl",
   "posicion": [
     {
-      "lado": "LONG",
-      "qty": 14.0,
-      "precio": 1.02031908,
-      "masa_usd": 14.2845
+      "lado": "SHORT",
+      "qty": 19.0,
+      "precio": 1.04396842,
+      "masa_usd": 19.8354
     }
   ]
 }

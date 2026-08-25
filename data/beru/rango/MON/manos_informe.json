@@ -1,20 +1,20 @@
 {
-  "ts": 1787609104.4180357,
-  "duracion_s": 26455.9,
+  "ts": 1787618840.137749,
+  "duracion_s": 362.0,
   "manos": true,
   "mercado": "linear",
   "activo": "MON",
   "contadores": {
-    "eventos": 282,
+    "eventos": 318,
     "errores": 0,
     "por_evento": {
       "ARMAR_ABAJO": 1,
-      "OZ_COSECHA": 141,
-      "ARMAR_RED": 90,
-      "ARMAR_SANGRE": 50
+      "OZ_COSECHA": 159,
+      "ARMAR_RED": 99,
+      "ARMAR_SANGRE": 59
     }
   },
-  "last_lineal": 0.03067,
+  "last_lineal": 0.031919,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "MON",
@@ -46,37 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_MON_R90_83f811",
+      "uid": "RANGO_MON_R99_aac3ed",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 0.03015,
       "oz": 0.0,
-      "oz_despliegue": 0.03046,
-      "red": 0.03024678,
+      "oz_despliegue": 0.031955,
+      "red": 0.03217868499999999,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 406.0,
-      "saco_short": 455.0,
-      "sangre_lado": "ARRIBA",
-      "sangre": 0.030825520000000002,
-      "sangre_adan": 0.030825520000000002,
-      "cosechas": 141,
-      "escalones_red": 90,
-      "ultima_hoz_direccion": "LONG",
+      "saco_long": 0.0,
+      "saco_short": 16.0,
+      "sangre_lado": "ABAJO",
+      "sangre": 0.031571539999999995,
+      "sangre_adan": 0.031571539999999995,
+      "cosechas": 159,
+      "escalones_red": 99,
+      "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 67,
+      "altar_revision": 86,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\MON\\manos_eventos.jsonl",
   "posicion": [
     {
-      "lado": "LONG",
-      "qty": 305.0,
-      "precio": 0.03064331,
-      "masa_usd": 9.3462
+      "lado": "SHORT",
+      "qty": 1060.0,
+      "precio": 0.03157364,
+      "masa_usd": 33.4681
     }
   ]
 }

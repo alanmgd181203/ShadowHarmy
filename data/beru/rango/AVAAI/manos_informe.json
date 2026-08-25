@@ -1,20 +1,20 @@
 {
-  "ts": 1787609093.8760715,
-  "duracion_s": 25862.3,
+  "ts": 1787618843.440022,
+  "duracion_s": 485.7,
   "manos": true,
   "mercado": "linear",
   "activo": "AVAAI",
   "contadores": {
-    "eventos": 32,
+    "eventos": 38,
     "errores": 0,
     "por_evento": {
       "ARMAR_ARRIBA": 1,
-      "OZ_COSECHA": 16,
-      "ARMAR_SANGRE": 9,
-      "ARMAR_RED": 6
+      "OZ_COSECHA": 19,
+      "ARMAR_SANGRE": 10,
+      "ARMAR_RED": 8
     }
   },
-  "last_lineal": 0.009018,
+  "last_lineal": 0.009097,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "AVAAI",
@@ -46,37 +46,30 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_AVAAI_R6_d0d53d",
+      "uid": "RANGO_AVAAI_CONTINUA_8_2e7547",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 0.008883,
       "oz": 0.0,
-      "oz_despliegue": 0.009038,
-      "red": 0.008974734,
+      "oz_despliegue": 0.00911673,
+      "red": 0.00918054711,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 49.0,
-      "saco_short": 66.0,
-      "sangre_lado": "ARRIBA",
-      "sangre": 0.009146455999999999,
-      "sangre_adan": 0.009146455999999999,
-      "cosechas": 16,
-      "escalones_red": 6,
-      "ultima_hoz_direccion": "LONG",
+      "saco_long": 54.0,
+      "saco_short": 76.0,
+      "sangre_lado": "ABAJO",
+      "sangre": 0.00900732924,
+      "sangre_adan": 0.00900732924,
+      "cosechas": 19,
+      "escalones_red": 8,
+      "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 16,
+      "altar_revision": 0,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\AVAAI\\manos_eventos.jsonl",
-  "posicion": [
-    {
-      "lado": "SHORT",
-      "qty": 2024.0,
-      "precio": 0.00915342,
-      "masa_usd": 18.5265
-    }
-  ]
+  "posicion": []
 }

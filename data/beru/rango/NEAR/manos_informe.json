@@ -1,20 +1,20 @@
 {
-  "ts": 1787609098.6047635,
-  "duracion_s": 26451.9,
+  "ts": 1787618842.134538,
+  "duracion_s": 303.8,
   "manos": true,
   "mercado": "linear",
   "activo": "NEAR",
   "contadores": {
-    "eventos": 146,
+    "eventos": 151,
     "errores": 0,
     "por_evento": {
       "ARMAR_ABAJO": 1,
-      "OZ_COSECHA": 73,
-      "ARMAR_SANGRE": 29,
-      "ARMAR_RED": 43
+      "OZ_COSECHA": 75,
+      "ARMAR_SANGRE": 31,
+      "ARMAR_RED": 44
     }
   },
-  "last_lineal": 1.952,
+  "last_lineal": 1.975,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "NEAR",
@@ -46,37 +46,30 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_NEAR_R43_8805db",
-      "estado": "ACECHANDO",
-      "direccion": "",
+      "uid": "RANGO_NEAR_R44_c4e580",
+      "estado": "CAZANDO",
+      "direccion": "SHORT",
       "cero": 2.026,
-      "oz": 0.0,
+      "oz": 1.971,
       "oz_despliegue": 1.95,
-      "red": 1.9636499999999997,
-      "trail_extremo": 0.0,
-      "masa": 0.0,
-      "saco_long": 235.0,
-      "saco_short": 223.0,
+      "red": 0.0,
+      "trail_extremo": 1.975,
+      "masa": 10.0,
+      "saco_long": 240.0,
+      "saco_short": 228.0,
       "sangre_lado": "ABAJO",
       "sangre": 1.9265999999999999,
       "sangre_adan": 1.9265999999999999,
-      "cosechas": 73,
-      "escalones_red": 43,
+      "cosechas": 75,
+      "escalones_red": 44,
       "ultima_hoz_direccion": "SHORT",
-      "altar_link_id": "",
-      "altar_order_id": "",
-      "altar_trigger_price": 0.0,
-      "altar_revision": 18,
-      "altar_order_status": ""
+      "altar_link_id": "BRG-TRA-1-9302ae13047515",
+      "altar_order_id": "72134e37-84d8-4121-ba24-0a1fe32a6a0b",
+      "altar_trigger_price": 1.971,
+      "altar_revision": 1,
+      "altar_order_status": "Untriggered"
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\NEAR\\manos_eventos.jsonl",
-  "posicion": [
-    {
-      "lado": "SHORT",
-      "qty": 7.3,
-      "precio": 1.9696111,
-      "masa_usd": 14.3782
-    }
-  ]
+  "posicion": []
 }

@@ -1,15 +1,20 @@
 {
-  "ts": 1787609105.9533906,
-  "duracion_s": 948.1,
+  "ts": 1787618847.7253907,
+  "duracion_s": 237.0,
   "manos": true,
   "mercado": "linear",
   "activo": "SOXL",
   "contadores": {
-    "eventos": 0,
+    "eventos": 12,
     "errores": 0,
-    "por_evento": {}
+    "por_evento": {
+      "ARMAR_ABAJO": 1,
+      "OZ_COSECHA": 6,
+      "ARMAR_RED": 4,
+      "ARMAR_SANGRE": 1
+    }
   },
-  "last_lineal": 111.1,
+  "last_lineal": 111.29,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "SOXL",
@@ -41,30 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_SOXL_40a5b7de",
+      "uid": "RANGO_SOXL_R4_832460",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 111.19,
       "oz": 0.0,
-      "oz_despliegue": 0.0,
-      "red": 0.0,
+      "oz_despliegue": 111.52,
+      "red": 112.30063999999999,
       "trail_extremo": 0.0,
       "masa": 0.0,
       "saco_long": 0.0,
-      "saco_short": 0.0,
-      "sangre_lado": "",
-      "sangre": 0.0,
-      "sangre_adan": 0.0,
-      "cosechas": 0,
-      "escalones_red": 0,
-      "ultima_hoz_direccion": "",
+      "saco_short": 11.0,
+      "sangre_lado": "ABAJO",
+      "sangre": 110.18176,
+      "sangre_adan": 110.18176,
+      "cosechas": 6,
+      "escalones_red": 4,
+      "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 0,
+      "altar_revision": 7,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\SOXL\\manos_eventos.jsonl",
-  "posicion": []
+  "posicion": [
+    {
+      "lado": "LONG",
+      "qty": 0.03,
+      "precio": 109.04052632,
+      "masa_usd": 3.2712
+    }
+  ]
 }

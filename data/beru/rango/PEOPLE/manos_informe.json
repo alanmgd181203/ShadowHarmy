@@ -1,20 +1,20 @@
 {
-  "ts": 1787609105.6711168,
-  "duracion_s": 25874.7,
+  "ts": 1787618835.341282,
+  "duracion_s": 272.9,
   "manos": true,
   "mercado": "linear",
   "activo": "PEOPLE",
   "contadores": {
-    "eventos": 32,
+    "eventos": 34,
     "errores": 0,
     "por_evento": {
       "ARMAR_ABAJO": 1,
-      "OZ_COSECHA": 16,
+      "OZ_COSECHA": 17,
       "ARMAR_RED": 7,
-      "ARMAR_SANGRE": 8
+      "ARMAR_SANGRE": 9
     }
   },
-  "last_lineal": 0.009926,
+  "last_lineal": 0.010064,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "PEOPLE",
@@ -46,30 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_PEOPLE_R7_64ee9f",
+      "uid": "RANGO_PEOPLE_CONTINUA_7_228d8f",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 0.010339,
       "oz": 0.0,
-      "oz_despliegue": 0.009884,
-      "red": 0.009814812000000001,
+      "oz_despliegue": 0.010017,
+      "red": 0.010087118999999999,
       "trail_extremo": 0.0,
       "masa": 0.0,
       "saco_long": 59.0,
-      "saco_short": 40.0,
-      "sangre_lado": "ARRIBA",
-      "sangre": 0.010002608000000001,
-      "sangre_adan": 0.010002608000000001,
-      "cosechas": 16,
+      "saco_short": 48.0,
+      "sangre_lado": "ABAJO",
+      "sangre": 0.009896796,
+      "sangre_adan": 0.009896796,
+      "cosechas": 17,
       "escalones_red": 7,
-      "ultima_hoz_direccion": "LONG",
+      "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 16,
+      "altar_revision": 1,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\PEOPLE\\manos_eventos.jsonl",
-  "posicion": []
+  "posicion": [
+    {
+      "lado": "LONG",
+      "qty": 317.0,
+      "precio": 0.00990517,
+      "masa_usd": 3.1399
+    }
+  ]
 }

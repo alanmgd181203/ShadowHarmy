@@ -1,20 +1,20 @@
 {
-  "ts": 1787609103.4842768,
-  "duracion_s": 26453.5,
+  "ts": 1787618844.059505,
+  "duracion_s": 317.2,
   "manos": true,
   "mercado": "linear",
   "activo": "NBIS",
   "contadores": {
-    "eventos": 18,
+    "eventos": 23,
     "errores": 0,
     "por_evento": {
       "ARMAR_ARRIBA": 1,
-      "OZ_COSECHA": 9,
-      "ARMAR_RED": 6,
-      "ARMAR_SANGRE": 2
+      "OZ_COSECHA": 11,
+      "ARMAR_RED": 7,
+      "ARMAR_SANGRE": 4
     }
   },
-  "last_lineal": 211.58,
+  "last_lineal": 211.65,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "NBIS",
@@ -46,37 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_NBIS_R6_89f547",
-      "estado": "ACECHANDO",
-      "direccion": "",
+      "uid": "RANGO_NBIS_CONTINUA_7_51c116",
+      "estado": "CAZANDO",
+      "direccion": "SHORT",
       "cero": 204.91,
-      "oz": 0.0,
-      "oz_despliegue": 212.18,
-      "red": 213.66526,
-      "trail_extremo": 0.0,
-      "masa": 0.0,
-      "saco_long": 11.0,
+      "oz": 211.4,
+      "oz_despliegue": 208.72,
+      "red": 0.0,
+      "trail_extremo": 211.83,
+      "masa": 7.0,
+      "saco_long": 21.0,
       "saco_short": 40.0,
-      "sangre_lado": "ABAJO",
-      "sangre": 209.63384,
-      "sangre_adan": 209.63384,
-      "cosechas": 9,
-      "escalones_red": 6,
-      "ultima_hoz_direccion": "SHORT",
-      "altar_link_id": "",
-      "altar_order_id": "",
-      "altar_trigger_price": 0.0,
-      "altar_revision": 9,
-      "altar_order_status": ""
+      "sangre_lado": "ARRIBA",
+      "sangre": 211.22464,
+      "sangre_adan": 211.22464,
+      "cosechas": 11,
+      "escalones_red": 7,
+      "ultima_hoz_direccion": "LONG",
+      "altar_link_id": "BRG-TRA-1-e9b1fdc4a78833",
+      "altar_order_id": "de0f6490-fffc-4caf-9803-8809d48bed71",
+      "altar_trigger_price": 211.4,
+      "altar_revision": 1,
+      "altar_order_status": "Untriggered"
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\NBIS\\manos_eventos.jsonl",
   "posicion": [
     {
       "lado": "SHORT",
-      "qty": 0.17,
+      "qty": 0.11,
       "precio": 210.65711765,
-      "masa_usd": 35.8117
+      "masa_usd": 23.1723
     }
   ]
 }

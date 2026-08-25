@@ -7,6 +7,7 @@ Manos OFF por defecto. En Bybit:
 """
 from __future__ import annotations
 
+import asyncio
 import hashlib
 from dataclasses import dataclass
 from typing import Any
@@ -215,13 +216,15 @@ async def seguir_trailing(bridge: Any, beru: Any, *, activo: str) -> Any:
     if getattr(amend, "exito", False):
         beru.altar_trigger_price = oz
     else:
+        # Fallo: anotar en segundo plano — no bloquear el siguiente latido de Oz.
         msg = str(getattr(amend, "mensaje", "") or "amend_fallido")
         bel = getattr(bridge, "bel", None)
         if bel is not None:
+            detalle = f"{act} link={link} oz={oz} prev={prev} · {msg}"
+            print(f"[RANGO] ALTAR_AMEND_FALLIDO {detalle}", flush=True)
             try:
-                await bel.anotar(
-                    "BERU_RANGO", "ALTAR_AMEND_FALLIDO",
-                    f"{act} link={link} oz={oz} prev={prev} · {msg}",
+                asyncio.create_task(
+                    bel.anotar("BERU_RANGO", "ALTAR_AMEND_FALLIDO", detalle)
                 )
             except Exception:
                 pass

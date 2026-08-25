@@ -1,18 +1,20 @@
 {
-  "ts": 1787609104.1711028,
-  "duracion_s": 1203.6,
+  "ts": 1787618832.3802333,
+  "duracion_s": 330.1,
   "manos": true,
   "mercado": "linear",
   "activo": "MUBARAK",
   "contadores": {
-    "eventos": 2,
+    "eventos": 10,
     "errores": 0,
     "por_evento": {
       "ARMAR_ABAJO": 1,
-      "OZ_COSECHA": 1
+      "OZ_COSECHA": 5,
+      "ARMAR_SANGRE": 2,
+      "ARMAR_RED": 2
     }
   },
-  "last_lineal": 0.023827,
+  "last_lineal": 0.02368,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "MUBARAK",
@@ -44,27 +46,27 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_MUBARAK_a009591f",
+      "uid": "RANGO_MUBARAK_CONTINUA_2_3e7540",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 0.024069,
       "oz": 0.0,
-      "oz_despliegue": 0.023777,
-      "red": 0.023610561,
+      "oz_despliegue": 0.023447,
+      "red": 0.023282871,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 7.0,
-      "saco_short": 0.0,
+      "saco_long": 31.0,
+      "saco_short": 11.0,
       "sangre_lado": "ARRIBA",
-      "sangre": 0.024062324,
-      "sangre_adan": 0.024062324,
-      "cosechas": 1,
-      "escalones_red": 0,
+      "sangre": 0.023728364,
+      "sangre_adan": 0.023728364,
+      "cosechas": 5,
+      "escalones_red": 2,
       "ultima_hoz_direccion": "LONG",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 1,
+      "altar_revision": 0,
       "altar_order_status": ""
     }
   },
@@ -72,9 +74,9 @@
   "posicion": [
     {
       "lado": "LONG",
-      "qty": 295.0,
-      "precio": 0.02375745,
-      "masa_usd": 7.0084
+      "qty": 1103.0,
+      "precio": 0.0236501,
+      "masa_usd": 26.0861
     }
   ]
 }

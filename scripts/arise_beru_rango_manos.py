@@ -202,16 +202,24 @@ async def _hilo_beru(
             print(f"[RANGO] pulso error: {exc}", flush=True)
             contadores["errores"] = int(contadores.get("errores") or 0) + 1
         px = beru_rango_ojos.last_lineal_desde_tank(beru_g.tank, activo)
+        # Caza: no sellar panel en el latido 0.1s (candado disco).
+        # La crónica (~10s) mantiene la foto. Acecho sí publica (latido lento).
+        estado = ""
         try:
-            beru_rango_panel.publicar(
-                snapshot=beru_g.snapshot(),
-                last=float(px or 0),
-                activo=activo,
-                merge=True,
-                tusk=tusk,
-            )
+            estado = str(getattr(getattr(beru_g, "vivo", None), "estado", "") or "")
         except Exception:
-            pass
+            estado = ""
+        if estado != "CAZANDO":
+            try:
+                beru_rango_panel.publicar(
+                    snapshot=beru_g.snapshot(),
+                    last=float(px or 0),
+                    activo=activo,
+                    merge=True,
+                    tusk=tusk,
+                )
+            except Exception:
+                pass
         try:
             wait_s = cerebro.latido_sugerido_s(
                 beru_g.vivo, px, lento_s=latido_lento_s,

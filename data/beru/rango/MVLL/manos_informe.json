@@ -1,15 +1,20 @@
 {
-  "ts": 1787609095.789187,
-  "duracion_s": 1028.3,
+  "ts": 1787618840.121304,
+  "duracion_s": 325.8,
   "manos": true,
   "mercado": "linear",
   "activo": "MVLL",
   "contadores": {
-    "eventos": 0,
+    "eventos": 16,
     "errores": 0,
-    "por_evento": {}
+    "por_evento": {
+      "ARMAR_ABAJO": 1,
+      "OZ_COSECHA": 8,
+      "ARMAR_RED": 6,
+      "ARMAR_SANGRE": 1
+    }
   },
-  "last_lineal": 28.74,
+  "last_lineal": 28.66,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "MVLL",
@@ -41,30 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_MVLL_0f83f74b",
+      "uid": "RANGO_MVLL_R6_b1cac0",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 28.71,
       "oz": 0.0,
-      "oz_despliegue": 0.0,
-      "red": 0.0,
+      "oz_despliegue": 28.632620000000003,
+      "red": 28.83304834,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 0.0,
-      "saco_short": 0.0,
-      "sangre_lado": "",
-      "sangre": 0.0,
-      "sangre_adan": 0.0,
-      "cosechas": 0,
-      "escalones_red": 0,
-      "ultima_hoz_direccion": "",
+      "saco_long": 23.0,
+      "saco_short": 22.0,
+      "sangre_lado": "ABAJO",
+      "sangre": 28.289028560000002,
+      "sangre_adan": 28.289028560000002,
+      "cosechas": 8,
+      "escalones_red": 6,
+      "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 0,
+      "altar_revision": 1,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\MVLL\\manos_eventos.jsonl",
-  "posicion": []
+  "posicion": [
+    {
+      "lado": "LONG",
+      "qty": 0.17,
+      "precio": 28.1721519,
+      "masa_usd": 4.7893
+    }
+  ]
 }

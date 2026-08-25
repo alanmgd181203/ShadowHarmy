@@ -1,19 +1,19 @@
 {
-  "ts": 1787609103.6392586,
-  "duracion_s": 26455.6,
+  "ts": 1787618833.780464,
+  "duracion_s": 343.4,
   "manos": true,
   "mercado": "linear",
   "activo": "MORPHO",
   "contadores": {
-    "eventos": 42,
+    "eventos": 50,
     "errores": 0,
     "por_evento": {
       "ARMAR_RED": 15,
-      "OZ_COSECHA": 21,
-      "ARMAR_SANGRE": 6
+      "OZ_COSECHA": 25,
+      "ARMAR_SANGRE": 10
     }
   },
-  "last_lineal": 2.606,
+  "last_lineal": 2.6224,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "MORPHO",
@@ -50,22 +50,22 @@
       "direccion": "",
       "cero": 2.778,
       "oz": 0.0,
-      "oz_despliegue": 2.6077,
-      "red": 2.6259539,
+      "oz_despliegue": 2.6127,
+      "red": 2.6309888999999997,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 87.0,
-      "saco_short": 35.0,
+      "saco_long": 0.0,
+      "saco_short": 5.0,
       "sangre_lado": "ABAJO",
-      "sangre": 2.5764076,
-      "sangre_adan": 2.5764076,
-      "cosechas": 22,
+      "sangre": 2.5813476,
+      "sangre_adan": 2.5813476,
+      "cosechas": 26,
       "escalones_red": 15,
       "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 21,
+      "altar_revision": 26,
       "altar_order_status": ""
     }
   },
@@ -73,9 +73,9 @@
   "posicion": [
     {
       "lado": "LONG",
-      "qty": 5.0,
-      "precio": 2.59557143,
-      "masa_usd": 12.9779
+      "qty": 3.0,
+      "precio": 2.58745481,
+      "masa_usd": 7.7624
     }
   ]
 }

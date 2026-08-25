@@ -1,15 +1,20 @@
 {
-  "ts": 1787609108.0912168,
-  "duracion_s": 680.7,
+  "ts": 1787618846.7134283,
+  "duracion_s": 224.0,
   "manos": true,
   "mercado": "linear",
   "activo": "SOXS",
   "contadores": {
-    "eventos": 0,
+    "eventos": 10,
     "errores": 0,
-    "por_evento": {}
+    "por_evento": {
+      "ARMAR_ARRIBA": 1,
+      "OZ_COSECHA": 5,
+      "ARMAR_RED": 3,
+      "ARMAR_SANGRE": 1
+    }
   },
-  "last_lineal": 50.73,
+  "last_lineal": 50.62,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "SOXS",
@@ -41,30 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_SOXS_13d14ce5",
+      "uid": "RANGO_SOXS_R3_e8a971",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 50.76,
       "oz": 0.0,
-      "oz_despliegue": 0.0,
-      "red": 0.0,
+      "oz_despliegue": 50.52,
+      "red": 50.166360000000005,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 0.0,
-      "saco_short": 0.0,
-      "sangre_lado": "",
-      "sangre": 0.0,
-      "sangre_adan": 0.0,
-      "cosechas": 0,
-      "escalones_red": 0,
-      "ultima_hoz_direccion": "",
+      "saco_long": 17.0,
+      "saco_short": 15.0,
+      "sangre_lado": "ARRIBA",
+      "sangre": 51.12624,
+      "sangre_adan": 51.12624,
+      "cosechas": 5,
+      "escalones_red": 3,
+      "ultima_hoz_direccion": "LONG",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 0,
+      "altar_revision": 2,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\SOXS\\manos_eventos.jsonl",
-  "posicion": []
+  "posicion": [
+    {
+      "lado": "LONG",
+      "qty": 0.02,
+      "precio": 50.84,
+      "masa_usd": 1.0168
+    }
+  ]
 }

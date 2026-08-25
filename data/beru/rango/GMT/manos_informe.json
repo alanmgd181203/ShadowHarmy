@@ -1,6 +1,6 @@
 {
-  "ts": 1787609099.0393121,
-  "duracion_s": 25863.5,
+  "ts": 1787618837.772511,
+  "duracion_s": 419.7,
   "manos": true,
   "mercado": "linear",
   "activo": "GMT",
@@ -14,7 +14,7 @@
       "ARMAR_RED": 2
     }
   },
-  "last_lineal": 0.007357,
+  "last_lineal": 0.007405,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "GMT",
@@ -46,7 +46,7 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_GMT_R2_4e4687",
+      "uid": "RANGO_GMT_CONTINUA_2_ee4d5e",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 0.00739,
@@ -66,7 +66,7 @@
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 9,
+      "altar_revision": 0,
       "altar_order_status": ""
     }
   },

@@ -1,6 +1,6 @@
 {
-  "ts": 1787609092.6837652,
-  "duracion_s": 25862.4,
+  "ts": 1787618832.4846406,
+  "duracion_s": 510.7,
   "manos": true,
   "mercado": "linear",
   "activo": "AIGENSYN",
@@ -13,7 +13,7 @@
       "ARMAR_SANGRE": 1
     }
   },
-  "last_lineal": 0.02,
+  "last_lineal": 0.02016,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "AIGENSYN",
@@ -45,7 +45,7 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_AIGENSYN_d90547da",
+      "uid": "RANGO_AIGENSYN_CONTINUA_0_fbc9d3",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 0.02001,
@@ -65,7 +65,7 @@
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 2,
+      "altar_revision": 0,
       "altar_order_status": ""
     }
   },

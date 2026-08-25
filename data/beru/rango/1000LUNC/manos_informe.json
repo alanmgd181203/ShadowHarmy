@@ -1,20 +1,20 @@
 {
-  "ts": 1787609100.6218884,
-  "duracion_s": 25866.3,
+  "ts": 1787618831.4979565,
+  "duracion_s": 521.5,
   "manos": true,
   "mercado": "linear",
   "activo": "1000LUNC",
   "contadores": {
-    "eventos": 34,
+    "eventos": 39,
     "errores": 0,
     "por_evento": {
       "ARMAR_ARRIBA": 1,
-      "OZ_COSECHA": 17,
-      "ARMAR_SANGRE": 6,
-      "ARMAR_RED": 10
+      "OZ_COSECHA": 19,
+      "ARMAR_SANGRE": 8,
+      "ARMAR_RED": 11
     }
   },
-  "last_lineal": 0.05435,
+  "last_lineal": 0.055,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "1000LUNC",
@@ -46,37 +46,30 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_1000LUNC_R10_9c85c8",
-      "estado": "ACECHANDO",
-      "direccion": "",
+      "uid": "RANGO_1000LUNC_CONTINUA_11_faac9c",
+      "estado": "CAZANDO",
+      "direccion": "SHORT",
       "cero": 0.05503,
-      "oz": 0.0,
-      "oz_despliegue": 0.05483,
-      "red": 0.05521380999999999,
-      "trail_extremo": 0.0,
-      "masa": 0.0,
-      "saco_long": 54.0,
+      "oz": 0.05489,
+      "oz_despliegue": 0.05392764,
+      "red": 0.0,
+      "trail_extremo": 0.055,
+      "masa": 12.0,
+      "saco_long": 65.0,
       "saco_short": 50.0,
-      "sangre_lado": "ABAJO",
-      "sangre": 0.05417204,
-      "sangre_adan": 0.05417204,
-      "cosechas": 17,
-      "escalones_red": 10,
-      "ultima_hoz_direccion": "SHORT",
-      "altar_link_id": "",
-      "altar_order_id": "",
-      "altar_trigger_price": 0.0,
-      "altar_revision": 17,
-      "altar_order_status": ""
+      "sangre_lado": "ARRIBA",
+      "sangre": 0.05457477168,
+      "sangre_adan": 0.05457477168,
+      "cosechas": 19,
+      "escalones_red": 11,
+      "ultima_hoz_direccion": "LONG",
+      "altar_link_id": "BRG-TRA-1-5220ff3847838f",
+      "altar_order_id": "938d8833-e3d8-400e-9e86-7d5020257c21",
+      "altar_trigger_price": 0.05488,
+      "altar_revision": 1,
+      "altar_order_status": "Untriggered"
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\1000LUNC\\manos_eventos.jsonl",
-  "posicion": [
-    {
-      "lado": "LONG",
-      "qty": 231.0,
-      "precio": 0.0544241,
-      "masa_usd": 12.572
-    }
-  ]
+  "posicion": []
 }

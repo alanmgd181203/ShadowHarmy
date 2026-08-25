@@ -1,20 +1,20 @@
 {
-  "ts": 1787609093.0681918,
-  "duracion_s": 26443.7,
+  "ts": 1787618843.1382105,
+  "duracion_s": 473.4,
   "manos": true,
   "mercado": "linear",
   "activo": "AXTI",
   "contadores": {
-    "eventos": 140,
+    "eventos": 150,
     "errores": 0,
     "por_evento": {
       "ARMAR_ARRIBA": 1,
-      "OZ_COSECHA": 70,
-      "ARMAR_SANGRE": 30,
-      "ARMAR_RED": 39
+      "OZ_COSECHA": 75,
+      "ARMAR_SANGRE": 32,
+      "ARMAR_RED": 42
     }
   },
-  "last_lineal": 65.86,
+  "last_lineal": 64.97,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "AXTI",
@@ -46,37 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_AXTI_R39_315126",
+      "uid": "RANGO_AXTI_CONTINUA_42_1904b7",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 68.07,
       "oz": 0.0,
-      "oz_despliegue": 65.96,
-      "red": 66.42172,
+      "oz_despliegue": 64.74,
+      "red": 65.19317999999998,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 255.0,
-      "saco_short": 231.0,
+      "saco_long": 276.0,
+      "saco_short": 237.0,
       "sangre_lado": "ABAJO",
-      "sangre": 65.16847999999999,
-      "sangre_adan": 65.16847999999999,
-      "cosechas": 70,
-      "escalones_red": 39,
+      "sangre": 63.963119999999996,
+      "sangre_adan": 63.963119999999996,
+      "cosechas": 75,
+      "escalones_red": 42,
       "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 18,
+      "altar_revision": 1,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\AXTI\\manos_eventos.jsonl",
   "posicion": [
     {
-      "lado": "SHORT",
-      "qty": 0.21,
-      "precio": 65.95976962,
-      "masa_usd": 13.8516
+      "lado": "LONG",
+      "qty": 0.03,
+      "precio": 64.16846154,
+      "masa_usd": 1.9251
     }
   ]
 }

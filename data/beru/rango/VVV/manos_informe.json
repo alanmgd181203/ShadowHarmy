@@ -1,20 +1,20 @@
 {
-  "ts": 1787609092.844012,
-  "duracion_s": 26448.0,
+  "ts": 1787618842.7766206,
+  "duracion_s": 184.1,
   "manos": true,
   "mercado": "linear",
   "activo": "VVV",
   "contadores": {
-    "eventos": 152,
+    "eventos": 160,
     "errores": 0,
     "por_evento": {
       "ARMAR_ARRIBA": 1,
-      "OZ_COSECHA": 76,
-      "ARMAR_SANGRE": 24,
+      "OZ_COSECHA": 80,
+      "ARMAR_SANGRE": 28,
       "ARMAR_RED": 51
     }
   },
-  "last_lineal": 16.894,
+  "last_lineal": 16.983,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "VVV",
@@ -46,27 +46,27 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_VVV_R51_ebe6fc",
+      "uid": "RANGO_VVV_CONTINUA_51_7b3c45",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 16.811,
       "oz": 0.0,
-      "oz_despliegue": 16.913,
-      "red": 17.031391,
+      "oz_despliegue": 16.94,
+      "red": 17.05858,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 236.0,
-      "saco_short": 236.0,
+      "saco_long": 246.0,
+      "saco_short": 246.0,
       "sangre_lado": "ABAJO",
-      "sangre": 16.710044,
-      "sangre_adan": 16.710044,
-      "cosechas": 76,
+      "sangre": 16.736720000000002,
+      "sangre_adan": 16.736720000000002,
+      "cosechas": 80,
       "escalones_red": 51,
       "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 26,
+      "altar_revision": 1,
       "altar_order_status": ""
     }
   },
@@ -75,8 +75,8 @@
     {
       "lado": "LONG",
       "qty": 1.07,
-      "precio": 16.58510324,
-      "masa_usd": 17.7461
+      "precio": 16.64568476,
+      "masa_usd": 17.8109
     }
   ]
 }

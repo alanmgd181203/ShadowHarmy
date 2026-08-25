@@ -1,6 +1,6 @@
 {
-  "ts": 1787609105.8568313,
-  "duracion_s": 1295.8,
+  "ts": 1787618835.2959018,
+  "duracion_s": 200.7,
   "manos": true,
   "mercado": "linear",
   "activo": "TRB",
@@ -9,7 +9,7 @@
     "errores": 0,
     "por_evento": {}
   },
-  "last_lineal": 18.638,
+  "last_lineal": 18.992,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "TRB",
@@ -41,10 +41,10 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_TRB_59d349e1",
+      "uid": "RANGO_TRB_8f8935e8",
       "estado": "ACECHANDO",
       "direccion": "",
-      "cero": 18.647,
+      "cero": 18.896,
       "oz": 0.0,
       "oz_despliegue": 0.0,
       "red": 0.0,

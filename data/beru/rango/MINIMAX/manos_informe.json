@@ -1,6 +1,6 @@
 {
-  "ts": 1787609106.173637,
-  "duracion_s": 993.4,
+  "ts": 1787618849.7200642,
+  "duracion_s": 383.2,
   "manos": true,
   "mercado": "linear",
   "activo": "MINIMAX",
@@ -9,7 +9,7 @@
     "errores": 0,
     "por_evento": {}
   },
-  "last_lineal": 39.5,
+  "last_lineal": 39.62,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "MINIMAX",
@@ -41,10 +41,10 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_MINIMAX_4dfb410f",
+      "uid": "RANGO_MINIMAX_a28c64c2",
       "estado": "ACECHANDO",
       "direccion": "",
-      "cero": 39.47,
+      "cero": 39.6,
       "oz": 0.0,
       "oz_despliegue": 0.0,
       "red": 0.0,

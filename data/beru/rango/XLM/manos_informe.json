@@ -1,20 +1,20 @@
 {
-  "ts": 1787609094.3904889,
-  "duracion_s": 26448.9,
+  "ts": 1787618839.0786262,
+  "duracion_s": 168.3,
   "manos": true,
   "mercado": "linear",
   "activo": "XLM",
   "contadores": {
-    "eventos": 80,
+    "eventos": 81,
     "errores": 0,
     "por_evento": {
       "ARMAR_ARRIBA": 1,
       "OZ_COSECHA": 40,
-      "ARMAR_SANGRE": 19,
+      "ARMAR_SANGRE": 20,
       "ARMAR_RED": 20
     }
   },
-  "last_lineal": 0.1933,
+  "last_lineal": 0.1967,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "XLM",
@@ -46,15 +46,15 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_XLM_R20_686162",
-      "estado": "ACECHANDO",
-      "direccion": "",
+      "uid": "RANGO_XLM_CONTINUA_20_e25ca0",
+      "estado": "CAZANDO",
+      "direccion": "SHORT",
       "cero": 0.1998,
-      "oz": 0.0,
+      "oz": 0.1964,
       "oz_despliegue": 0.19278,
-      "red": 0.19143054,
-      "trail_extremo": 0.0,
-      "masa": 0.0,
+      "red": 0.0,
+      "trail_extremo": 0.1968,
+      "masa": 10.0,
       "saco_long": 128.0,
       "saco_short": 97.0,
       "sangre_lado": "ARRIBA",
@@ -63,11 +63,11 @@
       "cosechas": 40,
       "escalones_red": 20,
       "ultima_hoz_direccion": "LONG",
-      "altar_link_id": "",
-      "altar_order_id": "",
-      "altar_trigger_price": 0.0,
-      "altar_revision": 6,
-      "altar_order_status": ""
+      "altar_link_id": "BRG-TRA-1-2a5060ab2cc284",
+      "altar_order_id": "9db06355-0895-4402-9820-de2f07102452",
+      "altar_trigger_price": 0.1964,
+      "altar_revision": 1,
+      "altar_order_status": "Untriggered"
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\XLM\\manos_eventos.jsonl",

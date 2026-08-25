@@ -1,20 +1,20 @@
 {
-  "ts": 1787609091.5354056,
-  "duracion_s": 26445.2,
+  "ts": 1787618838.2619762,
+  "duracion_s": 408.2,
   "manos": true,
   "mercado": "linear",
   "activo": "HYPE",
   "contadores": {
-    "eventos": 76,
+    "eventos": 79,
     "errores": 0,
     "por_evento": {
       "ARMAR_ARRIBA": 1,
-      "OZ_COSECHA": 38,
-      "ARMAR_RED": 23,
+      "OZ_COSECHA": 39,
+      "ARMAR_RED": 25,
       "ARMAR_SANGRE": 14
     }
   },
-  "last_lineal": 77.96,
+  "last_lineal": 79.53,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "HYPE",
@@ -46,37 +46,30 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_HYPE_R23_653112",
-      "estado": "ACECHANDO",
-      "direccion": "",
+      "uid": "RANGO_HYPE_R25_7bec05",
+      "estado": "CAZANDO",
+      "direccion": "SHORT",
       "cero": 81.11,
-      "oz": 0.0,
-      "oz_despliegue": 78.243,
-      "red": 78.79070099999998,
-      "trail_extremo": 0.0,
-      "masa": 0.0,
+      "oz": 79.41,
+      "oz_despliegue": 78.672,
+      "red": 0.0,
+      "trail_extremo": 79.57,
+      "masa": 9.0,
       "saco_long": 129.0,
-      "saco_short": 90.0,
+      "saco_short": 95.0,
       "sangre_lado": "ABAJO",
-      "sangre": 77.30408399999999,
-      "sangre_adan": 77.30408399999999,
-      "cosechas": 38,
-      "escalones_red": 23,
+      "sangre": 77.727936,
+      "sangre_adan": 77.727936,
+      "cosechas": 39,
+      "escalones_red": 25,
       "ultima_hoz_direccion": "SHORT",
-      "altar_link_id": "",
-      "altar_order_id": "",
-      "altar_trigger_price": 0.0,
-      "altar_revision": 11,
-      "altar_order_status": ""
+      "altar_link_id": "BRG-TRA-1-3515d4973d6d78",
+      "altar_order_id": "34135dfc-4d28-4862-a0b6-5dc70619c2c5",
+      "altar_trigger_price": 79.41,
+      "altar_revision": 1,
+      "altar_order_status": "Untriggered"
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\HYPE\\manos_eventos.jsonl",
-  "posicion": [
-    {
-      "lado": "LONG",
-      "qty": 0.25,
-      "precio": 77.94785638,
-      "masa_usd": 19.487
-    }
-  ]
+  "posicion": []
 }

@@ -1,20 +1,20 @@
 {
-  "ts": 1787609097.0786088,
-  "duracion_s": 26446.8,
+  "ts": 1787618838.5633755,
+  "duracion_s": 240.1,
   "manos": true,
   "mercado": "linear",
   "activo": "SAMSUNG",
   "contadores": {
-    "eventos": 46,
+    "eventos": 56,
     "errores": 0,
     "por_evento": {
       "ARMAR_ABAJO": 1,
-      "OZ_COSECHA": 23,
-      "ARMAR_RED": 15,
-      "ARMAR_SANGRE": 7
+      "OZ_COSECHA": 28,
+      "ARMAR_RED": 18,
+      "ARMAR_SANGRE": 9
     }
   },
-  "last_lineal": 181.08,
+  "last_lineal": 180.56,
   "snapshot": {
     "oficio": "RANGO",
     "activo": "SAMSUNG",
@@ -46,30 +46,37 @@
       "ladder_red": "si"
     },
     "vivo": {
-      "uid": "RANGO_SAMSUNG_R15_b6a703",
+      "uid": "RANGO_SAMSUNG_CONTINUA_18_e52f54",
       "estado": "ACECHANDO",
       "direccion": "",
       "cero": 197.54,
       "oz": 0.0,
-      "oz_despliegue": 182.43,
-      "red": 183.70701,
+      "oz_despliegue": 180.9,
+      "red": 182.16629999999998,
       "trail_extremo": 0.0,
       "masa": 0.0,
-      "saco_long": 108.0,
-      "saco_short": 35.0,
+      "saco_long": 125.0,
+      "saco_short": 45.0,
       "sangre_lado": "ABAJO",
-      "sangre": 180.24084,
-      "sangre_adan": 180.24084,
-      "cosechas": 23,
-      "escalones_red": 15,
+      "sangre": 178.7292,
+      "sangre_adan": 178.7292,
+      "cosechas": 28,
+      "escalones_red": 18,
       "ultima_hoz_direccion": "SHORT",
       "altar_link_id": "",
       "altar_order_id": "",
       "altar_trigger_price": 0.0,
-      "altar_revision": 4,
+      "altar_revision": 0,
       "altar_order_status": ""
     }
   },
   "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\SAMSUNG\\manos_eventos.jsonl",
-  "posicion": []
+  "posicion": [
+    {
+      "lado": "SHORT",
+      "qty": 0.03,
+      "precio": 181.2,
+      "masa_usd": 5.436
+    }
+  ]
 }
