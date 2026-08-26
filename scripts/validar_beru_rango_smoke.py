@@ -35,6 +35,9 @@ def _assert_geometria() -> None:
     g = br.resumen_geometria()
     assert abs(g["vacio_pct"] - 0.012) < 1e-12
     assert abs(g["masa_sangre_usd"] - 5.0) < 1e-9
+    assert abs(float(g["red_activacion_long_pct"]) - 0.007) < 1e-12
+    assert abs(float(g["red_activacion_short_pct"]) - 0.008) < 1e-12
+    assert abs(float(g["red_activacion_pct"]) - 0.007) < 1e-12
     assert g["cero"] == "wake"
     assert g["nacimiento"] == "cinco_usd"
     assert g["engorde"] == "desde_activacion"
@@ -121,7 +124,7 @@ def _assert_red_fill_asimetrica() -> None:
     br.actualizar_trailing_oz(b, 101.2)
     oz = float(b.oz_adan)
     br.cosechar_oz_y_mover_cero(b, oz * 0.999, oz_despliegue=oz)
-    assert abs(b.red_adan - oz * 1.007) < 1e-9
+    assert abs(b.red_adan - oz * 1.008) < 1e-9
 
     b2 = BeruShip(uid="RF2", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
     br.despertar(b2, 100.0, activo="ETH")
@@ -131,8 +134,18 @@ def _assert_red_fill_asimetrica() -> None:
     oz2 = float(b2.oz_adan)
     fill_peor = oz2 * 1.001
     br.cosechar_oz_y_mover_cero(b2, fill_peor, oz_despliegue=oz2)
-    assert abs(b2.red_adan - fill_peor * 1.007) < 1e-9
-    print("  Red asimétrica SHORT OK")
+    assert abs(b2.red_adan - fill_peor * 1.008) < 1e-9
+
+    # LONG: Red sigue en 0,7 %
+    b3 = BeruShip(uid="RF3", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
+    br.despertar(b3, 100.0, activo="ETH")
+    br.toca_vacio(b3, 100.0)
+    br.armar_tramo_desde_vacio(b3, "ABAJO", precio=98.8)
+    br.actualizar_trailing_oz(b3, 98.8)
+    oz3 = float(b3.oz_adan)
+    br.cosechar_oz_y_mover_cero(b3, oz3 * 1.001, oz_despliegue=oz3)
+    assert abs(b3.red_adan - oz3 * 0.993) < 1e-9
+    print("  Red asimétrica SHORT 0,8 / LONG 0,7 OK")
 
 
 async def _assert_general() -> None:
@@ -195,7 +208,7 @@ def _assert_sangre_desde_oz_no_wake() -> None:
     br.restaurar_acecho_post_oz(
         b2,
         cero=100.0,
-        red=ancla * 1.007,
+        red=ancla * 1.008,
         sangre_lado="ABAJO",
         ultima_hoz_direccion="SHORT",
         oz_despliegue=oz,
@@ -204,7 +217,7 @@ def _assert_sangre_desde_oz_no_wake() -> None:
     # Fill peor: Red nació más lejos; al continuar la sangre no vuelve al Oz viejo.
     fill_peor = oz * 1.004
     ancla_peor = br.ancla_mapa_red(oz, fill_peor, "SHORT")
-    red_peor = ancla_peor * 1.007
+    red_peor = ancla_peor * 1.008
     b3 = BeruShip(uid="SOZ3", centro_local=1.0, masa=0.0, direccion="", estado="ACECHANDO")
     br.restaurar_acecho_post_oz(
         b3,

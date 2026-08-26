@@ -5,6 +5,8 @@
   "geometria": {
     "vacio_sangre_pct": 0.012,
     "oz_callback_pct": 0.002,
+    "red_long_pct": 0.007,
+    "red_short_pct": 0.008,
     "red_pct": 0.007,
     "masa_nacimiento_usd": 5.0,
     "engorde_usd": 1.0,
@@ -16,6 +18,8 @@
     "activar": "BERU_RANGO_PERFIL=feria",
     "vacio_sangre_pct": 0.024,
     "oz_callback_pct": 0.004,
+    "red_long_pct": 0.014,
+    "red_short_pct": 0.016,
     "red_pct": 0.014,
     "masa_nacimiento_usd": 5.0,
     "engorde_usd": 1.0,

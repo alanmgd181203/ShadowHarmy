@@ -329,7 +329,8 @@ def _write_md(report: dict[str, Any], path: Path) -> None:
         + " · ".join(f"**{k}** {float(w)*100:.0f}%" for k, w in pesos.items()),
         f"- Geometría: Vacío {float(geo.get('vacio_pct') or 0)*100:.1f}% · "
         f"Oz {float(geo.get('oz_gap_pct') or 0)*100:.1f}% · "
-        f"Red act. {float(geo.get('red_activacion_pct') or 0)*100:.1f}% · "
+        f"Red L {float(geo.get('red_activacion_long_pct') or geo.get('red_activacion_pct') or 0)*100:.1f}% / "
+        f"S {float(geo.get('red_activacion_short_pct') or geo.get('red_activacion_pct') or 0)*100:.1f}% · "
         f"masa ${float(geo.get('masa_usd') or 0):.0f}/${float(geo.get('masa_red_usd') or 0):.0f} · "
         f"nace {geo.get('nacimiento') or '?'} · engorde {geo.get('engorde') or '?'}",
         "- Corona: **botín neto del trail Oz / margen (Vacío+Red)**",

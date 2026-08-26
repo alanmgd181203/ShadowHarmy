@@ -112,16 +112,17 @@ def _infer_hoz(vivo: dict[str, Any], sangre: str) -> str:
 
 
 def _red_desde_ancla(ancla: float, sangre: str, hoz: str) -> float:
-    """Red 0,7 desde ancla. Sangre ABAJO → Red arriba; ARRIBA → Red abajo."""
+    """Red LONG 0,7 / SHORT 0,8 desde ancla. Sangre ABAJO → Red arriba; ARRIBA → abajo."""
     a = float(ancla or 0)
     if a <= 0:
         return 0.0
-    red_act = beru_rango.red_activacion_pct()
     lado = str(sangre or "").upper()
     hoz_u = str(hoz or "").upper()
     if not lado:
         lado = "ABAJO" if hoz_u == "SHORT" else "ARRIBA"
-    if lado == "ABAJO" or (not sangre and hoz_u == "SHORT"):
+    dir_red = "SHORT" if (lado == "ABAJO" or (not sangre and hoz_u == "SHORT")) else "LONG"
+    red_act = beru_rango.red_activacion_pct(dir_red)
+    if dir_red == "SHORT":
         return a * (1.0 + red_act)
     return a * (1.0 - red_act)
 

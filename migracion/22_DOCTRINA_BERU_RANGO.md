@@ -23,7 +23,8 @@ Todo el molino es **trailing stop**:
 | Vacío (semilla) | **Activación** | ±**1,2 %** desde el **wake** |
 | Sangre (post-Oz) | **Activación** | ±**1,2 %** desde el **peldaño Oz** (lado contrario) |
 | Oz | **Callback** | **0,2 %** detrás del extremo |
-| Red | **Activación** | **0,7 %** desde **Oz desplegada** |
+| Red LONG | **Activación** | **0,7 %** desde **Oz desplegada** |
+| Red SHORT | **Activación** | **0,8 %** desde **Oz desplegada** (aire vs sesgo del %) |
 | Meta saco | Referencia a profundidad | **$5 + $1 × peldaños 0,1 % desde wake** (informativa) |
 | Nacimiento Vacío / Red / Sangre | Lo que se arma al nacer | **$5** |
 | Engorde (todos) | Mientras CAZA | **+$1 / 0,1 % desde precio de activación** |
@@ -40,7 +41,7 @@ Todo el molino es **trailing stop**:
 
 1. Wake → **0 absoluto** · ledger saco LONG/SHORT = 0.  
 2. Vacío → **$5** · trailing; si Oz sigue desde la activación, engorda.  
-3. Oz detona → suma masa al saco del lado · wake intacto · planta sangre (1,2 % del peldaño Oz, contraria) + Red (0,7 % del mismo ancla).  
+3. Oz detona → suma masa al saco del lado · wake intacto · planta sangre (1,2 % del peldaño Oz, contraria) + Red (**LONG 0,7 %** / **SHORT 0,8 %** del mismo ancla).  
 4. Red → **$5** · engorde desde activación · **siempre puede re-armar** (saco no corta) · al cosechar Oz otra vez, la sangre **renace** junto al nuevo peldaño (no se queda en el wake).  
 5. Sangre → **$5** · engorde desde activación · mata Red.  
 6. Manos ON: Stop Oz + amend; Market si hace falta.
@@ -63,7 +64,8 @@ No sustituye al normal. Checkpoint del canónico: `data/beru/rango/checkpoint_do
 |-------|-------:|------:|
 | Vacío (semilla) / sangre (post-Oz) | 1,2 % | **2,4 %** |
 | Oz callback | 0,2 % | **0,4 %** |
-| Red | 0,7 % | **1,4 %** |
+| Red LONG | 0,7 % | **1,4 %** |
+| Red SHORT | 0,8 % | **1,6 %** |
 | Engorde | +$1 / 0,1 % | +$1 / **0,2 %** |
 | Nacimiento | $5 | $5 |
 
@@ -90,4 +92,4 @@ python scripts/arise_beru_rango_manos.py --activo X --manos-go
 
 **Arquitectura flota ojos:** cada Santo = Bridge propio + Tank propio + pulso propio. El panel fusiona; no hay fila única hablando por todos.
 
-— Shadow Army · wake eterno · nace $5 · engorde desde activación · escalera sin tope · perfil normal|feria · flota multi —
+— Shadow Army · wake eterno · nace $5 · engorde desde activación · Red LONG 0,7 / SHORT 0,8 · escalera sin tope · perfil normal|feria · flota multi —

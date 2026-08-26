@@ -2,8 +2,8 @@
 
 Doctrina Monarca 2026-08-22 (cirugía saco) · sin tope meta−ya (2026-08-23):
   · 0 absoluto = wake (no se mueve con Oz ni fill)
-  · Perfil normal: Vacío/sangre ±1,2 % · Oz 0,2 % · Red 0,7 % · +$1/0,1 %
-  · Perfil feria (paralelo): ±2,4 % · Oz 0,4 % · Red 1,4 % · +$1/0,2 %
+  · Perfil normal: Vacío/sangre ±1,2 % · Oz 0,2 % · Red LONG 0,7 % / SHORT 0,8 % · +$1/0,1 %
+  · Perfil feria (paralelo): ±2,4 % · Oz 0,4 % · Red LONG 1,4 % / SHORT 1,6 % · +$1/0,2 %
   · Vacío/Red/Sangre nacen $5; engorde desde activación; escalera sin tope
   · Ledger saco = bitácora (no bloquea Vacío/Red)
   · Misma vela: sangre primero · sangre mata Red
@@ -26,14 +26,23 @@ def oz_gap_pct() -> float:
     return float(getattr(config, "BERU_RANGO_OZ_GAP_PCT", 0.002) or 0.002)
 
 
-def red_activacion_pct() -> float:
-    """Activación del trailing Red (desde la Oz desplegada)."""
+def red_activacion_pct(direccion: str | None = None) -> float:
+    """Activación Red desde Oz: LONG 0,7 % · SHORT 0,8 % (perfil normal).
+
+    Compensa el sesgo natural del % (apilar short un poco más fácil).
+    Sin dirección → LONG (legado / panel).
+    """
+    d = str(direccion or "").upper()
+    if d == "SHORT":
+        return float(
+            getattr(config, "BERU_RANGO_RED_DESDE_OZ_SHORT_PCT", 0.008) or 0.008
+        )
     return float(getattr(config, "BERU_RANGO_RED_DESDE_OZ_PCT", 0.007) or 0.007)
 
 
-def red_desde_oz_pct() -> float:
+def red_desde_oz_pct(direccion: str | None = None) -> float:
     """Alias histórico = activación Red."""
-    return red_activacion_pct()
+    return red_activacion_pct(direccion)
 
 
 def sangre_contraria_pct() -> float:
@@ -237,11 +246,11 @@ def ancla_mapa_red(oz_despliegue: float, fill: float, direccion: str) -> float:
 
 
 def red_desde_ancla(ancla: float, direccion: str) -> float:
-    red_act = red_activacion_pct()
+    d = str(direccion or "").upper()
+    red_act = red_activacion_pct(d)
     a = float(ancla or 0)
     if a <= 0:
         return 0.0
-    d = str(direccion or "").upper()
     if d == "SHORT":
         return a * (1.0 + red_act)
     return a * (1.0 - red_act)
@@ -647,15 +656,15 @@ def _cancelar_red(beru: Any) -> None:
 
 
 def _plantar_orejas_post_oz(beru: Any, ancla_red: float, direccion: str) -> None:
-    """Tras Oz: sangre 1,2 % del peldaño Oz (contraria) + Red 0,7 % del mismo ancla.
+    """Tras Oz: sangre 1,2 % del peldaño Oz (contraria) + Red LONG 0,7 / SHORT 0,8.
 
     Wake (0) sigue eterno para meta/saco. El *llamado* de sangre no se queda
     clavado al wake: si la Red escala el frente, la sangre renace junto al Oz.
     """
     sil = sangre_contraria_pct()
-    red_act = red_activacion_pct()
-    beru.llamado_tramo_pct = sil
     d = str(direccion or "").upper()
+    red_act = red_activacion_pct(d)
+    beru.llamado_tramo_pct = sil
     ancla = float(ancla_red or 0)
     if d == "SHORT":
         beru.sangre_lado = "ABAJO"
@@ -693,7 +702,7 @@ def restaurar_acecho_post_oz(
     if not hoz:
         hoz = "LONG" if lado == "ARRIBA" else "SHORT" if lado == "ABAJO" else "LONG"
     red_px = float(red or 0)
-    red_act = red_activacion_pct()
+    red_act = red_activacion_pct(hoz)
     oz_dep = float(oz_despliegue or 0)
     if red_px <= 0:
         ancla = oz_dep if oz_dep > 0 else wake
@@ -719,16 +728,33 @@ def restaurar_acecho_post_oz(
     beru.red_adan = red_px
     beru.red_pct = red_act if beru.sangre_lado == "ABAJO" else -red_act
     # Misma ancla que la Red viva (fill peor puede haber subido el peldaño).
-    # Oz_despliegue / wake solo si aún no hay Red en el sello.
+    # Preferir oz_despliegue del sello: evita drift si la Red nació con % viejo
+    # (p.ej. SHORT 0,7 → 0,8). Solo se infiere desde Red si está más lejos.
     sil = sangre_contraria_pct()
     ancla_sangre = 0.0
-    if red_px > 0:
+    if oz_dep > 0:
+        red_doctrinal = red_desde_ancla(oz_dep, hoz)
+        if red_px > 0:
+            mas_lejos = (
+                (hoz == "SHORT" and red_px > red_doctrinal + 1e-12)
+                or (hoz == "LONG" and red_px < red_doctrinal - 1e-12)
+            )
+            if mas_lejos:
+                if beru.sangre_lado == "ABAJO":
+                    ancla_sangre = red_px / (1.0 + red_act) if red_act < 1 else red_px
+                else:
+                    ancla_sangre = red_px / (1.0 - red_act) if red_act < 1 else red_px
+            else:
+                ancla_sangre = oz_dep
+        else:
+            ancla_sangre = oz_dep
+    elif red_px > 0:
         if beru.sangre_lado == "ABAJO":
             ancla_sangre = red_px / (1.0 + red_act) if red_act < 1 else red_px
         else:
             ancla_sangre = red_px / (1.0 - red_act) if red_act < 1 else red_px
     if ancla_sangre <= 0:
-        ancla_sangre = oz_dep if oz_dep > 0 else wake
+        ancla_sangre = wake
     if beru.sangre_lado == "ABAJO":
         beru.sangre_adan = ancla_sangre * (1.0 - sil)
     else:
@@ -915,6 +941,8 @@ def armar_tramo_desde_red(beru: Any, precio: float | None = None) -> float:
 
 def resumen_geometria() -> dict[str, float | str]:
     perfil = str(getattr(config, "BERU_RANGO_PERFIL", "normal") or "normal")
+    red_long = red_activacion_pct("LONG")
+    red_short = red_activacion_pct("SHORT")
     return {
         "oficio": "RANGO",
         "perfil": perfil,
@@ -923,8 +951,10 @@ def resumen_geometria() -> dict[str, float | str]:
         "vacio_rol": "activacion_trailing",
         "oz_gap_pct": trailing_dist_pct(),
         "oz_modo": "trailing_callback",
-        "red_activacion_pct": red_activacion_pct(),
-        "red_desde_oz_pct": red_activacion_pct(),
+        "red_activacion_pct": red_long,
+        "red_activacion_long_pct": red_long,
+        "red_activacion_short_pct": red_short,
+        "red_desde_oz_pct": red_long,
         "red_modo": "trailing",
         "red_callback_pct": trailing_dist_pct(),
         "sangre_pct": sangre_contraria_pct(),

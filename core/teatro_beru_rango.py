@@ -119,7 +119,7 @@ def _niveles_de(
     if estado == "ACECHANDO" and (
         bool(getattr(beru, "es_relevo_cazador", False)) or sangre_lado
     ):
-        # Tras Oz: sangre act. 1,2 + Red trailing act. 0,7
+        # Tras Oz: sangre act. 1,2 + Red trailing (LONG 0,7 / SHORT 0,8)
         out["fase"] = "bifurca"
         masa_marca = float(getattr(beru, "ultima_masa_cosechada", 0) or 0) or beru_rango.masa_tramo_usd()
         out["oz"] = oz_fantasma
@@ -134,7 +134,7 @@ def _niveles_de(
             "cero": "0 = Oz",
             "sangre": f"Sangre act. {sang*100:.1f}% → trail $5",
             "red": (
-                f"Red act. {beru_rango.red_activacion_pct()*100:.1f}% → "
+                f"Red act. {beru_rango.red_activacion_pct(dir_fantasma)*100:.1f}% → "
                 f"trail callback {beru_rango.trailing_dist_pct()*100:.1f}% · $5"
             ),
             "oz": f"marca {dir_fantasma or 'OZ'} ${masa_marca:.0f}" if oz_fantasma else "",
@@ -162,10 +162,11 @@ def _narrar_armar(beru, origen: str, precio: float, precio_antes: float) -> tupl
     extremo = float(getattr(beru, "trail_extremo", 0) or precio)
     if origen == "RED":
         esc = int(getattr(beru, "rango_escalones_red", 0) or 0)
+        red_pct = beru_rango.red_activacion_pct(d)
         titulo = f"Red activacion — trailing {d} ${beru.masa:.0f} (escalon {esc})"
         detalle = (
             f"Precio {_fmt_px(precio_antes)} → {_fmt_px(precio)}. "
-            f"Toco la activacion Red (0,7% desde la Oz). "
+            f"Toco la activacion Red ({red_pct*100:.1f}% desde la Oz). "
             f"Trailing {d} ${beru.masa:.2f} (nace $5; engorde desde activacion; techo meta−saco): "
             f"callback {trail*100:.1f}% "
             f"(Oz ahora {_fmt_px(oz)} detrás de extremo {_fmt_px(extremo)}). "
@@ -207,6 +208,7 @@ def _narrar_oz(
     wake_px = float(wake or 0) or beru_rango.cero_wake(beru) or float(fill or 0)
     sangre_px = wake_px * (1 - sang) if lado == "ABAJO" else wake_px * (1 + sang)
     red_act = float(getattr(beru, "red_adan", 0) or 0)
+    red_pct = beru_rango.red_activacion_pct(direccion)
     trail = beru_rango.trailing_dist_pct()
     titulo = f"Callback Oz — {direccion} ${masa:.0f}"
     detalle = (
@@ -214,7 +216,7 @@ def _narrar_oz(
         f"Entra {direccion} ${masa:.0f}. wake/0 = {_fmt_px(wake_px)} (eterno). "
         f"Planta: sangre act. {lado} {sang*100:.1f}% → {_fmt_px(sangre_px)} (trail $5), "
         f"y Red trailing act. {_fmt_px(red_act)} "
-        f"(0,7% · callback {trail*100:.1f}% · $5). "
+        f"({red_pct*100:.1f}% · callback {trail*100:.1f}% · $5). "
         f"Si sangre gana primero, la Red se cancela."
     )
     _ = red_tramo

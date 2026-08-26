@@ -123,12 +123,14 @@ BERU_MANOS_PARALELAS = int(float(os.getenv("BERU_MANOS_PARALELAS", "8") or 8))
 BERU_API_COOLDOWN_S = float(os.getenv("BERU_API_COOLDOWN_S", "0.5") or 0.5)
 # --- Beru rango (lineal) 2026-08-22 — wake eterno · Red desde Oz · engorde CAZANDO ---
 # Perfiles: normal (default) · feria (orejas x2 · engorde +$1/0.2% · masa $5)
+# Red asimétrica (Monarca 2026-08-25): LONG 0,7% · SHORT 0,8% (aire vs sesgo %)
 # Checkpoint normal: data/beru/rango/checkpoint_doctrina_normal.json
 BERU_RANGO_PERFILES = {
     "normal": {
         "VACIO_PCT": 0.012,
         "OZ_GAP_PCT": 0.002,
         "RED_DESDE_OZ_PCT": 0.007,
+        "RED_DESDE_OZ_SHORT_PCT": 0.008,
         "SANGRE_PCT": 0.012,
         "MASA_USD": 5.0,
         "MASA_RED_USD": 5.0,
@@ -142,6 +144,7 @@ BERU_RANGO_PERFILES = {
         "VACIO_PCT": 0.024,
         "OZ_GAP_PCT": 0.004,
         "RED_DESDE_OZ_PCT": 0.014,
+        "RED_DESDE_OZ_SHORT_PCT": 0.016,
         "SANGRE_PCT": 0.024,
         "MASA_USD": 5.0,
         "MASA_RED_USD": 5.0,
@@ -160,7 +163,8 @@ def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
     después si el Monarca las fija a propósito.
     """
     global BERU_RANGO_PERFIL, BERU_RANGO_VACIO_PCT, BERU_RANGO_OZ_GAP_PCT
-    global BERU_RANGO_RED_DESDE_OZ_PCT, BERU_RANGO_SANGRE_PCT
+    global BERU_RANGO_RED_DESDE_OZ_PCT, BERU_RANGO_RED_DESDE_OZ_SHORT_PCT
+    global BERU_RANGO_SANGRE_PCT
     global BERU_RANGO_MASA_USD, BERU_RANGO_MASA_RED_USD, BERU_RANGO_MASA_SANGRE_USD
     global BERU_RANGO_ENGORDE_USD, BERU_RANGO_ENGORDE_PASO_PCT, BERU_RANGO_TRAILING_PCT
 
@@ -172,6 +176,9 @@ def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
     BERU_RANGO_VACIO_PCT = float(p["VACIO_PCT"])
     BERU_RANGO_OZ_GAP_PCT = float(p["OZ_GAP_PCT"])
     BERU_RANGO_RED_DESDE_OZ_PCT = float(p["RED_DESDE_OZ_PCT"])
+    BERU_RANGO_RED_DESDE_OZ_SHORT_PCT = float(
+        p.get("RED_DESDE_OZ_SHORT_PCT", p["RED_DESDE_OZ_PCT"])
+    )
     BERU_RANGO_SANGRE_PCT = float(p["SANGRE_PCT"])
     BERU_RANGO_MASA_USD = float(p["MASA_USD"])
     BERU_RANGO_MASA_RED_USD = float(p["MASA_RED_USD"])
@@ -187,6 +194,11 @@ def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
     if os.getenv("BERU_RANGO_RED_DESDE_OZ_PCT"):
         BERU_RANGO_RED_DESDE_OZ_PCT = float(
             os.getenv("BERU_RANGO_RED_DESDE_OZ_PCT") or BERU_RANGO_RED_DESDE_OZ_PCT
+        )
+    if os.getenv("BERU_RANGO_RED_DESDE_OZ_SHORT_PCT"):
+        BERU_RANGO_RED_DESDE_OZ_SHORT_PCT = float(
+            os.getenv("BERU_RANGO_RED_DESDE_OZ_SHORT_PCT")
+            or BERU_RANGO_RED_DESDE_OZ_SHORT_PCT
         )
     if os.getenv("BERU_RANGO_SANGRE_PCT"):
         BERU_RANGO_SANGRE_PCT = float(os.getenv("BERU_RANGO_SANGRE_PCT") or BERU_RANGO_SANGRE_PCT)

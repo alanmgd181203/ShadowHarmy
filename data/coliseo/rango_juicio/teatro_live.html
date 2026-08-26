@@ -530,7 +530,8 @@
           · sin TradeFi/stables</span>
         <span>Geometría Vacío <strong>${fmt((data.geometria||{}).vacio_pct * 100, 1)}%</strong>
           · Oz <strong>${fmt((data.geometria||{}).oz_gap_pct * 100, 1)}%</strong>
-          · Red <strong>${fmt((data.geometria||{}).red_activacion_pct * 100, 1)}%</strong></span>
+          · Red L <strong>${fmt(((data.geometria||{}).red_activacion_long_pct ?? (data.geometria||{}).red_activacion_pct) * 100, 1)}%</strong>
+          / S <strong>${fmt(((data.geometria||{}).red_activacion_short_pct ?? (data.geometria||{}).red_activacion_pct) * 100, 1)}%</strong></span>
       `;
 
       let html = tableBlock(
