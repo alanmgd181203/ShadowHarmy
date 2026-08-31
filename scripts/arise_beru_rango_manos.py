@@ -96,6 +96,7 @@ os.environ["BERU_RANGO_MANOS"] = "true"
 os.environ["BERU_RANGO_HILO"] = "true"
 os.environ["BERU_RANGO_ACTIVO"] = str(ARGS.activo or "HYPE").upper()
 os.environ["BRIDGE_WS_SOLO_LINEAR"] = "true"
+os.environ["BRIDGE_WS_PUBLIC_TRADES_LINEAR"] = "true"
 os.environ.setdefault("BRIDGE_WS_SUBSCRIBE_BOOKS", "false")
 os.environ.setdefault("BINANCE_REF_ENABLED", "false")
 os.environ["MODO_SIMULACION"] = "false"
@@ -410,6 +411,7 @@ async def ritual(
     print("    ARISE BERU RANGO — MANOS ON (prueba chiquita)")
     print(f"    Santo: {act}USDT_LINEAL · masa Vacío ${getattr(config, 'BERU_RANGO_MASA_USD', 5)} · Red ${getattr(config, 'BERU_RANGO_MASA_RED_USD', 5)}")
     print(f"    FASE: {config.FASE_ACTUAL} | SIM={config.MODO_SIMULACION} | TESTNET={config.TESTNET}")
+    print("    Oído: tratos públicos ON (mecha trato a trato) · libros OFF")
     print("═" * 56)
 
     shutdown_event = asyncio.Event()

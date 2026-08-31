@@ -156,13 +156,14 @@ def ingest_one(
     dias: int,
     sleep_s: float,
     interval: str = "1",
+    symbol: str | None = None,
 ) -> dict[str, Any]:
     """Descarga un activo×mercado y escribe a su bóveda bajo lock.
 
     Si ya hay velas recientes (p. ej. 90d), también rellena hacia atrás hasta
     la ventana `--dias` (p. ej. 365d) usando min_ts.
     """
-    symbol = _symbol_for(base, market)
+    symbol = str(symbol or _symbol_for(base, market))
     category = market.lower()
     iv = (interval or bov.get_interval()).strip()
     session = _session()

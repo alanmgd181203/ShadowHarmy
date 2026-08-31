@@ -2,8 +2,8 @@
 
 Doctrina Monarca 2026-08-22 (cirugía saco) · sin tope meta−ya (2026-08-23):
   · 0 absoluto = wake (no se mueve con Oz ni fill)
-  · Perfil normal: Vacío/sangre ±1,2 % · Oz 0,2 % · Red LONG 0,7 % / SHORT 0,8 % · +$1/0,1 %
-  · Perfil feria (paralelo): ±2,4 % · Oz 0,4 % · Red LONG 1,4 % / SHORT 1,6 % · +$1/0,2 %
+  · Perfil normal: Vacío/sangre ±1,2 % · Oz 0,2 % · Red 0,7 % (LONG=SHORT) · +$1/0,1 %
+  · Perfil feria (paralelo): ±2,4 % · Oz 0,4 % · Red 1,4 % (LONG=SHORT) · +$1/0,2 %
   · Vacío/Red/Sangre nacen $5; engorde desde activación; escalera sin tope
   · Ledger saco = bitácora (no bloquea Vacío/Red)
   · Misma vela: sangre primero · sangre mata Red
@@ -27,16 +27,11 @@ def oz_gap_pct() -> float:
 
 
 def red_activacion_pct(direccion: str | None = None) -> float:
-    """Activación Red desde Oz: LONG 0,7 % · SHORT 0,8 % (perfil normal).
+    """Activación Red desde Oz: mismo % LONG y SHORT (perfil normal 0,7 %).
 
-    Compensa el sesgo natural del % (apilar short un poco más fácil).
-    Sin dirección → LONG (legado / panel).
+    Sin dirección → pct canónico (legado / panel).
     """
-    d = str(direccion or "").upper()
-    if d == "SHORT":
-        return float(
-            getattr(config, "BERU_RANGO_RED_DESDE_OZ_SHORT_PCT", 0.008) or 0.008
-        )
+    _ = direccion  # LONG / SHORT comparten geometría (Monarca 2026-08-30)
     return float(getattr(config, "BERU_RANGO_RED_DESDE_OZ_PCT", 0.007) or 0.007)
 
 
@@ -656,7 +651,7 @@ def _cancelar_red(beru: Any) -> None:
 
 
 def _plantar_orejas_post_oz(beru: Any, ancla_red: float, direccion: str) -> None:
-    """Tras Oz: sangre 1,2 % del peldaño Oz (contraria) + Red LONG 0,7 / SHORT 0,8.
+    """Tras Oz: sangre 1,2 % del peldaño Oz (contraria) + Red 0,7 % (LONG=SHORT).
 
     Wake (0) sigue eterno para meta/saco. El *llamado* de sangre no se queda
     clavado al wake: si la Red escala el frente, la sangre renace junto al Oz.
@@ -728,8 +723,7 @@ def restaurar_acecho_post_oz(
     beru.red_adan = red_px
     beru.red_pct = red_act if beru.sangre_lado == "ABAJO" else -red_act
     # Misma ancla que la Red viva (fill peor puede haber subido el peldaño).
-    # Preferir oz_despliegue del sello: evita drift si la Red nació con % viejo
-    # (p.ej. SHORT 0,7 → 0,8). Solo se infiere desde Red si está más lejos.
+    # Preferir oz_despliegue del sello: evita drift si la Red nació con % viejo.
     sil = sangre_contraria_pct()
     ancla_sangre = 0.0
     if oz_dep > 0:

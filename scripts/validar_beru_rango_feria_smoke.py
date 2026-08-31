@@ -25,7 +25,7 @@ def main() -> int:
         assert abs(float(g["oz_gap_pct"]) - 0.004) < 1e-12
         assert abs(float(g["red_activacion_pct"]) - 0.014) < 1e-12
         assert abs(float(g["red_activacion_long_pct"]) - 0.014) < 1e-12
-        assert abs(float(g["red_activacion_short_pct"]) - 0.016) < 1e-12
+        assert abs(float(g["red_activacion_short_pct"]) - 0.014) < 1e-12
         assert abs(float(g["engorde_paso_pct"]) - 0.002) < 1e-12
         assert abs(float(g["masa_usd"]) - 5.0) < 1e-9
         print("  geometria feria OK")

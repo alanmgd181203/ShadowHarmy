@@ -142,7 +142,35 @@
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-    .tf-ok { color: var(--verde); font-weight: 700; margin-right: 0.2rem; }
+    .tf-ok {
+      color: var(--verde);
+      font-weight: 700;
+      margin-right: 0.25rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.02em;
+      border: 1px solid color-mix(in srgb, var(--verde) 55%, transparent);
+      border-radius: 3px;
+      padding: 0 0.28rem;
+      white-space: nowrap;
+    }
+    .wake-mark {
+      display: inline-block;
+      color: var(--verde);
+      font-size: 0.62rem;
+      margin-right: 0.28rem;
+      vertical-align: middle;
+      line-height: 1;
+      text-shadow: 0 0 6px rgba(61, 214, 140, 0.55);
+    }
+    .wake-mark.live {
+      color: #7ef0b8;
+      animation: wake-pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes wake-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    tr.despierto td.santo { font-weight: 600; }
     .beru-normal { color: var(--cyan); font-weight: 600; }
     .beru-feria { color: var(--feria); font-weight: 600; }
     .beru-empate { color: var(--amarillo); font-weight: 600; }
@@ -257,8 +285,8 @@
     <h1>TEATRO BERU — ranking fusionado</h1>
     <p>
       Una sola tabla · reciente · <strong>mejor Beru</strong> · filtro absoluto
-      (sin TradeFi · sin ≤ BTC · sin min&gt;$6 · sin extremos · sin libro fino · sin pico&gt;$3k · apalanc &lt; 10x · rango 1a &gt;300% · crypto &lt;3m) ·
-      sombreado: <span style="color:var(--verde)">■</span> ≤50% · <span style="color:var(--amarillo)">■</span> ≤200% · <span style="color:var(--rojo)">■</span> ≤300% · <span style="color:var(--verde)">✓</span> TradeFi · crypto rojo fuera ·
+      (sin ≤ BTC · sin min&gt;$6 · sin libro fino · sin pico&gt;$3k · rango 1a &gt;800% · crypto &lt;3m) ·
+      sombreado: <span style="color:var(--verde)">■</span> 0–200% · <span style="color:var(--amarillo)">■</span> 200–500% · <span style="color:var(--rojo)">■</span> 500–800% · <span style="color:var(--verde)">✓TF</span> TradeFi · <span style="color:var(--verde)">◉</span> despierto ·
       <a href="teatro_mejor_beru.html">todos · mejor Beru</a> ·
       <a href="teatro_live.html">matriz 4 salas</a>
     </p>
@@ -287,18 +315,20 @@
   </aside>
 
   <script>
-    const PANEL_REV = "2026-08-23h";
+    const PANEL_REV = "2026-08-26g";
     const STABLES = new Set(["USDC", "USDE", "USD1", "RLUSD", "USDT"]);
     const EMPATE_EPS = 1e-6;
     const MIN_LEVERAGE = 10;
-    const RNG_VERDE_MAX = 50;
-    const RNG_AMARILLO_MAX = 200;
-    const RNG_FUERA_MAX = 300;
+    const RNG_VERDE_MAX = 200;
+    const RNG_AMARILLO_MAX = 500;
+    const RNG_FUERA_MAX = 800;
     const RNG_FUERA_LISTA_MIN = 700;
     const FUERA_RANK_ORIG_MAX = 500;
     let cache = { normal: null, feria: null };
     let fusion = [];
     let fichas = {};
+    let despiertos = {};
+    let despiertosMeta = {};
     /** @type {Record<string, {fuera?: boolean, min_orden_fuera?: boolean, extremo_fuera?: boolean, min_orden_usd?: number, pos_rango?: number, motivos?: string[]}>} */
     let filtrosAbs = {};
     let filtrosMeta = {};
@@ -332,13 +362,13 @@
     }
 
     function apalancamientoFuera(activo) {
-      const f = filtroOf(activo);
-      if (f.leverage_fuera) return true;
-      const motivos = Array.isArray(f.motivos) ? f.motivos : [];
-      if (motivos.includes("apalanc_lt_10")) return true;
-      const lev = maxLeverageOf(activo);
-      if (lev == null) return false;
-      return lev < MIN_LEVERAGE;
+      /* Apalancamiento: solo aviso · no saca del ranking (Monarca 2026-08-26). */
+      return false;
+    }
+
+    function extremoFuera(activo) {
+      /* Extremos de bóveda: solo aviso · no saca del ranking (Monarca 2026-08-26). */
+      return false;
     }
 
     function rangoAnualPct(activo) {
@@ -362,7 +392,7 @@
       const fx = filtroOf(activo);
       if (fx.rango_anual_fuera) return true;
       const motivos = Array.isArray(fx.motivos) ? fx.motivos : [];
-      if (motivos.includes("rango_anual_gt_300") || motivos.includes("rango_anual_gt_800") || motivos.includes("rango_anual_gt_1200")) return true;
+      if (motivos.includes("rango_anual_gt_800") || motivos.includes("rango_anual_gt_300") || motivos.includes("rango_anual_gt_1200")) return true;
       const pct = rangoAnualPct(activo);
       return pct != null && pct > RNG_FUERA_MAX;
     }
@@ -400,8 +430,8 @@
     }
 
     function rangoRojoFuera(activo) {
-      if (esTradeFiExento(activo)) return false;
-      return rangoAnualBanda(activo) === "rojo";
+      /* Rojo 500–800 % = sombreado only; no sacar del ranking (Monarca 2026-08-26). */
+      return false;
     }
 
     function muertaFuera(activo) {
@@ -411,9 +441,34 @@
       return motivos.some((m) => String(m).startsWith("muerta_"));
     }
 
+    function despiertoOf(activo) {
+      const a = String(activo || "").toUpperCase();
+      return despiertos[a] || null;
+    }
+
+    function esDespierto(activo) {
+      return Boolean(despiertoOf(activo));
+    }
+
     function santoCell(activo) {
-      const mark = esTradeFiExento(activo) ? '<span class="tf-ok" title="TradeFi">✓</span>' : "";
-      return `${mark}${activo}`;
+      const mark = esTradeFiExento(activo)
+        ? '<span class="tf-ok" title="TradeFi">✓TF</span>'
+        : "";
+      const d = despiertoOf(activo);
+      let wake = "";
+      if (d) {
+        const tip = [
+          "Despierto",
+          d.estado ? `estado ${d.estado}` : "",
+          d.cero != null ? `0=${d.cero}` : "",
+          d.en_vivo_ahora ? "vivo ahora" : "",
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        const cls = d.en_vivo_ahora ? "wake-mark live" : "wake-mark";
+        wake = `<span class="${cls}" title="${tip}">◉</span>`;
+      }
+      return `${wake}${mark}${activo}`;
     }
 
     function motivoAbsExtra(activo) {
@@ -429,14 +484,6 @@
         const d = listadoEdadDias(activo);
         return d != null ? `fuera · crypto listado ${fmt(d, 0)}d (<3m)` : "fuera · crypto listado reciente";
       }
-      if (rangoRojoFuera(activo)) {
-        const pct = rangoAnualPct(activo);
-        return pct != null ? `fuera · crypto rango rojo ${fmt(pct, 0)}%` : "fuera · crypto rango rojo";
-      }
-      if (apalancamientoFuera(activo)) {
-        const lev = maxLeverageOf(activo);
-        return lev != null ? `fuera · apalanc ${fmt(lev, 0)}x < 10x` : "fuera · apalanc < 10x";
-      }
       if (minOrdenFuera(f)) {
         return "fuera · min orden > $6";
       }
@@ -446,25 +493,12 @@
       if (f.pico_masa_fuera || motivos.includes("pico_masa_gt_3000")) {
         return "fuera · pico masa > $3000";
       }
-      if (f.extremo_fuera || motivos.some((m) => String(m).startsWith("cerca_"))) {
-        if (motivos.some((m) => String(m).includes("piso"))) {
-          return "fuera · extremo piso bóveda";
-        }
-        if (motivos.some((m) => String(m).includes("techo"))) {
-          return "fuera · extremo techo bóveda";
-        }
-        return "fuera · extremo bóveda";
-      }
-      if (f.fuera) return "fuera · filtro absoluto";
       return null;
     }
 
     function esOficio(activo) {
-      const f = fichaOf(activo);
-      const t = String(f.symbol_type || "").toLowerCase();
+      /* Stables / apalancados tokenizados · TradeFi NO es oficio: van al ranking con ✓TF. */
       const b = String(activo || "").toUpperCase();
-      if (f.tradefi) return true;
-      if (["stock", "commodity", "etf", "fx", "forex"].includes(t)) return true;
       if (STABLES.has(b)) return true;
       if (/2L$|3L$/.test(b) || b.startsWith("CSOP")) return true;
       return false;
@@ -579,7 +613,7 @@
       let nAbsExtremo = 0;
       let nAbsLiq = 0;
       let nAbsPico = 0;
-      let nAbsLev = 0;
+      let nAbsLev = 0; /* ya no filtra · contador en 0 */
       let nAbsRango = 0;
       let nAbsListado = 0;
       let nAbsMuerta = 0;
@@ -602,20 +636,8 @@
           nAbsRango += 1;
           continue;
         }
-        if (rangoRojoFuera(r.activo)) {
-          nAbsRojo += 1;
-          continue;
-        }
-        if (apalancamientoFuera(r.activo)) {
-          nAbsLev += 1;
-          continue;
-        }
         if (minOrdenFuera(fx)) {
           nAbsMin += 1;
-          continue;
-        }
-        if (fx.extremo_fuera || (Array.isArray(fx.motivos) && fx.motivos.some((m) => String(m).startsWith("cerca_")))) {
-          nAbsExtremo += 1;
           continue;
         }
         if (fx.liquidez_fuera || (Array.isArray(fx.motivos) && fx.motivos.some((m) => ["turnover_bajo", "libro_agotado", "slip_ge_1pct", "orderbook_error"].includes(m)))) {
@@ -736,12 +758,17 @@
       } else if (row && row.mejor === "feria") {
         veredicto = "Solo hay dato del Beru volátil en este slot.";
       }
+      const d = despiertoOf(activo);
+      const despiertoLine = d
+        ? `◉ Sí${d.estado ? " · " + d.estado : ""}${d.cero != null ? " · 0=" + d.cero : ""}${d.en_vivo_ahora ? " · vivo ahora" : ""}`
+        : "—";
       document.getElementById("drawer-body").innerHTML = `
         <h2>${activo}</h2>
         <div class="sub">${f.nombre || f.display_name || activo} · ${(f.symbol_type || "?").toUpperCase()}${f.tradefi ? " · TradeFi" : ""} · ${f.symbol || (activo + "USDT")} · <em>${estante}</em></div>
         <h3 style="margin:0 0 0.5rem;font-size:0.85rem;color:var(--dim);font-weight:500">Qué es</h3>
         ${parasHtml}
         <dl>
+          <dt>Despierto</dt><dd>${despiertoLine}</dd>
           <dt>Mejor Beru</dt><dd>${labelBeru(row ? row.mejor : "—")}</dd>
           <dt>Calor original</dt><dd>${row && row.calor_normal != null ? fmt(row.calor_normal) : "—"} · #${row && row.rank_normal != null ? row.rank_normal : "—"}</dd>
           <dt>Calor volátil</dt><dd>${row && row.calor_feria != null ? fmt(row.calor_feria) : "—"} · #${row && row.rank_feria != null ? row.rank_feria : "—"}</dd>
@@ -776,7 +803,7 @@
       return list
         .map(
           (r, i) => `
-        <tr class="${[rowRangoClass(r.activo), frozen ? "frozen" : ""].filter(Boolean).join(" ")}">
+        <tr class="${[rowRangoClass(r.activo), esDespierto(r.activo) ? "despierto" : "", frozen ? "frozen" : ""].filter(Boolean).join(" ")}">
           <td>${i + 1}</td>
           <td>${r.rank_fusion ?? "—"}</td>
           <td class="santo" data-activo="${r.activo}">${santoCell(r.activo)}</td>
@@ -832,7 +859,7 @@
       if (!list.length) return "";
       return `<section class="section fuera-rango">
         <h2>Fuera · rango &gt;700% · top 500 <span class="tag-motivo">(${list.length})</span></h2>
-        <p class="hint">Sacadas por rango 1a &gt;300% y &gt;700% vs precio hoy. Solo <strong># orig ≤ 500</strong>.</p>
+        <p class="hint">Sacadas por rango 1a &gt;800% y &gt;700% vs precio hoy. Solo <strong># orig ≤ 500</strong>.</p>
         <table>
           <thead>
             <tr>
@@ -882,22 +909,22 @@
             ? "corriendo"
             : "parcial";
 
-      st.textContent = `${estado} · caza ${cls.caza.length} · fuera ${cls.umbrales.nAbs} · vivos ${cls.umbrales.nPool} · rev ${PANEL_REV}`;
+      st.textContent = `${estado} · caza ${cls.caza.length} · fuera ${cls.umbrales.nAbs} · vivos ${cls.umbrales.nPool} · despiertos ${Object.keys(despiertos).length} · rev ${PANEL_REV}`;
       st.className =
         "badge " + (estado === "hecho" ? "ok" : estado === "corriendo" ? "run" : "wait");
 
       meta.innerHTML = `
         <span>Horizonte <strong>reciente 7/30/90</strong></span>
-        <span>Filtro absoluto · sin TradeFi · calor &gt; BTC <strong>${fmt(cls.umbrales.pisoBtc)}</strong>
-          · min≤$6 · apalanc≥10x · rango 1a≤200% · crypto≥3m · sin extremos · slip&lt;1% · pico≤$3k
+        <span>Filtro absoluto · calor &gt; BTC <strong>${fmt(cls.umbrales.pisoBtc)}</strong>
+          · min≤$6 · rango 1a≤800% · crypto≥3m · slip&lt;1% · pico≤$3k
           (oficio ${cls.umbrales.nAbsOficio} · ≤BTC ${cls.umbrales.nAbsBtc}
-          · min ${cls.umbrales.nAbsMin} · apalanc ${cls.umbrales.nAbsLev}
-          · rango ${cls.umbrales.nAbsRango} · rojo ${cls.umbrales.nAbsRojo || 0} · listado ${cls.umbrales.nAbsListado}
+          · min ${cls.umbrales.nAbsMin}
+          · rango ${cls.umbrales.nAbsRango} · listado ${cls.umbrales.nAbsListado}
           · muerta ${cls.umbrales.nAbsMuerta || 0}
-          · extremo ${cls.umbrales.nAbsExtremo}
-          · liq ${cls.umbrales.nAbsLiq} · pico ${cls.umbrales.nAbsPico})</span>
+          · liq ${cls.umbrales.nAbsLiq} · pico ${cls.umbrales.nAbsPico})
+          · TradeFi: en ranking con ✓TF · extremos/apalanc: solo aviso</span>
         <span>Visible solo <strong># orig ≤ 500</strong></span>
-        <span>Sombreado 1 año: <strong style="color:var(--verde)">0–50%</strong> · <strong style="color:var(--amarillo)">50–200%</strong> · <strong style="color:var(--rojo)">200–300%</strong></span>
+        <span>Sombreado 1 año: <strong style="color:var(--verde)">0–200%</strong> · <strong style="color:var(--amarillo)">200–500%</strong> · <strong style="color:var(--rojo)">500–800%</strong> (rojo visible en caza)</span>
         <span>Vida · calor &gt; <strong>${fmt(cls.umbrales.medCalor)}</strong>
           · cosechas ≥ <strong>${fmt(cls.umbrales.minCos, 0)}</strong></span>
         <span>Normal <strong>${n.estado || "?"}</strong> · Feria <strong>${f.estado || "?"}</strong></span>
@@ -961,6 +988,19 @@
       }
     }
 
+    async function loadDespiertos() {
+      try {
+        const r = await fetch(`despiertos.json?t=${Date.now()}`, { cache: "no-store" });
+        if (!r.ok) return;
+        const j = await r.json();
+        despiertos = j.santos || {};
+        despiertosMeta = j;
+      } catch (e) {
+        despiertos = {};
+        despiertosMeta = {};
+      }
+    }
+
     async function loadFichas() {
       try {
         const r = await fetch(`santos_ficha.json?t=${Date.now()}`, { cache: "no-store" });
@@ -978,9 +1018,10 @@
     document.getElementById("drawer-close").addEventListener("click", closeDrawer);
     document.getElementById("drawer-bg").addEventListener("click", closeDrawer);
 
-    Promise.all([loadFichas(), loadFiltros()]).then(tick);
+    Promise.all([loadFichas(), loadFiltros(), loadDespiertos()]).then(tick);
     setInterval(tick, 3000);
     setInterval(loadFichas, 60000);
+    setInterval(loadDespiertos, 30000);
   </script>
 </body>
 </html>

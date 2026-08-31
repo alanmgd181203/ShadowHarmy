@@ -123,14 +123,13 @@ BERU_MANOS_PARALELAS = int(float(os.getenv("BERU_MANOS_PARALELAS", "8") or 8))
 BERU_API_COOLDOWN_S = float(os.getenv("BERU_API_COOLDOWN_S", "0.5") or 0.5)
 # --- Beru rango (lineal) 2026-08-22 — wake eterno · Red desde Oz · engorde CAZANDO ---
 # Perfiles: normal (default) · feria (orejas x2 · engorde +$1/0.2% · masa $5)
-# Red asimétrica (Monarca 2026-08-25): LONG 0,7% · SHORT 0,8% (aire vs sesgo %)
+# Red simétrica (Monarca 2026-08-30): LONG y SHORT mismo % · SHORT ya no +0,1 % extra
 # Checkpoint normal: data/beru/rango/checkpoint_doctrina_normal.json
 BERU_RANGO_PERFILES = {
     "normal": {
         "VACIO_PCT": 0.012,
         "OZ_GAP_PCT": 0.002,
         "RED_DESDE_OZ_PCT": 0.007,
-        "RED_DESDE_OZ_SHORT_PCT": 0.008,
         "SANGRE_PCT": 0.012,
         "MASA_USD": 5.0,
         "MASA_RED_USD": 5.0,
@@ -144,7 +143,6 @@ BERU_RANGO_PERFILES = {
         "VACIO_PCT": 0.024,
         "OZ_GAP_PCT": 0.004,
         "RED_DESDE_OZ_PCT": 0.014,
-        "RED_DESDE_OZ_SHORT_PCT": 0.016,
         "SANGRE_PCT": 0.024,
         "MASA_USD": 5.0,
         "MASA_RED_USD": 5.0,

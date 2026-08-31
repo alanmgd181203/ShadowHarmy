@@ -15,8 +15,9 @@ def main() -> int:
     assert "SANTOS_RANGO_19" in src
     assert "BERU_RANGO_MANOS" in src
     assert "BRIDGE_WS_SOLO_LINEAR" in src
-    assert "bridge=None" in src
-    assert "rango_ojos_informe.json" in src
+    assert "BRIDGE_WS_PUBLIC_TRADES_LINEAR" in src
+    assert 'BRIDGE_WS_PUBLIC_TRADES_LINEAR"] = "true"' in src
+    assert "flota_ojos_informe" in src or "ojos_informe" in src
 
     # Contar 19
     ns = src.split("SANTOS_RANGO_19: tuple[str, ...] = (")[1].split(")")[0]

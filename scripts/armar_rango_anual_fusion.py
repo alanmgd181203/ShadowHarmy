@@ -4,10 +4,10 @@
 Métrica: (max_high − min_low) / last_close × 100 en ~365 días.
   (last_close = último cierre en la ventana; no el promedio — el avg aplastaba
    caídas fuertes: HOME ~900% vs precio actual salía como “rojo 247%”.)
-  · verde    ≤  50%  — se movió poco vs el precio de hoy
-  · amarillo ≤ 200%  — rango moderado
-  · rojo     ≤ 300%  — muy explosivo
-  · fuera    > 300%  — eliminar del panel (filtro duro)
+  · verde    ≤ 200%  — rango moderado vs precio de hoy
+  · amarillo ≤ 500%  — movido
+  · rojo     ≤ 800%  — muy explosivo (sombreado · sigue en ranking)
+  · fuera    > 800%  — eliminar del panel (filtro duro)
 
 Actualiza data/coliseo/rango_juicio/filtros_absolutos.json (campos rango_anual_*).
 
@@ -38,9 +38,9 @@ CK = (
     / "checkpoint_parcial.json"
 )
 
-VERDE_MAX = 50.0
-AMARILLO_MAX = 200.0
-ROJO_MAX = 300.0
+VERDE_MAX = 200.0
+AMARILLO_MAX = 500.0
+ROJO_MAX = 800.0
 
 
 def _f(x: Any, default: float = 0.0) -> float:
@@ -145,7 +145,7 @@ def main() -> int:
         cur.update(row)
         motivos = [m for m in (cur.get("motivos") or []) if not str(m).startswith("rango_anual_gt_")]
         if row["rango_anual_fuera"]:
-            motivos.append("rango_anual_gt_300")
+            motivos.append("rango_anual_gt_800")
             n_fuera += 1
         elif row["rango_anual_banda"] == "verde":
             n_verde += 1
@@ -186,7 +186,7 @@ def main() -> int:
     meta["n_fuera_rango_anual"] = n_fuera
     meta["nota_rango_anual"] = (
         "(max−min)/last_close ×100 en bóveda 1m (precio de hoy, no promedio). "
-        "Sombra verde≤50% · amarillo≤200% · rojo≤300% · fuera>300%."
+        "Sombra verde≤200% · amarillo≤500% · rojo≤800% (visible) · fuera>800%."
     )
 
     args.out.parent.mkdir(parents=True, exist_ok=True)

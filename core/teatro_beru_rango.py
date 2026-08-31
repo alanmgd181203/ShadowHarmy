@@ -119,7 +119,7 @@ def _niveles_de(
     if estado == "ACECHANDO" and (
         bool(getattr(beru, "es_relevo_cazador", False)) or sangre_lado
     ):
-        # Tras Oz: sangre act. 1,2 + Red trailing (LONG 0,7 / SHORT 0,8)
+        # Tras Oz: sangre act. 1,2 + Red trailing (0,7 % LONG=SHORT)
         out["fase"] = "bifurca"
         masa_marca = float(getattr(beru, "ultima_masa_cosechada", 0) or 0) or beru_rango.masa_tramo_usd()
         out["oz"] = oz_fantasma

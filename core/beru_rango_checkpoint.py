@@ -112,7 +112,7 @@ def _infer_hoz(vivo: dict[str, Any], sangre: str) -> str:
 
 
 def _red_desde_ancla(ancla: float, sangre: str, hoz: str) -> float:
-    """Red LONG 0,7 / SHORT 0,8 desde ancla. Sangre ABAJO → Red arriba; ARRIBA → abajo."""
+    """Red 0,7 % (LONG=SHORT) desde ancla. Sangre ABAJO → Red arriba; ARRIBA → abajo."""
     a = float(ancla or 0)
     if a <= 0:
         return 0.0

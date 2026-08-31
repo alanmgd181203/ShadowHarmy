@@ -34,10 +34,11 @@ for _stream in (sys.stdout, sys.stderr):
     except Exception:
         pass
 
-# Candados duros del ritual (antes de importar config)
+# Candados del ritual (antes de importar config)
 os.environ["BERU_RANGO_MANOS"] = "false"
 os.environ.setdefault("BERU_RANGO_HILO", "true")
 os.environ["BRIDGE_WS_SOLO_LINEAR"] = "true"
+os.environ["BRIDGE_WS_PUBLIC_TRADES_LINEAR"] = "true"
 os.environ.setdefault("BRIDGE_WS_SUBSCRIBE_BOOKS", "false")
 os.environ.setdefault("BINANCE_REF_ENABLED", "false")
 if os.getenv("ARISE_BERU_RANGO_PERMITIR_MANOS", "").lower() not in ("1", "true", "yes"):
@@ -373,6 +374,7 @@ async def ritual(
     print(f"    Santos: {len(acts)} · manos OFF · bridge PROPIO por Santo")
     print(f"    {', '.join(acts)}")
     print(f"    FASE: {config.FASE_ACTUAL} | SIM={config.MODO_SIMULACION}")
+    print("    Oído: tratos públicos ON (mecha trato a trato) · libros OFF")
     print("═" * 56)
 
     beru_rango_paths.flota_ojos_eventos().parent.mkdir(parents=True, exist_ok=True)

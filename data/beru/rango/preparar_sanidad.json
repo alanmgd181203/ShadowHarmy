@@ -1,8 +1,8 @@
 {
-  "ts": 1787543234.1008549,
-  "ts_utc": "2026-08-24T03:47:14.100857+00:00",
-  "ok": false,
-  "fallos": 1,
+  "ts": 1787714412.903482,
+  "ts_utc": "2026-08-26T03:20:12.903484+00:00",
+  "ok": true,
+  "fallos": 0,
   "checks": [
     {
       "check": "doctrina",
@@ -31,8 +31,8 @@
     },
     {
       "check": "boveda_linear",
-      "ok": false,
-      "detalle": "bases=0 velas=0 err=—"
+      "ok": true,
+      "detalle": "bases=725 velas=263009359 err=—"
     },
     {
       "check": "juicio_import",
@@ -49,6 +49,8 @@
     "oz_gap_pct": 0.002,
     "oz_modo": "trailing_callback",
     "red_activacion_pct": 0.007,
+    "red_activacion_long_pct": 0.007,
+    "red_activacion_short_pct": 0.008,
     "red_desde_oz_pct": 0.007,
     "red_modo": "trailing",
     "red_callback_pct": 0.002,
@@ -67,9 +69,9 @@
     "ladder_red": "si"
   },
   "boveda": {
-    "ok": false,
-    "bases": 0,
-    "velas": 0,
+    "ok": true,
+    "bases": 725,
+    "velas": 263009359,
     "error": ""
   },
   "arquitectura": {

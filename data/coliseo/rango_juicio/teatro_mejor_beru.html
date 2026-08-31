@@ -105,7 +105,17 @@
     tr.rng-amarillo:hover td { background: rgba(230, 195, 92, 0.19); }
     tr.rng-rojo:hover td { background: rgba(224, 112, 112, 0.2); }
     td.santo { color: var(--cyan); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
-    .tf-ok { color: var(--verde); font-weight: 700; margin-right: 0.2rem; }
+    .tf-ok {
+      color: var(--verde);
+      font-weight: 700;
+      margin-right: 0.25rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.02em;
+      border: 1px solid color-mix(in srgb, var(--verde) 55%, transparent);
+      border-radius: 3px;
+      padding: 0 0.28rem;
+      white-space: nowrap;
+    }
     .beru-normal { color: var(--cyan); font-weight: 600; }
     .beru-feria { color: var(--feria); font-weight: 600; }
     .beru-empate { color: var(--amarillo); font-weight: 600; }
@@ -149,11 +159,11 @@
     <h1>TEATRO BERU — mejor Beru (todos los pares)</h1>
     <p>
       Una fila por Santo · reciente 7/30/90 · métricas del <strong>lado ganador</strong> (original o volátil) ·
-      fuera automático: ≤BTC · libro fino · min orden &gt; $6 · apalanc &lt; 10x · rango 1a &gt;200% · crypto &lt;3 meses ·
-      sombreado fila: <span style="color:var(--verde)">■</span> ≤50% ·
-      <span style="color:var(--amarillo)">■</span> ≤200% ·
-      <span style="color:var(--rojo)">■</span> ≤300% ·
-      <span style="color:var(--verde)">✓</span> TradeFi ·
+      fuera automático: ≤BTC · libro fino · min orden &gt; $6 · rango 1a &gt;800% · crypto &lt;3 meses ·
+      sombreado fila: <span style="color:var(--verde)">■</span> 0–200% ·
+      <span style="color:var(--amarillo)">■</span> 200–500% ·
+      <span style="color:var(--rojo)">■</span> 500–800% ·
+      <span style="color:var(--verde)">✓TF</span> TradeFi ·
       <a href="teatro_fusion.html">panel caza filtrada</a> ·
       <a href="teatro_live.html">matriz 4 salas</a>
     </p>
@@ -171,7 +181,7 @@
     <label><input type="radio" name="mejor" value="all" checked /> todos</label>
     <label><input type="radio" name="mejor" value="normal" /> gana original</label>
     <label><input type="radio" name="mejor" value="feria" /> gana volátil</label>
-    <label><input type="checkbox" id="ver-fuera" /> ver descartados (≤BTC · liquidez · min&gt;$6 · apalanc&lt;10x)</label>
+    <label><input type="checkbox" id="ver-fuera" /> ver descartados (≤BTC · liquidez · min&gt;$6 · rango · &lt;3m)</label>
   </div>
 
   <main>
@@ -186,13 +196,13 @@
   </aside>
 
   <script>
-    const PANEL_REV = "2026-08-23h";
+    const PANEL_REV = "2026-08-26g";
     const STABLES = new Set(["USDC", "USDE", "USD1", "RLUSD", "USDT"]);
     const EMPATE_EPS = 1e-6;
     const MIN_LEVERAGE = 10;
-    const RNG_VERDE_MAX = 50;
-    const RNG_AMARILLO_MAX = 200;
-    const RNG_FUERA_MAX = 300;
+    const RNG_VERDE_MAX = 200;
+    const RNG_AMARILLO_MAX = 500;
+    const RNG_FUERA_MAX = 800;
     const RNG_FUERA_LISTA_MIN = 700;
     const FUERA_RANK_ORIG_MAX = 500;
     let cache = { normal: null, feria: null };
@@ -215,11 +225,8 @@
     }
 
     function esOficio(activo) {
-      const f = fichaOf(activo);
-      const t = String(f.symbol_type || "").toLowerCase();
+      /* Stables / apalancados tokenizados · TradeFi NO es oficio: van al ranking con ✓TF. */
       const b = String(activo || "").toUpperCase();
-      if (f.tradefi) return true;
-      if (["stock", "commodity", "etf", "fx", "forex"].includes(t)) return true;
       if (STABLES.has(b)) return true;
       if (/2L$|3L$/.test(b) || b.startsWith("CSOP")) return true;
       return false;
@@ -245,13 +252,8 @@
     }
 
     function apalancamientoFuera(activo) {
-      const fx = filtroOf(activo);
-      if (fx.leverage_fuera) return true;
-      const motivos = Array.isArray(fx.motivos) ? fx.motivos : [];
-      if (motivos.includes("apalanc_lt_10")) return true;
-      const lev = maxLeverageOf(activo);
-      if (lev == null) return false;
-      return lev < MIN_LEVERAGE;
+      /* Apalancamiento: solo aviso · no saca del ranking (Monarca 2026-08-26). */
+      return false;
     }
 
     function rangoAnualPct(activo) {
@@ -275,7 +277,7 @@
       const fx = filtroOf(activo);
       if (fx.rango_anual_fuera) return true;
       const motivos = Array.isArray(fx.motivos) ? fx.motivos : [];
-      if (motivos.includes("rango_anual_gt_300") || motivos.includes("rango_anual_gt_800") || motivos.includes("rango_anual_gt_1200")) return true;
+      if (motivos.includes("rango_anual_gt_800") || motivos.includes("rango_anual_gt_300") || motivos.includes("rango_anual_gt_1200")) return true;
       const pct = rangoAnualPct(activo);
       return pct != null && pct > RNG_FUERA_MAX;
     }
@@ -313,8 +315,8 @@
     }
 
     function rangoRojoFuera(activo) {
-      if (esTradeFiExento(activo)) return false;
-      return rangoAnualBanda(activo) === "rojo";
+      /* Rojo 500–800 % = sombreado only; no sacar del ranking (Monarca 2026-08-26). */
+      return false;
     }
 
     function muertaFuera(activo) {
@@ -325,7 +327,9 @@
     }
 
     function santoCell(activo) {
-      const mark = esTradeFiExento(activo) ? '<span class="tf-ok" title="TradeFi">✓</span>' : "";
+      const mark = esTradeFiExento(activo)
+        ? '<span class="tf-ok" title="TradeFi">✓TF</span>'
+        : "";
       return `${mark}${activo}`;
     }
 
@@ -338,9 +342,7 @@
       if (Number(r.calor_mejor || 0) <= pisoBtc) return true;
       if (liquidezFuera(fx)) return true;
       if (minOrdenFuera(fx)) return true;
-      if (apalancamientoFuera(r.activo)) return true;
       if (rangoAnualFuera(r.activo)) return true;
-      if (rangoRojoFuera(r.activo)) return true;
       if (listadoRecienteFuera(r.activo)) return true;
       if (muertaFuera(r.activo)) return true;
       if (luzRojoFuera(r)) return true;
@@ -351,17 +353,21 @@
       const chips = [];
       const fx = filtroOf(r.activo);
       if (esOficio(r.activo)) chips.push({ t: "oficio", c: "bad" });
+      if (esTradeFiExento(r.activo)) chips.push({ t: "✓TF", c: "ok" });
       if (Number(r.calor_mejor || 0) <= pisoBtc) chips.push({ t: "≤BTC", c: "bad" });
       if (minOrdenFuera(fx)) chips.push({ t: "min>$6", c: "bad" });
       if (fx.extremo_fuera) chips.push({ t: "extremo", c: "warn" });
       if (liquidezFuera(fx)) chips.push({ t: "libro", c: "bad" });
-      if (apalancamientoFuera(r.activo)) chips.push({ t: "lev<10", c: "bad" });
+      {
+        const lev = maxLeverageOf(r.activo);
+        if (lev != null && lev < MIN_LEVERAGE) chips.push({ t: "lev<10", c: "warn" });
+      }
       if (listadoRecienteFuera(r.activo)) chips.push({ t: "<3m", c: "bad" });
-      if (rangoRojoFuera(r.activo)) chips.push({ t: "rojo 1a", c: "bad" });
       if (muertaFuera(r.activo)) chips.push({ t: "muerta", c: "bad" });
       if (luzRojoFuera(r)) chips.push({ t: "luz ROJO", c: "bad" });
       const rng = rangoAnualPct(r.activo);
       const rb = rangoAnualBanda(r.activo);
+      if (rb === "rojo") chips.push({ t: "rojo 1a", c: "warn" });
       if (rng != null && rb) chips.push({ t: `1a ${fmt(rng, 0)}%`, c: rb === "verde" ? "ok" : rb === "amarillo" ? "warn" : "bad" });
       if (fx.pico_masa_fuera) chips.push({ t: "pico", c: "bad" });
       if (!chips.length) chips.push({ t: "vivo", c: "ok" });
@@ -548,7 +554,7 @@
       document.getElementById("cards").innerHTML = `
         <div class="slot-card"><div class="t">Santos</div><div class="n">${fusion.length}</div></div>
         <div class="slot-card"><div class="t">En ranking</div><div class="n" style="color:var(--verde)">${nVivos}</div></div>
-        <div class="slot-card"><div class="t">Fuera (≤BTC·liq·min·lev)</div><div class="n" style="color:var(--rojo)">${nFuera}</div></div>
+        <div class="slot-card"><div class="t">Fuera (≤BTC·liq·min·rango)</div><div class="n" style="color:var(--rojo)">${nFuera}</div></div>
         <div class="slot-card"><div class="t">Gana original</div><div class="n" style="color:var(--cyan)">${nNorm}</div></div>
         <div class="slot-card"><div class="t">Gana volátil</div><div class="n" style="color:var(--feria)">${nFer}</div></div>
         <div class="slot-card"><div class="t">Piso BTC</div><div class="n">${fmt(pisoBtc)}</div></div>`;
@@ -556,8 +562,8 @@
       meta.innerHTML = `
         <span>Horizonte <strong>reciente 7/30/90</strong></span>
         <span>Calor / cosechas / neto = del <strong>mejor Beru</strong> por Santo</span>
-        <span>Descartados sin preguntar: <strong>≤ BTC</strong> · <strong>libro fino</strong> · <strong>min orden &gt; $6</strong> · <strong>apalanc &lt; 10x</strong> · <strong>rango 1a &gt;200%</strong> · <strong>crypto &lt;3 meses</strong></span>
-        <span>Sombreado 1 año: <strong style="color:var(--verde)">0–50%</strong> · <strong style="color:var(--amarillo)">50–200%</strong> · <strong style="color:var(--rojo)">200–300%</strong></span>`;
+        <span>Descartados sin preguntar: <strong>≤ BTC</strong> · <strong>libro fino</strong> · <strong>min orden &gt; $6</strong> · <strong>rango 1a &gt;800%</strong> · <strong>crypto &lt;3 meses</strong> · extremos/apalanc solo aviso</span>
+        <span>Sombreado 1 año: <strong style="color:var(--verde)">0–200%</strong> · <strong style="color:var(--amarillo)">200–500%</strong> · <strong style="color:var(--rojo)">500–800%</strong> (rojo visible en caza)</span>`;
 
       const rows = visibles
         .map(
@@ -582,7 +588,7 @@
       const fueraR700Html = fueraR700.length
         ? `<section class="section">
             <h2>Fuera · rango &gt;700% · top 500 <span class="chip bad">${fueraR700.length}</span></h2>
-            <p class="hint">Sacadas por rango 1a &gt;300% y &gt;700% vs precio hoy. Solo <strong># orig ≤ 500</strong>.</p>
+            <p class="hint">Sacadas por rango 1a &gt;800% y &gt;700% vs precio hoy. Solo <strong># orig ≤ 500</strong>.</p>
             <table>
               <thead>
                 <tr>

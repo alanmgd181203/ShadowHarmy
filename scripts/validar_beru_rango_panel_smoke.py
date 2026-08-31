@@ -21,7 +21,7 @@ def _snap(activo: str, cero: float, manos: bool = False):
         "direccion": "",
         "cero": cero,
         "oz": 0.0,
-        "red": cero * 1.008,
+        "red": cero * 1.007,
         "masa": 0.0,
         "sangre_lado": "",
         "cosechas": 0,
