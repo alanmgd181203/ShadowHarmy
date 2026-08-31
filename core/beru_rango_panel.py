@@ -225,18 +225,25 @@ def cronica_desde_eventos(activo: str, *, max_n: int = 24) -> list[dict[str, Any
     return out[-max(1, int(max_n or 24)) :]
 
 
-def posicion_desde_tusk(tusk: Any, activo: str) -> list[dict[str, Any]]:
+def posicion_desde_tusk(
+    tusk: Any,
+    activo: str,
+    mercado: str = "linear",
+) -> list[dict[str, Any]]:
     """Posiciones reales del Santo (libros Tusk alineados con Bybit)."""
     act = str(activo or "").strip().upper()
     if not act or tusk is None:
         return []
     pesos = getattr(tusk, "pesos", None) or {}
-    frente = f"{act}USDT_LINEAL"
+    m = str(mercado or "linear").strip().lower()
+    suf = "USD_INVERSE" if m == "inverse" else "USDT_LINEAL"
+    frente = f"{act}{suf}"
     row = pesos.get(frente)
     if not isinstance(row, dict):
-        # fallback: buscar clave que empiece por ACTIVOUSDT
+        # fallback: buscar clave que empiece por ACTIVO + sufijo del rail
+        pref = f"{act}USD" if m == "inverse" else f"{act}USDT"
         for k, v in pesos.items():
-            if str(k).upper().startswith(f"{act}USDT") and isinstance(v, dict):
+            if str(k).upper().startswith(pref) and isinstance(v, dict):
                 row = v
                 break
     if not isinstance(row, dict):
