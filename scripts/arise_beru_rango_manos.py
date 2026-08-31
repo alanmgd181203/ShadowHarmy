@@ -19,8 +19,10 @@ Ejemplo HYPE:
   python scripts/arise_beru_rango_manos.py --activo HYPE --manos-go --continuar
   python scripts/arise_beru_rango_manos.py --activo HYPE --manos-go --desde-cero
 
-Ctrl+C sella. Informe: data/beru/rango/{ACTIVO}/manos_informe.json
-  (espejo legacy: data/beru/rango_manos_informe.json)
+Ctrl+C sella. Informe:
+  normal:  data/beru/rango/{ACTIVO}/manos_informe.json
+  feria:   data/beru/rango/{ACTIVO}/manos_feria_informe.json
+  inverse: data/beru/rango/{ACTIVO}/manos_inverso_informe.json
 """
 from __future__ import annotations
 
@@ -76,6 +78,18 @@ def _parse_args():
         action="store_true",
         help="Ignora sello y posición: wake semilla (Vacío ±1,2 sin Red)",
     )
+    ap.add_argument(
+        "--mercado",
+        default=os.getenv("BERU_RANGO_MERCADO", "linear"),
+        choices=("linear", "inverse"),
+        help="Rail: linear (USDT) o inverse (USD)",
+    )
+    ap.add_argument(
+        "--perfil",
+        default=os.getenv("BERU_RANGO_PERFIL", "normal"),
+        choices=("normal", "feria"),
+        help="Geometría: normal (±1,2%%) o feria (±2,4%% · monedas violentas)",
+    )
     return ap.parse_args()
 
 
@@ -92,11 +106,22 @@ if not _GO:
     raise SystemExit(2)
 
 # Candados de combate (antes de importar config)
+_MERCADO = str(getattr(ARGS, "mercado", None) or os.getenv("BERU_RANGO_MERCADO", "linear")).lower()
+_PERFIL = str(getattr(ARGS, "perfil", None) or os.getenv("BERU_RANGO_PERFIL", "normal")).lower()
 os.environ["BERU_RANGO_MANOS"] = "true"
 os.environ["BERU_RANGO_HILO"] = "true"
 os.environ["BERU_RANGO_ACTIVO"] = str(ARGS.activo or "HYPE").upper()
-os.environ["BRIDGE_WS_SOLO_LINEAR"] = "true"
-os.environ["BRIDGE_WS_PUBLIC_TRADES_LINEAR"] = "true"
+os.environ["BERU_RANGO_MERCADO"] = _MERCADO
+os.environ["BERU_RANGO_PERFIL"] = _PERFIL
+if _MERCADO == "inverse":
+    os.environ["BRIDGE_WS_SOLO_INVERSE"] = "true"
+    os.environ["BRIDGE_WS_SOLO_LINEAR"] = "false"
+    os.environ["BRIDGE_WS_PUBLIC_TRADES_INVERSE"] = "true"
+    os.environ["BRIDGE_WS_PUBLIC_TRADES_LINEAR"] = "false"
+else:
+    os.environ["BRIDGE_WS_SOLO_LINEAR"] = "true"
+    os.environ["BRIDGE_WS_SOLO_INVERSE"] = "false"
+    os.environ["BRIDGE_WS_PUBLIC_TRADES_LINEAR"] = "true"
 os.environ.setdefault("BRIDGE_WS_SUBSCRIBE_BOOKS", "false")
 os.environ.setdefault("BINANCE_REF_ENABLED", "false")
 os.environ["MODO_SIMULACION"] = "false"
@@ -114,10 +139,33 @@ from generales.tank import TankCluster  # noqa: E402
 from generales.tusk import TuskBoveda  # noqa: E402
 
 _ACT = str(ARGS.activo or "HYPE").upper()
-INFORME_PATH = beru_rango_paths.manos_informe(_ACT)
-EVENTOS_PATH = beru_rango_paths.manos_eventos(_ACT)
+MERCADO = beru_rango_ojos.mercado_norm(_MERCADO)
+PERFIL = beru_rango_ojos.perfil_norm(_PERFIL)
+INFORME_PATH = beru_rango_paths.informe_manos(_ACT, MERCADO, PERFIL)
+EVENTOS_PATH = beru_rango_paths.eventos_manos(_ACT, MERCADO, PERFIL)
 LEGACY_INFORME = beru_rango_paths.LEGACY_MANOS_INFORME
 LEGACY_EVENTOS = beru_rango_paths.LEGACY_MANOS_EVENTOS
+
+
+def _sello_aislado() -> bool:
+    """No publicar al panel legacy ni espejo lineal normal."""
+    return MERCADO == "inverse" or PERFIL == "feria"
+
+
+def _configurar_mercado_runtime() -> None:
+    config.BERU_RANGO_MERCADO = MERCADO
+    config.aplicar_perfil_beru_rango(PERFIL)
+    config.BRIDGE_WS_SUBSCRIBE_BOOKS = False
+    if MERCADO == "inverse":
+        config.BRIDGE_WS_SOLO_INVERSE = True
+        config.BRIDGE_WS_SOLO_LINEAR = False
+        config.BRIDGE_WS_PUBLIC_TRADES_INVERSE = True
+        config.BRIDGE_WS_PUBLIC_TRADES_LINEAR = False
+    else:
+        config.BRIDGE_WS_SOLO_LINEAR = True
+        config.BRIDGE_WS_SOLO_INVERSE = False
+        config.BRIDGE_WS_PUBLIC_TRADES_LINEAR = True
+        config.BRIDGE_WS_PUBLIC_TRADES_INVERSE = False
 
 
 def _senales(loop, shutdown_event):
@@ -142,7 +190,9 @@ async def _muleta_rest(bridge, tank, activo: str):
     while True:
         try:
             if beru_rango_ojos.muleta_rest_necesaria(tank):
-                beru_rango_ojos.inyectar_precios_rest(bridge, tank, [activo])
+                beru_rango_ojos.inyectar_precios_rest(
+                    bridge, tank, [activo], mercado=MERCADO,
+                )
         except Exception as exc:
             print(f"[RANGO] muleta REST: {exc}", flush=True)
         await asyncio.sleep(beru_rango_ojos.rest_intervalo_s())
@@ -175,15 +225,17 @@ async def _hilo_beru(
     await asyncio.sleep(2.0)
     while not shutdown_event.is_set():
         try:
-            lat = beru_rango_ojos.latido_lineal_desde_tank(beru_g.tank, activo)
-            px = float(lat.get("last") or 0) or beru_rango_ojos.last_lineal_desde_tank(
-                beru_g.tank, activo
+            lat = beru_rango_ojos.latido_desde_tank(beru_g.tank, activo, MERCADO)
+            px = float(lat.get("last") or 0) or beru_rango_ojos.last_desde_tank(
+                beru_g.tank, activo, MERCADO
             )
             if px <= 0:
-                beru_rango_ojos.inyectar_precios_rest(beru_g.bridge, beru_g.tank, [activo])
-                lat = beru_rango_ojos.latido_lineal_desde_tank(beru_g.tank, activo)
-                px = float(lat.get("last") or 0) or beru_rango_ojos.last_lineal_desde_tank(
-                    beru_g.tank, activo
+                beru_rango_ojos.inyectar_precios_rest(
+                    beru_g.bridge, beru_g.tank, [activo], mercado=MERCADO,
+                )
+                lat = beru_rango_ojos.latido_desde_tank(beru_g.tank, activo, MERCADO)
+                px = float(lat.get("last") or 0) or beru_rango_ojos.last_desde_tank(
+                    beru_g.tank, activo, MERCADO
                 )
             r = await beru_g.pulso(
                 precio=px if px > 0 else None,
@@ -202,7 +254,7 @@ async def _hilo_beru(
         except Exception as exc:
             print(f"[RANGO] pulso error: {exc}", flush=True)
             contadores["errores"] = int(contadores.get("errores") or 0) + 1
-        px = beru_rango_ojos.last_lineal_desde_tank(beru_g.tank, activo)
+        px = beru_rango_ojos.last_desde_tank(beru_g.tank, activo, MERCADO)
         # Caza: no sellar panel en el latido 0.1s (candado disco).
         # La crónica (~10s) mantiene la foto. Acecho sí publica (latido lento).
         estado = ""
@@ -210,7 +262,7 @@ async def _hilo_beru(
             estado = str(getattr(getattr(beru_g, "vivo", None), "estado", "") or "")
         except Exception:
             estado = ""
-        if estado != "CAZANDO":
+        if estado != "CAZANDO" and not _sello_aislado():
             try:
                 beru_rango_panel.publicar(
                     snapshot=beru_g.snapshot(),
@@ -241,7 +293,7 @@ async def _cronica(
 
     await asyncio.sleep(4.0)
     while True:
-        px = beru_rango_ojos.last_lineal_desde_tank(tank, activo)
+        px = beru_rango_ojos.last_desde_tank(tank, activo, MERCADO)
         snap = beru_g.snapshot()
         vivo = snap.get("vivo") or {}
         rio = "WS" if beru_rango_ojos.rio_ws_vivo(tank) else "ciego/muleta"
@@ -249,28 +301,30 @@ async def _cronica(
             lat = cerebro.latido_sugerido_s(beru_g.vivo, px)
         except Exception:
             lat = 1.5
-        pos = beru_rango_panel.posicion_desde_tusk(tusk, activo) if tusk else []
+        pos = beru_rango_panel.posicion_desde_tusk(tusk, activo, MERCADO) if tusk else []
         pos_txt = " · ".join(
             f"{p['lado']} {p['qty']:.6g}@{p['precio']}" for p in pos
         ) or "flat"
+        suf = "USD_INVERSE" if MERCADO == "inverse" else "USDT_LINEAL"
         print(
-            f"[RANGO] {activo}USDT_LINEAL last={px} · río={rio} · "
+            f"[RANGO] {activo}{suf} last={px} · río={rio} · mercado={MERCADO} · "
             f"estado={vivo.get('estado') or '—'} · dir={vivo.get('direccion') or '—'} · "
             f"0={vivo.get('cero') or '—'} · Oz={vivo.get('oz') or '—'} · "
             f"Red={vivo.get('red') or '—'} · manos={'ON' if snap.get('manos') else 'OFF'} · "
             f"pos={pos_txt} · latido={lat:.2f}s",
             flush=True,
         )
-        try:
-            beru_rango_panel.publicar(
-                snapshot=snap,
-                last=float(px or 0),
-                activo=activo,
-                merge=True,
-                tusk=tusk,
-            )
-        except Exception as exc:
-            print(f"[RANGO] panel foto: {exc}", flush=True)
+        if not _sello_aislado():
+            try:
+                beru_rango_panel.publicar(
+                    snapshot=snap,
+                    last=float(px or 0),
+                    activo=activo,
+                    merge=True,
+                    tusk=tusk,
+                )
+            except Exception as exc:
+                print(f"[RANGO] panel foto: {exc}", flush=True)
         await asyncio.sleep(intervalo_s)
 
 
@@ -316,45 +370,55 @@ def _escribir_informe(
     ts0: float,
     tusk=None,
 ) -> Path:
+    last = beru_rango_ojos.last_desde_tank(tank, activo, MERCADO)
     informe = {
         "ts": time.time(),
         "duracion_s": round(time.time() - ts0, 1),
         "manos": True,
-        "mercado": "linear",
+        "mercado": MERCADO,
+        "perfil_beru": PERFIL,
         "activo": activo,
         "contadores": contadores,
-        "last_lineal": beru_rango_ojos.last_lineal_desde_tank(tank, activo),
+        "last": last,
         "snapshot": beru_g.snapshot(),
         "eventos_path": str(EVENTOS_PATH),
-        "posicion": beru_rango_panel.posicion_desde_tusk(tusk or getattr(tank, "tusk", None), activo),
+        "posicion": beru_rango_panel.posicion_desde_tusk(
+            tusk or getattr(tank, "tusk", None), activo, MERCADO,
+        ),
     }
+    if MERCADO == "inverse":
+        informe["last_inverse"] = last
+    else:
+        informe["last_lineal"] = last
     INFORME_PATH.parent.mkdir(parents=True, exist_ok=True)
     raw = json.dumps(informe, ensure_ascii=False, indent=2)
     INFORME_PATH.write_text(raw, encoding="utf-8")
-    # Espejo legacy solo si no pisa sello de otro Santo.
+    # Espejo legacy solo si no pisa sello de otro Santo (lineal).
     try:
-        LEGACY_INFORME.parent.mkdir(parents=True, exist_ok=True)
-        ok_legacy = True
-        if LEGACY_INFORME.is_file():
-            try:
-                prev_leg = json.loads(LEGACY_INFORME.read_text(encoding="utf-8"))
-                prev_act = str(prev_leg.get("activo") or "").upper()
-                if prev_act and prev_act != str(activo).upper():
-                    ok_legacy = False
-            except Exception:
-                pass
-        if ok_legacy:
-            LEGACY_INFORME.write_text(raw, encoding="utf-8")
+        if not _sello_aislado():
+            LEGACY_INFORME.parent.mkdir(parents=True, exist_ok=True)
+            ok_legacy = True
+            if LEGACY_INFORME.is_file():
+                try:
+                    prev_leg = json.loads(LEGACY_INFORME.read_text(encoding="utf-8"))
+                    prev_act = str(prev_leg.get("activo") or "").upper()
+                    if prev_act and prev_act != str(activo).upper():
+                        ok_legacy = False
+                except Exception:
+                    pass
+            if ok_legacy:
+                LEGACY_INFORME.write_text(raw, encoding="utf-8")
     except Exception:
         pass
     try:
-        beru_rango_panel.publicar(
-            snapshot=informe.get("snapshot") or {},
-            last=float(informe.get("last_lineal") or 0),
-            activo=activo,
-            merge=True,
-            tusk=tusk or getattr(tank, "tusk", None),
-        )
+        if not _sello_aislado():
+            beru_rango_panel.publicar(
+                snapshot=informe.get("snapshot") or {},
+                last=float(informe.get("last") or informe.get("last_lineal") or 0),
+                activo=activo,
+                merge=True,
+                tusk=tusk or getattr(tank, "tusk", None),
+            )
     except Exception:
         pass
     return INFORME_PATH
@@ -377,9 +441,9 @@ async def _limpiar_huerfanos_altar(bridge, *, activo: str, previo: dict[str, Any
 
 
 def _cargar_continuar(activo: str) -> dict[str, Any]:
-    data = checkpoint.leer_sello(activo)
+    data = checkpoint.leer_sello(activo, mercado=MERCADO, perfil=PERFIL)
     if data is None:
-        path = beru_rango_paths.resolver_manos_informe(activo)
+        path = beru_rango_paths.resolver_manos_informe(activo, MERCADO, PERFIL)
         raise RuntimeError(f"Sin informe para continuar: {path}")
     return data
 
@@ -393,13 +457,11 @@ async def ritual(
     desde_cero: bool = False,
 ) -> None:
     act = str(activo or "HYPE").upper()
+    _configurar_mercado_runtime()
     config.BERU_RANGO_ACTIVO = act
     config.BERU_RANGO_MANOS = True
     config.BERU_RANGO_HILO = True
     config.MODO_SIMULACION = False
-    config.BRIDGE_WS_SOLO_LINEAR = True
-    config.BRIDGE_WS_SUBSCRIBE_BOOKS = False
-    config.BRIDGE_WS_PUBLIC_TRADES_LINEAR = True
     config.BRIDGE_WS_BASES = [act]
     if hasattr(config, "BINANCE_REF_ENABLED"):
         config.BINANCE_REF_ENABLED = False
@@ -407,11 +469,13 @@ async def ritual(
     if not getattr(config, "API_KEY", None) or not getattr(config, "API_SECRET", None):
         raise RuntimeError("Sin API_KEY/SECRET — no se puede arise con manos")
 
+    suf = "USD_INVERSE" if MERCADO == "inverse" else "USDT_LINEAL"
     print("\n" + "═" * 56)
-    print("    ARISE BERU RANGO — MANOS ON (prueba chiquita)")
-    print(f"    Santo: {act}USDT_LINEAL · masa Vacío ${getattr(config, 'BERU_RANGO_MASA_USD', 5)} · Red ${getattr(config, 'BERU_RANGO_MASA_RED_USD', 5)}")
+    print("    ARISE BERU RANGO — MANOS ON")
+    print(f"    Santo: {act}{suf} · mercado={MERCADO} · perfil={PERFIL} · "
+          f"Vacío ±{getattr(config, 'BERU_RANGO_VACIO_PCT', 0.012)*100:.1f}% · "
+          f"masa ${getattr(config, 'BERU_RANGO_MASA_USD', 5)} · Red ${getattr(config, 'BERU_RANGO_MASA_RED_USD', 5)}")
     print(f"    FASE: {config.FASE_ACTUAL} | SIM={config.MODO_SIMULACION} | TESTNET={config.TESTNET}")
-    print("    Oído: tratos públicos ON (mecha trato a trato) · libros OFF")
     print("═" * 56)
 
     shutdown_event = asyncio.Event()
@@ -449,32 +513,34 @@ async def ritual(
         else:
             print(f"[RANGO] apalanc {act} AVISO: {lev_out.get('avisos') or lev_out}", flush=True)
 
-        tank.expandir_frentes(beru_rango_ojos.frentes_lineal_tank([act]))
-        beru_rango_ojos.inyectar_precios_rest(bridge, tank, [act])
+        tank.expandir_frentes(beru_rango_ojos.frentes_ojo_tank([act], MERCADO))
+        beru_rango_ojos.inyectar_precios_rest(bridge, tank, [act], mercado=MERCADO)
         try:
             await tusk.reconciliar_con_exchange(bridge)
         except Exception as exc:
             print(f"[RANGO] reconciliación previa: {exc}", flush=True)
 
         beru_g = BeruRango(tusk, bellion, tank, bridge=bridge)
-        px = beru_rango_ojos.last_lineal_desde_tank(tank, act)
+        px = beru_rango_ojos.last_desde_tank(tank, act, MERCADO)
         if px <= 0:
             for _ in range(5):
                 await asyncio.sleep(0.4)
-                beru_rango_ojos.inyectar_precios_rest(bridge, tank, [act])
-                px = beru_rango_ojos.last_lineal_desde_tank(tank, act)
+                beru_rango_ojos.inyectar_precios_rest(bridge, tank, [act], mercado=MERCADO)
+                px = beru_rango_ojos.last_desde_tank(tank, act, MERCADO)
                 if px > 0:
                     break
         if px <= 0:
-            raise RuntimeError(f"Sin last lineal {act} para wake")
+            raise RuntimeError(f"Sin last {MERCADO} {act} para wake")
 
-        posiciones = beru_rango_panel.posicion_desde_tusk(tusk, act)
+        posiciones = beru_rango_panel.posicion_desde_tusk(tusk, act, MERCADO)
         plan = checkpoint.decidir_arranque(
             activo=act,
             last=px,
             posiciones=posiciones,
             forzar_semilla=bool(desde_cero),
             forzar_continuar=bool(continuar) and not desde_cero,
+            mercado=MERCADO,
+            perfil=PERFIL,
         )
         prev = plan.sello
         vivo_prev = plan.vivo

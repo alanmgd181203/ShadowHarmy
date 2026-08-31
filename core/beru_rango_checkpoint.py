@@ -19,6 +19,8 @@ from typing import Any
 
 from core import beru_rango
 from core import beru_rango_paths
+from core import beru_rango_ojos
+import core.config as config
 
 
 # Fresco: retoma exacto. Vivo: retoma con 0 recalibrado.
@@ -48,9 +50,15 @@ def sello_edad_s(sello: dict[str, Any] | None, *, ahora: float | None = None) ->
     return max(0.0, float(ahora if ahora is not None else time.time()) - ts)
 
 
-def leer_sello(activo: str) -> dict[str, Any] | None:
+def leer_sello(
+    activo: str,
+    mercado: str = "linear",
+    perfil: str = "normal",
+) -> dict[str, Any] | None:
     act = str(activo or "").upper()
-    path = beru_rango_paths.resolver_manos_informe(act)
+    m = beru_rango_ojos.mercado_norm(mercado)
+    pf = beru_rango_ojos.perfil_norm(perfil)
+    path = beru_rango_paths.resolver_manos_informe(act, m, pf)
     if not path.is_file():
         return None
     try:
@@ -58,6 +66,14 @@ def leer_sello(activo: str) -> dict[str, Any] | None:
     except Exception:
         return None
     if str(data.get("activo") or "").upper() != act:
+        return None
+    if str(data.get("mercado") or "linear").lower() != m:
+        return None
+    sello_perfil = beru_rango_ojos.perfil_norm(
+        data.get("perfil_beru")
+        or ((data.get("snapshot") or {}).get("geometria") or {}).get("perfil")
+    )
+    if sello_perfil != pf:
         return None
     vivo = (data.get("snapshot") or {}).get("vivo") or {}
     if float(vivo.get("cero") or 0) <= 0:
@@ -112,7 +128,7 @@ def _infer_hoz(vivo: dict[str, Any], sangre: str) -> str:
 
 
 def _red_desde_ancla(ancla: float, sangre: str, hoz: str) -> float:
-    """Red 0,7 % (LONG=SHORT) desde ancla. Sangre ABAJO → Red arriba; ARRIBA → abajo."""
+    """Red LONG 0,7 / SHORT 0,8 desde ancla. Sangre ABAJO → Red arriba; ARRIBA → abajo."""
     a = float(ancla or 0)
     if a <= 0:
         return 0.0
@@ -141,12 +157,14 @@ def decidir_arranque(
     forzar_semilla: bool = False,
     forzar_continuar: bool = False,
     ahora: float | None = None,
+    mercado: str = "linear",
+    perfil: str = "normal",
 ) -> PlanArranque:
     act = str(activo or "").upper()
     px = float(last or 0)
     pos = list(posiciones or [])
     if sello is None and not forzar_semilla:
-        sello = leer_sello(act)
+        sello = leer_sello(act, mercado=mercado, perfil=perfil)
     vivo = _vivo(sello)
     edad = sello_edad_s(sello, ahora=ahora)
     fresco = float(SELLO_FRESCO_S)
@@ -298,5 +316,9 @@ def aplicar_plan(beru: Any, plan: PlanArranque) -> None:
     )
 
 
-def path_sello(activo: str) -> Path:
-    return beru_rango_paths.manos_informe(activo)
+def path_sello(
+    activo: str,
+    mercado: str = "linear",
+    perfil: str = "normal",
+) -> Path:
+    return beru_rango_paths.informe_manos(activo, mercado, perfil)

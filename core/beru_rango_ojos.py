@@ -17,6 +17,35 @@ import core.config as config
 
 # Claves de frente que Beru rango PUEDE usar como ojo
 _CLAVES_LINEAL = ("USDT_LINEAL",)
+_CLAVES_INVERSE = ("USD_INVERSE",)
+
+
+def mercado_norm(mercado: str | None = None) -> str:
+    m = str(
+        mercado or getattr(config, "BERU_RANGO_MERCADO", "linear") or "linear"
+    ).strip().lower()
+    return m if m in ("linear", "inverse") else "linear"
+
+
+def perfil_norm(perfil: str | None = None) -> str:
+    """Geometría Beru rango: normal (default) · feria (orejas x2)."""
+    p = str(
+        perfil or getattr(config, "BERU_RANGO_PERFIL", "normal") or "normal"
+    ).strip().lower()
+    return p if p in ("normal", "feria") else "normal"
+
+
+def _claves(mercado: str | None = None) -> tuple[str, ...]:
+    return _CLAVES_INVERSE if mercado_norm(mercado) == "inverse" else _CLAVES_LINEAL
+
+
+def _symbol_rest(activo: str, mercado: str | None = None) -> str:
+    u = str(activo or "").strip().upper()
+    return f"{u}USD" if mercado_norm(mercado) == "inverse" else f"{u}USDT"
+
+
+def _category_rest(mercado: str | None = None) -> str:
+    return "inverse" if mercado_norm(mercado) == "inverse" else "linear"
 
 
 def rest_fallback_activo() -> bool:
@@ -60,6 +89,20 @@ def claves_lineal(activo: str) -> tuple[str, ...]:
     return tuple(f"{u}{suf}" for suf in _CLAVES_LINEAL)
 
 
+def claves_inverse(activo: str) -> tuple[str, ...]:
+    u = str(activo or "").strip().upper()
+    if not u:
+        return ()
+    return tuple(f"{u}{suf}" for suf in _CLAVES_INVERSE)
+
+
+def claves_ojo(activo: str, mercado: str | None = None) -> tuple[str, ...]:
+    u = str(activo or "").strip().upper()
+    if not u:
+        return ()
+    return tuple(f"{u}{suf}" for suf in _claves(mercado))
+
+
 def frentes_lineal_tank(bases: list[str] | None) -> list[str]:
     """Solo last lineal USDT de esos Santos. Ciego a spot/inverso/futuros."""
     acts = [str(a or "").strip().upper() for a in (bases or []) if str(a or "").strip()]
@@ -86,11 +129,45 @@ def frentes_lineal_tank(bases: list[str] | None) -> list[str]:
     return out
 
 
-def last_lineal_desde_precios(precios: dict | None, activo: str) -> float:
-    """Solo last lineal USDT. 0 si no hay — no inventar con spot/inverso."""
+def frentes_inverse_tank(bases: list[str] | None) -> list[str]:
+    """Solo last inverso USD de esos Santos. Ciego a spot/lineal."""
+    acts = [str(a or "").strip().upper() for a in (bases or []) if str(a or "").strip()]
+    if not acts:
+        act = str(getattr(config, "BERU_RANGO_ACTIVO", "ETH") or "ETH").upper()
+        if act:
+            acts = [act]
+    out: list[str] = []
+    seen: set[str] = set()
+    for act in acts:
+        for clave in claves_inverse(act):
+            if clave not in seen:
+                seen.add(clave)
+                out.append(clave)
+    for f in list(getattr(config, "FRENTES_TANK", None) or []):
+        fu = str(f or "").upper()
+        if not fu.endswith("USD_INVERSE"):
+            continue
+        if acts and not any(fu.startswith(f"{a}USD") for a in acts):
+            continue
+        if fu not in seen:
+            seen.add(fu)
+            out.append(fu)
+    return out
+
+
+def frentes_ojo_tank(bases: list[str] | None, mercado: str | None = None) -> list[str]:
+    if mercado_norm(mercado) == "inverse":
+        return frentes_inverse_tank(bases)
+    return frentes_lineal_tank(bases)
+
+
+def last_desde_precios(
+    precios: dict | None, activo: str, mercado: str | None = None,
+) -> float:
+    """Solo last del mercado pedido. 0 si no hay — no inventar con otro rail."""
     if not precios:
         return 0.0
-    for clave in claves_lineal(activo):
+    for clave in claves_ojo(activo, mercado):
         try:
             px = float(precios.get(clave) or 0)
         except (TypeError, ValueError):
@@ -100,8 +177,16 @@ def last_lineal_desde_precios(precios: dict | None, activo: str) -> float:
     return 0.0
 
 
-def last_lineal_desde_tank(tank, activo: str) -> float:
-    """Lee last lineal del líder Tank; 0 si ciego (sin fallback spot)."""
+def last_lineal_desde_precios(precios: dict | None, activo: str) -> float:
+    return last_desde_precios(precios, activo, mercado="linear")
+
+
+def last_inverse_desde_precios(precios: dict | None, activo: str) -> float:
+    return last_desde_precios(precios, activo, mercado="inverse")
+
+
+def last_desde_tank(tank, activo: str, mercado: str | None = None) -> float:
+    """Lee last del líder Tank para el mercado pedido."""
     act = str(activo or "").strip().upper()
     if not act or tank is None:
         return 0.0
@@ -118,14 +203,23 @@ def last_lineal_desde_tank(tank, activo: str) -> float:
                 )
         if not lider:
             precios = getattr(tank, "precios", None) or {}
-            return last_lineal_desde_precios(precios, act)
+            return last_desde_precios(precios, act, mercado)
         if hasattr(lider, "precios_con_reflejo"):
             precios = lider.precios_con_reflejo() or {}
         else:
             precios = getattr(lider, "precios", None) or {}
-        return last_lineal_desde_precios(precios, act)
+        return last_desde_precios(precios, act, mercado)
     except Exception:
         return 0.0
+
+
+def last_lineal_desde_tank(tank, activo: str) -> float:
+    """Lee last lineal del líder Tank; 0 si ciego (sin fallback spot)."""
+    return last_desde_tank(tank, activo, mercado="linear")
+
+
+def last_inverse_desde_tank(tank, activo: str) -> float:
+    return last_desde_tank(tank, activo, mercado="inverse")
 
 
 def _latido_vacio(last: float = 0.0) -> dict[str, Any]:
@@ -133,9 +227,9 @@ def _latido_vacio(last: float = 0.0) -> dict[str, Any]:
     return {"last": px, "high": px, "low": px, "prints": []}
 
 
-def latido_lineal_desde_tank(tank, activo: str) -> dict[str, Any]:
-    """Last + extremos + tratos del latido lineal. Limpia el tramo."""
-    last = last_lineal_desde_tank(tank, activo)
+def latido_desde_tank(tank, activo: str, mercado: str | None = None) -> dict[str, Any]:
+    """Last + extremos + tratos del latido del mercado pedido."""
+    last = last_desde_tank(tank, activo, mercado)
     act = str(activo or "").strip().upper()
     if not act or tank is None:
         return _latido_vacio(last)
@@ -143,7 +237,7 @@ def latido_lineal_desde_tank(tank, activo: str) -> dict[str, Any]:
     consumir = getattr(tank, "consumir_latido_lineal", None)
     if not callable(consumir):
         return merged
-    for clave in claves_lineal(act):
+    for clave in claves_ojo(act, mercado):
         try:
             lat = consumir(clave) or {}
         except Exception:
@@ -184,6 +278,14 @@ def latido_lineal_desde_tank(tank, activo: str) -> dict[str, Any]:
     return merged
 
 
+def latido_lineal_desde_tank(tank, activo: str) -> dict[str, Any]:
+    return latido_desde_tank(tank, activo, mercado="linear")
+
+
+def latido_inverse_desde_tank(tank, activo: str) -> dict[str, Any]:
+    return latido_desde_tank(tank, activo, mercado="inverse")
+
+
 def _get_json_publico(url: str, timeout: float = 8.0) -> dict:
     req = urllib.request.Request(
         url, headers={"User-Agent": "ShadowHarmy/beru-rango-ojos"},
@@ -194,9 +296,10 @@ def _get_json_publico(url: str, timeout: float = 8.0) -> dict:
     return data if isinstance(data, dict) else {}
 
 
-def _tickers_lineal_publicos() -> dict[str, float]:
-    """lastPrice lineal público — no usa la boca de combate."""
-    url = f"{_host_publico()}/v5/market/tickers?category=linear"
+def _tickers_publicos(mercado: str | None = None) -> dict[str, float]:
+    """lastPrice público — no usa la boca de combate."""
+    cat = _category_rest(mercado)
+    url = f"{_host_publico()}/v5/market/tickers?category={cat}"
     try:
         payload = _get_json_publico(url)
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError):
@@ -215,11 +318,16 @@ def _tickers_lineal_publicos() -> dict[str, float]:
     return out
 
 
-def _ticker_lineal_publico(symbol: str) -> float:
+def _tickers_lineal_publicos() -> dict[str, float]:
+    return _tickers_publicos(mercado="linear")
+
+
+def _ticker_publico(symbol: str, mercado: str | None = None) -> float:
     u = str(symbol or "").strip().upper()
     if not u:
         return 0.0
-    url = f"{_host_publico()}/v5/market/tickers?category=linear&symbol={u}"
+    cat = _category_rest(mercado)
+    url = f"{_host_publico()}/v5/market/tickers?category={cat}&symbol={u}"
     try:
         payload = _get_json_publico(url)
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError):
@@ -234,18 +342,24 @@ def _ticker_lineal_publico(symbol: str) -> float:
     return px if px > 0 else 0.0
 
 
+def _ticker_lineal_publico(symbol: str) -> float:
+    return _ticker_publico(symbol, mercado="linear")
+
+
 def inyectar_precios_rest(
     bridge,
     tank,
     activos: list[str],
     *,
     latencia_ms: float = 80.0,
+    mercado: str | None = None,
 ) -> dict[str, float]:
-    """Pide tickers lineal lastPrice públicos y los escribe en Tank.
+    """Pide tickers lastPrice públicos y los escribe en Tank.
 
     ``bridge`` queda por firma (rituales); la sesión de combate no se usa.
     """
     _ = bridge
+    m = mercado_norm(mercado)
     out: dict[str, float] = {}
     if tank is None:
         return out
@@ -253,28 +367,26 @@ def inyectar_precios_rest(
     if not nodos:
         return out
 
-    mapa = _tickers_lineal_publicos()
+    mapa = _tickers_publicos(m)
     for act in activos:
         u = str(act or "").strip().upper()
         if not u:
             continue
-        sym = f"{u}USDT"
+        sym = _symbol_rest(u, m)
         px = float(mapa.get(sym) or 0)
         if px <= 0:
-            px = _ticker_lineal_publico(sym)
+            px = _ticker_publico(sym, m)
         if px <= 0:
             continue
-        frente = f"{u}USDT_LINEAL"
+        frente = f"{u}{_claves(m)[0]}"
         out[u] = px
         for n in nodos:
             try:
                 n.inyectar_verdad_real(frente, px, float(latencia_ms))
-                # NO inyectar spot como respaldo (Beru rango ciego a spot)
                 if str(getattr(n, "estado_foco", "") or "") in ("CONGELADO", "ROJO", ""):
                     n.estado_foco = "AMARILLO"
             except Exception:
                 pass
-        # Muleta también deja rastro en el vaso (sin marcar río WS vivo).
         if hasattr(tank, "registrar_print_lineal"):
             try:
                 tank.registrar_print_lineal(frente, px, fuente_ws=False)
@@ -283,10 +395,14 @@ def inyectar_precios_rest(
     return out
 
 
-def resumen_inyeccion(precios: dict[str, float]) -> dict[str, Any]:
+def resumen_inyeccion(
+    precios: dict[str, float], mercado: str | None = None,
+) -> dict[str, Any]:
+    m = mercado_norm(mercado)
     return {
         "ts": time.time(),
         "n": len(precios),
         "precios": dict(precios),
-        "fuente": "rest_last_lineal",
+        "fuente": f"rest_last_{m}",
+        "mercado": m,
     }

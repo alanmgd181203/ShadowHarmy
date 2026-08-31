@@ -32,12 +32,108 @@ def ojos_eventos(activo: str) -> Path:
     return dir_santo(activo) / "ojos_eventos.jsonl"
 
 
+def ojos_inverso_informe(activo: str) -> Path:
+    return dir_santo(activo) / "ojos_inverso_informe.json"
+
+
+def ojos_inverso_eventos(activo: str) -> Path:
+    return dir_santo(activo) / "ojos_inverso_eventos.jsonl"
+
+
+def informe_ojo(
+    activo: str,
+    mercado: str = "linear",
+    perfil: str = "normal",
+) -> Path:
+    from core import beru_rango_ojos
+
+    m = beru_rango_ojos.mercado_norm(mercado)
+    p = beru_rango_ojos.perfil_norm(perfil)
+    if m == "inverse":
+        return ojos_inverso_informe(activo)
+    if p == "feria":
+        return ojos_feria_informe(activo)
+    return ojos_informe(activo)
+
+
+def eventos_ojo(
+    activo: str,
+    mercado: str = "linear",
+    perfil: str = "normal",
+) -> Path:
+    from core import beru_rango_ojos
+
+    m = beru_rango_ojos.mercado_norm(mercado)
+    p = beru_rango_ojos.perfil_norm(perfil)
+    if m == "inverse":
+        return ojos_inverso_eventos(activo)
+    if p == "feria":
+        return ojos_feria_eventos(activo)
+    return ojos_eventos(activo)
+
+
 def manos_informe(activo: str) -> Path:
     return dir_santo(activo) / "manos_informe.json"
 
 
 def manos_eventos(activo: str) -> Path:
     return dir_santo(activo) / "manos_eventos.jsonl"
+
+
+def manos_inverso_informe(activo: str) -> Path:
+    return dir_santo(activo) / "manos_inverso_informe.json"
+
+
+def manos_inverso_eventos(activo: str) -> Path:
+    return dir_santo(activo) / "manos_inverso_eventos.jsonl"
+
+
+def manos_feria_informe(activo: str) -> Path:
+    return dir_santo(activo) / "manos_feria_informe.json"
+
+
+def manos_feria_eventos(activo: str) -> Path:
+    return dir_santo(activo) / "manos_feria_eventos.jsonl"
+
+
+def ojos_feria_informe(activo: str) -> Path:
+    return dir_santo(activo) / "ojos_feria_informe.json"
+
+
+def ojos_feria_eventos(activo: str) -> Path:
+    return dir_santo(activo) / "ojos_feria_eventos.jsonl"
+
+
+def informe_manos(
+    activo: str,
+    mercado: str = "linear",
+    perfil: str = "normal",
+) -> Path:
+    from core import beru_rango_ojos
+
+    m = beru_rango_ojos.mercado_norm(mercado)
+    p = beru_rango_ojos.perfil_norm(perfil)
+    if m == "inverse":
+        return manos_inverso_informe(activo)
+    if p == "feria":
+        return manos_feria_informe(activo)
+    return manos_informe(activo)
+
+
+def eventos_manos(
+    activo: str,
+    mercado: str = "linear",
+    perfil: str = "normal",
+) -> Path:
+    from core import beru_rango_ojos
+
+    m = beru_rango_ojos.mercado_norm(mercado)
+    p = beru_rango_ojos.perfil_norm(perfil)
+    if m == "inverse":
+        return manos_inverso_eventos(activo)
+    if p == "feria":
+        return manos_feria_eventos(activo)
+    return manos_eventos(activo)
 
 
 def flota_ojos_informe() -> Path:
@@ -51,6 +147,16 @@ def flota_ojos_eventos() -> Path:
     return RANGO_DIR / "ojos_flota_eventos.jsonl"
 
 
+def flota_ojos_inverso_informe() -> Path:
+    RANGO_DIR.mkdir(parents=True, exist_ok=True)
+    return RANGO_DIR / "ojos_inverso_flota_informe.json"
+
+
+def flota_ojos_inverso_eventos() -> Path:
+    RANGO_DIR.mkdir(parents=True, exist_ok=True)
+    return RANGO_DIR / "ojos_inverso_flota_eventos.jsonl"
+
+
 # Compat lectura/escritura espejo (no borrar hasta que el panel/UI migre)
 LEGACY_MANOS_INFORME = BERU_DIR / "rango_manos_informe.json"
 LEGACY_MANOS_EVENTOS = BERU_DIR / "rango_manos_eventos.jsonl"
@@ -58,12 +164,20 @@ LEGACY_OJOS_INFORME = BERU_DIR / "rango_ojos_informe.json"
 LEGACY_OJOS_EVENTOS = BERU_DIR / "rango_ojos_eventos.jsonl"
 
 
-def resolver_manos_informe(activo: str) -> Path:
-    """Preferir sello por Santo; legacy solo si es del mismo activo."""
-    p = manos_informe(activo)
-    if p.is_file():
-        return p
-    if LEGACY_MANOS_INFORME.is_file():
+def resolver_manos_informe(
+    activo: str,
+    mercado: str = "linear",
+    perfil: str = "normal",
+) -> Path:
+    """Preferir sello por Santo, mercado y perfil; legacy solo lineal normal."""
+    from core import beru_rango_ojos
+
+    m = beru_rango_ojos.mercado_norm(mercado)
+    p = beru_rango_ojos.perfil_norm(perfil)
+    path = informe_manos(activo, m, p)
+    if path.is_file():
+        return path
+    if m != "inverse" and p == "normal" and LEGACY_MANOS_INFORME.is_file():
         try:
             import json
 
@@ -72,4 +186,4 @@ def resolver_manos_informe(activo: str) -> Path:
                 return LEGACY_MANOS_INFORME
         except Exception:
             pass
-    return p
+    return path
