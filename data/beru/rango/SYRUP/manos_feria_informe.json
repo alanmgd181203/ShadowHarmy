@@ -1,0 +1,85 @@
+{
+  "ts": 1788198108.1833212,
+  "duracion_s": 13131.8,
+  "manos": true,
+  "mercado": "linear",
+  "perfil_beru": "feria",
+  "activo": "SYRUP",
+  "contadores": {
+    "eventos": 4,
+    "errores": 0,
+    "por_evento": {
+      "ARMAR_ARRIBA": 1,
+      "OZ_COSECHA": 2,
+      "ARMAR_RED": 1
+    }
+  },
+  "last": 0.18199,
+  "snapshot": {
+    "oficio": "RANGO",
+    "activo": "SYRUP",
+    "manos": true,
+    "geometria": {
+      "oficio": "RANGO",
+      "perfil": "feria",
+      "mercado": "linear",
+      "vacio_pct": 0.022,
+      "vacio_rol": "activacion_trailing",
+      "oz_gap_pct": 0.002,
+      "oz_modo": "trailing_callback",
+      "red_activacion_pct": 0.012,
+      "red_activacion_long_pct": 0.012,
+      "red_activacion_short_pct": 0.012,
+      "red_desde_oz_pct": 0.012,
+      "red_modo": "trailing",
+      "red_callback_pct": 0.002,
+      "sangre_pct": 0.022,
+      "sangre_rol": "activacion_trailing",
+      "masa_usd": 5.0,
+      "masa_red_usd": 5.0,
+      "masa_sangre_usd": 5.0,
+      "trailing_pct": 0.002,
+      "engorde_usd": 1.0,
+      "engorde_paso_pct": 0.002,
+      "cero": "wake",
+      "nacimiento": "cinco_usd",
+      "engorde": "desde_activacion",
+      "saco_techo": "sin_tope",
+      "ladder_red": "si"
+    },
+    "vivo": {
+      "uid": "RANGO_SYRUP_R1_baaeb1",
+      "estado": "ACECHANDO",
+      "direccion": "",
+      "cero": 0.17579,
+      "oz": 0.0,
+      "oz_despliegue": 0.18187,
+      "red": 0.18405244,
+      "trail_extremo": 0.0,
+      "masa": 0.0,
+      "saco_long": 0.0,
+      "saco_short": 11.0,
+      "sangre_lado": "ABAJO",
+      "sangre": 0.17786886,
+      "sangre_adan": 0.17786886,
+      "cosechas": 2,
+      "escalones_red": 1,
+      "ultima_hoz_direccion": "SHORT",
+      "altar_link_id": "",
+      "altar_order_id": "",
+      "altar_trigger_price": 0.0,
+      "altar_revision": 2,
+      "altar_order_status": ""
+    }
+  },
+  "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\SYRUP\\manos_feria_eventos.jsonl",
+  "posicion": [
+    {
+      "lado": "LONG",
+      "qty": 454.0,
+      "precio": 0.17711282,
+      "masa_usd": 80.4092
+    }
+  ],
+  "last_lineal": 0.18199
+}

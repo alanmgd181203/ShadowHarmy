@@ -1,0 +1,86 @@
+{
+  "ts": 1788210449.6096127,
+  "duracion_s": 26028.4,
+  "manos": true,
+  "mercado": "linear",
+  "perfil_beru": "feria",
+  "activo": "FWDI",
+  "contadores": {
+    "eventos": 18,
+    "errores": 0,
+    "por_evento": {
+      "ARMAR_ARRIBA": 1,
+      "OZ_COSECHA": 9,
+      "ARMAR_RED": 6,
+      "ARMAR_SANGRE": 2
+    }
+  },
+  "last": 6.434,
+  "snapshot": {
+    "oficio": "RANGO",
+    "activo": "FWDI",
+    "manos": true,
+    "geometria": {
+      "oficio": "RANGO",
+      "perfil": "feria",
+      "mercado": "linear",
+      "vacio_pct": 0.022,
+      "vacio_rol": "activacion_trailing",
+      "oz_gap_pct": 0.002,
+      "oz_modo": "trailing_callback",
+      "red_activacion_pct": 0.012,
+      "red_activacion_long_pct": 0.012,
+      "red_activacion_short_pct": 0.012,
+      "red_desde_oz_pct": 0.012,
+      "red_modo": "trailing",
+      "red_callback_pct": 0.002,
+      "sangre_pct": 0.022,
+      "sangre_rol": "activacion_trailing",
+      "masa_usd": 5.0,
+      "masa_red_usd": 5.0,
+      "masa_sangre_usd": 5.0,
+      "trailing_pct": 0.002,
+      "engorde_usd": 1.0,
+      "engorde_paso_pct": 0.002,
+      "cero": "wake",
+      "nacimiento": "cinco_usd",
+      "engorde": "desde_activacion",
+      "saco_techo": "sin_tope",
+      "ladder_red": "si"
+    },
+    "vivo": {
+      "uid": "RANGO_FWDI_R6_866166",
+      "estado": "ACECHANDO",
+      "direccion": "",
+      "cero": 5.911,
+      "oz": 0.0,
+      "oz_despliegue": 6.435,
+      "red": 6.512219999999999,
+      "trail_extremo": 0.0,
+      "masa": 0.0,
+      "saco_long": 5.0,
+      "saco_short": 41.0,
+      "sangre_lado": "ABAJO",
+      "sangre": 6.29343,
+      "sangre_adan": 6.29343,
+      "cosechas": 9,
+      "escalones_red": 6,
+      "ultima_hoz_direccion": "SHORT",
+      "altar_link_id": "",
+      "altar_order_id": "",
+      "altar_trigger_price": 0.0,
+      "altar_revision": 9,
+      "altar_order_status": ""
+    }
+  },
+  "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\FWDI\\manos_feria_eventos.jsonl",
+  "posicion": [
+    {
+      "lado": "SHORT",
+      "qty": 9.3,
+      "precio": 6.17532164,
+      "masa_usd": 57.4305
+    }
+  ],
+  "last_lineal": 6.434
+}

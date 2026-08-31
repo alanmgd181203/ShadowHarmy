@@ -1,0 +1,86 @@
+{
+  "ts": 1788204910.5571039,
+  "duracion_s": 20574.7,
+  "manos": true,
+  "mercado": "linear",
+  "perfil_beru": "feria",
+  "activo": "DASH",
+  "contadores": {
+    "eventos": 34,
+    "errores": 0,
+    "por_evento": {
+      "ARMAR_ARRIBA": 1,
+      "OZ_COSECHA": 17,
+      "ARMAR_RED": 13,
+      "ARMAR_SANGRE": 3
+    }
+  },
+  "last": 46.0,
+  "snapshot": {
+    "oficio": "RANGO",
+    "activo": "DASH",
+    "manos": true,
+    "geometria": {
+      "oficio": "RANGO",
+      "perfil": "feria",
+      "mercado": "linear",
+      "vacio_pct": 0.022,
+      "vacio_rol": "activacion_trailing",
+      "oz_gap_pct": 0.002,
+      "oz_modo": "trailing_callback",
+      "red_activacion_pct": 0.012,
+      "red_activacion_long_pct": 0.012,
+      "red_activacion_short_pct": 0.012,
+      "red_desde_oz_pct": 0.012,
+      "red_modo": "trailing",
+      "red_callback_pct": 0.002,
+      "sangre_pct": 0.022,
+      "sangre_rol": "activacion_trailing",
+      "masa_usd": 5.0,
+      "masa_red_usd": 5.0,
+      "masa_sangre_usd": 5.0,
+      "trailing_pct": 0.002,
+      "engorde_usd": 1.0,
+      "engorde_paso_pct": 0.002,
+      "cero": "wake",
+      "nacimiento": "cinco_usd",
+      "engorde": "desde_activacion",
+      "saco_techo": "sin_tope",
+      "ladder_red": "si"
+    },
+    "vivo": {
+      "uid": "RANGO_DASH_R13_9cfc6a",
+      "estado": "ACECHANDO",
+      "direccion": "",
+      "cero": 42.84,
+      "oz": 0.0,
+      "oz_despliegue": 45.44,
+      "red": 44.89472,
+      "trail_extremo": 0.0,
+      "masa": 0.0,
+      "saco_long": 31.0,
+      "saco_short": 61.0,
+      "sangre_lado": "ARRIBA",
+      "sangre": 46.439679999999996,
+      "sangre_adan": 46.439679999999996,
+      "cosechas": 17,
+      "escalones_red": 13,
+      "ultima_hoz_direccion": "LONG",
+      "altar_link_id": "",
+      "altar_order_id": "",
+      "altar_trigger_price": 0.0,
+      "altar_revision": 17,
+      "altar_order_status": ""
+    }
+  },
+  "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\DASH\\manos_feria_eventos.jsonl",
+  "posicion": [
+    {
+      "lado": "SHORT",
+      "qty": 0.82,
+      "precio": 46.30680469,
+      "masa_usd": 37.9716
+    }
+  ],
+  "last_lineal": 46.0
+}

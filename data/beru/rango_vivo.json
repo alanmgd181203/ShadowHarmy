@@ -1,0 +1,163 @@
+{
+  "ts": 1788210966.6370656,
+  "oficio": "RANGO",
+  "mercado": "linear",
+  "activos": [
+    {
+      "activo": "XRP",
+      "grado": "GENERAL",
+      "oficio": "acechando",
+      "n_barcos": 1,
+      "centro_manto": 1.3826,
+      "estado": "ACECHANDO",
+      "last": 1.3808,
+      "cero": 1.3826,
+      "oz": 0.0,
+      "red": 1.4027440896,
+      "sangre_lado": "ABAJO",
+      "cosechas": 21,
+      "escalones_red": 14,
+      "n_cazas": 0,
+      "manos": false,
+      "mercado": "linear",
+      "posicion": [],
+      "pid": 6500,
+      "ts_santo": 1788210966.636318
+    }
+  ],
+  "details": {
+    "XRP": {
+      "symbol": "XRP",
+      "oficio": "RANGO",
+      "mercado": "linear",
+      "spot_last": 1.3808,
+      "last_lineal": 1.3808,
+      "G_min": 5.0,
+      "centro_manto": 1.3826,
+      "n_barcos": 1,
+      "grado": "GENERAL",
+      "barcos": [
+        {
+          "uid": "RANGO_XRP_R14_31ce49",
+          "activo": "XRP",
+          "estado": "ACECHANDO",
+          "direccion": "",
+          "centro_local": 1.3826,
+          "ancla_tramo": 1.3826,
+          "centro_wake": 1.3826,
+          "oz_adan": 0.0,
+          "oz_precio": 0.0,
+          "red_precio": 1.4027440896,
+          "red_adan": 1.4027440896,
+          "masa": 0.0,
+          "sangre_lado": "ABAJO",
+          "cosechas_continuas": 21,
+          "rango_escalones_red": 14,
+          "trail_extremo": 0.0,
+          "vacio_pct": 1.2,
+          "grado": "GENERAL",
+          "oficio": "RANGO",
+          "carta_colgada": false,
+          "vacio_arriba": 0.0,
+          "vacio_abajo": 1.3749118656000001
+        }
+      ],
+      "grafica": {
+        "mercado": "linear",
+        "oficio": "RANGO",
+        "centro_0": 1.3826,
+        "centro_wake": 1.3826,
+        "centro_manto": 1.3826,
+        "niveles": [
+          {
+            "id": "wake",
+            "precio": 1.3826,
+            "pct": 0.0,
+            "rol": "wake"
+          },
+          {
+            "id": "sangre_dn",
+            "precio": 1.3749118656000001,
+            "pct": -0.5560635324750374,
+            "rol": "vacio",
+            "label": "Sangre",
+            "masa_usd": 5.0
+          },
+          {
+            "id": "red",
+            "precio": 1.4027440896,
+            "pct": null,
+            "rol": "red",
+            "label": "Red",
+            "masa_usd": 5.0
+          }
+        ],
+        "cazas": [],
+        "posicion": []
+      },
+      "vivo_rango": {
+        "uid": "RANGO_XRP_R14_31ce49",
+        "estado": "ACECHANDO",
+        "direccion": "",
+        "cero": 1.3826,
+        "oz": 0.0,
+        "oz_despliegue": 1.3916112,
+        "red": 1.4027440896,
+        "trail_extremo": 0.0,
+        "masa": 0.0,
+        "saco_long": 64.0,
+        "saco_short": 63.0,
+        "sangre_lado": "ABAJO",
+        "sangre": 1.3749118656000001,
+        "sangre_adan": 1.3749118656000001,
+        "cosechas": 21,
+        "escalones_red": 14,
+        "ultima_hoz_direccion": "SHORT",
+        "altar_link_id": "",
+        "altar_order_id": "",
+        "altar_trigger_price": 0.0,
+        "altar_revision": 21,
+        "altar_order_status": ""
+      },
+      "geometria": {
+        "oficio": "RANGO",
+        "perfil": "normal",
+        "mercado": "linear",
+        "vacio_pct": 0.012,
+        "vacio_rol": "activacion_trailing",
+        "oz_gap_pct": 0.002,
+        "oz_modo": "trailing_callback",
+        "red_activacion_pct": 0.007,
+        "red_activacion_long_pct": 0.007,
+        "red_activacion_short_pct": 0.008,
+        "red_desde_oz_pct": 0.007,
+        "red_modo": "trailing",
+        "red_callback_pct": 0.002,
+        "sangre_pct": 0.012,
+        "sangre_rol": "activacion_trailing",
+        "masa_usd": 5.0,
+        "masa_red_usd": 5.0,
+        "masa_sangre_usd": 5.0,
+        "trailing_pct": 0.002,
+        "engorde_usd": 1.0,
+        "engorde_paso_pct": 0.001,
+        "cero": "wake",
+        "nacimiento": "cinco_usd",
+        "engorde": "desde_activacion",
+        "saco_techo": "sin_tope",
+        "ladder_red": "si"
+      },
+      "manos": false,
+      "posicion": [],
+      "cronica": [],
+      "pid": 6500,
+      "ts_santo": 1788210966.6363153
+    }
+  },
+  "latido_vivo": true,
+  "activo_foco": "XRP",
+  "n_santos": 1,
+  "pids": [
+    6500
+  ]
+}

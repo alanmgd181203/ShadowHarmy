@@ -1,5 +1,5 @@
 {
-  "ts": 1787607410.93955,
+  "ts": 1788152442.471353,
   "fuente": "api",
   "bases_trinidad": [
     "AAVE",
@@ -137,7 +137,6 @@
     "ACE",
     "ACT",
     "ACU",
-    "ACX",
     "ADBE",
     "ADI",
     "AEHR",
@@ -247,6 +246,7 @@
     "DELL",
     "DEXE",
     "DIA",
+    "DJT",
     "DKNG",
     "DOS",
     "DRAM",
@@ -301,7 +301,9 @@
     "IBM",
     "ILV",
     "IN",
+    "INFQ",
     "INTC",
+    "INTU",
     "INTW",
     "INX",
     "IONQ",
@@ -348,6 +350,7 @@
     "MAGS",
     "MARA",
     "MAV",
+    "MCD",
     "MEITUAN",
     "MELANIA",
     "META",
@@ -363,6 +366,7 @@
     "MRVL",
     "MSFT",
     "MSTR",
+    "MSTU",
     "MTL",
     "MU",
     "MUBARAK",
@@ -378,6 +382,7 @@
     "NET",
     "NFLX",
     "NIL",
+    "NIULAI",
     "NMR",
     "NOKIA",
     "NOW",
@@ -424,6 +429,7 @@
     "QCOM",
     "QNTX",
     "QQQ",
+    "RAM",
     "RARE",
     "RAVE",
     "RAYDIUM",
@@ -475,6 +481,7 @@
     "SPCX",
     "SPORTFUN",
     "SPOT",
+    "SPXL",
     "SPY",
     "SQQQ",
     "SSPC",
@@ -494,6 +501,7 @@
     "THE",
     "TLM",
     "TMF",
+    "TMX",
     "TQQQ",
     "TRB",
     "TRUST",
@@ -534,6 +542,8 @@
     "XLE",
     "XLF",
     "XLK",
+    "XLP",
+    "XLU",
     "XLV",
     "XMR",
     "XNY",
@@ -549,14 +559,14 @@
     "ZHONGJI",
     "ZM"
   ],
-  "count_huerfanas": 434,
+  "count_huerfanas": 444,
   "count_trinidad": 22,
   "count_usdc_spot": 86,
   "count_usde": 6,
   "count_usd1": 6,
   "count_mnt_spot": 4,
-  "count_spot_all": 555,
-  "count_linear_perp": 793,
+  "count_spot_all": 546,
+  "count_linear_perp": 803,
   "count_inverse_perp": 22,
   "count_linear_futures": 40,
   "count_inverse_futures": 4,
@@ -1787,15 +1797,6 @@
       "min_order_usd": 5.0
     },
     {
-      "symbol": "CAMPUSDT",
-      "category": "spot",
-      "frente": "CAMPUSDT_SPOT",
-      "marginTrading": "none",
-      "baseCoin": "CAMP",
-      "quoteCoin": "USDT",
-      "min_order_usd": 5.0
-    },
-    {
       "symbol": "CAPUSDT",
       "category": "spot",
       "frente": "CAPUSDT_SPOT",
@@ -2057,15 +2058,6 @@
       "min_order_usd": 5.0
     },
     {
-      "symbol": "CUDISUSDT",
-      "category": "spot",
-      "frente": "CUDISUSDT_SPOT",
-      "marginTrading": "none",
-      "baseCoin": "CUDIS",
-      "quoteCoin": "USDT",
-      "min_order_usd": 5.0
-    },
-    {
       "symbol": "CYBERUSDT",
       "category": "spot",
       "frente": "CYBERUSDT_SPOT",
@@ -2269,15 +2261,6 @@
       "frente": "EIGENUSDT_SPOT",
       "marginTrading": "utaOnly",
       "baseCoin": "EIGEN",
-      "quoteCoin": "USDT",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "ELIZAOSUSDT",
-      "category": "spot",
-      "frente": "ELIZAOSUSDT_SPOT",
-      "marginTrading": "none",
-      "baseCoin": "ELIZAOS",
       "quoteCoin": "USDT",
       "min_order_usd": 5.0
     },
@@ -4073,15 +4056,6 @@
       "min_order_usd": 5.0
     },
     {
-      "symbol": "PIRATEUSDT",
-      "category": "spot",
-      "frente": "PIRATEUSDT_SPOT",
-      "marginTrading": "none",
-      "baseCoin": "PIRATE",
-      "quoteCoin": "USDT",
-      "min_order_usd": 5.0
-    },
-    {
       "symbol": "PLUMEUSDT",
       "category": "spot",
       "frente": "PLUMEUSDT_SPOT",
@@ -4132,15 +4106,6 @@
       "frente": "PORTALUSDT_SPOT",
       "marginTrading": "none",
       "baseCoin": "PORTAL",
-      "quoteCoin": "USDT",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "PRCLUSDT",
-      "category": "spot",
-      "frente": "PRCLUSDT_SPOT",
-      "marginTrading": "none",
-      "baseCoin": "PRCL",
       "quoteCoin": "USDT",
       "min_order_usd": 5.0
     },
@@ -4856,15 +4821,6 @@
       "min_order_usd": 5.0
     },
     {
-      "symbol": "SVLUSDT",
-      "category": "spot",
-      "frente": "SVLUSDT_SPOT",
-      "marginTrading": "none",
-      "baseCoin": "SVL",
-      "quoteCoin": "USDT",
-      "min_order_usd": 5.0
-    },
-    {
       "symbol": "SWELLUSDC",
       "category": "spot",
       "frente": "SWELLUSDC_SPOT",
@@ -4906,15 +4862,6 @@
       "frente": "TAIKOUSDT_SPOT",
       "marginTrading": "none",
       "baseCoin": "TAIKO",
-      "quoteCoin": "USDT",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "TAIUSDT",
-      "category": "spot",
-      "frente": "TAIUSDT_SPOT",
-      "marginTrading": "none",
-      "baseCoin": "TAI",
       "quoteCoin": "USDT",
       "min_order_usd": 5.0
     },
@@ -5059,15 +5006,6 @@
       "frente": "TSLAXUSDT_SPOT",
       "marginTrading": "none",
       "baseCoin": "TSLAX",
-      "quoteCoin": "USDT",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "TUSDUSDT",
-      "category": "spot",
-      "frente": "TUSDUSDT_SPOT",
-      "marginTrading": "none",
-      "baseCoin": "TUSD",
       "quoteCoin": "USDT",
       "min_order_usd": 5.0
     },
@@ -5446,15 +5384,6 @@
       "frente": "WETUSDT_SPOT",
       "marginTrading": "none",
       "baseCoin": "WET",
-      "quoteCoin": "USDT",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "WHITEWHALEUSDT",
-      "category": "spot",
-      "frente": "WHITEWHALEUSDT_SPOT",
-      "marginTrading": "none",
-      "baseCoin": "WHITEWHALE",
       "quoteCoin": "USDT",
       "min_order_usd": 5.0
     },
@@ -6146,16 +6075,6 @@
       "contractType": "LinearPerpetual",
       "settleCoin": "USDT",
       "baseCoin": "ACU",
-      "deliveryTime": "0",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "ACXUSDT",
-      "category": "linear",
-      "frente": "ACXUSDT_LINEAL",
-      "contractType": "LinearPerpetual",
-      "settleCoin": "USDT",
-      "baseCoin": "ACX",
       "deliveryTime": "0",
       "min_order_usd": 5.0
     },
@@ -8080,6 +7999,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "DJTUSDT",
+      "category": "linear",
+      "frente": "DJTUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "DJT",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "DKNGUSDT",
       "category": "linear",
       "frente": "DKNGUSDT_LINEAL",
@@ -9290,6 +9219,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "INFQUSDT",
+      "category": "linear",
+      "frente": "INFQUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "INFQ",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "INITUSDT",
       "category": "linear",
       "frente": "INITUSDT_LINEAL",
@@ -9326,6 +9265,16 @@
       "contractType": "LinearPerpetual",
       "settleCoin": "USDT",
       "baseCoin": "INTC",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
+      "symbol": "INTUUSDT",
+      "category": "linear",
+      "frente": "INTUUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "INTU",
       "deliveryTime": "0",
       "min_order_usd": 5.0
     },
@@ -10040,6 +9989,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "MCDUSDT",
+      "category": "linear",
+      "frente": "MCDUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "MCD",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "MEGAUSDT",
       "category": "linear",
       "frente": "MEGAUSDT_LINEAL",
@@ -10360,6 +10319,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "MSTUUSDT",
+      "category": "linear",
+      "frente": "MSTUUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "MSTU",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "MTLUSDT",
       "category": "linear",
       "frente": "MTLUSDT_LINEAL",
@@ -10556,6 +10525,16 @@
       "contractType": "LinearPerpetual",
       "settleCoin": "USDT",
       "baseCoin": "NIL",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
+      "symbol": "NIULAIUSDT",
+      "category": "linear",
+      "frente": "NIULAIUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "NIULAI",
       "deliveryTime": "0",
       "min_order_usd": 5.0
     },
@@ -11366,6 +11345,16 @@
       "contractType": "LinearPerpetual",
       "settleCoin": "USDT",
       "baseCoin": "Q",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
+      "symbol": "RAMUSDT",
+      "category": "linear",
+      "frente": "RAMUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "RAM",
       "deliveryTime": "0",
       "min_order_usd": 5.0
     },
@@ -12190,6 +12179,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "SPXLUSDT",
+      "category": "linear",
+      "frente": "SPXLUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "SPXL",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "SPXPERP",
       "category": "linear",
       "frente": "SPXPERP_LINEAL",
@@ -12576,6 +12575,16 @@
       "contractType": "LinearPerpetual",
       "settleCoin": "USDT",
       "baseCoin": "TMF",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
+      "symbol": "TMXUSDT",
+      "category": "linear",
+      "frente": "TMXUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "TMX",
       "deliveryTime": "0",
       "min_order_usd": 5.0
     },
@@ -13420,6 +13429,26 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "XLPUSDT",
+      "category": "linear",
+      "frente": "XLPUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "XLP",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
+      "symbol": "XLUUSDT",
+      "category": "linear",
+      "frente": "XLUUSDT_LINEAL",
+      "contractType": "LinearPerpetual",
+      "settleCoin": "USDT",
+      "baseCoin": "XLU",
+      "deliveryTime": "0",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "XLVUSDT",
       "category": "linear",
       "frente": "XLVUSDT_LINEAL",
@@ -14004,6 +14033,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "BTCUSDT-18SEP26",
+      "category": "linear",
+      "frente": "BTCUSDT-18SEP26_FUTURO",
+      "contractType": "LinearFutures",
+      "settleCoin": "USDT",
+      "baseCoin": "BTC",
+      "deliveryTime": "1789718400000",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "BTCUSDT-25DEC26",
       "category": "linear",
       "frente": "BTCUSDT-25DEC26_FUTURO",
@@ -14044,16 +14083,6 @@
       "min_order_usd": 5.0
     },
     {
-      "symbol": "BTCUSDT-28AUG26",
-      "category": "linear",
-      "frente": "BTCUSDT-28AUG26_FUTURO",
-      "contractType": "LinearFutures",
-      "settleCoin": "USDT",
-      "baseCoin": "BTC",
-      "deliveryTime": "1787904000000",
-      "min_order_usd": 5.0
-    },
-    {
       "symbol": "BTCUSDT-30OCT26",
       "category": "linear",
       "frente": "BTCUSDT-30OCT26_FUTURO",
@@ -14084,6 +14113,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "DOGEUSDT-18SEP26",
+      "category": "linear",
+      "frente": "DOGEUSDT-18SEP26_FUTURO",
+      "contractType": "LinearFutures",
+      "settleCoin": "USDT",
+      "baseCoin": "DOGE",
+      "deliveryTime": "1789718400000",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "DOGEUSDT-25SEP26",
       "category": "linear",
       "frente": "DOGEUSDT-25SEP26_FUTURO",
@@ -14091,16 +14130,6 @@
       "settleCoin": "USDT",
       "baseCoin": "DOGE",
       "deliveryTime": "1790323200000",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "DOGEUSDT-28AUG26",
-      "category": "linear",
-      "frente": "DOGEUSDT-28AUG26_FUTURO",
-      "contractType": "LinearFutures",
-      "settleCoin": "USDT",
-      "baseCoin": "DOGE",
-      "deliveryTime": "1787904000000",
       "min_order_usd": 5.0
     },
     {
@@ -14121,6 +14150,16 @@
       "settleCoin": "USDT",
       "baseCoin": "ETH",
       "deliveryTime": "1789113600000",
+      "min_order_usd": 5.0
+    },
+    {
+      "symbol": "ETHUSDT-18SEP26",
+      "category": "linear",
+      "frente": "ETHUSDT-18SEP26_FUTURO",
+      "contractType": "LinearFutures",
+      "settleCoin": "USDT",
+      "baseCoin": "ETH",
+      "deliveryTime": "1789718400000",
       "min_order_usd": 5.0
     },
     {
@@ -14164,16 +14203,6 @@
       "min_order_usd": 5.0
     },
     {
-      "symbol": "ETHUSDT-28AUG26",
-      "category": "linear",
-      "frente": "ETHUSDT-28AUG26_FUTURO",
-      "contractType": "LinearFutures",
-      "settleCoin": "USDT",
-      "baseCoin": "ETH",
-      "deliveryTime": "1787904000000",
-      "min_order_usd": 5.0
-    },
-    {
       "symbol": "ETHUSDT-30OCT26",
       "category": "linear",
       "frente": "ETHUSDT-30OCT26_FUTURO",
@@ -14204,6 +14233,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "HYPEUSDT-18SEP26",
+      "category": "linear",
+      "frente": "HYPEUSDT-18SEP26_FUTURO",
+      "contractType": "LinearFutures",
+      "settleCoin": "USDT",
+      "baseCoin": "HYPE",
+      "deliveryTime": "1789718400000",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "HYPEUSDT-25SEP26",
       "category": "linear",
       "frente": "HYPEUSDT-25SEP26_FUTURO",
@@ -14211,16 +14250,6 @@
       "settleCoin": "USDT",
       "baseCoin": "HYPE",
       "deliveryTime": "1790323200000",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "HYPEUSDT-28AUG26",
-      "category": "linear",
-      "frente": "HYPEUSDT-28AUG26_FUTURO",
-      "contractType": "LinearFutures",
-      "settleCoin": "USDT",
-      "baseCoin": "HYPE",
-      "deliveryTime": "1787904000000",
       "min_order_usd": 5.0
     },
     {
@@ -14244,6 +14273,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "MNTUSDT-18SEP26",
+      "category": "linear",
+      "frente": "MNTUSDT-18SEP26_FUTURO",
+      "contractType": "LinearFutures",
+      "settleCoin": "USDT",
+      "baseCoin": "MNT",
+      "deliveryTime": "1789718400000",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "MNTUSDT-25SEP26",
       "category": "linear",
       "frente": "MNTUSDT-25SEP26_FUTURO",
@@ -14251,16 +14290,6 @@
       "settleCoin": "USDT",
       "baseCoin": "MNT",
       "deliveryTime": "1790323200000",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "MNTUSDT-28AUG26",
-      "category": "linear",
-      "frente": "MNTUSDT-28AUG26_FUTURO",
-      "contractType": "LinearFutures",
-      "settleCoin": "USDT",
-      "baseCoin": "MNT",
-      "deliveryTime": "1787904000000",
       "min_order_usd": 5.0
     },
     {
@@ -14284,6 +14313,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "SOLUSDT-18SEP26",
+      "category": "linear",
+      "frente": "SOLUSDT-18SEP26_FUTURO",
+      "contractType": "LinearFutures",
+      "settleCoin": "USDT",
+      "baseCoin": "SOL",
+      "deliveryTime": "1789718400000",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "SOLUSDT-25SEP26",
       "category": "linear",
       "frente": "SOLUSDT-25SEP26_FUTURO",
@@ -14291,16 +14330,6 @@
       "settleCoin": "USDT",
       "baseCoin": "SOL",
       "deliveryTime": "1790323200000",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "SOLUSDT-28AUG26",
-      "category": "linear",
-      "frente": "SOLUSDT-28AUG26_FUTURO",
-      "contractType": "LinearFutures",
-      "settleCoin": "USDT",
-      "baseCoin": "SOL",
-      "deliveryTime": "1787904000000",
       "min_order_usd": 5.0
     },
     {
@@ -14324,6 +14353,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "XAUTUSDT-18SEP26",
+      "category": "linear",
+      "frente": "XAUTUSDT-18SEP26_FUTURO",
+      "contractType": "LinearFutures",
+      "settleCoin": "USDT",
+      "baseCoin": "XAUT",
+      "deliveryTime": "1789718400000",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "XAUTUSDT-25SEP26",
       "category": "linear",
       "frente": "XAUTUSDT-25SEP26_FUTURO",
@@ -14331,16 +14370,6 @@
       "settleCoin": "USDT",
       "baseCoin": "XAUT",
       "deliveryTime": "1790323200000",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "XAUTUSDT-28AUG26",
-      "category": "linear",
-      "frente": "XAUTUSDT-28AUG26_FUTURO",
-      "contractType": "LinearFutures",
-      "settleCoin": "USDT",
-      "baseCoin": "XAUT",
-      "deliveryTime": "1787904000000",
       "min_order_usd": 5.0
     },
     {
@@ -14364,6 +14393,16 @@
       "min_order_usd": 5.0
     },
     {
+      "symbol": "XRPUSDT-18SEP26",
+      "category": "linear",
+      "frente": "XRPUSDT-18SEP26_FUTURO",
+      "contractType": "LinearFutures",
+      "settleCoin": "USDT",
+      "baseCoin": "XRP",
+      "deliveryTime": "1789718400000",
+      "min_order_usd": 5.0
+    },
+    {
       "symbol": "XRPUSDT-25SEP26",
       "category": "linear",
       "frente": "XRPUSDT-25SEP26_FUTURO",
@@ -14371,16 +14410,6 @@
       "settleCoin": "USDT",
       "baseCoin": "XRP",
       "deliveryTime": "1790323200000",
-      "min_order_usd": 5.0
-    },
-    {
-      "symbol": "XRPUSDT-28AUG26",
-      "category": "linear",
-      "frente": "XRPUSDT-28AUG26_FUTURO",
-      "contractType": "LinearFutures",
-      "settleCoin": "USDT",
-      "baseCoin": "XRP",
-      "deliveryTime": "1787904000000",
       "min_order_usd": 5.0
     }
   ],
@@ -14555,7 +14584,6 @@
     "BTTUSDT_SPOT",
     "C98USDT_SPOT",
     "CAKEUSDT_SPOT",
-    "CAMPUSDT_SPOT",
     "CAPUSDT_SPOT",
     "CARVUSDT_SPOT",
     "CATIEUR_SPOT",
@@ -14585,7 +14613,6 @@
     "CRVUSDT_SPOT",
     "CSPRUSDT_SPOT",
     "CTCUSDT_SPOT",
-    "CUDISUSDT_SPOT",
     "CYBERUSDT_SPOT",
     "DATAUSDT_SPOT",
     "DBRUSDT_SPOT",
@@ -14609,7 +14636,6 @@
     "EGLDUSDT_SPOT",
     "EIGENUSDC_SPOT",
     "EIGENUSDT_SPOT",
-    "ELIZAOSUSDT_SPOT",
     "ELSAUSDT_SPOT",
     "ENAEUR_SPOT",
     "ENAUSDC_SPOT",
@@ -14809,14 +14835,12 @@
     "PEPEUSDC_SPOT",
     "PEPEUSDT_SPOT",
     "PIEVERSEUSDT_SPOT",
-    "PIRATEUSDT_SPOT",
     "PLUMEUSDT_SPOT",
     "PNUTUSDT_SPOT",
     "POLUSDC_SPOT",
     "POLUSDT_SPOT",
     "POPCATUSDT_SPOT",
     "PORTALUSDT_SPOT",
-    "PRCLUSDT_SPOT",
     "PRIMEUSDT_SPOT",
     "PROVEUSDT_SPOT",
     "PSGUSDT_SPOT",
@@ -14896,13 +14920,11 @@
     "SUSDC_SPOT",
     "SUSDT_SPOT",
     "SUSHIUSDT_SPOT",
-    "SVLUSDT_SPOT",
     "SWELLUSDC_SPOT",
     "SWELLUSDT_SPOT",
     "SXTUSDT_SPOT",
     "TACUSDT_SPOT",
     "TAIKOUSDT_SPOT",
-    "TAIUSDT_SPOT",
     "TAUSDT_SPOT",
     "TELUSDT_SPOT",
     "THETAUSDT_SPOT",
@@ -14919,7 +14941,6 @@
     "TRXUSDC_SPOT",
     "TRXUSDT_SPOT",
     "TSLAXUSDT_SPOT",
-    "TUSDUSDT_SPOT",
     "TWTUSDT_SPOT",
     "UMAUSDT_SPOT",
     "UNIUSDC_SPOT",
@@ -14962,7 +14983,6 @@
     "WCTUSDT_SPOT",
     "WEMIXUSDT_SPOT",
     "WETUSDT_SPOT",
-    "WHITEWHALEUSDT_SPOT",
     "WIFUSDC_SPOT",
     "WIFUSDT_SPOT",
     "WLDUSDC_SPOT",
@@ -15038,7 +15058,6 @@
     "ACHUSDT_LINEAL",
     "ACTUSDT_LINEAL",
     "ACUUSDT_LINEAL",
-    "ACXUSDT_LINEAL",
     "ADAUSDT_LINEAL",
     "ADBEUSDT_LINEAL",
     "ADIUSDT_LINEAL",
@@ -15231,6 +15250,7 @@
     "DELLUSDT_LINEAL",
     "DEXEUSDT_LINEAL",
     "DIAUSDT_LINEAL",
+    "DJTUSDT_LINEAL",
     "DKNGUSDT_LINEAL",
     "DOGEPERP_LINEAL",
     "DOGEUSDT_LINEAL",
@@ -15352,10 +15372,12 @@
     "IDUSDT_LINEAL",
     "ILVUSDT_LINEAL",
     "IMXUSDT_LINEAL",
+    "INFQUSDT_LINEAL",
     "INITUSDT_LINEAL",
     "INJPERP_LINEAL",
     "INJUSDT_LINEAL",
     "INTCUSDT_LINEAL",
+    "INTUUSDT_LINEAL",
     "INTWUSDT_LINEAL",
     "INUSDT_LINEAL",
     "INXUSDT_LINEAL",
@@ -15427,6 +15449,7 @@
     "MAUSDT_LINEAL",
     "MAVIAUSDT_LINEAL",
     "MAVUSDT_LINEAL",
+    "MCDUSDT_LINEAL",
     "MEGAUSDT_LINEAL",
     "MEITUANUSDT_LINEAL",
     "MELANIAUSDT_LINEAL",
@@ -15459,6 +15482,7 @@
     "MRVLUSDT_LINEAL",
     "MSFTUSDT_LINEAL",
     "MSTRUSDT_LINEAL",
+    "MSTUUSDT_LINEAL",
     "MTLUSDT_LINEAL",
     "MUBARAKUSDT_LINEAL",
     "MUSDT_LINEAL",
@@ -15479,6 +15503,7 @@
     "NIGHTPERP_LINEAL",
     "NIGHTUSDT_LINEAL",
     "NILUSDT_LINEAL",
+    "NIULAIUSDT_LINEAL",
     "NMRUSDT_LINEAL",
     "NOKIAUSDT_LINEAL",
     "NOMUSDT_LINEAL",
@@ -15560,6 +15585,7 @@
     "QQQUSDT_LINEAL",
     "QTUMUSDT_LINEAL",
     "QUSDT_LINEAL",
+    "RAMUSDT_LINEAL",
     "RAREUSDT_LINEAL",
     "RAVEUSDT_LINEAL",
     "RAYDIUMUSDT_LINEAL",
@@ -15642,6 +15668,7 @@
     "SPKUSDT_LINEAL",
     "SPORTFUNUSDT_LINEAL",
     "SPOTUSDT_LINEAL",
+    "SPXLUSDT_LINEAL",
     "SPXPERP_LINEAL",
     "SPXUSDT_LINEAL",
     "SPYUSDT_LINEAL",
@@ -15681,6 +15708,7 @@
     "TIAUSDT_LINEAL",
     "TLMUSDT_LINEAL",
     "TMFUSDT_LINEAL",
+    "TMXUSDT_LINEAL",
     "TNSRUSDT_LINEAL",
     "TOWNSUSDT_LINEAL",
     "TQQQUSDT_LINEAL",
@@ -15765,6 +15793,8 @@
     "XLKUSDT_LINEAL",
     "XLMPERP_LINEAL",
     "XLMUSDT_LINEAL",
+    "XLPUSDT_LINEAL",
+    "XLUUSDT_LINEAL",
     "XLVUSDT_LINEAL",
     "XMRPERP_LINEAL",
     "XMRUSDT_LINEAL",
@@ -15827,44 +15857,44 @@
   "frentes_linear_futures": [
     "BTCUSDT-04SEP26_FUTURO",
     "BTCUSDT-11SEP26_FUTURO",
+    "BTCUSDT-18SEP26_FUTURO",
     "BTCUSDT-25DEC26_FUTURO",
     "BTCUSDT-25JUN27_FUTURO",
     "BTCUSDT-25SEP26_FUTURO",
     "BTCUSDT-26MAR27_FUTURO",
-    "BTCUSDT-28AUG26_FUTURO",
     "BTCUSDT-30OCT26_FUTURO",
     "DOGEUSDT-04SEP26_FUTURO",
     "DOGEUSDT-11SEP26_FUTURO",
+    "DOGEUSDT-18SEP26_FUTURO",
     "DOGEUSDT-25SEP26_FUTURO",
-    "DOGEUSDT-28AUG26_FUTURO",
     "ETHUSDT-04SEP26_FUTURO",
     "ETHUSDT-11SEP26_FUTURO",
+    "ETHUSDT-18SEP26_FUTURO",
     "ETHUSDT-25DEC26_FUTURO",
     "ETHUSDT-25JUN27_FUTURO",
     "ETHUSDT-25SEP26_FUTURO",
     "ETHUSDT-26MAR27_FUTURO",
-    "ETHUSDT-28AUG26_FUTURO",
     "ETHUSDT-30OCT26_FUTURO",
     "HYPEUSDT-04SEP26_FUTURO",
     "HYPEUSDT-11SEP26_FUTURO",
+    "HYPEUSDT-18SEP26_FUTURO",
     "HYPEUSDT-25SEP26_FUTURO",
-    "HYPEUSDT-28AUG26_FUTURO",
     "MNTUSDT-04SEP26_FUTURO",
     "MNTUSDT-11SEP26_FUTURO",
+    "MNTUSDT-18SEP26_FUTURO",
     "MNTUSDT-25SEP26_FUTURO",
-    "MNTUSDT-28AUG26_FUTURO",
     "SOLUSDT-04SEP26_FUTURO",
     "SOLUSDT-11SEP26_FUTURO",
+    "SOLUSDT-18SEP26_FUTURO",
     "SOLUSDT-25SEP26_FUTURO",
-    "SOLUSDT-28AUG26_FUTURO",
     "XAUTUSDT-04SEP26_FUTURO",
     "XAUTUSDT-11SEP26_FUTURO",
+    "XAUTUSDT-18SEP26_FUTURO",
     "XAUTUSDT-25SEP26_FUTURO",
-    "XAUTUSDT-28AUG26_FUTURO",
     "XRPUSDT-04SEP26_FUTURO",
     "XRPUSDT-11SEP26_FUTURO",
-    "XRPUSDT-25SEP26_FUTURO",
-    "XRPUSDT-28AUG26_FUTURO"
+    "XRPUSDT-18SEP26_FUTURO",
+    "XRPUSDT-25SEP26_FUTURO"
   ],
   "frentes_inverse_futures": [
     "BTCUSDU26_FUTURO",

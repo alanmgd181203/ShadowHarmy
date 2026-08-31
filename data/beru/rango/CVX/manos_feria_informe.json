@@ -1,0 +1,85 @@
+{
+  "ts": 1788210445.6548836,
+  "duracion_s": 26118.2,
+  "manos": true,
+  "mercado": "linear",
+  "perfil_beru": "feria",
+  "activo": "CVX",
+  "contadores": {
+    "eventos": 4,
+    "errores": 0,
+    "por_evento": {
+      "ARMAR_ABAJO": 1,
+      "OZ_COSECHA": 2,
+      "ARMAR_SANGRE": 1
+    }
+  },
+  "last": 2.2184,
+  "snapshot": {
+    "oficio": "RANGO",
+    "activo": "CVX",
+    "manos": true,
+    "geometria": {
+      "oficio": "RANGO",
+      "perfil": "feria",
+      "mercado": "linear",
+      "vacio_pct": 0.022,
+      "vacio_rol": "activacion_trailing",
+      "oz_gap_pct": 0.002,
+      "oz_modo": "trailing_callback",
+      "red_activacion_pct": 0.012,
+      "red_activacion_long_pct": 0.012,
+      "red_activacion_short_pct": 0.012,
+      "red_desde_oz_pct": 0.012,
+      "red_modo": "trailing",
+      "red_callback_pct": 0.002,
+      "sangre_pct": 0.022,
+      "sangre_rol": "activacion_trailing",
+      "masa_usd": 5.0,
+      "masa_red_usd": 5.0,
+      "masa_sangre_usd": 5.0,
+      "trailing_pct": 0.002,
+      "engorde_usd": 1.0,
+      "engorde_paso_pct": 0.002,
+      "cero": "wake",
+      "nacimiento": "cinco_usd",
+      "engorde": "desde_activacion",
+      "saco_techo": "sin_tope",
+      "ladder_red": "si"
+    },
+    "vivo": {
+      "uid": "RANGO_CVX_6401c242",
+      "estado": "ACECHANDO",
+      "direccion": "",
+      "cero": 2.2209,
+      "oz": 0.0,
+      "oz_despliegue": 2.2335,
+      "red": 2.260302,
+      "trail_extremo": 0.0,
+      "masa": 0.0,
+      "saco_long": 6.0,
+      "saco_short": 7.0,
+      "sangre_lado": "ABAJO",
+      "sangre": 2.184363,
+      "sangre_adan": 2.184363,
+      "cosechas": 2,
+      "escalones_red": 0,
+      "ultima_hoz_direccion": "SHORT",
+      "altar_link_id": "",
+      "altar_order_id": "",
+      "altar_trigger_price": 0.0,
+      "altar_revision": 2,
+      "altar_order_status": ""
+    }
+  },
+  "eventos_path": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\CVX\\manos_feria_eventos.jsonl",
+  "posicion": [
+    {
+      "lado": "LONG",
+      "qty": 25.56,
+      "precio": 2.2463714,
+      "masa_usd": 57.4173
+    }
+  ],
+  "last_lineal": 2.2184
+}
