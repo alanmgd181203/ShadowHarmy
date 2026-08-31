@@ -140,11 +140,11 @@ BERU_RANGO_PERFILES = {
         "TRAILING_PCT": 0.002,
     },
     "feria": {
-        # Monedas violentas: silbatos duplicados · engorde $1 / 0.2%
-        "VACIO_PCT": 0.024,
+        # Monedas violentas: orejas feria (Monarca 2026-08-31: 2,2% / Red 1,2%)
+        "VACIO_PCT": 0.022,
         "OZ_GAP_PCT": 0.004,
-        "RED_DESDE_OZ_PCT": 0.014,
-        "SANGRE_PCT": 0.024,
+        "RED_DESDE_OZ_PCT": 0.012,
+        "SANGRE_PCT": 0.022,
         "MASA_USD": 5.0,
         "MASA_RED_USD": 5.0,
         "MASA_SANGRE_USD": 5.0,

@@ -1,5 +1,5 @@
 # Shadow Army - Despertar Santos Beru rango FERIA (Windows, background)
-# Perfil feria: orejas x2 (Vacío/Sangre ±2,4 % · Oz 0,4 % · Red 1,4 % simétrica L=S).
+# Perfil feria: orejas 2,2% (Vacío/Sangre) · Oz 0,4% · Red 1,2% simétrica L=S.
 # Sellos aislados: manos_feria_* (no pisa manos_informe.json normal).
 #
 # Uso:

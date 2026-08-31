@@ -1,4 +1,4 @@
-# Relanzar todo el ejercito feria lineal con geometria nueva (Red simetrica + engorde 0.2%)
+# Relanzar todo el ejercito feria lineal con geometria nueva (2,2% / Red 1,2%)
 param(
     [int]$BatchSize = 25,
     [int]$EscalonSegundos = 30
@@ -69,7 +69,7 @@ foreach ($lot in $lotes) {
             $rl = $j.snapshot.geometria.red_activacion_long_pct
             $rs = $j.snapshot.geometria.red_activacion_short_pct
             $ep = $j.snapshot.geometria.engorde_paso_pct
-            if ($j.snapshot.vivo.estado -eq "ACECHANDO" -and $rl -eq $rs -and $ep -eq 0.002) {
+            if ($j.snapshot.vivo.estado -eq "ACECHANDO" -and $rl -eq $rs -and $rl -eq 0.012 -and $ep -eq 0.002) {
                 $ok++
             } else {
                 $fail++

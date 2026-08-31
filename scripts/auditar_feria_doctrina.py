@@ -12,9 +12,9 @@ LISTA = RANGO / "feria_ejercito_147.txt"
 
 FERIA = {
     "perfil": "feria",
-    "vacio_pct": 0.024,
+    "vacio_pct": 0.022,
     "oz_gap_pct": 0.004,
-    "red_pct": 0.014,
+    "red_pct": 0.012,
     "engorde_paso_pct": 0.002,
     "engorde_usd": 1.0,
     "masa_usd": 5.0,

@@ -16,11 +16,11 @@
   },
   "feria_paralelo": {
     "activar": "BERU_RANGO_PERFIL=feria",
-    "vacio_sangre_pct": 0.024,
+    "vacio_sangre_pct": 0.022,
     "oz_callback_pct": 0.004,
-    "red_long_pct": 0.014,
-    "red_short_pct": 0.014,
-    "red_pct": 0.014,
+    "red_long_pct": 0.012,
+    "red_short_pct": 0.012,
+    "red_pct": 0.012,
     "masa_nacimiento_usd": 5.0,
     "engorde_usd": 1.0,
     "engorde_paso_pct": 0.002
