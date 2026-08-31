@@ -313,7 +313,7 @@ async def simular_rango(
             f"(arriba {_fmt_px(px0*(1+vac))}, abajo {_fmt_px(px0*(1-vac))}). "
             f"Masa por tramo ${beru_rango.masa_tramo_usd():.2f}. "
             f"Al tocar un lado, el otro se pega a ±1,2% de la Oz. "
-            f"Un vivo · wake eterno · engorde $1/0.1%."
+            f"Un vivo · wake eterno · engorde $1/0.2%."
         ),
         precio=px0,
         niveles=_niveles_de(beru),
