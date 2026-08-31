@@ -12,7 +12,7 @@ Todo el molino es **trailing stop**:
 **0 absoluto = wake** (no se mueve con Oz ni fill).  
 **Fill = plata (Tusk)** · **Peldaño Oz = mapa (Red)**.  
 **Nacimiento = $5** en Vacío, Red y Sangre.  
-**Engorde = +$1 / 0,1 % solo desde el precio de activación** (no recontar el camino desde wake).  
+**Engorde = +$1 / 0,2 % solo desde el precio de activación** (no recontar el camino desde wake).  
 **Ledger saco** = bitácora LONG/SHORT (panel · teatro) — **no frena** Vacío ni Red.
 
 ## Geometría
@@ -23,10 +23,10 @@ Todo el molino es **trailing stop**:
 | Vacío (semilla) | **Activación** | ±**1,2 %** desde el **wake** |
 | Sangre (post-Oz) | **Activación** | ±**1,2 %** desde el **peldaño Oz** (lado contrario) |
 | Oz | **Callback** | **0,2 %** detrás del extremo |
-| Red | **Activación** | **0,7 %** desde **Oz desplegada** (LONG y SHORT iguales) |
-| Meta saco | Referencia a profundidad | **$5 + $1 × peldaños 0,1 % desde wake** (informativa) |
+| Red | **Activación** | **0,7 %** desde **Oz desplegada** (LONG=SHORT simétrica) |
+| Meta saco | Referencia a profundidad | **$5 + $1 × peldaños 0,2 % desde wake** (informativa) |
 | Nacimiento Vacío / Red / Sangre | Lo que se arma al nacer | **$5** |
-| Engorde (todos) | Mientras CAZA | **+$1 / 0,1 % desde precio de activación** |
+| Engorde (todos) | Mientras CAZA | **+$1 / 0,2 % desde precio de activación** |
 | Sangre gana | | **elimina** Red · arma trailing $5 |
 | Misma vela | | **sangre primero** |
 
@@ -40,7 +40,7 @@ Todo el molino es **trailing stop**:
 
 1. Wake → **0 absoluto** · ledger saco LONG/SHORT = 0.  
 2. Vacío → **$5** · trailing; si Oz sigue desde la activación, engorda.  
-3. Oz detona → suma masa al saco del lado · wake intacto · planta sangre (1,2 % del peldaño Oz, contraria) + Red (**0,7 %** del mismo ancla · LONG=SHORT).  
+3. Oz detona → suma masa al saco del lado · wake intacto · planta sangre (1,2 % del peldaño Oz, contraria) + Red (**0,7 %** simétrica del mismo ancla).  
 4. Red → **$5** · engorde desde activación · **siempre puede re-armar** (saco no corta) · al cosechar Oz otra vez, la sangre **renace** junto al nuevo peldaño (no se queda en el wake).  
 5. Sangre → **$5** · engorde desde activación · mata Red.  
 6. Manos ON: Stop Oz + amend; Market si hace falta.
@@ -52,7 +52,7 @@ Todo el molino es **trailing stop**:
 | `BERU_RANGO_PERFIL` | `normal` (o `feria`) |
 | `BERU_RANGO_MASA_USD` / `MASA_RED` / `MASA_SANGRE` | 5 |
 | `BERU_RANGO_ENGORDE_USD` | 1 |
-| `BERU_RANGO_ENGORDE_PASO_PCT` | 0.001 (normal) · 0.002 (feria) |
+| `BERU_RANGO_ENGORDE_PASO_PCT` | 0.002 (normal y feria) |
 | `BERU_RANGO_MANOS` | false |
 
 ### Perfil feria (paralelo — monedas violentas)
@@ -63,8 +63,8 @@ No sustituye al normal. Checkpoint del canónico: `data/beru/rango/checkpoint_do
 |-------|-------:|------:|
 | Vacío (semilla) / sangre (post-Oz) | 1,2 % | **2,4 %** |
 | Oz callback | 0,2 % | **0,4 %** |
-| Red | 0,7 % | **1,4 %** |
-| Engorde | +$1 / 0,1 % | +$1 / **0,2 %** |
+| Red | 0,7 % | **1,4 %** (simétrica) |
+| Engorde | +$1 / 0,2 % | +$1 / **0,2 %** |
 | Nacimiento | $5 | $5 |
 
 ```powershell

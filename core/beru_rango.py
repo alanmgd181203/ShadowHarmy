@@ -2,8 +2,8 @@
 
 Doctrina Monarca 2026-08-22 (cirugía saco) · sin tope meta−ya (2026-08-23):
   · 0 absoluto = wake (no se mueve con Oz ni fill)
-  · Perfil normal: Vacío/sangre ±1,2 % · Oz 0,2 % · Red 0,7 % (LONG=SHORT) · +$1/0,1 %
-  · Perfil feria (paralelo): ±2,4 % · Oz 0,4 % · Red 1,4 % (LONG=SHORT) · +$1/0,2 %
+  · Perfil normal: Vacío/sangre ±1,2 % · Oz 0,2 % · Red 0,7 % simétrica · +$1/0,2 %
+  · Perfil feria (paralelo): ±2,4 % · Oz 0,4 % · Red 1,4 % simétrica · +$1/0,2 %
   · Vacío/Red/Sangre nacen $5; engorde desde activación; escalera sin tope
   · Ledger saco = bitácora (no bloquea Vacío/Red)
   · Misma vela: sangre primero · sangre mata Red
@@ -27,10 +27,7 @@ def oz_gap_pct() -> float:
 
 
 def red_activacion_pct(direccion: str | None = None) -> float:
-    """Activación Red desde Oz: mismo % LONG y SHORT (perfil normal 0,7 %).
-
-    Sin dirección → pct canónico (legado / panel).
-    """
+    """Activación Red desde Oz (simétrica LONG = SHORT)."""
     _ = direccion  # LONG / SHORT comparten geometría (Monarca 2026-08-30)
     return float(getattr(config, "BERU_RANGO_RED_DESDE_OZ_PCT", 0.007) or 0.007)
 
@@ -63,7 +60,7 @@ def engorde_paso_usd() -> float:
 
 
 def engorde_paso_pct() -> float:
-    return max(1e-9, float(getattr(config, "BERU_RANGO_ENGORDE_PASO_PCT", 0.001) or 0.001))
+    return max(1e-9, float(getattr(config, "BERU_RANGO_ENGORDE_PASO_PCT", 0.002) or 0.002))
 
 
 def piso_masa_usd(masa: float, *, minimo_bybit: float = 0.0) -> float:
@@ -72,7 +69,7 @@ def piso_masa_usd(masa: float, *, minimo_bybit: float = 0.0) -> float:
 
 
 def peldaños_entre(a: float, b: float) -> int:
-    """Cuántos pasos de 0,1 % hay entre dos precios (referencia = a)."""
+    """Cuántos pasos de engorde hay entre dos precios (referencia = a)."""
     a0 = float(a or 0)
     b0 = float(b or 0)
     if a0 <= 0 or b0 <= 0:
@@ -285,7 +282,13 @@ def despertar(beru: Any, precio: float, *, activo: str = "") -> None:
     beru.rango_escalones_red = 0
     beru.origen_tramo = ""
     if activo:
-        beru.frente_asignado = f"{str(activo).upper()}USDT_LINEAL"
+        m = str(
+            getattr(config, "BERU_RANGO_MERCADO", "linear") or "linear"
+        ).strip().lower()
+        if m == "inverse":
+            beru.frente_asignado = f"{str(activo).upper()}USD_INVERSE"
+        else:
+            beru.frente_asignado = f"{str(activo).upper()}USDT_LINEAL"
 
 
 def marcar_visto_dentro(beru: Any, precio: float) -> None:
@@ -940,7 +943,7 @@ def resumen_geometria() -> dict[str, float | str]:
     return {
         "oficio": "RANGO",
         "perfil": perfil,
-        "mercado": "linear",
+        "mercado": str(getattr(config, "BERU_RANGO_MERCADO", "linear") or "linear").lower(),
         "vacio_pct": vacio_adan_pct(),
         "vacio_rol": "activacion_trailing",
         "oz_gap_pct": trailing_dist_pct(),

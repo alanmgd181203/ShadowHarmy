@@ -38,12 +38,13 @@ def _assert_geometria() -> None:
     assert abs(float(g["red_activacion_long_pct"]) - 0.007) < 1e-12
     assert abs(float(g["red_activacion_short_pct"]) - 0.007) < 1e-12
     assert abs(float(g["red_activacion_pct"]) - 0.007) < 1e-12
+    assert abs(float(g["engorde_paso_pct"]) - 0.002) < 1e-12
     assert g["cero"] == "wake"
     assert g["nacimiento"] == "cinco_usd"
     assert g["engorde"] == "desde_activacion"
     assert g["saco_techo"] == "sin_tope"
-    assert abs(br.meta_saco_usd(100.0, 101.2) - 17.0) < 1e-9  # techo 1.2% → 12+$5
-    assert abs(br.meta_saco_usd(100.0, 102.0) - 25.0) < 1e-9  # techo 2.0% → 20+$5
+    assert abs(br.meta_saco_usd(100.0, 101.2) - 11.0) < 1e-9  # 1.2% / 0.2% = 6 peldaños → $11
+    assert abs(br.meta_saco_usd(100.0, 102.0) - 15.0) < 1e-9  # 2.0% / 0.2% = 10 → $15
     print("  geometria + meta_saco numeros OK")
 
 
@@ -54,25 +55,25 @@ def _assert_vacio_cinco_y_escalera() -> None:
     br.toca_vacio(b, 100.0)
     m1 = br.armar_tramo_desde_vacio(b, "ABAJO", precio=98.8)
     assert abs(m1 - 5.0) < 1e-9, f"Vacío debe nacer en 5, got {m1}"
-    # Avanza ~0.3% desde ancla → $8 (no meta wake)
+    # Avanza ~0.3% desde ancla → 1 peldaño 0.2% → $6
     br.actualizar_trailing_oz(b, 98.8 * 0.997)
-    assert abs(float(b.masa) - 8.0) < 1e-9, f"engorde Vacío desde ancla → 8, got {b.masa}"
+    assert abs(float(b.masa) - 6.0) < 1e-9, f"engorde Vacío desde ancla → 6, got {b.masa}"
     br.cosechar_oz_y_mover_cero(b, float(b.oz_adan))
-    assert abs(br.saco_lado_usd(b, "LONG") - 8.0) < 1e-9
+    assert abs(br.saco_lado_usd(b, "LONG") - 6.0) < 1e-9
     assert abs(br.cero_wake(b) - 100.0) < 1e-9
 
     # Red a ~2.2%: meta informativa 27; saco 8 no bloquea → nace $5
     assert float(b.red_adan) > 0
     b.red_adan = 97.8
     meta = br.meta_en_profundidad_usd(b, lado="LONG", precio=97.8, origen="RED")
-    assert abs(meta - 27.0) < 1e-9, meta
+    assert abs(meta - 16.0) < 1e-9, meta
     m2 = br.armar_tramo_desde_red(b, precio=97.8)
     assert abs(m2 - 5.0) < 1e-9, f"Red debe nacer en 5, got {m2}"
-    # Engorde libre (~14 peldaños → $19)
+    # Engorde libre (~7 peldaños 0.2% → $12)
     br.actualizar_trailing_oz(b, 97.8 * (1.0 - 0.014))
-    assert abs(float(b.masa) - 19.0) < 1e-9, f"Red engorda hasta 19, got {b.masa}"
+    assert abs(float(b.masa) - 12.0) < 1e-9, f"Red engorda hasta 12, got {b.masa}"
     br.cosechar_oz_y_mover_cero(b, float(b.oz_adan))
-    assert abs(br.saco_lado_usd(b, "LONG") - 27.0) < 1e-9
+    assert abs(br.saco_lado_usd(b, "LONG") - 18.0) < 1e-9
     print("  Vacío/Red $5 + engorde + escalera sin tope OK")
 
 
@@ -111,7 +112,7 @@ def _assert_sangre_cinco_luego_engorde() -> None:
     assert abs(float(b.masa) - 5.0) < 1e-9
     # Avanza ~0.3% desde ancla 101.2 → 101.504
     br.actualizar_trailing_oz(b, 101.2 * 1.003)
-    assert abs(float(b.masa) - 8.0) < 1e-9, f"engorde desde ancla → 8, got {b.masa}"
+    assert abs(float(b.masa) - 6.0) < 1e-9, f"engorde desde ancla → 6, got {b.masa}"
     assert b.oreja_red_activa is False
     print("  sangre $5 nace + engorde desde activacion OK")
 
@@ -136,7 +137,7 @@ def _assert_red_fill_simetrica() -> None:
     br.cosechar_oz_y_mover_cero(b2, fill_peor, oz_despliegue=oz2)
     assert abs(b2.red_adan - fill_peor * 1.007) < 1e-9
 
-    # LONG: Red sigue en 0,7 %
+    # LONG: Red 0,7 % simétrica
     b3 = BeruShip(uid="RF3", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
     br.despertar(b3, 100.0, activo="ETH")
     br.toca_vacio(b3, 100.0)
@@ -145,7 +146,7 @@ def _assert_red_fill_simetrica() -> None:
     oz3 = float(b3.oz_adan)
     br.cosechar_oz_y_mover_cero(b3, oz3 * 1.001, oz_despliegue=oz3)
     assert abs(b3.red_adan - oz3 * 0.993) < 1e-9
-    print("  Red simétrica LONG=SHORT 0,7 % OK")
+    print("  Red simétrica 0,7 % LONG=SHORT OK")
 
 
 async def _assert_general() -> None:
@@ -156,12 +157,12 @@ async def _assert_general() -> None:
     assert r.get("evento") == "ARMAR_ARRIBA"
     assert abs(float(r.get("masa") or 0) - 5.0) < 1e-9, r.get("masa")
     await g.pulso(102.0)
-    # Desde ancla 101.2 → 102 ≈ 0,79 % → 7 peldaños → $12 (techo meta 25)
-    assert abs(float(g.vivo.masa) - 12.0) < 1e-9, g.vivo.masa
+    # Desde ancla 101.2 → 102 ≈ 0,79 % → 3 peldaños 0,2% → $8
+    assert abs(float(g.vivo.masa) - 8.0) < 1e-9, g.vivo.masa
     cosecha = await g.pulso(g.vivo.oz_adan)
     assert cosecha.get("evento") == "OZ_COSECHA"
     assert abs(float(cosecha.get("cero") or 0) - 100.0) < 1e-9
-    assert abs(float(getattr(g.vivo, "saco_short_usd", 0) or 0) - 12.0) < 1e-9
+    assert abs(float(getattr(g.vivo, "saco_short_usd", 0) or 0) - 8.0) < 1e-9
     r5 = await g.pulso(g.vivo.red_adan)
     assert r5.get("evento") == "ARMAR_RED"
     assert abs(float(r5.get("masa") or 0) - 5.0) < 1e-9, r5.get("masa")
@@ -234,6 +235,8 @@ def _assert_sangre_desde_oz_no_wake() -> None:
 
 def main() -> int:
     print("[SMOKE] beru rango doctrina nace $5 / engorde 2026-08-22")
+    import core.config as config
+    config.aplicar_perfil_beru_rango("normal")
     _assert_geometria()
     _assert_vacio_cinco_y_escalera()
     _assert_retrace_saco_gordo_no_bloquea()

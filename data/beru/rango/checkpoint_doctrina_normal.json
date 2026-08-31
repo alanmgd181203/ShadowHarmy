@@ -1,7 +1,7 @@
 {
   "sello": "2026-08-30",
   "perfil": "normal",
-  "nota": "Checkpoint Monarca: Red LONG=SHORT 0,7%. Perfil feria en paralelo (BERU_RANGO_PERFIL=feria).",
+  "nota": "Checkpoint Monarca: Red simétrica LONG=SHORT · engorde +$1/0,2% (normal y feria).",
   "geometria": {
     "vacio_sangre_pct": 0.012,
     "oz_callback_pct": 0.002,
@@ -10,7 +10,7 @@
     "red_pct": 0.007,
     "masa_nacimiento_usd": 5.0,
     "engorde_usd": 1.0,
-    "engorde_paso_pct": 0.001,
+    "engorde_paso_pct": 0.002,
     "cero": "wake_eterno",
     "saco_techo": "sin_tope"
   },

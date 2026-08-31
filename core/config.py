@@ -124,6 +124,7 @@ BERU_API_COOLDOWN_S = float(os.getenv("BERU_API_COOLDOWN_S", "0.5") or 0.5)
 # --- Beru rango (lineal) 2026-08-22 — wake eterno · Red desde Oz · engorde CAZANDO ---
 # Perfiles: normal (default) · feria (orejas x2 · engorde +$1/0.2% · masa $5)
 # Red simétrica (Monarca 2026-08-30): LONG y SHORT mismo % · SHORT ya no +0,1 % extra
+# Engorde canónico: +$1 / 0,2 % por peldaño (normal y feria)
 # Checkpoint normal: data/beru/rango/checkpoint_doctrina_normal.json
 BERU_RANGO_PERFILES = {
     "normal": {
@@ -135,11 +136,11 @@ BERU_RANGO_PERFILES = {
         "MASA_RED_USD": 5.0,
         "MASA_SANGRE_USD": 5.0,
         "ENGORDE_USD": 1.0,
-        "ENGORDE_PASO_PCT": 0.001,
+        "ENGORDE_PASO_PCT": 0.002,
         "TRAILING_PCT": 0.002,
     },
     "feria": {
-        # Monedas violentas: silbatos duplicados · engorde más lento ($1 / 0.2%)
+        # Monedas violentas: silbatos duplicados · engorde $1 / 0.2%
         "VACIO_PCT": 0.024,
         "OZ_GAP_PCT": 0.004,
         "RED_DESDE_OZ_PCT": 0.014,
@@ -231,9 +232,14 @@ MANTO_LEVERAGE_LINEAR_MAX_BY_ASSET: dict[str, float] = {
     "AAVE": 75, "ADA": 75, "APT": 50, "ARB": 50, "ATOM": 75,
     "AVAX": 50, "BCH": 50, "BTC": 100, "DOGE": 75, "DOT": 50,
     "ETC": 50, "ETH": 100, "FIL": 25, "HYPE": 75, "LINK": 50,
-    "LTC": 50, "MATIC": 75, "MNT": 25, "NEAR": 50, "OP": 50,
-    "SOL": 100, "SUI": 50, "UNI": 50, "WIF": 50, "XLM": 50,
+    "LTC": 50, "MATIC": 75, "MNT": 25, "NEAR": 75, "OP": 50,
+    "SOL": 100, "SUI": 50, "UNI": 50, "WIF": 50, "XLM": 75,
     "XRP": 100,
+    # Beru rango vivos (instruments-info 2026-08-26)
+    "AIGENSYN": 20, "ARC": 12, "AVAAI": 20, "CVX": 75, "ESP": 50,
+    "GMT": 50, "LIT": 75, "MON": 50, "MRVL": 50, "PEOPLE": 50,
+    "PIEVERSE": 20, "SOXL": 50, "TRB": 50, "UB": 20, "VVV": 20,
+    "ZEREBRO": 12,
 }
 MANTO_LEVERAGE_INVERSE_MAX_BY_ASSET: dict[str, float] = {
     "AAVE": 20, "ADA": 50, "APT": 20, "AVAX": 20, "BCH": 20,
@@ -250,9 +256,14 @@ MANTO_RISK_HEADROOM_PCT = float(os.getenv("MANTO_RISK_HEADROOM_PCT", "0.80"))
 MANTO_LEVERAGE_LINEAR_UTIL_BY_ASSET: dict[str, float] = {
     "AAVE": 75, "ADA": 75, "APT": 50, "AVAX": 50, "BCH": 50,
     "BTC": 100, "DOGE": 75, "DOT": 50, "ETC": 50, "ETH": 100,
-    "FIL": 25, "HYPE": 50, "LINK": 50,
-    "LTC": 50, "MNT": 25, "NEAR": 50, "OP": 50, "SOL": 100,
-    "SUI": 50, "UNI": 50, "XLM": 50, "XRP": 100,
+    "FIL": 25, "HYPE": 75, "LINK": 50,
+    "LTC": 50, "MNT": 25, "NEAR": 75, "OP": 50, "SOL": 100,
+    "SUI": 50, "UNI": 50, "XLM": 75, "XRP": 100,
+    # Beru rango vivos (mismo techo Bybit; forzar max no debe pedir de menos)
+    "AIGENSYN": 20, "ARC": 12, "AVAAI": 20, "CVX": 75, "ESP": 50,
+    "GMT": 50, "LIT": 75, "MON": 50, "MRVL": 50, "PEOPLE": 50,
+    "PIEVERSE": 20, "SOXL": 50, "TRB": 50, "UB": 20, "VVV": 20,
+    "ZEREBRO": 12,
 }
 MANTO_LEVERAGE_INVERSE_UTIL_BY_ASSET: dict[str, float] = {
     "AAVE": 20, "ADA": 50, "APT": 4, "AVAX": 20, "BCH": 20,
@@ -814,6 +825,14 @@ BRIDGE_WS_PUBLIC_TRADES_LINEAR = os.getenv(
 ).lower() == "true"
 # Ritual Beru rango: solo lineal USDT (ciego a spot/inverso en el puente).
 BRIDGE_WS_SOLO_LINEAR = os.getenv("BRIDGE_WS_SOLO_LINEAR", "false").lower() == "true"
+# Ritual Beru rango inverso: solo inverse USD (ciego a spot/lineal).
+BRIDGE_WS_SOLO_INVERSE = os.getenv("BRIDGE_WS_SOLO_INVERSE", "false").lower() == "true"
+# Tratos públicos inverso (mecha Beru rango inverso).
+BRIDGE_WS_PUBLIC_TRADES_INVERSE = os.getenv(
+    "BRIDGE_WS_PUBLIC_TRADES_INVERSE", "false"
+).lower() == "true"
+# Oficio Beru rango: linear | inverse (ojos/manos del Santo).
+BERU_RANGO_MERCADO = (os.getenv("BERU_RANGO_MERCADO", "linear") or "linear").strip().lower()
 
 # Bybit HTTP: recv_window (ms). Skew ~5s del Mac→10002; 60s da colchón.
 BYBIT_RECV_WINDOW_MS = int(float(os.getenv("BYBIT_RECV_WINDOW_MS", "60000") or 60000))

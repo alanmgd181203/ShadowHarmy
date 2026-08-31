@@ -47,7 +47,7 @@ def main() -> int:
         assert abs(br.vacio_adan_pct() - 0.012) < 1e-12 or prev == "feria"
         if prev != "feria":
             assert abs(br.vacio_adan_pct() - 0.012) < 1e-12
-            assert abs(br.engorde_paso_pct() - 0.001) < 1e-12
+            assert abs(br.engorde_paso_pct() - 0.002) < 1e-12
         print("  restaurado perfil", config.BERU_RANGO_PERFIL)
 
     print("OK validar_beru_rango_feria_smoke")
