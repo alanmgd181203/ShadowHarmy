@@ -17,7 +17,7 @@
   "feria_paralelo": {
     "activar": "BERU_RANGO_PERFIL=feria",
     "vacio_sangre_pct": 0.022,
-    "oz_callback_pct": 0.004,
+    "oz_callback_pct": 0.002,
     "red_long_pct": 0.012,
     "red_short_pct": 0.012,
     "red_pct": 0.012,

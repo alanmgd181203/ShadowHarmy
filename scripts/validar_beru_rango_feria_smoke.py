@@ -22,7 +22,7 @@ def main() -> int:
         assert g["perfil"] == "feria"
         assert abs(float(g["vacio_pct"]) - 0.022) < 1e-12
         assert abs(float(g["sangre_pct"]) - 0.022) < 1e-12
-        assert abs(float(g["oz_gap_pct"]) - 0.004) < 1e-12
+        assert abs(float(g["oz_gap_pct"]) - 0.002) < 1e-12
         assert abs(float(g["red_activacion_pct"]) - 0.012) < 1e-12
         assert abs(float(g["red_activacion_long_pct"]) - 0.012) < 1e-12
         assert abs(float(g["red_activacion_short_pct"]) - 0.012) < 1e-12
@@ -39,7 +39,7 @@ def main() -> int:
         m = br.armar_tramo_desde_vacio(b, "ABAJO", precio=97.8)
         assert abs(m - 5.0) < 1e-9, m
         br.actualizar_trailing_oz(b, 97.8 * (1.0 - 0.004))
-        assert abs(float(b.masa) - 7.0) < 1e-9, f"engorde feria 0.4% → $7, got {b.masa}"
+        assert abs(float(b.masa) - 7.0) < 1e-9, f"engorde 2x0.2% → $7, got {b.masa}"
         print("  nace $5 + engorde $1/0.2% OK")
     finally:
         config.aplicar_perfil_beru_rango(prev if prev in ("normal", "feria") else "normal")

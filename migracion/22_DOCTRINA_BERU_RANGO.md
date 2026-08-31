@@ -62,7 +62,7 @@ No sustituye al normal. Checkpoint del canónico: `data/beru/rango/checkpoint_do
 | Pieza | Normal | Feria |
 |-------|-------:|------:|
 | Vacío (semilla) / sangre (post-Oz) | 1,2 % | **2,2 %** |
-| Oz callback | 0,2 % | **0,4 %** |
+| Oz callback | 0,2 % | **0,2 %** (misma distancia que normal; oreja en vacío/red) |
 | Red | 0,7 % | **1,2 %** (simétrica) |
 | Engorde | +$1 / 0,2 % | +$1 / **0,2 %** |
 | Nacimiento | $5 | $5 |

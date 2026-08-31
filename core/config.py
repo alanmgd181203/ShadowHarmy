@@ -140,9 +140,9 @@ BERU_RANGO_PERFILES = {
         "TRAILING_PCT": 0.002,
     },
     "feria": {
-        # Monedas violentas: orejas feria (Monarca 2026-08-31: 2,2% / Red 1,2%)
+        # Monedas violentas: feria apretada (Monarca 2026-08-31: 2,2 / Oz 0,2 / Red 1,2)
         "VACIO_PCT": 0.022,
-        "OZ_GAP_PCT": 0.004,
+        "OZ_GAP_PCT": 0.002,
         "RED_DESDE_OZ_PCT": 0.012,
         "SANGRE_PCT": 0.022,
         "MASA_USD": 5.0,
@@ -150,7 +150,7 @@ BERU_RANGO_PERFILES = {
         "MASA_SANGRE_USD": 5.0,
         "ENGORDE_USD": 1.0,
         "ENGORDE_PASO_PCT": 0.002,
-        "TRAILING_PCT": 0.004,
+        "TRAILING_PCT": 0.002,
     },
 }
 
