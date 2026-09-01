@@ -1,0 +1,103 @@
+{
+  "ts_utc": 1788238182.0507746,
+  "paridad_tabla": [
+    {
+      "pieza": "mercado",
+      "bybit": "lineal USDT only",
+      "okx": "lineal USDT only"
+    },
+    {
+      "pieza": "ws_tickers",
+      "bybit": "tickers.{symbol}",
+      "okx": "channel=tickers"
+    },
+    {
+      "pieza": "ws_tratos",
+      "bybit": "publicTrade.{symbol}",
+      "okx": "channel=trades"
+    },
+    {
+      "pieza": "ws_libros",
+      "bybit": "OFF (BRIDGE_WS_SUBSCRIBE_BOOKS=false)",
+      "okx": "OFF"
+    },
+    {
+      "pieza": "mecha",
+      "bybit": "registrar_print_lineal -> consumir_latido_lineal",
+      "okx": "igual"
+    },
+    {
+      "pieza": "ticker_fallback",
+      "bybit": "lastPrice -> mark -> bid/ask",
+      "okx": "last -> mark -> bid/ask"
+    },
+    {
+      "pieza": "muleta_rest",
+      "bybit": "tickers lineal público si WS >5s",
+      "okx": "igual (okx /api/v5/market/tickers)"
+    },
+    {
+      "pieza": "manos",
+      "bybit": "OFF + MODO_SIMULACION",
+      "okx": "OFF + MODO_SIMULACION"
+    },
+    {
+      "pieza": "tusk_reconcile",
+      "bybit": "posiciones Bybit",
+      "okx": "no reconcilia OKX (doctrina 23)"
+    }
+  ],
+  "flags_ritual_ok": true,
+  "probe_okx": {
+    "activo": "ETH",
+    "mar": "okx",
+    "segundos": 10.0,
+    "ok": true,
+    "muestras": [
+      {
+        "ts": 1788238177.8053124,
+        "rio_ws": true,
+        "last": 2471.13,
+        "high": 2471.14,
+        "low": 2471.13,
+        "n_prints": 9
+      },
+      {
+        "ts": 1788238178.8137999,
+        "rio_ws": true,
+        "last": 2471.13,
+        "high": 2471.14,
+        "low": 2471.13,
+        "n_prints": 12
+      },
+      {
+        "ts": 1788238179.816789,
+        "rio_ws": true,
+        "last": 2471.13,
+        "high": 2471.14,
+        "low": 2471.13,
+        "n_prints": 10
+      },
+      {
+        "ts": 1788238180.8247814,
+        "rio_ws": true,
+        "last": 2471.14,
+        "high": 2471.14,
+        "low": 2471.13,
+        "n_prints": 9
+      },
+      {
+        "ts": 1788238181.8344576,
+        "rio_ws": true,
+        "last": 2471.14,
+        "high": 2471.14,
+        "low": 2471.13,
+        "n_prints": 17
+      }
+    ],
+    "rio_alguna_vez": true,
+    "prints_alguna_vez": true
+  },
+  "veredicto": "PARIDAD_OK",
+  "nota": "Oído = tickers + tratos públicos lineal, sin libros. OKX usa mismos candados que arise_beru_rango_ojos."
+}

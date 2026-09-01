@@ -14,6 +14,7 @@ import urllib.request
 from typing import Any
 
 import core.config as config
+from core import beru_mar
 
 # Claves de frente que Beru rango PUEDE usar como ojo
 _CLAVES_LINEAL = ("USDT_LINEAL",)
@@ -77,6 +78,8 @@ def muleta_rest_necesaria(tank) -> bool:
 
 
 def _host_publico() -> str:
+    if beru_mar.es_okx():
+        return "https://www.okx.com"
     if bool(getattr(config, "TESTNET", False)):
         return "https://api-testnet.bybit.com"
     return "https://api.bybit.com"
@@ -298,6 +301,28 @@ def _get_json_publico(url: str, timeout: float = 8.0) -> dict:
 
 def _tickers_publicos(mercado: str | None = None) -> dict[str, float]:
     """lastPrice público — no usa la boca de combate."""
+    if beru_mar.es_okx():
+        url = f"{_host_publico()}/api/v5/market/tickers?instType=SWAP"
+        try:
+            payload = _get_json_publico(url)
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError):
+            return {}
+        out: dict[str, float] = {}
+        for row in (payload.get("data") or []):
+            if not isinstance(row, dict):
+                continue
+            inst = str(row.get("instId") or "")
+            if not inst.endswith("-USDT-SWAP"):
+                continue
+            act = beru_mar.inst_id_a_activo(inst)
+            sym = f"{act}USDT"
+            try:
+                px = float(row.get("last") or 0)
+            except (TypeError, ValueError):
+                continue
+            if sym and px > 0:
+                out[sym] = px
+        return out
     cat = _category_rest(mercado)
     url = f"{_host_publico()}/v5/market/tickers?category={cat}"
     try:
@@ -326,6 +351,22 @@ def _ticker_publico(symbol: str, mercado: str | None = None) -> float:
     u = str(symbol or "").strip().upper()
     if not u:
         return 0.0
+    if beru_mar.es_okx():
+        act = u[:-4] if u.endswith("USDT") else u
+        inst = beru_mar.activo_a_inst_id(act)
+        url = f"{_host_publico()}/api/v5/market/ticker?instId={inst}"
+        try:
+            payload = _get_json_publico(url)
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError):
+            return 0.0
+        lst = list(payload.get("data") or [])
+        if not lst or not isinstance(lst[0], dict):
+            return 0.0
+        try:
+            px = float(lst[0].get("last") or 0)
+        except (TypeError, ValueError):
+            return 0.0
+        return px if px > 0 else 0.0
     cat = _category_rest(mercado)
     url = f"{_host_publico()}/v5/market/tickers?category={cat}&symbol={u}"
     try:

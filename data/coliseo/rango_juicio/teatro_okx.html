@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <title>Teatro Beru — catálogo OKX (perpetuos)</title>
+  <style>
+    :root {
+      --bg: #0c1017;
+      --panel: #141a24;
+      --ink: #d5dde8;
+      --dim: #7a8699;
+      --line: rgba(255,255,255,0.08);
+      --verde: #3dd68c;
+      --amarillo: #e6c35c;
+      --rojo: #e07070;
+      --morado: #b48cff;
+      --cyan: #5ec8e8;
+      --feria: #c9a227;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 20% -10%, #1a2436 0%, var(--bg) 55%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    header { padding: 1.25rem 1.5rem 0.75rem; border-bottom: 1px solid var(--line); }
+    header h1 { margin: 0; font-size: 1.15rem; font-weight: 600; letter-spacing: 0.04em; }
+    header p { margin: 0.35rem 0 0; color: var(--dim); font-size: 0.85rem; }
+    header a { color: var(--cyan); text-decoration: none; }
+    header a:hover { text-decoration: underline; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+    }
+    .slot-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      font-size: 0.78rem;
+    }
+    .slot-card .t { color: var(--dim); margin-bottom: 0.25rem; }
+    .slot-card .n { font-size: 1.1rem; font-weight: 600; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0 1.5rem 0.75rem;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--dim);
+    }
+    .toolbar input[type="search"] {
+      min-width: 180px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 0.35rem 0.55rem;
+    }
+    .badge { font-size: 0.75rem; color: var(--dim); margin-left: auto; }
+    .badge.ok { color: var(--verde); }
+    main { padding: 0 1.5rem 2rem; }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 0 0 0.75rem;
+      font-size: 0.8rem;
+      color: var(--dim);
+    }
+    .table-scroll {
+      overflow-x: auto;
+      max-height: calc(100vh - 280px);
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th, td {
+      padding: 0.4rem 0.55rem;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      white-space: nowrap;
+    }
+    th:nth-child(2), td:nth-child(2),
+    th:nth-child(3), td:nth-child(3) { text-align: left; }
+    th {
+      color: var(--dim);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 2;
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    td.santo { color: var(--cyan); font-weight: 600; }
+    .tag-perp { color: var(--dim); font-size: 0.72rem; text-transform: uppercase; }
+    .tag-tf {
+      color: var(--feria);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .empty { padding: 2rem; color: var(--dim); text-align: center; }
+    .section { margin-top: 1.25rem; }
+    .section h2 {
+      margin: 0 0 0.35rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--cyan);
+    }
+    .section.nevera h2 { color: var(--amarillo); }
+    .section.morado h2 { color: var(--morado); }
+    .section .hint {
+      margin: 0 0 0.5rem;
+      font-size: 0.75rem;
+      color: var(--dim);
+    }
+    .table-scroll.nevera,
+    .table-scroll.morado {
+      max-height: 42vh;
+      opacity: 0.92;
+    }
+    tr.row-nevera td { color: rgba(213, 221, 232, 0.72); }
+    tr.rng-verde td { background: rgba(61, 214, 140, 0.11); }
+    tr.rng-amarillo td { background: rgba(230, 195, 92, 0.13); }
+    tr.rng-rojo td { background: rgba(224, 112, 112, 0.14); }
+    tr.rng-verde:hover td { background: rgba(61, 214, 140, 0.17); }
+    tr.rng-amarillo:hover td { background: rgba(230, 195, 92, 0.19); }
+    tr.rng-rojo:hover td { background: rgba(224, 112, 112, 0.2); }
+    tr.rng-morado td { background: rgba(180, 140, 255, 0.14); }
+    tr.rng-morado:hover td { background: rgba(180, 140, 255, 0.22); }
+    td.rng-morado-txt { color: var(--morado); font-weight: 600; }
+    td.min-alto { color: var(--amarillo); font-weight: 600; }
+    td.calor-bajo { color: var(--rojo); }
+    td.calor-ok { color: var(--verde); }
+    .chip {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      margin-right: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .chip.bad { background: rgba(224, 112, 112, 0.18); color: var(--rojo); }
+    .chip.dim { background: rgba(122, 134, 153, 0.15); color: var(--dim); }
+    .chip.warn { background: rgba(230, 195, 92, 0.15); color: var(--amarillo); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TEATRO BERU — catálogo OKX USDT-SWAP</h1>
+    <p>
+      Flota piedra · min &lt; <strong>$1.50</strong> · calor &gt; <strong>BTC</strong> · <strong>libro OKX</strong> · rango 1a &le; <strong>600%</strong> ·
+      sombreado <span style="color:var(--verde)">■</span> 0–100% · <span style="color:var(--amarillo)">■</span> 100–300% · <span style="color:var(--rojo)">■</span> 300–600% ·
+      <span style="color:var(--morado)">■</span> 600–1000% (reserva) ·
+      resto en <strong>nevera</strong> ·
+      <a href="teatro_mejor_beru.html">ranking Bybit</a> ·
+      <a href="teatro_fusion.html">panel caza</a> ·
+      <a href="teatro_live.html">matriz 4 salas</a>
+    </p>
+  </header>
+
+  <div class="summary" id="cards"></div>
+
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="Buscar Santo…" autocomplete="off" />
+    <span id="hint">flota ≤600% · morado 600–1000% (sin tocar) · nevera resto</span>
+    <span class="badge" id="status">cargando…</span>
+  </div>
+
+  <main>
+    <div class="meta" id="meta"></div>
+    <div class="section">
+      <h2>Flota elegible</h2>
+      <p class="hint">Pasa los cuatro cortes. Sombreado fila por rango 1a: verde ≤100% · amarillo ≤300% · rojo ≤600%.</p>
+      <div class="table-scroll" id="table-wrap">
+        <div class="empty">Esperando teatro_okx_catalogo.json…</div>
+      </div>
+    </div>
+    <div class="section morado">
+      <h2>Reserva morado · rango 600–1000%</h2>
+      <p class="hint">Pasan min · calor · libro OKX — aún no se tocan; quedan visibles para después.</p>
+      <div class="table-scroll morado" id="table-morado">
+        <div class="empty">—</div>
+      </div>
+    </div>
+    <div class="section nevera">
+      <h2>Nevera</h2>
+      <p class="hint">Min alto, calor bajo, sin juicio, libro fino, o rango &gt;1000%.</p>
+      <div class="table-scroll nevera" id="table-nevera">
+        <div class="empty">—</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const MIN_USD_TOPE = 1.5;
+    const RANGO_FLOTA_MAX = 600;
+    const RANGO_MORADO_MAX = 1000;
+    const RNG_VERDE_MAX = 100;
+    const RNG_AMARILLO_MAX = 300;
+    const EMPATE_EPS = 1e-6;
+    let rows = [];
+    let meta = {};
+    let calorMap = new Map();
+    let liqMap = new Map();
+    let rangoMap = new Map();
+    let liqMeta = {};
+    let rangoMeta = {};
+    let pisoBtc = 0;
+
+    function fmt(n, d = 4) {
+      if (n == null || Number.isNaN(Number(n))) return "—";
+      const x = Number(n);
+      if (x >= 1000) return x.toLocaleString("en-US", { maximumFractionDigits: 2 });
+      if (x >= 1) return x.toFixed(Math.min(d, 4));
+      return x.toFixed(6);
+    }
+
+    function fmtUsd(n) {
+      if (n == null || Number.isNaN(Number(n))) return "—";
+      return "$" + Number(n).toFixed(2);
+    }
+
+    function minUsd(r) {
+      const v = Number(r?.min_usd);
+      return Number.isFinite(v) && v > 0 ? v : null;
+    }
+
+    function indexByActivo(ranking) {
+      const m = new Map();
+      for (const r of ranking || []) {
+        const a = String(r.activo || "").toUpperCase();
+        if (a) m.set(a, r);
+      }
+      return m;
+    }
+
+    /** Misma lógica que teatro_fusion: mejor calor normal vs feria. */
+    function buildCalorFusion(normalData, feriaData) {
+      const nMap = indexByActivo(normalData && normalData.ranking);
+      const fMap = indexByActivo(feriaData && feriaData.ranking);
+      const keys = new Set([...nMap.keys(), ...fMap.keys()]);
+      const out = new Map();
+      for (const activo of keys) {
+        const n = nMap.get(activo) || null;
+        const f = fMap.get(activo) || null;
+        const cn = n ? Number(n.calor || 0) : null;
+        const cf = f ? Number(f.calor || 0) : null;
+        if (cn == null && cf == null) continue;
+        let calorMejor = 0;
+        let mejor = "—";
+        if (cn == null) {
+          calorMejor = cf;
+          mejor = "feria";
+        } else if (cf == null) {
+          calorMejor = cn;
+          mejor = "normal";
+        } else if (Math.abs(cn - cf) < EMPATE_EPS) {
+          calorMejor = cn;
+          mejor = "empate";
+        } else if (cn > cf) {
+          calorMejor = cn;
+          mejor = "normal";
+        } else {
+          calorMejor = cf;
+          mejor = "feria";
+        }
+        out.set(activo, {
+          calor_mejor: calorMejor,
+          calor_normal: cn,
+          calor_feria: cf,
+          mejor,
+        });
+      }
+      return out;
+    }
+
+    function calorOf(r) {
+      const c = calorMap.get(String(r?.activo || "").toUpperCase());
+      return c || null;
+    }
+
+    function esNeveraMin(r) {
+      const m = minUsd(r);
+      return m != null && m >= MIN_USD_TOPE - 1e-9;
+    }
+
+    function liqOf(r) {
+      return liqMap.get(String(r?.activo || "").toUpperCase()) || null;
+    }
+
+    function rangoOf(r) {
+      return rangoMap.get(String(r?.activo || "").toUpperCase()) || null;
+    }
+
+    function rangoPct(r) {
+      const x = rangoOf(r);
+      const v = Number(x?.rango_anual_pct);
+      return Number.isFinite(v) ? v : null;
+    }
+
+    function rangoBanda(r) {
+      const pct = rangoPct(r);
+      if (pct == null) return null;
+      if (pct <= RNG_VERDE_MAX) return "verde";
+      if (pct <= RNG_AMARILLO_MAX) return "amarillo";
+      if (pct <= RANGO_FLOTA_MAX) return "rojo";
+      if (pct <= RANGO_MORADO_MAX) return "morado";
+      return "fuera";
+    }
+
+    function rowRangoClass(r, mode) {
+      if (mode === "nevera") return "row-nevera";
+      const b = rangoBanda(r);
+      if (b === "verde") return "rng-verde";
+      if (b === "amarillo") return "rng-amarillo";
+      if (b === "rojo") return "rng-rojo";
+      if (b === "morado" || mode === "morado") return "rng-morado";
+      return "";
+    }
+
+    function esBaseOk(r) {
+      if (esNeveraMin(r)) return false;
+      const c = calorOf(r);
+      if (!c) return false;
+      if (Number(c.calor_mejor || 0) <= pisoBtc + 1e-12) return false;
+      if (liquidezPendiente(r)) return false;
+      if (liquidezFuera(r)) return false;
+      return true;
+    }
+
+    function esMorado(r) {
+      if (!esBaseOk(r)) return false;
+      const pct = rangoPct(r);
+      return pct != null && pct > RANGO_FLOTA_MAX + 1e-9 && pct <= RANGO_MORADO_MAX + 1e-9;
+    }
+
+    function rangoFuera(r) {
+      const pct = rangoPct(r);
+      if (pct == null) return false;
+      const max = Number(rangoMeta.fuera_max_pct ?? RANGO_MORADO_MAX);
+      return pct > max + 1e-9;
+    }
+
+    function liquidezFuera(r) {
+      const l = liqOf(r);
+      if (!l) return false;
+      return !!l.liquidez_fuera;
+    }
+
+    function liquidezPendiente(r) {
+      if (!esElegiblePreLiq(r)) return false;
+      return !liqOf(r);
+    }
+
+    function esElegiblePreLiq(r) {
+      if (esNeveraMin(r)) return false;
+      const c = calorOf(r);
+      if (!c) return false;
+      if (Number(c.calor_mejor || 0) <= pisoBtc + 1e-12) return false;
+      return true;
+    }
+
+    function motivosNevera(r) {
+      const chips = [];
+      if (esNeveraMin(r)) chips.push({ t: "min≥$1.50", c: "warn" });
+      const c = calorOf(r);
+      if (!c) chips.push({ t: "sin juicio", c: "dim" });
+      else if (Number(c.calor_mejor || 0) <= pisoBtc + 1e-12) chips.push({ t: "≤BTC", c: "bad" });
+      if (liquidezPendiente(r)) chips.push({ t: "liq?", c: "dim" });
+      else if (liquidezFuera(r)) chips.push({ t: "libro OKX", c: "bad" });
+      if (rangoFuera(r)) chips.push({ t: "rango>1000%", c: "bad" });
+      return chips;
+    }
+
+    function esElegible(r) {
+      if (!esBaseOk(r)) return false;
+      const pct = rangoPct(r);
+      if (pct != null && pct > RANGO_FLOTA_MAX + 1e-9) return false;
+      return true;
+    }
+
+    function particionar(list) {
+      const elegibles = [];
+      const morado = [];
+      const nevera = [];
+      for (const r of list) {
+        if (esElegible(r)) elegibles.push(r);
+        else if (esMorado(r)) morado.push(r);
+        else nevera.push(r);
+      }
+      const byCalor = (a, b) =>
+        Number(calorOf(b)?.calor_mejor || 0) - Number(calorOf(a)?.calor_mejor || 0);
+      elegibles.sort(byCalor);
+      morado.sort(byCalor);
+      return { elegibles, morado, nevera };
+    }
+
+    function chipsHtml(chips) {
+      if (!chips.length) return "—";
+      return chips.map((x) => `<span class="chip ${x.c}">${x.t}</span>`).join("");
+    }
+
+    function renderCards() {
+      const { elegibles, morado, nevera } = particionar(rows);
+      const nVerde = elegibles.filter((r) => rangoBanda(r) === "verde").length;
+      const nAmar = elegibles.filter((r) => rangoBanda(r) === "amarillo").length;
+      const nRojo = elegibles.filter((r) => rangoBanda(r) === "rojo").length;
+      document.getElementById("cards").innerHTML = `
+        <div class="slot-card"><div class="t">Flota</div><div class="n" style="color:var(--verde)">${elegibles.length}</div></div>
+        <div class="slot-card"><div class="t">Verde</div><div class="n" style="color:var(--verde)">${nVerde}</div></div>
+        <div class="slot-card"><div class="t">Amarillo</div><div class="n" style="color:var(--amarillo)">${nAmar}</div></div>
+        <div class="slot-card"><div class="t">Rojo</div><div class="n" style="color:var(--rojo)">${nRojo}</div></div>
+        <div class="slot-card"><div class="t">Morado</div><div class="n" style="color:var(--morado)">${morado.length}</div></div>
+        <div class="slot-card"><div class="t">Nevera</div><div class="n">${nevera.length}</div></div>
+      `;
+    }
+
+    function tableHtml(list, { mode = "flota" } = {}) {
+      const nevera = mode === "nevera";
+      const morado = mode === "morado";
+      if (!list.length) {
+        const msg = nevera ? "Nada en nevera." : morado ? "Nadie en reserva morado." : "Nada en flota.";
+        return `<div class="empty">${msg}</div>`;
+      }
+      const body = list.map((r, i) => {
+        const tf = r.tradefi;
+        const m = minUsd(r);
+        const c = calorOf(r);
+        const cal = c ? Number(c.calor_mejor || 0) : null;
+        const minCls = nevera && esNeveraMin(r) ? "min-alto" : "";
+        const calCls = !nevera && cal != null ? "calor-ok" : nevera && cal != null && cal <= pisoBtc ? "calor-bajo" : "";
+        const rng = rangoPct(r);
+        const banda = rangoBanda(r);
+        const rngCls =
+          banda === "verde" ? "calor-ok" :
+          banda === "amarillo" ? "min-alto" :
+          banda === "rojo" ? "calor-bajo" :
+          banda === "morado" ? "rng-morado-txt" : "";
+        const extra = nevera
+          ? `<td style="text-align:left">${chipsHtml(motivosNevera(r))}</td>`
+          : `<td class="${calCls}">${cal != null ? fmt(cal, 3) : "—"}</td>
+             <td style="text-align:left;color:var(--dim);font-size:0.72rem">${c ? c.mejor : "—"}</td>
+             <td class="${rngCls}">${rng != null ? fmt(rng, 0) + "%" : "—"}</td>
+             <td style="font-size:0.72rem">${(() => {
+               const l = liqOf(r);
+               if (!l) return "—";
+               const sb = l.slip_buy_pct;
+               const ss = l.slip_sell_pct;
+               return sb != null ? fmt(sb, 2) + "/" + fmt(ss, 2) + "%" : "—";
+             })()}</td>`;
+        return `<tr class="${rowRangoClass(r, mode)}">
+          <td>${i + 1}</td>
+          <td class="santo">${r.activo}</td>
+          <td><span class="${tf ? "tag-tf" : "tag-perp"}">${tf ? "tradefi" : "perp"}</span></td>
+          <td>${fmt(r.precio_ref)}</td>
+          <td class="${minCls}">${fmtUsd(m)}</td>
+          ${extra}
+          <td>${r.max_leverage != null ? r.max_leverage + "x" : "—"}</td>
+          <td style="text-align:left;color:var(--dim);font-size:0.72rem">${r.instId || "—"}</td>
+        </tr>`;
+      }).join("");
+      const headExtra = nevera
+        ? `<th>Motivo</th>`
+        : `<th>Calor</th><th>Mejor Beru</th><th>Rango 1a</th><th>Slip B/S</th>`;
+      return `
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Santo</th>
+              <th>Tipo</th>
+              <th>Precio ref</th>
+              <th>Min orden</th>
+              ${headExtra}
+              <th>Apalanc.</th>
+              <th>instId OKX</th>
+            </tr>
+          </thead>
+          <tbody>${body}</tbody>
+        </table>`;
+    }
+
+    function renderTable(filter = "") {
+      const q = String(filter || "").trim().toUpperCase();
+      const base = q
+        ? rows.filter((r) => String(r.activo || "").toUpperCase().includes(q))
+        : rows.slice();
+      const { elegibles, morado, nevera } = particionar(base);
+      document.getElementById("table-wrap").innerHTML = tableHtml(elegibles, { mode: "flota" });
+      document.getElementById("table-morado").innerHTML = tableHtml(morado, { mode: "morado" });
+      document.getElementById("table-nevera").innerHTML = tableHtml(nevera, { mode: "nevera" });
+      document.getElementById("meta").innerHTML =
+        `<span>Flota <strong>${elegibles.length}</strong> · morado <strong>${morado.length}</strong> · nevera <strong>${nevera.length}</strong> · V/A/R <strong>${elegibles.filter((r)=>rangoBanda(r)==="verde").length}/${elegibles.filter((r)=>rangoBanda(r)==="amarillo").length}/${elegibles.filter((r)=>rangoBanda(r)==="rojo").length}</strong></span>` +
+        (meta.ts_utc ? `<span>sello OKX <strong>${meta.ts_utc.slice(0, 19)}Z</strong></span>` : "");
+    }
+
+    async function fetchJson(path) {
+      const r = await fetch(`${path}?t=${Date.now()}`, { cache: "no-store" });
+      if (!r.ok) throw new Error(path + " HTTP " + r.status);
+      return r.json();
+    }
+
+    async function load() {
+      const st = document.getElementById("status");
+      try {
+        const [catalogo, normal, feria, liq, rng] = await Promise.all([
+          fetchJson("teatro_okx_catalogo.json"),
+          fetchJson("matriz/normal_reciente/checkpoint_parcial.json"),
+          fetchJson("matriz/feria_reciente/checkpoint_parcial.json"),
+          fetchJson("filtros_liquidez_okx.json").catch(() => ({ meta: {}, activos: {} })),
+          fetchJson("filtros_rango_okx_teatro.json").catch(() => ({ meta: {}, activos: {} })),
+        ]);
+        calorMap = buildCalorFusion(normal, feria);
+        const btc = calorMap.get("BTC");
+        pisoBtc = btc ? Number(btc.calor_mejor || 0) : 0;
+        liqMeta = liq.meta || {};
+        liqMap = new Map();
+        for (const [k, v] of Object.entries(liq.activos || {})) {
+          liqMap.set(String(k).toUpperCase(), v);
+        }
+        rangoMeta = rng.meta || {};
+        rangoMap = new Map();
+        for (const [k, v] of Object.entries(rng.activos || {})) {
+          rangoMap.set(String(k).toUpperCase(), v);
+        }
+        meta = catalogo.meta || {};
+        rows = Array.isArray(catalogo.activos) ? catalogo.activos : [];
+        rows.sort((a, b) => String(a.activo).localeCompare(String(b.activo)));
+        renderCards();
+        renderTable(document.getElementById("q").value);
+        st.textContent = rangoMap.size
+          ? `OK · flota ${rangoMeta.n_flota ?? "?"} · morado ${rangoMeta.n_morado ?? "?"}`
+          : "OK · sin rango";
+        st.className = "badge ok";
+      } catch (e) {
+        st.textContent = String(e.message || e);
+        document.getElementById("table-wrap").innerHTML =
+          `<div class="empty">Falta catálogo o juicio Bybit — corre <code>generar_teatro_okx_catalogo.py</code> y revisa matriz reciente.</div>`;
+      }
+    }
+
+    document.getElementById("q").addEventListener("input", (ev) => renderTable(ev.target.value));
+    load();
+    setInterval(load, 60000);
+  </script>
+</body>
+</html>

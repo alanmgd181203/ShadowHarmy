@@ -1,0 +1,143 @@
+{
+  "ts": 1725164269.2672055,
+  "ts_utc": "2024-09-01T04:17:49.267208+00:00",
+  "veredicto": "LISTO_REVISION",
+  "go_wake": true,
+  "bloqueos": 0,
+  "checks": [
+    {
+      "check": "mar_okx",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "BERU_MAR=okx"
+    },
+    {
+      "check": "perfil_piedra",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "BERU_RANGO_PERFIL=piedra"
+    },
+    {
+      "check": "doctrina_piedra",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "nacimiento=piedra_usd engorde=peldaños_sumados masa=0.2 red_short=0.008"
+    },
+    {
+      "check": "manos_off",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "BERU_RANGO_MANOS=False"
+    },
+    {
+      "check": "puente_okx",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "tipo=OkxBridge mar=OKX"
+    },
+    {
+      "check": "piedra_asignacion_flota",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "n=115 esperados=115 faltan=0 sobran=0"
+    },
+    {
+      "check": "semaforo_coherente_rango",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "incoherentes=0 ej=[]"
+    },
+    {
+      "check": "mapa_semaforo_masa",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "rojo=$0.2 · amarillo=$0.3 · verde=$0.5"
+    },
+    {
+      "check": "catalogo_okx_flota",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "sin_catalogo=0 ej=[]"
+    },
+    {
+      "check": "min_orden_flota",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "tope=$1.5 altos=0 ej=[]"
+    },
+    {
+      "check": "lote_okx_floor",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "WLD notional=0.365 deuda=0.135"
+    },
+    {
+      "check": "smoke_piedra",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "exit 0 · 95 OK\n  floor deuda WLD OK\n  sangre inverso borra deuda OK\n  restaurado perfil piedra\nOK validar_beru_rango_piedra_smoke"
+    },
+    {
+      "check": "smoke_ojos_logica",
+      "ok": true,
+      "severidad": "bloqueo",
+      "detalle": "exit 0 ·  Red (high toca, last no) OK\n  misma vela sangre antes que Red OK\n  tank vaso latido lineal OK\n  latido_sugerido_s OK\nOK"
+    }
+  ],
+  "avisos": [
+    "Scan liquidez OKX: 2026-09-01T02:39:57.531246+00:00 — re-escanear si el mercado movió mucho.",
+    "Sin prueba live OKX (ojos WS + manos paper) — bloqueo blando para primer wake.",
+    "Calor > BTC usa juicio Bybit (matriz normal/feria) — no ranking OKX propio.",
+    "Solo 5 verdes en flota — revisar si son Santos reales: ['XAG', 'GRAM', 'KORU', 'SPCX', 'AEON']"
+  ],
+  "geometria": {
+    "oficio": "RANGO",
+    "perfil": "piedra",
+    "mercado": "linear",
+    "vacio_pct": 0.012,
+    "vacio_rol": "activacion_trailing",
+    "oz_gap_pct": 0.002,
+    "oz_modo": "trailing_callback",
+    "red_activacion_pct": 0.007,
+    "red_activacion_long_pct": 0.007,
+    "red_activacion_short_pct": 0.008,
+    "red_desde_oz_pct": 0.007,
+    "red_modo": "trailing",
+    "red_callback_pct": 0.002,
+    "sangre_pct": 0.012,
+    "sangre_rol": "activacion_trailing",
+    "masa_usd": 0.2,
+    "masa_red_usd": 0.2,
+    "masa_sangre_usd": 0.2,
+    "trailing_pct": 0.002,
+    "engorde_usd": 0.01,
+    "engorde_paso_pct": 0.001,
+    "engorde_modo": "peldaños_sumados",
+    "engorde_tope_usd": 0.8,
+    "piedra_tier": "medio",
+    "cero": "wake",
+    "nacimiento": "piedra_usd",
+    "engorde": "desde_activacion",
+    "saco_techo": "peldaños_sumados",
+    "ladder_red": "si",
+    "semaforo_default": "amarillo",
+    "masa_nacimiento_paz": 0.3,
+    "tope_serie_default": 0.8,
+    "pierna_umbral_medio": 100.0,
+    "pierna_umbral_pesado": 300.0
+  },
+  "flota": {
+    "n_esperada": 115,
+    "n_asignacion": 115,
+    "conteo_semaforo": {
+      "verde": 5,
+      "amarillo": 38,
+      "rojo": 72
+    }
+  },
+  "nota_wake": "Geometría y asignación pasan. Siguiente: ojos paper en 2–3 Santos nombrados, luego manos con --manos-go en uno solo.",
+  "ritual_siguiente": [
+    "python scripts/arise_beru_rango_ojos.py --santos WLD,UNI (paper)",
+    "python scripts/arise_beru_rango_manos.py --activo WLD --manos-go (solo con GO Monarca)"
+  ]
+}

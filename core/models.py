@@ -66,6 +66,20 @@ class BeruShip:
     # Precio del llamado de sangre post-Oz (1,2 % del peldaño Oz, lado contrario).
     # Vacío semilla sigue midiendo ±1,2 % desde wake; este campo solo vive tras Oz.
     sangre_adan: float = 0.0
+    # Piedra / peldaños sumados: 0 de engorde = última Oz del movimiento contrario.
+    engorde_cero_oz_px: float = 0.0
+    engorde_peldaño_offset: int = 0
+    # Semáforo piedra + bando pierna (paz / medio / pesado)
+    semaforo_color: str = ""
+    pierna_bando: str = "paz"
+    pierna_umbral_involucion: float = 0.0
+    pierna_px_involucion: float = 0.0
+    serie_masa_base_usd: float = 0.0
+    # Cola de redondeo lote (floor): doctrina − notional enviado; se borra al sangre inverso.
+    masa_pendiente_usd: float = 0.0
+    masa_doctrinal_usd: float = 0.0
+    altar_masa_colocada_usd: float = 0.0
+    altar_qty: float = 0.0
     # Tras cosecha spot: sangre 1.1 desde la última Oz cobrada; Red…
     # despierta hijo y APAGA la sangre vieja. Nunca dos llamados vivos.
     oreja_sangre_activa: bool = False

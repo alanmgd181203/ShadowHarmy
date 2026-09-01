@@ -2,6 +2,7 @@
 """Sirve la página viva del teatro (ranking que se actualiza sola).
 
   python -u scripts/servir_teatro_live.py
+  → http://127.0.0.1:8765/teatro_okx.html         (catálogo OKX perpetuos — sin filtro)
   → http://127.0.0.1:8765/teatro_fusion.html   (panel fusionado — caza filtrada)
   → http://127.0.0.1:8765/teatro_mejor_beru.html (todos · mejor Beru)
   → http://127.0.0.1:8765/teatro_live.html     (matriz 4 salas)
@@ -54,7 +55,11 @@ def main() -> int:
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("127.0.0.1", int(args.port)), handler) as httpd:
         url = f"http://127.0.0.1:{int(args.port)}/{page}"
-        print(f"Teatro live → {url}", flush=True)
+        print(f"Teatro live -> {url}", flush=True)
+        print(
+            f"  también · http://127.0.0.1:{int(args.port)}/teatro_okx.html",
+            flush=True,
+        )
         print(
             f"  también · http://127.0.0.1:{int(args.port)}/teatro_mejor_beru.html",
             flush=True,

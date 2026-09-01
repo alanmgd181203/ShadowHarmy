@@ -129,7 +129,7 @@ os.environ["ARISE_BERU_RANGO_PERMITIR_MANOS"] = "true"
 
 import core.config as config  # noqa: E402
 from core.bellion import BellionAuditor  # noqa: E402
-from core.bridge import BybitBridge  # noqa: E402
+from core.beru_bridge import crear_beru_bridge, credenciales_ok, nombre_mar  # noqa: E402
 from core import beru_rango_ojos  # noqa: E402
 from core import beru_rango_panel  # noqa: E402
 from core import beru_rango_paths  # noqa: E402
@@ -466,13 +466,13 @@ async def ritual(
     if hasattr(config, "BINANCE_REF_ENABLED"):
         config.BINANCE_REF_ENABLED = False
 
-    if not getattr(config, "API_KEY", None) or not getattr(config, "API_SECRET", None):
-        raise RuntimeError("Sin API_KEY/SECRET — no se puede arise con manos")
+    if not credenciales_ok():
+        raise RuntimeError(f"Sin credenciales {nombre_mar()} — no se puede arise con manos")
 
     suf = "USD_INVERSE" if MERCADO == "inverse" else "USDT_LINEAL"
     print("\n" + "═" * 56)
     print("    ARISE BERU RANGO — MANOS ON")
-    print(f"    Santo: {act}{suf} · mercado={MERCADO} · perfil={PERFIL} · "
+    print(f"    Mar: {nombre_mar()} · Santo: {act}{suf} · mercado={MERCADO} · perfil={PERFIL} · "
           f"Vacío ±{getattr(config, 'BERU_RANGO_VACIO_PCT', 0.012)*100:.1f}% · "
           f"masa ${getattr(config, 'BERU_RANGO_MASA_USD', 5)} · Red ${getattr(config, 'BERU_RANGO_MASA_RED_USD', 5)}")
     print(f"    FASE: {config.FASE_ACTUAL} | SIM={config.MODO_SIMULACION} | TESTNET={config.TESTNET}")
@@ -490,16 +490,13 @@ async def ritual(
         bellion = BellionAuditor()
         tusk = TuskBoveda(bellion)
         tank = TankCluster(tusk, bellion, ticker_base=config.TICKER_BASE)
-        bridge = BybitBridge(
-            tank, tusk, bellion, config.API_KEY, config.API_SECRET,
-            ws_bases=[act],
-        )
+        bridge = crear_beru_bridge(tank, tusk, bellion, ws_bases=[act])
         if not getattr(bridge, "session", None):
-            raise RuntimeError("Bridge sin sesión HTTP — abort manos")
+            raise RuntimeError(f"Bridge {nombre_mar()} sin sesión HTTP — abort manos")
 
-        from core import igris_leverage as ilev
+        from core import beru_leverage as blev
 
-        lev_out = await ilev.forzar_max_leverage_activo(bridge, bellion, act)
+        lev_out = await blev.forzar_max_leverage_activo(bridge, bellion, act)
         if lev_out.get("omitido"):
             print(f"[RANGO] apalanc {act}: omitido (IGRIS_FORCE_MAX_LEVERAGE off)", flush=True)
         elif lev_out.get("ok"):
@@ -516,7 +513,8 @@ async def ritual(
         tank.expandir_frentes(beru_rango_ojos.frentes_ojo_tank([act], MERCADO))
         beru_rango_ojos.inyectar_precios_rest(bridge, tank, [act], mercado=MERCADO)
         try:
-            await tusk.reconciliar_con_exchange(bridge)
+            if str(getattr(config, "BERU_MAR", "okx") or "okx").lower() != "okx":
+                await tusk.reconciliar_con_exchange(bridge)
         except Exception as exc:
             print(f"[RANGO] reconciliación previa: {exc}", flush=True)
 

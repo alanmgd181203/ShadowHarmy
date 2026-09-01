@@ -1,0 +1,31 @@
+{
+  "ts_utc": "2026-09-01T12:57:00-06:00",
+  "estado": "sellado",
+  "mar": "okx",
+  "perfil": "piedra",
+  "manos": false,
+  "n_rojos": 72,
+  "n_lotes": 4,
+  "duracion_aprox_h": 8,
+  "resultado": {
+    "wake_ok": 72,
+    "sin_last_fallo": 0,
+    "con_eventos_geometria": 68,
+    "solo_acecho": ["AVAX", "ENJ", "HMSTR", "TRUTH"],
+    "top_eventos": {
+      "OZ_COSECHA": 596,
+      "ARMAR_RED": 320,
+      "ARMAR_SANGRE": 209,
+      "ARMAR_ABAJO": 35,
+      "ARMAR_ARRIBA": 33
+    }
+  },
+  "nota": "Ojos papel noche OK. Manos OFF. Listo para arise escalonado en siguiente vuelta.",
+  "manifest": "data/beru/rango/ojos_rojos_papel_manifest.json",
+  "logs": [
+    "data/beru/_ojos_rojos_lote1_stdout.log",
+    "data/beru/_ojos_rojos_lote2_stdout.log",
+    "data/beru/_ojos_rojos_lote3_stdout.log",
+    "data/beru/_ojos_rojos_lote4_stdout.log"
+  ]
+}

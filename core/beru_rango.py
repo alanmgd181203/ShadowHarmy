@@ -1,19 +1,25 @@
-"""Beru rango (lineal) — wake eterno · Red desde Oz · saco ledger · sangre $5+.
+"""Beru rango (lineal) — wake eterno · Red desde Oz · saco ledger · sangre.
 
 Doctrina Monarca 2026-08-22 (cirugía saco) · sin tope meta−ya (2026-08-23):
   · 0 absoluto = wake (no se mueve con Oz ni fill)
   · Perfil normal: Vacío/sangre ±1,2 % · Oz 0,2 % · Red 0,7 % simétrica · +$1/0,2 %
-  · Perfil feria (paralelo): ±2,4 % · Oz 0,4 % · Red 1,4 % simétrica · +$1/0,2 %
-  · Vacío/Red/Sangre nacen $5; engorde desde activación; escalera sin tope
+  · Perfil feria (paralelo): ±2,2 % · Oz 0,2 % · Red 1,2 % · +$1/0,2 %
+  · Perfil piedra (OKX micro): misma geometría clásica · Red L 0,7 % / S 0,8 %
+    · nace $0,20 · peldaños sumados (+$0,01 por peldaño) · semáforo por Santo
+  · Vacío/Red/Sangre nacen según perfil; engorde desde activación
   · Ledger saco = bitácora (no bloquea Vacío/Red)
   · Misma vela: sangre primero · sangre mata Red
-  · Un vivo · manos OFF por defecto · lineal · BERU_RANGO_PERFIL
+  · Un vivo · manos OFF por defecto · SWAP USDT (OKX por defecto) · BERU_RANGO_PERFIL
 """
 from __future__ import annotations
 
+import json
+import os
+from functools import lru_cache
 from typing import Any
 
 import core.config as config
+from core import beru_mar
 
 
 def vacio_adan_pct() -> float:
@@ -27,8 +33,12 @@ def oz_gap_pct() -> float:
 
 
 def red_activacion_pct(direccion: str | None = None) -> float:
-    """Activación Red desde Oz (simétrica LONG = SHORT)."""
-    _ = direccion  # LONG / SHORT comparten geometría (Monarca 2026-08-30)
+    """Activación Red desde Oz. Piedra: L 0,7 % · S 0,8 %; normal/feria simétricos."""
+    d = str(direccion or "").upper()
+    if d == "SHORT":
+        return float(getattr(config, "BERU_RANGO_RED_DESDE_OZ_SHORT_PCT", 0.007) or 0.007)
+    if d == "LONG":
+        return float(getattr(config, "BERU_RANGO_RED_DESDE_OZ_PCT", 0.007) or 0.007)
     return float(getattr(config, "BERU_RANGO_RED_DESDE_OZ_PCT", 0.007) or 0.007)
 
 
@@ -61,6 +71,207 @@ def engorde_paso_usd() -> float:
 
 def engorde_paso_pct() -> float:
     return max(1e-9, float(getattr(config, "BERU_RANGO_ENGORDE_PASO_PCT", 0.002) or 0.002))
+
+
+def engorde_modo_peldaños_sumados() -> bool:
+    m = str(getattr(config, "BERU_RANGO_ENGORDE_MODO", "") or "").lower()
+    return m in ("peldaños_sumados", "peldaños", "sumados", "piedra")
+
+
+def redondeo_floor_manos() -> bool:
+    """Piedra OKX: fracción inferior (floor) + cola de centavos."""
+    return engorde_modo_peldaños_sumados()
+
+
+def limpiar_masa_pendiente(beru: Any) -> None:
+    """Borra deuda de redondeo (nuevo ciclo sangre inverso)."""
+    if beru is None:
+        return
+    beru.masa_pendiente_usd = 0.0
+
+
+def registrar_masa_doctrinal(beru: Any, masa: float) -> None:
+    if beru is None:
+        return
+    beru.masa_doctrinal_usd = max(0.0, float(masa or 0))
+
+
+def _masa_suma_peldaños(n: int, base: float, step: float) -> float:
+    """Suma k=1..n de (base + (k-1)*step). n=0 → 0."""
+    if n <= 0:
+        return 0.0
+    return float(n) * base + float(step) * float(n) * float(n - 1) / 2.0
+
+
+def _masa_delta_peldaños(n: int, offset: int, base: float, step: float) -> float:
+    """Masa viva = peldaños n − offset (una orden; serie $0,20 + $0,21 + …)."""
+    if n <= offset:
+        return max(0.0, base)
+    delta = _masa_suma_peldaños(n, base, step) - _masa_suma_peldaños(offset, base, step)
+    return max(base, delta)
+
+
+def masa_peldaños_sumados_usd(
+    n: int,
+    *,
+    offset: int = 0,
+    base: float | None = None,
+    step: float | None = None,
+) -> float:
+    b = float(base if base is not None else masa_tramo_usd())
+    s = float(step if step is not None else engorde_paso_usd())
+    return _masa_delta_peldaños(int(n), int(offset), b, s)
+
+
+def _base_masa_origen(origen: str, beru: Any | None = None) -> float:
+    if beru is not None and engorde_modo_peldaños_sumados():
+        from core import beru_rango_semaforo as sem
+
+        sb = sem.serie_base_usd(beru)
+        if sb is not None:
+            return sb
+    origen_u = str(origen or "").upper()
+    if origen_u == "SANGRE":
+        return masa_sangre_usd()
+    if origen_u == "RED":
+        return masa_red_usd()
+    return masa_tramo_usd()
+
+
+def _ref_engorde(beru: Any) -> tuple[float, int]:
+    oz0 = float(getattr(beru, "engorde_cero_oz_px", 0) or 0)
+    offset = int(getattr(beru, "engorde_peldaño_offset", 0) or 0)
+    ancla = float(getattr(beru, "engorde_ancla_px", 0) or 0)
+    if oz0 > 0:
+        return oz0, offset
+    return ancla, offset
+
+
+def _masa_viva_en_px(beru: Any, px: float, *, base: float) -> float:
+    ref, offset = _ref_engorde(beru)
+    if ref <= 0 or px <= 0:
+        return base
+    n = peldaños_entre(ref, px)
+    return _masa_delta_peldaños(n, offset, base, engorde_paso_usd())
+
+
+def _preparar_engorde_desde_oz(
+    beru: Any,
+    *,
+    precio: float,
+    base: float,
+) -> tuple[float, float]:
+    """Calcula masa viva y ancla Oz-0 para sangre/Red tras cosecha."""
+    oz0 = float(getattr(beru, "engorde_cero_oz_px", 0) or getattr(beru, "oz_despliegue_px", 0) or 0)
+    px = float(precio or 0)
+    if oz0 <= 0 or px <= 0 or not engorde_modo_peldaños_sumados():
+        return float(base), 0.0
+    offset = int(getattr(beru, "engorde_peldaño_offset", 0) or 0)
+    masa = _masa_delta_peldaños(peldaños_entre(oz0, px), offset, base, engorde_paso_usd())
+    return masa, oz0
+
+
+def _piedra_tier_normalizado(tier: str | None) -> str:
+    t = str(tier or "medio").strip().lower()
+    if t in ("ceñido", "cenido", "ceni", "ce"):
+        return "cenido"
+    if t in ("ancho", "wide", "a"):
+        return "ancho"
+    if t in ("medio", "medium", "default", "m"):
+        return "medio"
+    return "medio"
+
+
+def _tope_por_tier(tier: str) -> float:
+    tiers = getattr(config, "BERU_RANGO_PIEDRA_TIERS", {}) or {}
+    return float(tiers.get(_piedra_tier_normalizado(tier), 0.8) or 0.8)
+
+
+def _ruta_piedra_asignacion() -> str:
+    return str(
+        os.getenv("BERU_RANGO_PIEDRA_ASIGNACION_PATH")
+        or getattr(config, "BERU_RANGO_PIEDRA_ASIGNACION_PATH", "")
+        or ""
+    )
+
+
+@lru_cache(maxsize=4)
+def _cargar_piedra_asignacion(ruta: str) -> dict[str, Any]:
+    if not ruta or not os.path.exists(ruta):
+        return {"activos": {}}
+    try:
+        with open(ruta, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {"activos": {}}
+    except (OSError, json.JSONDecodeError):
+        return {"activos": {}}
+
+
+def invalidar_piedra_asignacion() -> None:
+    _cargar_piedra_asignacion.cache_clear()
+
+
+def _piedra_asignacion() -> dict[str, Any]:
+    return _cargar_piedra_asignacion(_ruta_piedra_asignacion())
+
+
+def activo_desde_beru(beru: Any | None) -> str:
+    if beru is None:
+        return ""
+    frente = str(getattr(beru, "frente_asignado", "") or "")
+    if frente:
+        return str(beru_mar.base_desde_frente(frente) or "").upper()
+    uid = str(getattr(beru, "uid", "") or "")
+    if uid.startswith("RANGO_"):
+        parts = uid.split("_")
+        if len(parts) >= 2:
+            return parts[1].upper()
+    return ""
+
+
+def piedra_tier_activo(activo: str | None) -> str | None:
+    """Legacy tier ancho/medio/cenido; también lee semaforo del JSON."""
+    base = str(activo or "").upper()
+    if not base:
+        return None
+    row = (_piedra_asignacion().get("activos") or {}).get(base)
+    if not row:
+        return None
+    if isinstance(row, dict):
+        tier = row.get("tier") or row.get("piedra_tier")
+        if not tier:
+            sem = row.get("semaforo") or row.get("color")
+            if sem:
+                s = str(sem).strip().lower()
+                if s in ("verde", "ancho"):
+                    return "ancho"
+                if s in ("rojo", "cenido", "ceñido"):
+                    return "cenido"
+                return "medio"
+    else:
+        tier = row
+    return _piedra_tier_normalizado(str(tier or "")) if tier else None
+
+
+def engorde_tope_usd(beru: Any | None = None, *, activo: str | None = None) -> float:
+    """Tope de masa viva por peldaño (0 = sin tope). Piedra: semáforo por Santo."""
+    if engorde_modo_peldaños_sumados():
+        from core import beru_rango_semaforo as sem
+
+        return sem.tope_masa_viva(beru, activo)
+    base = str(activo or activo_desde_beru(beru) or "").upper()
+    tier_asig = piedra_tier_activo(base) if base else None
+    if tier_asig:
+        return _tope_por_tier(tier_asig)
+    tope = float(getattr(config, "BERU_RANGO_ENGORDE_TOPE_USD", 0) or 0)
+    return max(0.0, tope)
+
+
+def _limitar_masa_viva(viva: float, beru: Any | None = None) -> float:
+    tope = engorde_tope_usd(beru)
+    if tope > 0:
+        return min(float(viva), tope)
+    return float(viva)
 
 
 def piso_masa_usd(masa: float, *, minimo_bybit: float = 0.0) -> float:
@@ -124,9 +335,14 @@ def cupo_lado_usd(beru: Any, *, lado: str, precio: float, origen: str) -> float:
 
 
 def orden_nacimiento_usd(beru: Any, *, lado: str, precio: float, origen: str) -> float:
-    """Vacío/Red nacen en $5 siempre (saco acumulado no corta el oficio)."""
-    _ = (lado, precio)
+    """Vacío/Red nacen según perfil; piedra usa semáforo + bando pierna."""
+    _ = lado
+    px = float(precio or 0)
     origen_u = str(origen or "").upper()
+    if engorde_modo_peldaños_sumados():
+        from core import beru_rango_semaforo as sem
+
+        return max(0.0, sem.preparar_nacimiento_tramo(beru, precio=px))
     base = masa_red_usd() if origen_u == "RED" else masa_tramo_usd()
     return max(0.0, base)
 
@@ -136,24 +352,23 @@ orden_vacio_red_usd = meta_en_profundidad_usd
 
 
 def masa_tramo_viva_usd(beru: Any, precio: float | None = None) -> float:
-    """Masa del tramo vivo — misma regla Vacío / Red / Sangre.
+    """Masa del tramo vivo — Vacío / Red / Sangre.
 
-    Nace en $5. Engorda $1 por cada 0,1 % solo desde el precio de activación.
+    Linear (normal/feria): base + peldaños × paso.
+    Piedra sumados: serie $b + (b+s) + … desde ancla u Oz-0 (una orden).
     """
     origen = str(getattr(beru, "origen_tramo", "") or "").upper()
     px = float(precio or 0) or float(getattr(beru, "trail_extremo", 0) or 0)
-    if origen == "SANGRE":
-        base = masa_sangre_usd()
-    elif origen == "RED":
-        base = masa_red_usd()
-    else:
-        base = masa_tramo_usd()
+    base = _base_masa_origen(origen, beru)
+    if engorde_modo_peldaños_sumados():
+        viva = _masa_viva_en_px(beru, px, base=base)
+        return max(0.0, _limitar_masa_viva(viva, beru))
     ancla = float(getattr(beru, "engorde_ancla_px", 0) or 0) or px
     if ancla <= 0 or px <= 0:
         viva = base
     else:
         viva = base + float(peldaños_entre(ancla, px)) * engorde_paso_usd()
-    return max(0.0, viva)
+    return max(0.0, _limitar_masa_viva(viva, beru))
 
 
 def masa_engordada_usd(beru: Any, precio: float | None = None) -> float:
@@ -172,6 +387,7 @@ def actualizar_engorde(beru: Any, precio: float) -> bool:
     if nueva > vieja + 1e-9:
         beru.masa = nueva
         beru.masa_tramo_usd = nueva
+        registrar_masa_doctrinal(beru, nueva)
         ancla = float(getattr(beru, "engorde_ancla_px", 0) or 0)
         if ancla > 0:
             beru.engorde_peldaños = peldaños_entre(ancla, precio)
@@ -275,6 +491,11 @@ def despertar(beru: Any, precio: float, *, activo: str = "") -> None:
     beru.engorde_bloqueado = True
     beru.engorde_peldaños = 0
     beru.engorde_ancla_px = 0.0
+    beru.engorde_cero_oz_px = 0.0
+    beru.engorde_peldaño_offset = 0
+    beru.masa_pendiente_usd = 0.0
+    beru.masa_doctrinal_usd = 0.0
+    beru.altar_masa_colocada_usd = 0.0
     beru.saco_long_usd = 0.0
     beru.saco_short_usd = 0.0
     beru.sangre_lado = ""
@@ -335,6 +556,7 @@ def _plantar_trailing(
     short: bool,
     masa: float,
     precio_activacion: float,
+    ancla_engorde: float | None = None,
 ) -> float:
     """Activación tocada → arma trailing (callback 0,2). Engorde ON en caza."""
     px = float(precio_activacion or 0)
@@ -345,7 +567,15 @@ def _plantar_trailing(
         return 0.0
     beru.direccion = "SHORT" if short else "LONG"
     beru.trail_extremo = px
-    beru.engorde_ancla_px = px
+    oz_ancla = float(ancla_engorde or 0)
+    if oz_ancla > 0 and engorde_modo_peldaños_sumados():
+        beru.engorde_cero_oz_px = oz_ancla
+        beru.engorde_ancla_px = oz_ancla
+    else:
+        beru.engorde_ancla_px = px
+        if not engorde_modo_peldaños_sumados():
+            beru.engorde_cero_oz_px = 0.0
+            beru.engorde_peldaño_offset = 0
     beru.oz_adan = _oz_desde_extremo(px, short=short)
     beru.oz_pct = pct_desde_cero(beru, beru.oz_adan)
     beru.red_adan = 0.0
@@ -353,6 +583,7 @@ def _plantar_trailing(
     beru.llamado_tramo_pct = trailing_dist_pct()
     beru.masa = masa_f
     beru.masa_tramo_usd = masa_f
+    registrar_masa_doctrinal(beru, masa_f)
     beru.estado = "CAZANDO"
     beru.oreja_sangre_activa = False
     beru.oreja_red_activa = False
@@ -762,6 +993,12 @@ def restaurar_acecho_post_oz(
     beru.cosechas_continuas = int(cosechas or 0)
     beru.saco_long_usd = max(0.0, float(saco_long or 0))
     beru.saco_short_usd = max(0.0, float(saco_short or 0))
+    if engorde_modo_peldaños_sumados() and oz_dep > 0:
+        beru.engorde_cero_oz_px = float(oz_dep)
+        beru.engorde_peldaño_offset = 0
+    else:
+        beru.engorde_cero_oz_px = 0.0
+        beru.engorde_peldaño_offset = 0
     beru.altar_link_id = ""
     beru.altar_order_id = ""
     beru.altar_order_status = ""
@@ -868,6 +1105,12 @@ def cosechar_oz_y_mover_cero(
     beru.es_relevo_cazador = True
     beru.engorde_bloqueado = True
     beru.engorde_ancla_px = 0.0
+    if engorde_modo_peldaños_sumados() and oz_dep > 0:
+        beru.engorde_cero_oz_px = float(oz_dep)
+        beru.engorde_peldaño_offset = peldaños_entre(oz_dep, fill)
+    else:
+        beru.engorde_cero_oz_px = 0.0
+        beru.engorde_peldaño_offset = 0
     beru.oz_adan = 0.0
     beru.oz_pct = 0.0
     beru.trail_extremo = 0.0
@@ -887,35 +1130,49 @@ def cosechar_oz_y_mover_cero(
 
 
 def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
-    """Sangre → trailing $5 al nacer; engorde luego solo desde activación; mata Red."""
+    """Sangre → trailing; ±1,2 % desde última Oz (0 de engorde = esa Oz)."""
+    limpiar_masa_pendiente(beru)
     _cancelar_red(beru)
     lado = str(getattr(beru, "sangre_lado", "") or "").upper()
-    masa = masa_sangre_usd()
     vac = vacio_adan_pct()
     sangre_px = float(getattr(beru, "sangre_adan", 0) or 0)
 
-    def _arm(short: bool, px: float) -> float:
+    def _px_y_base(short: bool, px_default: float) -> tuple[float, float]:
+        px = float(precio or 0) or px_default
+        if engorde_modo_peldaños_sumados():
+            from core import beru_rango_semaforo as sem
+
+            base = sem.preparar_nacimiento_tramo(beru, precio=px)
+        else:
+            base = masa_sangre_usd()
+        return px, base
+
+    def _arm(short: bool, px: float, base: float) -> float:
         beru.origen_tramo = "SANGRE"
-        return _plantar_trailing(beru, short=short, masa=masa, precio_activacion=px)
+        masa, oz0 = _preparar_engorde_desde_oz(beru, precio=px, base=base)
+        masa = _limitar_masa_viva(masa, beru)
+        return _plantar_trailing(
+            beru, short=short, masa=masa, precio_activacion=px, ancla_engorde=oz0 or None,
+        )
 
     if lado == "ABAJO":
-        px = float(precio or 0) or sangre_px or precio_desde_cero(beru, -vac)
-        return _arm(False, px)
+        px, base = _px_y_base(False, sangre_px or precio_desde_cero(beru, -vac))
+        return _arm(False, px, base)
     if lado == "ARRIBA":
-        px = float(precio or 0) or sangre_px or precio_desde_cero(beru, vac)
-        return _arm(True, px)
+        px, base = _px_y_base(True, sangre_px or precio_desde_cero(beru, vac))
+        return _arm(True, px, base)
     oz_dir = str(getattr(beru, "ultima_hoz_direccion", "") or "").upper()
     if oz_dir == "SHORT":
-        px = float(precio or 0) or precio_desde_cero(beru, -vac)
-        return _arm(False, px)
+        px, base = _px_y_base(False, float(precio or 0) or precio_desde_cero(beru, -vac))
+        return _arm(False, px, base)
     if oz_dir == "LONG":
-        px = float(precio or 0) or precio_desde_cero(beru, vac)
-        return _arm(True, px)
+        px, base = _px_y_base(True, float(precio or 0) or precio_desde_cero(beru, vac))
+        return _arm(True, px, base)
     return 0.0
 
 
 def armar_tramo_desde_red(beru: Any, precio: float | None = None) -> float:
-    """Red → nace en $5; engorde desde activación (saco no frena)."""
+    """Red → trailing; engorde desde Oz-0 si piedra sumados."""
     red = float(getattr(beru, "red_adan", 0) or 0)
     px = float(precio or 0) or red
     if px <= 0:
@@ -924,13 +1181,27 @@ def armar_tramo_desde_red(beru: Any, precio: float | None = None) -> float:
     if d not in ("LONG", "SHORT"):
         return 0.0
     beru.origen_tramo = "RED"
-    orden = orden_nacimiento_usd(beru, lado=d, precio=px, origen="RED")
-    if orden <= 1e-12:
+    if engorde_modo_peldaños_sumados():
+        from core import beru_rango_semaforo as sem
+
+        base = sem.preparar_nacimiento_tramo(beru, precio=px)
+    else:
+        base = masa_red_usd()
+    masa, oz0 = _preparar_engorde_desde_oz(beru, precio=px, base=base)
+    if not engorde_modo_peldaños_sumados():
+        masa = orden_nacimiento_usd(beru, lado=d, precio=px, origen="RED")
+    else:
+        masa = _limitar_masa_viva(masa, beru)
+    if masa <= 1e-12:
         return 0.0
     if d == "SHORT":
-        out = _plantar_trailing(beru, short=True, masa=orden, precio_activacion=px)
+        out = _plantar_trailing(
+            beru, short=True, masa=masa, precio_activacion=px, ancla_engorde=oz0 or None,
+        )
     else:
-        out = _plantar_trailing(beru, short=False, masa=orden, precio_activacion=px)
+        out = _plantar_trailing(
+            beru, short=False, masa=masa, precio_activacion=px, ancla_engorde=oz0 or None,
+        )
     if out > 0:
         beru.rango_escalones_red = int(getattr(beru, "rango_escalones_red", 0) or 0) + 1
     return out
@@ -940,7 +1211,15 @@ def resumen_geometria() -> dict[str, float | str]:
     perfil = str(getattr(config, "BERU_RANGO_PERFIL", "normal") or "normal")
     red_long = red_activacion_pct("LONG")
     red_short = red_activacion_pct("SHORT")
-    return {
+    masa = masa_tramo_usd()
+    tope = engorde_tope_usd()
+    if masa <= 0.25:
+        nacimiento = "piedra_usd"
+    elif abs(masa - 5.0) < 0.01:
+        nacimiento = "cinco_usd"
+    else:
+        nacimiento = f"masa_{masa:g}"
+    out: dict[str, float | str] = {
         "oficio": "RANGO",
         "perfil": perfil,
         "mercado": str(getattr(config, "BERU_RANGO_MERCADO", "linear") or "linear").lower(),
@@ -956,15 +1235,34 @@ def resumen_geometria() -> dict[str, float | str]:
         "red_callback_pct": trailing_dist_pct(),
         "sangre_pct": sangre_contraria_pct(),
         "sangre_rol": "activacion_trailing",
-        "masa_usd": masa_tramo_usd(),
+        "masa_usd": masa,
         "masa_red_usd": masa_red_usd(),
         "masa_sangre_usd": masa_sangre_usd(),
         "trailing_pct": trailing_dist_pct(),
         "engorde_usd": engorde_paso_usd(),
         "engorde_paso_pct": engorde_paso_pct(),
+        "engorde_modo": (
+            "peldaños_sumados" if engorde_modo_peldaños_sumados() else "linear"
+        ),
+        "engorde_tope_usd": tope,
+        "piedra_tier": str(getattr(config, "BERU_RANGO_PIEDRA_TIER", "") or ""),
         "cero": "wake",
-        "nacimiento": "cinco_usd",
+        "nacimiento": nacimiento,
         "engorde": "desde_activacion",
-        "saco_techo": "sin_tope",
+        "saco_techo": (
+            "peldaños_sumados"
+            if engorde_modo_peldaños_sumados()
+            else ("engorde_tope" if tope > 0 else "sin_tope")
+        ),
         "ladder_red": "si",
     }
+    if engorde_modo_peldaños_sumados():
+        from core import beru_rango_semaforo as sem
+
+        sm = sem.resumen_semaforo()
+        out["semaforo_default"] = str(sm.get("semaforo", "amarillo"))
+        out["masa_nacimiento_paz"] = float(sm.get("masa_nacimiento", 0.30))
+        out["tope_serie_default"] = float(sm.get("tope_serie", 0.80))
+        out["pierna_umbral_medio"] = float(sm.get("umbral_medio", 100.0))
+        out["pierna_umbral_pesado"] = float(sm.get("umbral_pesado", 300.0))
+    return out

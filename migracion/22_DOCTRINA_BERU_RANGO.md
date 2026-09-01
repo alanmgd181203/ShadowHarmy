@@ -1,7 +1,8 @@
 # 22b — Doctrina Beru rango (trailing de activación)
 
 **Estado:** sellado Monarca **2026-08-22** · Vacío/Red/Sangre nacen $5 · engorde desde activación · **escalera sin tope** (2026-08-23)  
-**Referencia:** Beru spot (`22_DOCTRINA_BERU.md`) = fósil · no se mezcla.
+**Referencia:** Beru spot (`22_DOCTRINA_BERU.md`) = fósil · no se mezcla.  
+**Mar OKX:** `23_DOCTRINA_BERU_OKX.md` (default desde 2026-08-31).
 
 ## Veredicto
 
@@ -49,7 +50,7 @@ Todo el molino es **trailing stop**:
 
 | Flag | Default |
 |------|---------|
-| `BERU_RANGO_PERFIL` | `normal` (o `feria`) |
+| `BERU_RANGO_PERFIL` | `normal` (o `feria` · `piedra`) |
 | `BERU_RANGO_MASA_USD` / `MASA_RED` / `MASA_SANGRE` | 5 |
 | `BERU_RANGO_ENGORDE_USD` | 1 |
 | `BERU_RANGO_ENGORDE_PASO_PCT` | 0.002 (normal y feria) |
@@ -70,6 +71,53 @@ No sustituye al normal. Checkpoint del canónico: `data/beru/rango/checkpoint_do
 ```powershell
 $env:BERU_RANGO_PERFIL = "feria"
 python scripts/validar_beru_rango_feria_smoke.py
+```
+
+### Perfil piedra (OKX micro — 2026-08-31)
+
+Misma alma clásica del rango, masa fina para USDT-SWAP OKX. **Una sola orden** que enmienda; engorde **peldaños sumados** ($0,20 + $0,21 + … por cada 0,1 %).
+
+| Pieza | Piedra |
+|-------|-------:|
+| Vacío / sangre | ±1,2 % (sangre **desde última Oz** tocada, no wake) |
+| Oz callback | 0,2 % |
+| Red LONG / SHORT | 0,7 % / **0,8 %** |
+| Nacimiento | **$0,20** (peldaño 1 de la serie) |
+| Engorde | **serie sumada** (+$0,01 al peso de cada peldaño) |
+| Oz-0 engorde | **última Oz** del movimiento contrario (recetea ancla) |
+
+Ejemplo: 10 peldaños (≈1 %) → **$2,45** en la Oz; +0,1 % → **$2,75**; Red con offset 10 en peldaño 15 → **$1,60**.
+
+**Manos (floor + cola):** qty en fracción **inferior** (`lotSz`); deuda = doctrina − notional. La cola se suma al siguiente objetivo; al **tocar sangre inverso** se **borra** (ciclo nuevo).
+
+#### Semáforo por Santo (rojo / amarillo / verde)
+
+Asignación en `data/beru/rango/piedra_asignacion.json` (teatro/ranking llena `activos`). Sin entrada → **`BERU_RANGO_SEMAFORO`** (default **amarillo**).
+
+| Color | Nacimiento (paz) | Tope serie |
+|-------|-----------------:|-----------:|
+| Rojo | $0,20 | $0,50 |
+| Amarillo | $0,30 | $0,80 |
+| Verde | $0,50 | $1,00 |
+
+#### Bando de pierna (condicional sobre pierna viva)
+
+Pierna viva = max(saco LONG, saco SHORT) + masa del tramo cazando. Al **armar** Vacío / Red / Sangre se recalcula bando y masa nacimiento:
+
+| Pierna USD | Rojo | Amarillo | Verde |
+|------------|-----:|---------:|------:|
+| &lt; $100 (paz) | $0,20 | $0,30 | $0,50 |
+| $100–$300 (medio) | $0,20 | $0,25 | $0,30 |
+| &gt; $300 (pesado) | $0,20 | $0,20 | $0,20 |
+
+**Histéresis 80 %** al evolucionar de vuelta: tras involución en $100 → paz si pierna ≤ $80; tras $300 → medio si pierna ≤ $240. Se registra precio al cruzar umbral (`pierna_px_involucion`).
+
+Al llegar al **tope serie**, la masa viva **se congela** (no engorda más en ese tramo). Smoke de geometría pura puede usar `BERU_RANGO_PIEDRA_SIN_TOPE=1` (solo laboratorio).
+
+```powershell
+$env:BERU_RANGO_PERFIL = "piedra"
+$env:BERU_RANGO_SEMAFORO = "amarillo"   # o rojo / verde
+python scripts/validar_beru_rango_piedra_smoke.py
 ```
 
 ## Smoke / teatro / flota

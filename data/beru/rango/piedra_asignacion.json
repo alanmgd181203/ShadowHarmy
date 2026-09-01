@@ -1,0 +1,1078 @@
+{
+  "meta": {
+    "descripcion": "Semáforo piedra por Santo — rojo / amarillo / verde. Volcado desde teatro OKX (flota ≤600% rango anual Bybit bóveda).",
+    "semaforo_default": "amarillo",
+    "colores": {
+      "rojo": {
+        "paz": 0.2,
+        "medio": 0.2,
+        "pesado": 0.2,
+        "tope": 0.5
+      },
+      "amarillo": {
+        "paz": 0.3,
+        "medio": 0.25,
+        "pesado": 0.2,
+        "tope": 0.8
+      },
+      "verde": {
+        "paz": 0.5,
+        "medio": 0.3,
+        "pesado": 0.2,
+        "tope": 1.0
+      }
+    },
+    "pierna_umbral_medio": 100,
+    "pierna_umbral_pesado": 300,
+    "pierna_hist_pct": 0.2,
+    "actualizado": "2026-08-31",
+    "mar": "okx",
+    "perfil": "piedra",
+    "fuente_volcado": "data/coliseo/rango_juicio/filtros_rango_okx_teatro.json",
+    "ts_volcado_utc": "2024-09-01T04:17:15.969404+00:00",
+    "n_flota": 115,
+    "conteo_semaforo": {
+      "verde": 5,
+      "amarillo": 38,
+      "rojo": 72
+    },
+    "nota": "Sin entrada en activos → BERU_RANGO_SEMAFORO (amarillo). Morado/reserva no volcado. Rango 1a = Bybit bóveda; liquidez = OKX scan."
+  },
+  "activos": {
+    "1INCH": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 235.06,
+      "turnover24h_okx": 4125441.0,
+      "slip_buy_pct": 0.0259,
+      "slip_sell_pct": 0.0019,
+      "fuente": "teatro_okx_volcado"
+    },
+    "A": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 595.74,
+      "turnover24h_okx": 2330930.0,
+      "slip_buy_pct": 0.0206,
+      "slip_sell_pct": 0.0264,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ACH": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 348.93,
+      "turnover24h_okx": 30306000.0,
+      "slip_buy_pct": 0.0967,
+      "slip_sell_pct": 0.1428,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ACT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 373.96,
+      "turnover24h_okx": 52061015.0,
+      "slip_buy_pct": 0.0216,
+      "slip_sell_pct": 0.0271,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ACU": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 296.26,
+      "turnover24h_okx": 7565640.0,
+      "slip_buy_pct": 0.0324,
+      "slip_sell_pct": 0.0743,
+      "fuente": "teatro_okx_volcado"
+    },
+    "AEON": {
+      "semaforo": "verde",
+      "rango_banda": "verde",
+      "rango_anual_pct": 70.48,
+      "turnover24h_okx": 86993070.0,
+      "slip_buy_pct": 0.0484,
+      "slip_sell_pct": 0.0159,
+      "fuente": "teatro_okx_volcado"
+    },
+    "AEVO": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 567.01,
+      "turnover24h_okx": 46948672.0,
+      "slip_buy_pct": 0.0256,
+      "slip_sell_pct": 0.0454,
+      "fuente": "teatro_okx_volcado"
+    },
+    "AGLD": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 380.47,
+      "turnover24h_okx": 1922076.0,
+      "slip_buy_pct": 0.0578,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "AIXBT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 553.11,
+      "turnover24h_okx": 37134130.0,
+      "slip_buy_pct": 0.0848,
+      "slip_sell_pct": 0.0283,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ALGO": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 207.44,
+      "turnover24h_okx": 27485530.0,
+      "slip_buy_pct": 0.0201,
+      "slip_sell_pct": 0.0339,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ANIME": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 499.46,
+      "turnover24h_okx": 4068493970.0,
+      "slip_buy_pct": 0.0332,
+      "slip_sell_pct": 0.0341,
+      "fuente": "teatro_okx_volcado"
+    },
+    "APE": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 382.88,
+      "turnover24h_okx": 8390851.7,
+      "slip_buy_pct": 0.0262,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "API3": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 457.49,
+      "turnover24h_okx": 2403287.0,
+      "slip_buy_pct": 0.0365,
+      "slip_sell_pct": 0.0365,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ARB": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 533.34,
+      "turnover24h_okx": 1144587221.0,
+      "slip_buy_pct": 0.0072,
+      "slip_sell_pct": 0.0217,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ARKM": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 584.57,
+      "turnover24h_okx": 4543472.0,
+      "slip_buy_pct": 0.0273,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ARX": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 270.4,
+      "turnover24h_okx": 8052780.0,
+      "slip_buy_pct": 0.1057,
+      "slip_sell_pct": 0.0247,
+      "fuente": "teatro_okx_volcado"
+    },
+    "AT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 304.01,
+      "turnover24h_okx": 1180280.0,
+      "slip_buy_pct": 0.0728,
+      "slip_sell_pct": 0.1342,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ATOM": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 240.65,
+      "turnover24h_okx": 1089056.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "AUCTION": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 276.73,
+      "turnover24h_okx": 2817347.7,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "AVAX": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 416.57,
+      "turnover24h_okx": 1567178.8,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "AXS": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 221.71,
+      "turnover24h_okx": 2300369.1,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "AZTEC": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 203.04,
+      "turnover24h_okx": 3651300.0,
+      "slip_buy_pct": 0.312,
+      "slip_sell_pct": 0.3077,
+      "fuente": "teatro_okx_volcado"
+    },
+    "BABY": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 429.32,
+      "turnover24h_okx": 21724530.0,
+      "slip_buy_pct": 0.04,
+      "slip_sell_pct": 0.0416,
+      "fuente": "teatro_okx_volcado"
+    },
+    "BAND": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 429.32,
+      "turnover24h_okx": 3580987.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0291,
+      "fuente": "teatro_okx_volcado"
+    },
+    "BASED": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 367.01,
+      "turnover24h_okx": 39187440.0,
+      "slip_buy_pct": 0.0291,
+      "slip_sell_pct": 0.0401,
+      "fuente": "teatro_okx_volcado"
+    },
+    "BAT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 343.2,
+      "turnover24h_okx": 6513360.0,
+      "slip_buy_pct": 0.0757,
+      "slip_sell_pct": 0.0488,
+      "fuente": "teatro_okx_volcado"
+    },
+    "BLEND": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 246.75,
+      "turnover24h_okx": 5813670.0,
+      "slip_buy_pct": 0.0311,
+      "slip_sell_pct": 0.0303,
+      "fuente": "teatro_okx_volcado"
+    },
+    "BLUR": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 460.36,
+      "turnover24h_okx": 30035010.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0638,
+      "fuente": "teatro_okx_volcado"
+    },
+    "CC": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 117.65,
+      "turnover24h_okx": 21285360.0,
+      "slip_buy_pct": 0.0206,
+      "slip_sell_pct": 0.0349,
+      "fuente": "teatro_okx_volcado"
+    },
+    "CFX": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 368.16,
+      "turnover24h_okx": 27993080.0,
+      "slip_buy_pct": 0.0299,
+      "slip_sell_pct": 0.0191,
+      "fuente": "teatro_okx_volcado"
+    },
+    "CHZ": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 357.08,
+      "turnover24h_okx": 57931400.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "CRO": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 571.81,
+      "turnover24h_okx": 18192900.0,
+      "slip_buy_pct": 0.0296,
+      "slip_sell_pct": 0.0694,
+      "fuente": "teatro_okx_volcado"
+    },
+    "CRV": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 217.88,
+      "turnover24h_okx": 64608491.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "DASH": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 385.17,
+      "turnover24h_okx": 820293.96,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "DOGE": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 291.83,
+      "turnover24h_okx": 1786079130.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "DOT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 492.38,
+      "turnover24h_okx": 12587960.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "DYDX": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 581.33,
+      "turnover24h_okx": 9333185.0,
+      "slip_buy_pct": 0.0193,
+      "slip_sell_pct": 0.0138,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ENJ": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 313.08,
+      "turnover24h_okx": 7049490.0,
+      "slip_buy_pct": 0.0482,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ENSO": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 348.53,
+      "turnover24h_okx": 5400432.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.016,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ETC": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 234.02,
+      "turnover24h_okx": 596617.8,
+      "slip_buy_pct": 0.0014,
+      "slip_sell_pct": 0.0058,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ETHFI": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 304.76,
+      "turnover24h_okx": 9812020.0,
+      "slip_buy_pct": 0.024,
+      "slip_sell_pct": 0.0002,
+      "fuente": "teatro_okx_volcado"
+    },
+    "FARTCOIN": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 516.35,
+      "turnover24h_okx": 26830449.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "FIL": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 450.07,
+      "turnover24h_okx": 28030865.8,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "GLM": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 262.88,
+      "turnover24h_okx": 767100.0,
+      "slip_buy_pct": 0.0684,
+      "slip_sell_pct": 0.0434,
+      "fuente": "teatro_okx_volcado"
+    },
+    "GMT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 569.98,
+      "turnover24h_okx": 113120872.0,
+      "slip_buy_pct": 0.0099,
+      "slip_sell_pct": 0.011,
+      "fuente": "teatro_okx_volcado"
+    },
+    "GPS": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 136.62,
+      "turnover24h_okx": 232032370.0,
+      "slip_buy_pct": 0.0542,
+      "slip_sell_pct": 0.0424,
+      "fuente": "teatro_okx_volcado"
+    },
+    "GRAM": {
+      "semaforo": "verde",
+      "rango_banda": "verde",
+      "rango_anual_pct": 38.43,
+      "turnover24h_okx": 15090631.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0123,
+      "fuente": "teatro_okx_volcado"
+    },
+    "GRASS": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 286.04,
+      "turnover24h_okx": 5846828.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0235,
+      "fuente": "teatro_okx_volcado"
+    },
+    "GRT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 548.06,
+      "turnover24h_okx": 12558340.0,
+      "slip_buy_pct": 0.0283,
+      "slip_sell_pct": 0.0095,
+      "fuente": "teatro_okx_volcado"
+    },
+    "HBAR": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 254.1,
+      "turnover24h_okx": 56046350.0,
+      "slip_buy_pct": 0.0361,
+      "slip_sell_pct": 0.0191,
+      "fuente": "teatro_okx_volcado"
+    },
+    "HMSTR": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 352.67,
+      "turnover24h_okx": 6778015600.0,
+      "slip_buy_pct": 0.0576,
+      "slip_sell_pct": 0.1636,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ICP": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 331.48,
+      "turnover24h_okx": 1615959.96,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "INJ": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 257.29,
+      "turnover24h_okx": 1353970.1,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "IOTA": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 386.34,
+      "turnover24h_okx": 13020080.0,
+      "slip_buy_pct": 0.0316,
+      "slip_sell_pct": 0.0227,
+      "fuente": "teatro_okx_volcado"
+    },
+    "IRYS": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 472.3,
+      "turnover24h_okx": 31115400.0,
+      "slip_buy_pct": 0.3709,
+      "slip_sell_pct": 0.2501,
+      "fuente": "teatro_okx_volcado"
+    },
+    "JTO": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 340.94,
+      "turnover24h_okx": 13945221.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0223,
+      "fuente": "teatro_okx_volcado"
+    },
+    "KAITO": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 406.9,
+      "turnover24h_okx": 15902307.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "KAT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 563.5,
+      "turnover24h_okx": 460070100.0,
+      "slip_buy_pct": 0.1178,
+      "slip_sell_pct": 0.1623,
+      "fuente": "teatro_okx_volcado"
+    },
+    "KITE": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 238.44,
+      "turnover24h_okx": 3179410.0,
+      "slip_buy_pct": 0.078,
+      "slip_sell_pct": 0.0268,
+      "fuente": "teatro_okx_volcado"
+    },
+    "KORU": {
+      "semaforo": "verde",
+      "rango_banda": "verde",
+      "rango_anual_pct": 73.63,
+      "turnover24h_okx": 3025919.26,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "LDO": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 328.81,
+      "turnover24h_okx": 8660237.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0263,
+      "fuente": "teatro_okx_volcado"
+    },
+    "LINK": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 174.28,
+      "turnover24h_okx": 4685031.1,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "MAGIC": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 407.98,
+      "turnover24h_okx": 21788341.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0133,
+      "fuente": "teatro_okx_volcado"
+    },
+    "MANA": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 433.21,
+      "turnover24h_okx": 9386530.0,
+      "slip_buy_pct": 0.0141,
+      "slip_sell_pct": 0.033,
+      "fuente": "teatro_okx_volcado"
+    },
+    "MASK": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 236.88,
+      "turnover24h_okx": 831139.0,
+      "slip_buy_pct": 0.0278,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "MEME": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 529.8,
+      "turnover24h_okx": 819152300.0,
+      "slip_buy_pct": 0.0933,
+      "slip_sell_pct": 0.0802,
+      "fuente": "teatro_okx_volcado"
+    },
+    "MINA": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 317.13,
+      "turnover24h_okx": 16627189.0,
+      "slip_buy_pct": 0.0222,
+      "slip_sell_pct": 0.0305,
+      "fuente": "teatro_okx_volcado"
+    },
+    "MON": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 123.25,
+      "turnover24h_okx": 177714270.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0189,
+      "fuente": "teatro_okx_volcado"
+    },
+    "MOODENG": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 450.23,
+      "turnover24h_okx": 23358520.0,
+      "slip_buy_pct": 0.0186,
+      "slip_sell_pct": 0.0251,
+      "fuente": "teatro_okx_volcado"
+    },
+    "NOT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 423.11,
+      "turnover24h_okx": 39472522700.0,
+      "slip_buy_pct": 0.1082,
+      "slip_sell_pct": 0.0994,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ONT": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 264.25,
+      "turnover24h_okx": 62789160.0,
+      "slip_buy_pct": 0.0249,
+      "slip_sell_pct": 0.0101,
+      "fuente": "teatro_okx_volcado"
+    },
+    "OPG": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 371.01,
+      "turnover24h_okx": 10211110.0,
+      "slip_buy_pct": 0.0814,
+      "slip_sell_pct": 0.0373,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ORDI": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 233.23,
+      "turnover24h_okx": 1057800.1,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "PENGU": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 462.68,
+      "turnover24h_okx": 1454381900.0,
+      "slip_buy_pct": 0.0311,
+      "slip_sell_pct": 0.0195,
+      "fuente": "teatro_okx_volcado"
+    },
+    "PEOPLE": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 174.16,
+      "turnover24h_okx": 258149700.0,
+      "slip_buy_pct": 0.125,
+      "slip_sell_pct": 0.0814,
+      "fuente": "teatro_okx_volcado"
+    },
+    "PNUT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 461.31,
+      "turnover24h_okx": 26814880.0,
+      "slip_buy_pct": 0.0266,
+      "slip_sell_pct": 0.0305,
+      "fuente": "teatro_okx_volcado"
+    },
+    "POL": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 272.98,
+      "turnover24h_okx": 150426970.0,
+      "slip_buy_pct": 0.0168,
+      "slip_sell_pct": 0.019,
+      "fuente": "teatro_okx_volcado"
+    },
+    "POPCAT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 487.8,
+      "turnover24h_okx": 6843800.0,
+      "slip_buy_pct": 0.0471,
+      "slip_sell_pct": 0.0511,
+      "fuente": "teatro_okx_volcado"
+    },
+    "PYTH": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 417.47,
+      "turnover24h_okx": 26179520.0,
+      "slip_buy_pct": 0.0216,
+      "slip_sell_pct": 0.01,
+      "fuente": "teatro_okx_volcado"
+    },
+    "QTUM": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 295.02,
+      "turnover24h_okx": 582329.0,
+      "slip_buy_pct": 0.0182,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "RENDER": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 252.66,
+      "turnover24h_okx": 1450208.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ROBO": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 375.84,
+      "turnover24h_okx": 217898500.0,
+      "slip_buy_pct": 0.0737,
+      "slip_sell_pct": 0.088,
+      "fuente": "teatro_okx_volcado"
+    },
+    "RSR": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 508.7,
+      "turnover24h_okx": 219748100.0,
+      "slip_buy_pct": 0.1483,
+      "slip_sell_pct": 0.0646,
+      "fuente": "teatro_okx_volcado"
+    },
+    "RVN": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 360.04,
+      "turnover24h_okx": 199822540.0,
+      "slip_buy_pct": 0.089,
+      "slip_sell_pct": 0.0368,
+      "fuente": "teatro_okx_volcado"
+    },
+    "SENT": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 500.18,
+      "turnover24h_okx": 30639100.0,
+      "slip_buy_pct": 0.1242,
+      "slip_sell_pct": 0.0783,
+      "fuente": "teatro_okx_volcado"
+    },
+    "SHELL": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 568.0,
+      "turnover24h_okx": 10537840.0,
+      "slip_buy_pct": 0.0991,
+      "slip_sell_pct": 0.1099,
+      "fuente": "teatro_okx_volcado"
+    },
+    "SNXX": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 124.83,
+      "turnover24h_okx": 6038747.4,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "SOL": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 217.25,
+      "turnover24h_okx": 9733941.76,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "SOXL": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 182.6,
+      "turnover24h_okx": 887729.5,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "SPACE": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 374.9,
+      "turnover24h_okx": 148209500.0,
+      "slip_buy_pct": 0.1784,
+      "slip_sell_pct": 0.1659,
+      "fuente": "teatro_okx_volcado"
+    },
+    "SPCX": {
+      "semaforo": "verde",
+      "rango_banda": "verde",
+      "rango_anual_pct": 91.33,
+      "turnover24h_okx": 1251169.7,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "SPX": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 336.06,
+      "turnover24h_okx": 2585678.0,
+      "slip_buy_pct": 0.0003,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "STX": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 262.22,
+      "turnover24h_okx": 30395238.0,
+      "slip_buy_pct": 0.034,
+      "slip_sell_pct": 0.0169,
+      "fuente": "teatro_okx_volcado"
+    },
+    "SUSHI": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 356.27,
+      "turnover24h_okx": 5920795.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "THETA": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 402.57,
+      "turnover24h_okx": 2730763.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0582,
+      "fuente": "teatro_okx_volcado"
+    },
+    "TIA": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 496.66,
+      "turnover24h_okx": 8925768.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0159,
+      "fuente": "teatro_okx_volcado"
+    },
+    "TRUMP": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 496.64,
+      "turnover24h_okx": 109714973.2,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "TRUTH": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 343.66,
+      "turnover24h_okx": 1914100.0,
+      "slip_buy_pct": 0.3057,
+      "slip_sell_pct": 0.3297,
+      "fuente": "teatro_okx_volcado"
+    },
+    "UMA": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 363.76,
+      "turnover24h_okx": 1010368.4,
+      "slip_buy_pct": 0.0246,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "VIRTUAL": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 252.96,
+      "turnover24h_okx": 5489314.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0179,
+      "fuente": "teatro_okx_volcado"
+    },
+    "WET": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 412.7,
+      "turnover24h_okx": 3360370.0,
+      "slip_buy_pct": 0.0466,
+      "slip_sell_pct": 0.0425,
+      "fuente": "teatro_okx_volcado"
+    },
+    "WIF": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 514.01,
+      "turnover24h_okx": 30001691.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "WLD": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 540.98,
+      "turnover24h_okx": 159936690.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "WLFI": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 579.69,
+      "turnover24h_okx": 123912070.0,
+      "slip_buy_pct": 0.0074,
+      "slip_sell_pct": 0.0154,
+      "fuente": "teatro_okx_volcado"
+    },
+    "WOO": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 585.09,
+      "turnover24h_okx": 8021300.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "XAG": {
+      "semaforo": "verde",
+      "rango_banda": "verde",
+      "rango_anual_pct": 50.9,
+      "turnover24h_okx": 829180.75,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "XRP": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 168.09,
+      "turnover24h_okx": 248208872.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "XTZ": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 278.06,
+      "turnover24h_okx": 928276.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ZAMA": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 270.97,
+      "turnover24h_okx": 55613270.0,
+      "slip_buy_pct": 0.0028,
+      "slip_sell_pct": 0.0464,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ZEN": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 398.85,
+      "turnover24h_okx": 1056394.2,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ZETA": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 596.38,
+      "turnover24h_okx": 9299870.0,
+      "slip_buy_pct": 0.0428,
+      "slip_sell_pct": 0.0641,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ZIL": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 376.12,
+      "turnover24h_okx": 225143900.0,
+      "slip_buy_pct": 0.1634,
+      "slip_sell_pct": 0.1057,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ZKP": {
+      "semaforo": "rojo",
+      "rango_banda": "rojo",
+      "rango_anual_pct": 462.56,
+      "turnover24h_okx": 223583250.0,
+      "slip_buy_pct": 0.0331,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ZRO": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 219.45,
+      "turnover24h_okx": 5909546.0,
+      "slip_buy_pct": 0.0,
+      "slip_sell_pct": 0.0,
+      "fuente": "teatro_okx_volcado"
+    },
+    "ZRX": {
+      "semaforo": "amarillo",
+      "rango_banda": "amarillo",
+      "rango_anual_pct": 227.81,
+      "turnover24h_okx": 2027150.0,
+      "slip_buy_pct": 0.0157,
+      "slip_sell_pct": 0.0233,
+      "fuente": "teatro_okx_volcado"
+    }
+  }
+}

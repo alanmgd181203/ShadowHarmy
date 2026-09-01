@@ -28,6 +28,15 @@ TESTNET = os.getenv("MODO_TESTNET", "True").lower() == "true"
 API_KEY = API_KEY_TESTNET if TESTNET else API_KEY_MAINNET
 API_SECRET = API_SECRET_TESTNET if TESTNET else API_SECRET_MAINNET
 
+# Beru rango — mar de combate (default OKX; Bybit solo si BERU_MAR=bybit)
+BERU_MAR = str(os.getenv("BERU_MAR", "okx") or "okx").strip().lower()
+OKX_API_KEY = os.getenv("OKX_API_KEY", "")
+OKX_API_SECRET = os.getenv("OKX_API_SECRET", "")
+OKX_PASSPHRASE = os.getenv("OKX_PASSPHRASE", "")
+# 0 = live · 1 = paper trading (header x-simulated-trading)
+OKX_FLAG = str(os.getenv("OKX_FLAG", "0") or "0").strip()
+OKX_PARAMETROS_PATH = os.getenv("OKX_PARAMETROS_PATH", "")
+
 MODO_SIMULACION = os.getenv("MODO_SIMULACION", "True").lower() == "true"
 SAFE_MODE = os.getenv("SAFE_MODE", "False").lower() == "true"
 
@@ -122,10 +131,28 @@ BERU_MANOS_PARALELAS = int(float(os.getenv("BERU_MANOS_PARALELAS", "8") or 8))
 # Si Bybit escupe 10006, ese Santo espera; los otros no se congelan.
 BERU_API_COOLDOWN_S = float(os.getenv("BERU_API_COOLDOWN_S", "0.5") or 0.5)
 # --- Beru rango (lineal) 2026-08-22 — wake eterno · Red desde Oz · engorde CAZANDO ---
-# Perfiles: normal (default) · feria (orejas x2 · engorde +$1/0.2% · masa $5)
-# Red simétrica (Monarca 2026-08-30): LONG y SHORT mismo % · SHORT ya no +0,1 % extra
-# Engorde canónico: +$1 / 0,2 % por peldaño (normal y feria)
+# Perfiles: normal (default) · feria (orejas x2) · piedra (OKX micro · $0.20)
+# Red simétrica normal/feria; piedra SHORT +0,1 % extra vía RED_DESDE_OZ_SHORT_PCT
 # Checkpoint normal: data/beru/rango/checkpoint_doctrina_normal.json
+BERU_RANGO_PIEDRA_TIERS = {
+    "ancho": 1.0,
+    "medio": 0.8,
+    "cenido": 0.5,
+}
+# Semáforo piedra: nacimiento por bando de pierna (paz / medio / pesado) · tope serie
+BERU_RANGO_SEMAFORO_MAPA = {
+    "rojo": {"paz": 0.20, "medio": 0.20, "pesado": 0.20, "tope": 0.50},
+    "amarillo": {"paz": 0.30, "medio": 0.25, "pesado": 0.20, "tope": 0.80},
+    "verde": {"paz": 0.50, "medio": 0.30, "pesado": 0.20, "tope": 1.00},
+}
+BERU_RANGO_PIERNA_UMBRAL_MEDIO = float(os.getenv("BERU_RANGO_PIERNA_UMBRAL_MEDIO", "100") or 100)
+BERU_RANGO_PIERNA_UMBRAL_PESADO = float(os.getenv("BERU_RANGO_PIERNA_UMBRAL_PESADO", "300") or 300)
+BERU_RANGO_PIERNA_HIST_PCT = float(os.getenv("BERU_RANGO_PIERNA_HIST_PCT", "0.20") or 0.20)
+BERU_RANGO_SEMAFORO = str(os.getenv("BERU_RANGO_SEMAFORO", "amarillo") or "amarillo").strip().lower()
+BERU_RANGO_PIEDRA_ASIGNACION_PATH = os.getenv(
+    "BERU_RANGO_PIEDRA_ASIGNACION_PATH",
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "beru", "rango", "piedra_asignacion.json"),
+)
 BERU_RANGO_PERFILES = {
     "normal": {
         "VACIO_PCT": 0.012,
@@ -138,6 +165,8 @@ BERU_RANGO_PERFILES = {
         "ENGORDE_USD": 1.0,
         "ENGORDE_PASO_PCT": 0.002,
         "TRAILING_PCT": 0.002,
+        "ENGORDE_MODO": "linear",
+        "ENGORDE_TOPE_USD": 0.0,
     },
     "feria": {
         # Monedas violentas: feria apretada (Monarca 2026-08-31: 2,2 / Oz 0,2 / Red 1,2)
@@ -151,21 +180,50 @@ BERU_RANGO_PERFILES = {
         "ENGORDE_USD": 1.0,
         "ENGORDE_PASO_PCT": 0.002,
         "TRAILING_PCT": 0.002,
+        "ENGORDE_MODO": "linear",
+        "ENGORDE_TOPE_USD": 0.0,
+    },
+    "piedra": {
+        # OKX USDT micro: misma geometría clásica · Red SHORT 0,8 % · nace $0,20
+        "VACIO_PCT": 0.012,
+        "OZ_GAP_PCT": 0.002,
+        "RED_DESDE_OZ_PCT": 0.007,
+        "RED_DESDE_OZ_SHORT_PCT": 0.008,
+        "SANGRE_PCT": 0.012,
+        "MASA_USD": 0.20,
+        "MASA_RED_USD": 0.20,
+        "MASA_SANGRE_USD": 0.20,
+        "ENGORDE_USD": 0.01,
+        "ENGORDE_PASO_PCT": 0.001,
+        "TRAILING_PCT": 0.002,
+        "ENGORDE_MODO": "peldaños_sumados",
+        "ENGORDE_TOPE_USD": 0.0,
     },
 }
+
+
+def _piedra_tier_normalizado(tier: str | None) -> str:
+    t = str(tier or os.getenv("BERU_RANGO_PIEDRA_TIER", "medio") or "medio").strip().lower()
+    if t in ("ceñido", "cenido", "ceni", "ce"):
+        return "cenido"
+    if t in ("ancho", "wide", "a"):
+        return "ancho"
+    if t in ("medio", "medium", "default", "m"):
+        return "medio"
+    return "medio"
 
 
 def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
     """Aplica geometría de un perfil. Default = BERU_RANGO_PERFIL / normal.
 
-    No inventa números: solo 'normal' o 'feria'. Env individuales pisan
-    después si el Monarca las fija a propósito.
+    Perfiles: normal · feria · piedra. Env individuales pisan después si el Monarca las fija.
     """
     global BERU_RANGO_PERFIL, BERU_RANGO_VACIO_PCT, BERU_RANGO_OZ_GAP_PCT
     global BERU_RANGO_RED_DESDE_OZ_PCT, BERU_RANGO_RED_DESDE_OZ_SHORT_PCT
     global BERU_RANGO_SANGRE_PCT
     global BERU_RANGO_MASA_USD, BERU_RANGO_MASA_RED_USD, BERU_RANGO_MASA_SANGRE_USD
     global BERU_RANGO_ENGORDE_USD, BERU_RANGO_ENGORDE_PASO_PCT, BERU_RANGO_TRAILING_PCT
+    global BERU_RANGO_ENGORDE_TOPE_USD, BERU_RANGO_PIEDRA_TIER, BERU_RANGO_ENGORDE_MODO
 
     nombre = str(perfil or os.getenv("BERU_RANGO_PERFIL", "normal") or "normal").strip().lower()
     if nombre not in BERU_RANGO_PERFILES:
@@ -185,6 +243,14 @@ def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
     BERU_RANGO_ENGORDE_USD = float(p["ENGORDE_USD"])
     BERU_RANGO_ENGORDE_PASO_PCT = float(p["ENGORDE_PASO_PCT"])
     BERU_RANGO_TRAILING_PCT = float(p["TRAILING_PCT"])
+    BERU_RANGO_ENGORDE_MODO = str(p.get("ENGORDE_MODO", "linear") or "linear").strip().lower()
+    tope_perfil = float(p.get("ENGORDE_TOPE_USD", 0) or 0)
+    if nombre == "piedra":
+        BERU_RANGO_PIEDRA_TIER = _piedra_tier_normalizado(os.getenv("BERU_RANGO_PIEDRA_TIER"))
+        tope_perfil = 0.0  # tope vía semáforo en beru_rango_semaforo
+    else:
+        BERU_RANGO_PIEDRA_TIER = ""
+    BERU_RANGO_ENGORDE_TOPE_USD = tope_perfil
     # Overrides explícitos del entorno (solo si el Monarca los puso)
     if os.getenv("BERU_RANGO_VACIO_PCT"):
         BERU_RANGO_VACIO_PCT = float(os.getenv("BERU_RANGO_VACIO_PCT") or BERU_RANGO_VACIO_PCT)
@@ -207,6 +273,10 @@ def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
         )
     if os.getenv("BERU_RANGO_TRAILING_PCT"):
         BERU_RANGO_TRAILING_PCT = float(os.getenv("BERU_RANGO_TRAILING_PCT") or BERU_RANGO_TRAILING_PCT)
+    if os.getenv("BERU_RANGO_ENGORDE_TOPE_USD"):
+        BERU_RANGO_ENGORDE_TOPE_USD = float(
+            os.getenv("BERU_RANGO_ENGORDE_TOPE_USD") or BERU_RANGO_ENGORDE_TOPE_USD
+        )
     return nombre
 
 

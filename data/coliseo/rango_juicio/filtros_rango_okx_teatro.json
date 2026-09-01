@@ -1,0 +1,1508 @@
+{
+  "meta": {
+    "ts_utc": "2026-09-01T04:02:48.587705+00:00",
+    "flota_max_pct": 600.0,
+    "morado_max_pct": 1000.0,
+    "fuera_max_pct": 1000.0,
+    "verde_max_pct": 100.0,
+    "amarillo_max_pct": 300.0,
+    "fuente_rango": "data/coliseo/rango_juicio/filtros_absolutos.json",
+    "n_escaneados": 186,
+    "n_flota": 115,
+    "n_morado": 29,
+    "n_fuera_rango": 42,
+    "n_sin_dato": 0,
+    "n_elegibles_post_rango": 115,
+    "nota": "Rango 1a Bybit. Flota verde/amarillo/rojo <=600%. Morado 600-1000% reserva. Nevera >1000%."
+  },
+  "activos": {
+    "0G": {
+      "activo": "0G",
+      "rango_anual_pct": 4128.86,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "1INCH": {
+      "activo": "1INCH",
+      "rango_anual_pct": 235.06,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "2Z": {
+      "activo": "2Z",
+      "rango_anual_pct": 1233.68,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "A": {
+      "activo": "A",
+      "rango_anual_pct": 595.74,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ACH": {
+      "activo": "ACH",
+      "rango_anual_pct": 348.93,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ACT": {
+      "activo": "ACT",
+      "rango_anual_pct": 373.96,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ACU": {
+      "activo": "ACU",
+      "rango_anual_pct": 296.26,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AEON": {
+      "activo": "AEON",
+      "rango_anual_pct": 70.48,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "verde",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AEVO": {
+      "activo": "AEVO",
+      "rango_anual_pct": 567.01,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AGLD": {
+      "activo": "AGLD",
+      "rango_anual_pct": 380.47,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AIXBT": {
+      "activo": "AIXBT",
+      "rango_anual_pct": 553.11,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ALGO": {
+      "activo": "ALGO",
+      "rango_anual_pct": 207.44,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ANIME": {
+      "activo": "ANIME",
+      "rango_anual_pct": 499.46,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "APE": {
+      "activo": "APE",
+      "rango_anual_pct": 382.88,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "API3": {
+      "activo": "API3",
+      "rango_anual_pct": 457.49,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "APT": {
+      "activo": "APT",
+      "rango_anual_pct": 884.52,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ARB": {
+      "activo": "ARB",
+      "rango_anual_pct": 533.34,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ARKM": {
+      "activo": "ARKM",
+      "rango_anual_pct": 584.57,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ARX": {
+      "activo": "ARX",
+      "rango_anual_pct": 270.4,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AT": {
+      "activo": "AT",
+      "rango_anual_pct": 304.01,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ATH": {
+      "activo": "ATH",
+      "rango_anual_pct": 1401.01,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ATOM": {
+      "activo": "ATOM",
+      "rango_anual_pct": 240.65,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AUCTION": {
+      "activo": "AUCTION",
+      "rango_anual_pct": 276.73,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AVAX": {
+      "activo": "AVAX",
+      "rango_anual_pct": 416.57,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AVNT": {
+      "activo": "AVNT",
+      "rango_anual_pct": 2517.71,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AXS": {
+      "activo": "AXS",
+      "rango_anual_pct": 221.71,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "AZTEC": {
+      "activo": "AZTEC",
+      "rango_anual_pct": 203.04,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BABY": {
+      "activo": "BABY",
+      "rango_anual_pct": 429.32,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BAND": {
+      "activo": "BAND",
+      "rango_anual_pct": 429.32,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BARD": {
+      "activo": "BARD",
+      "rango_anual_pct": 1353.03,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BASED": {
+      "activo": "BASED",
+      "rango_anual_pct": 367.01,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BAT": {
+      "activo": "BAT",
+      "rango_anual_pct": 343.2,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BEAT": {
+      "activo": "BEAT",
+      "rango_anual_pct": 8552.08,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BERA": {
+      "activo": "BERA",
+      "rango_anual_pct": 1463.64,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BICO": {
+      "activo": "BICO",
+      "rango_anual_pct": 616.09,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BIGTIME": {
+      "activo": "BIGTIME",
+      "rango_anual_pct": 1035.21,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BIO": {
+      "activo": "BIO",
+      "rango_anual_pct": 602.86,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BLEND": {
+      "activo": "BLEND",
+      "rango_anual_pct": 246.75,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BLUR": {
+      "activo": "BLUR",
+      "rango_anual_pct": 460.36,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BRETT": {
+      "activo": "BRETT",
+      "rango_anual_pct": 1065.29,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BREV": {
+      "activo": "BREV",
+      "rango_anual_pct": 677.82,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "BSB": {
+      "activo": "BSB",
+      "rango_anual_pct": 2550.64,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "CC": {
+      "activo": "CC",
+      "rango_anual_pct": 117.65,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "CELO": {
+      "activo": "CELO",
+      "rango_anual_pct": 600.81,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "CFX": {
+      "activo": "CFX",
+      "rango_anual_pct": 368.16,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "CHZ": {
+      "activo": "CHZ",
+      "rango_anual_pct": 357.08,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "COAI": {
+      "activo": "COAI",
+      "rango_anual_pct": 7694.28,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "CORE": {
+      "activo": "CORE",
+      "rango_anual_pct": 1856.23,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "CRO": {
+      "activo": "CRO",
+      "rango_anual_pct": 571.81,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "CRV": {
+      "activo": "CRV",
+      "rango_anual_pct": 217.88,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "DASH": {
+      "activo": "DASH",
+      "rango_anual_pct": 385.17,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "DOGE": {
+      "activo": "DOGE",
+      "rango_anual_pct": 291.83,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "DOT": {
+      "activo": "DOT",
+      "rango_anual_pct": 492.38,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "DYDX": {
+      "activo": "DYDX",
+      "rango_anual_pct": 581.33,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "EDEN": {
+      "activo": "EDEN",
+      "rango_anual_pct": 1269.12,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "EIGEN": {
+      "activo": "EIGEN",
+      "rango_anual_pct": 960.58,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ENJ": {
+      "activo": "ENJ",
+      "rango_anual_pct": 313.08,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ENSO": {
+      "activo": "ENSO",
+      "rango_anual_pct": 348.53,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ETC": {
+      "activo": "ETC",
+      "rango_anual_pct": 234.02,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ETHFI": {
+      "activo": "ETHFI",
+      "rango_anual_pct": 304.76,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "F": {
+      "activo": "F",
+      "rango_anual_pct": 1015.67,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "FARTCOIN": {
+      "activo": "FARTCOIN",
+      "rango_anual_pct": 516.35,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "FIL": {
+      "activo": "FIL",
+      "rango_anual_pct": 450.07,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "FLOW": {
+      "activo": "FLOW",
+      "rango_anual_pct": 1408.73,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "FOGO": {
+      "activo": "FOGO",
+      "rango_anual_pct": 649.26,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "GALA": {
+      "activo": "GALA",
+      "rango_anual_pct": 1071.89,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "GLM": {
+      "activo": "GLM",
+      "rango_anual_pct": 262.88,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "GMT": {
+      "activo": "GMT",
+      "rango_anual_pct": 569.98,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "GPS": {
+      "activo": "GPS",
+      "rango_anual_pct": 136.62,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "GRAM": {
+      "activo": "GRAM",
+      "rango_anual_pct": 38.43,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "verde",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "GRASS": {
+      "activo": "GRASS",
+      "rango_anual_pct": 286.04,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "GRT": {
+      "activo": "GRT",
+      "rango_anual_pct": 548.06,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "H": {
+      "activo": "H",
+      "rango_anual_pct": 1120.34,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "HBAR": {
+      "activo": "HBAR",
+      "rango_anual_pct": 254.1,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "HMSTR": {
+      "activo": "HMSTR",
+      "rango_anual_pct": 352.67,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "HOME": {
+      "activo": "HOME",
+      "rango_anual_pct": 939.02,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ICP": {
+      "activo": "ICP",
+      "rango_anual_pct": 331.48,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ICX": {
+      "activo": "ICX",
+      "rango_anual_pct": 691.51,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "IMX": {
+      "activo": "IMX",
+      "rango_anual_pct": 709.58,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "INIT": {
+      "activo": "INIT",
+      "rango_anual_pct": 674.33,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "INJ": {
+      "activo": "INJ",
+      "rango_anual_pct": 257.29,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "IOTA": {
+      "activo": "IOTA",
+      "rango_anual_pct": 386.34,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "IRYS": {
+      "activo": "IRYS",
+      "rango_anual_pct": 472.3,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "JTO": {
+      "activo": "JTO",
+      "rango_anual_pct": 340.94,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "KAITO": {
+      "activo": "KAITO",
+      "rango_anual_pct": 406.9,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "KAT": {
+      "activo": "KAT",
+      "rango_anual_pct": 563.5,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "KITE": {
+      "activo": "KITE",
+      "rango_anual_pct": 238.44,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "KORU": {
+      "activo": "KORU",
+      "rango_anual_pct": 73.63,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "verde",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "LA": {
+      "activo": "LA",
+      "rango_anual_pct": 959.52,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "LAB": {
+      "activo": "LAB",
+      "rango_anual_pct": 36038.01,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "LDO": {
+      "activo": "LDO",
+      "rango_anual_pct": 328.81,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "LIGHT": {
+      "activo": "LIGHT",
+      "rango_anual_pct": 3145.07,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "LINEA": {
+      "activo": "LINEA",
+      "rango_anual_pct": 2033.6,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "LINK": {
+      "activo": "LINK",
+      "rango_anual_pct": 174.28,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MAGIC": {
+      "activo": "MAGIC",
+      "rango_anual_pct": 407.98,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MANA": {
+      "activo": "MANA",
+      "rango_anual_pct": 433.21,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MASK": {
+      "activo": "MASK",
+      "rango_anual_pct": 236.88,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ME": {
+      "activo": "ME",
+      "rango_anual_pct": 1255.64,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MEGA": {
+      "activo": "MEGA",
+      "rango_anual_pct": 1245.37,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MEME": {
+      "activo": "MEME",
+      "rango_anual_pct": 529.8,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MERL": {
+      "activo": "MERL",
+      "rango_anual_pct": 2699.8,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MET": {
+      "activo": "MET",
+      "rango_anual_pct": 780.75,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MINA": {
+      "activo": "MINA",
+      "rango_anual_pct": 317.13,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MON": {
+      "activo": "MON",
+      "rango_anual_pct": 123.25,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MOODENG": {
+      "activo": "MOODENG",
+      "rango_anual_pct": 450.23,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "MOVE": {
+      "activo": "MOVE",
+      "rango_anual_pct": 1675.09,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "NOT": {
+      "activo": "NOT",
+      "rango_anual_pct": 423.11,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ONT": {
+      "activo": "ONT",
+      "rango_anual_pct": 264.25,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "OP": {
+      "activo": "OP",
+      "rango_anual_pct": 795.99,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "OPG": {
+      "activo": "OPG",
+      "rango_anual_pct": 371.01,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "OPN": {
+      "activo": "OPN",
+      "rango_anual_pct": 1298.89,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ORDER": {
+      "activo": "ORDER",
+      "rango_anual_pct": 1480.06,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ORDI": {
+      "activo": "ORDI",
+      "rango_anual_pct": 233.23,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "PARTI": {
+      "activo": "PARTI",
+      "rango_anual_pct": 846.11,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "PENGU": {
+      "activo": "PENGU",
+      "rango_anual_pct": 462.68,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "PEOPLE": {
+      "activo": "PEOPLE",
+      "rango_anual_pct": 174.16,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "PIPPIN": {
+      "activo": "PIPPIN",
+      "rango_anual_pct": 4682.48,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "PLUME": {
+      "activo": "PLUME",
+      "rango_anual_pct": 942.03,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "PNUT": {
+      "activo": "PNUT",
+      "rango_anual_pct": 461.31,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "POL": {
+      "activo": "POL",
+      "rango_anual_pct": 272.98,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "POPCAT": {
+      "activo": "POPCAT",
+      "rango_anual_pct": 487.8,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "PROVE": {
+      "activo": "PROVE",
+      "rango_anual_pct": 611.23,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "PYTH": {
+      "activo": "PYTH",
+      "rango_anual_pct": 417.47,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "QTUM": {
+      "activo": "QTUM",
+      "rango_anual_pct": 295.02,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "RAVE": {
+      "activo": "RAVE",
+      "rango_anual_pct": 10036.68,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "RECALL": {
+      "activo": "RECALL",
+      "rango_anual_pct": 1664.22,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "RENDER": {
+      "activo": "RENDER",
+      "rango_anual_pct": 252.66,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "RESOLV": {
+      "activo": "RESOLV",
+      "rango_anual_pct": 1231.25,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "RIVER": {
+      "activo": "RIVER",
+      "rango_anual_pct": 3645.45,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ROBO": {
+      "activo": "ROBO",
+      "rango_anual_pct": 375.84,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "RSR": {
+      "activo": "RSR",
+      "rango_anual_pct": 508.7,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "RVN": {
+      "activo": "RVN",
+      "rango_anual_pct": 360.04,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "S": {
+      "activo": "S",
+      "rango_anual_pct": 1170.88,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SAHARA": {
+      "activo": "SAHARA",
+      "rango_anual_pct": 1156.37,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SAND": {
+      "activo": "SAND",
+      "rango_anual_pct": 657.52,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SAPIEN": {
+      "activo": "SAPIEN",
+      "rango_anual_pct": 666.11,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SEI": {
+      "activo": "SEI",
+      "rango_anual_pct": 720.48,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SENT": {
+      "activo": "SENT",
+      "rango_anual_pct": 500.18,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SHELL": {
+      "activo": "SHELL",
+      "rango_anual_pct": 568.0,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SIGN": {
+      "activo": "SIGN",
+      "rango_anual_pct": 1643.06,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SLX": {
+      "activo": "SLX",
+      "rango_anual_pct": 925.99,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SNX": {
+      "activo": "SNX",
+      "rango_anual_pct": 1065.25,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SNXX": {
+      "activo": "SNXX",
+      "rango_anual_pct": 124.83,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SOL": {
+      "activo": "SOL",
+      "rango_anual_pct": 217.25,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SOON": {
+      "activo": "SOON",
+      "rango_anual_pct": 2906.91,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SOPH": {
+      "activo": "SOPH",
+      "rango_anual_pct": 792.05,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SOXL": {
+      "activo": "SOXL",
+      "rango_anual_pct": 182.6,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SPACE": {
+      "activo": "SPACE",
+      "rango_anual_pct": 374.9,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SPCX": {
+      "activo": "SPCX",
+      "rango_anual_pct": 91.33,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "verde",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SPX": {
+      "activo": "SPX",
+      "rango_anual_pct": 336.06,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "STRK": {
+      "activo": "STRK",
+      "rango_anual_pct": 995.21,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "STX": {
+      "activo": "STX",
+      "rango_anual_pct": 262.22,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "SUSHI": {
+      "activo": "SUSHI",
+      "rango_anual_pct": 356.27,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "THETA": {
+      "activo": "THETA",
+      "rango_anual_pct": 402.57,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "TIA": {
+      "activo": "TIA",
+      "rango_anual_pct": 496.66,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "TRIA": {
+      "activo": "TRIA",
+      "rango_anual_pct": 636.23,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "TRUMP": {
+      "activo": "TRUMP",
+      "rango_anual_pct": 496.64,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "TRUST": {
+      "activo": "TRUST",
+      "rango_anual_pct": 942.64,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "TRUTH": {
+      "activo": "TRUTH",
+      "rango_anual_pct": 343.66,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "UMA": {
+      "activo": "UMA",
+      "rango_anual_pct": 363.76,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "USELESS": {
+      "activo": "USELESS",
+      "rango_anual_pct": 826.06,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "VIRTUAL": {
+      "activo": "VIRTUAL",
+      "rango_anual_pct": 252.96,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "W": {
+      "activo": "W",
+      "rango_anual_pct": 1507.04,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "WAL": {
+      "activo": "WAL",
+      "rango_anual_pct": 1838.38,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "WCT": {
+      "activo": "WCT",
+      "rango_anual_pct": 745.39,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "WET": {
+      "activo": "WET",
+      "rango_anual_pct": 412.7,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "WIF": {
+      "activo": "WIF",
+      "rango_anual_pct": 514.01,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "WLD": {
+      "activo": "WLD",
+      "rango_anual_pct": 540.98,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "WLFI": {
+      "activo": "WLFI",
+      "rango_anual_pct": 579.69,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "WOO": {
+      "activo": "WOO",
+      "rango_anual_pct": 585.09,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "XAG": {
+      "activo": "XAG",
+      "rango_anual_pct": 50.9,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "verde",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "XPL": {
+      "activo": "XPL",
+      "rango_anual_pct": 1751.15,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "XRP": {
+      "activo": "XRP",
+      "rango_anual_pct": 168.09,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "XTZ": {
+      "activo": "XTZ",
+      "rango_anual_pct": 278.06,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "YB": {
+      "activo": "YB",
+      "rango_anual_pct": 1936.3,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "YGG": {
+      "activo": "YGG",
+      "rango_anual_pct": 1126.66,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZAMA": {
+      "activo": "ZAMA",
+      "rango_anual_pct": 270.97,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZBT": {
+      "activo": "ZBT",
+      "rango_anual_pct": 764.11,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZEN": {
+      "activo": "ZEN",
+      "rango_anual_pct": 398.85,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZETA": {
+      "activo": "ZETA",
+      "rango_anual_pct": 596.38,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZIL": {
+      "activo": "ZIL",
+      "rango_anual_pct": 376.12,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZK": {
+      "activo": "ZK",
+      "rango_anual_pct": 884.49,
+      "rango_fuera": false,
+      "rango_reserva": true,
+      "rango_banda": "morado",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZKP": {
+      "activo": "ZKP",
+      "rango_anual_pct": 462.56,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "rojo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZORA": {
+      "activo": "ZORA",
+      "rango_anual_pct": 1954.26,
+      "rango_fuera": true,
+      "rango_reserva": false,
+      "rango_banda": "fuera",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZRO": {
+      "activo": "ZRO",
+      "rango_anual_pct": 219.45,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    },
+    "ZRX": {
+      "activo": "ZRX",
+      "rango_anual_pct": 227.81,
+      "rango_fuera": false,
+      "rango_reserva": false,
+      "rango_banda": "amarillo",
+      "fuente": "filtros_absolutos_boveda_bybit"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 """Altar lineal Beru rango — Oz = trailing de entrada 0,2 %.
 
-Manos OFF por defecto. En Bybit:
-  · Al armar: StopOrder en la Oz actual (SHORT: detona al bajar; LONG: al subir)
+Manos OFF por defecto. Mar por defecto OKX (``BERU_MAR``):
+  · Al armar: orden trigger en la Oz (SHORT: detona al bajar; LONG: al subir)
   · Mientras CAZA: enmienda el trigger si el rastro sube/baja el extremo
   · Al detonar: Market si hace falta; el cerebro ya marcó el fill
 """
@@ -12,8 +12,9 @@ import hashlib
 from dataclasses import dataclass
 from typing import Any
 
+from core import beru_mar
 from core import beru_rango
-from core import lote_bybit
+from core import lote_beru
 
 
 TERMINALES = frozenset({
@@ -68,6 +69,39 @@ def link_id_rango(beru: Any, *, proposito: str = "TRAIL") -> str:
     return f"BRG-{proposito.upper()[:3]}-{rev}-{digest}"[:36]
 
 
+def _cuantizar_masa_plan(
+    beru: Any,
+    masa_doctrinal: float,
+    oz: float,
+    frente: str,
+) -> dict[str, Any]:
+    """Doctrina → qty/notional; piedra: floor + deuda en el vivo."""
+    doctrina = max(0.0, float(masa_doctrinal or 0))
+    pend = float(getattr(beru, "masa_pendiente_usd", 0) or 0) if beru_rango.redondeo_floor_manos() else 0.0
+    usar_floor = beru_rango.redondeo_floor_manos()
+    objetivo = doctrina + pend if usar_floor else doctrina
+    if not usar_floor:
+        minimo = 0.0
+        if beru_mar.es_okx():
+            from core import lote_okx
+            act = beru_rango.activo_desde_beru(beru) or frente.replace("USDT_LINEAL", "")
+            minimo = float((lote_okx.pierna_activo(act)).get("min_usd_est") or 0)
+        objetivo = beru_rango.piso_masa_usd(objetivo, minimo_bybit=minimo)
+    pack = lote_beru.masa_a_qty_con_deuda(
+        objetivo,
+        oz,
+        frente,
+        pendiente=0.0,
+        usar_floor=usar_floor,
+    )
+    if beru is not None and usar_floor:
+        beru_rango.registrar_masa_doctrinal(beru, doctrina)
+        if pack.get("ok"):
+            beru.masa_pendiente_usd = max(0.0, float(pack.get("deuda_usd") or 0))
+            beru.altar_masa_colocada_usd = float(pack.get("notional_usd") or 0)
+    return pack
+
+
 def plan_trailing_entrada(
     beru: Any,
     *,
@@ -88,22 +122,23 @@ def plan_trailing_entrada(
     if oz <= 0:
         raise ValueError("beru_rango_altar: Oz trailing sin precio")
     try:
-        oz = float(lote_bybit.cuantizar_precio(oz, frente) or oz)
+        oz = float(lote_beru.cuantizar_precio(oz, frente) or oz)
     except Exception:
         pass
     masa = float(masa_usd if masa_usd is not None else getattr(beru, "masa", 0) or beru_rango.masa_tramo_usd())
-    masa = beru_rango.piso_masa_usd(masa)
-    if masa <= 0:
-        raise ValueError("beru_rango_altar: masa ≤ 0")
-    qty_bruta = masa / oz
-    pack = lote_bybit.asegurar_qty_min_notional(
-        qty_bruta, oz, frente, mode="ceil",
-    )
+    pack = _cuantizar_masa_plan(beru, masa, oz, frente)
     if not pack.get("ok"):
-        raise ValueError(str(pack.get("motivo") or "lote_lineal_invalido"))
+        motivo = str(pack.get("motivo") or "lote_lineal_invalido")
+        deuda = float(pack.get("deuda_usd") or 0)
+        if beru is not None and beru_rango.redondeo_floor_manos() and deuda > 0:
+            beru.masa_pendiente_usd = deuda
+        raise ValueError(f"beru_rango_altar: {motivo} (doctrina={masa:.4f} deuda={deuda:.4f})")
     qty = float(pack.get("qty") or 0)
     if qty <= 0:
         raise ValueError("beru_rango_altar: qty ≤ 0")
+    notional = float(pack.get("notional_usd") or (qty * oz))
+    if beru is not None:
+        beru.altar_qty = qty
     dist = round(oz * beru_rango.trailing_dist_pct(), 8)
     if d == "SHORT":
         side = "Sell"
@@ -123,7 +158,7 @@ def plan_trailing_entrada(
         link_id=link_id_rango(beru),
         position_idx=position_idx,
         frente=frente,
-        masa_usd=round(qty * oz, 6),
+        masa_usd=round(notional, 6),
         trailing_dist=dist,
     )
 
@@ -184,11 +219,13 @@ async def armar_condicional(bridge: Any, beru: Any, plan: PlanLinealRango):
         beru.altar_trigger_price = float(plan.trigger_price)
         beru.altar_cancel_confirmado = False
         beru.altar_trailing_dist = float(plan.trailing_dist)
+        beru.altar_qty = float(plan.qty)
+        beru.altar_masa_colocada_usd = float(plan.masa_usd)
     return creada
 
 
 async def seguir_trailing(bridge: Any, beru: Any, *, activo: str) -> Any:
-    """Enmienda el trigger a la Oz viva del rastro."""
+    """Enmienda trigger Oz y qty si la masa doctrinal creció (floor + deuda)."""
     oz = float(getattr(beru, "oz_adan", 0) or 0)
     link = str(getattr(beru, "altar_link_id", "") or "")
     if oz <= 0 or not link or bridge is None:
@@ -196,31 +233,51 @@ async def seguir_trailing(bridge: Any, beru: Any, *, activo: str) -> Any:
     act = str(activo or "").upper()
     frente = f"{act}USDT_LINEAL"
     try:
-        oz = float(lote_bybit.cuantizar_precio(oz, frente) or oz)
+        oz = float(lote_beru.cuantizar_precio(oz, frente) or oz)
         beru.oz_adan = oz
     except Exception:
         pass
-    prev = float(getattr(beru, "altar_trigger_price", 0) or 0)
-    if prev > 0 and abs(oz - prev) / max(prev, 1e-12) < 1e-9:
-        return None
-    # Si el tick no cambió el trigger, no martillar amend.
-    if prev > 0 and abs(oz - prev) < 1e-12:
+    prev_trig = float(getattr(beru, "altar_trigger_price", 0) or 0)
+    masa_doc = float(getattr(beru, "masa", 0) or 0)
+    new_qty: float | None = None
+    if beru_rango.redondeo_floor_manos() and masa_doc > 0:
+        try:
+            pack = _cuantizar_masa_plan(beru, masa_doc, oz, frente)
+            if pack.get("ok"):
+                cand = float(pack.get("qty") or 0)
+                prev_qty = float(getattr(beru, "altar_qty", 0) or 0)
+                if cand > prev_qty + 1e-12:
+                    new_qty = cand
+        except ValueError:
+            pass
+    trig_changed = prev_trig <= 0 or abs(oz - prev_trig) >= 1e-12
+    if not trig_changed and new_qty is None:
         return None
     symbol = f"{act}USDT"
     amend = await bridge.amend_order(
         symbol,
         link_id=link,
         category="linear",
-        new_trigger_price=oz,
+        new_trigger_price=oz if trig_changed else None,
+        new_qty=new_qty,
     )
     if getattr(amend, "exito", False):
-        beru.altar_trigger_price = oz
+        if trig_changed:
+            beru.altar_trigger_price = oz
+        if new_qty is not None:
+            beru.altar_qty = new_qty
+            try:
+                pack = _cuantizar_masa_plan(beru, masa_doc, oz, frente)
+                if pack.get("ok"):
+                    beru.altar_masa_colocada_usd = float(pack.get("notional_usd") or 0)
+            except ValueError:
+                pass
     else:
         # Fallo: anotar en segundo plano — no bloquear el siguiente latido de Oz.
         msg = str(getattr(amend, "mensaje", "") or "amend_fallido")
         bel = getattr(bridge, "bel", None)
         if bel is not None:
-            detalle = f"{act} link={link} oz={oz} prev={prev} · {msg}"
+            detalle = f"{act} link={link} oz={oz} prev={prev_trig} qty={new_qty} · {msg}"
             print(f"[RANGO] ALTAR_AMEND_FALLIDO {detalle}", flush=True)
             try:
                 asyncio.create_task(

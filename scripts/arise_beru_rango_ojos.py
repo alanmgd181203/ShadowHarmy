@@ -37,6 +37,8 @@ for _stream in (sys.stdout, sys.stderr):
 # Candados del ritual (antes de importar config)
 os.environ["BERU_RANGO_MANOS"] = "false"
 os.environ.setdefault("BERU_RANGO_HILO", "true")
+os.environ.setdefault("BERU_MAR", "okx")
+os.environ.setdefault("BERU_RANGO_PERFIL", "piedra")
 os.environ["BRIDGE_WS_SOLO_LINEAR"] = "true"
 os.environ["BRIDGE_WS_PUBLIC_TRADES_LINEAR"] = "true"
 os.environ.setdefault("BRIDGE_WS_SUBSCRIBE_BOOKS", "false")
@@ -49,7 +51,7 @@ from core import beru_rango_ojos  # noqa: E402
 from core import beru_rango_panel  # noqa: E402
 from core import beru_rango_paths  # noqa: E402
 from core.bellion import BellionAuditor  # noqa: E402
-from core.bridge import BybitBridge  # noqa: E402
+from core.beru_bridge import crear_beru_bridge, nombre_mar  # noqa: E402
 from generales.beru_rango import BeruRango  # noqa: E402
 from generales.tank import TankCluster  # noqa: E402
 from generales.tusk import TuskBoveda  # noqa: E402
@@ -58,6 +60,27 @@ SANTOS_RANGO_19: tuple[str, ...] = (
     "BTC", "ETH", "SOL", "XRP", "ADA", "DOGE", "DOT", "LTC", "AAVE", "HYPE",
     "MNT", "AVAX", "LINK", "NEAR", "OP", "SUI", "UNI", "XLM", "FIL",
 )
+
+
+def santos_desde_piedra_asignacion(semaforo: str) -> list[str]:
+    """Santos con semáforo rojo/amarillo/verde en piedra_asignacion.json."""
+    path = Path(
+        os.getenv("BERU_RANGO_PIEDRA_ASIGNACION_PATH")
+        or getattr(config, "BERU_RANGO_PIEDRA_ASIGNACION_PATH", "")
+        or (ROOT / "data" / "beru" / "rango" / "piedra_asignacion.json")
+    )
+    if not path.is_file():
+        raise FileNotFoundError(f"Sin asignación piedra: {path}")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    color = str(semaforo or "").strip().lower()
+    out: list[str] = []
+    for base, row in sorted((data.get("activos") or {}).items()):
+        if not isinstance(row, dict):
+            continue
+        sem = str(row.get("semaforo") or row.get("color") or "").strip().lower()
+        if sem == color:
+            out.append(str(base).upper())
+    return out
 
 
 def santos_rango_default() -> list[str]:
@@ -255,18 +278,20 @@ async def _marcha_santo(
     api_key,
     api_secret,
     stacks: dict[str, Any],
+    stagger_idx: int = 0,
 ) -> None:
     """Un Santo = un Bridge + un Tank + un cerebro. Sin fila compartida."""
     act = str(activo).upper()
+    # Escalonar WS en flotas grandes (72 rojos) — no tumbar el mar de golpe.
+    if stagger_idx > 0:
+        await asyncio.sleep(min(0.15 * stagger_idx, 12.0))
     config.BRIDGE_WS_SOLO_LINEAR = True
     config.BRIDGE_WS_SUBSCRIBE_BOOKS = False
     config.BRIDGE_WS_PUBLIC_TRADES_LINEAR = True
 
     tank = TankCluster(tusk, bellion, ticker_base=config.TICKER_BASE)
     # Bridge propio: HTTP + WS solo de este Santo (sin fila / sin pisar bases globales).
-    bridge = BybitBridge(
-        tank, tusk, bellion, api_key, api_secret, ws_bases=[act],
-    )
+    bridge = crear_beru_bridge(tank, tusk, bellion, ws_bases=[act])
     tank.expandir_frentes(beru_rango_ojos.frentes_lineal_tank([act]))
     beru_rango_ojos.inyectar_precios_rest(bridge, tank, [act])
 
@@ -412,9 +437,10 @@ async def ritual(
                     api_key=api_key,
                     api_secret=api_secret,
                     stacks=stacks,
+                    stagger_idx=i,
                 )
             )
-            for act in acts
+            for i, act in enumerate(acts)
         ]
         corte = asyncio.create_task(_corte_tiempo(shutdown_event, segundos))
 
@@ -490,6 +516,12 @@ def main() -> int:
         help="Si >0, corta tras N segundos",
     )
     ap.add_argument(
+        "--semaforo",
+        default="",
+        choices=["", "rojo", "amarillo", "verde"],
+        help="Cargar Santos desde piedra_asignacion.json por color",
+    )
+    ap.add_argument(
         "--latido",
         type=float,
         default=float(os.getenv("BERU_RANGO_LATIDO_LENTO_S", "1.5") or 1.5),
@@ -497,7 +529,12 @@ def main() -> int:
     )
     args = ap.parse_args()
 
-    if str(args.activo or "").strip():
+    if str(args.semaforo or "").strip():
+        activos = santos_desde_piedra_asignacion(str(args.semaforo))
+        if not activos:
+            print(f"Sin Santos con semaforo={args.semaforo}", file=sys.stderr)
+            return 1
+    elif str(args.activo or "").strip():
         activos = [str(args.activo).upper()]
     elif str(args.santos or "").strip():
         activos = [a.strip().upper() for a in str(args.santos).split(",") if a.strip()]

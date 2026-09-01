@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Prepara ejército Beru rango + teatro de sombras — SIN despertar Santos.
 
-Comprueba:
-  · doctrina viva (nace $5 · engorde desde activación · escalera sin tope)
-  · flota multi: un Bridge por Santo (no una boca hablando por todos)
+Comprueba (según perfil):
+  · doctrina viva (normal $5 sin tope · piedra $0.20 peldaños sumados)
+  · mar activo (OKX default) · bridge propio por Santo
   · paths por Santo · juicio importable · bóveda al alcance
   · manos OFF por defecto
 
@@ -25,11 +25,13 @@ sys.path.insert(0, str(ROOT))
 
 os.environ["BERU_RANGO_MANOS"] = "false"
 os.environ.setdefault("MODO_SIMULACION", "true")
+os.environ.setdefault("BERU_MAR", "okx")
 
 import core.config as config  # noqa: E402
+from core import beru_bridge  # noqa: E402
+from core import beru_mar  # noqa: E402
 from core import beru_rango  # noqa: E402
 from core import beru_rango_paths  # noqa: E402
-from core.bridge import BybitBridge  # noqa: E402
 from core.bellion import BellionAuditor  # noqa: E402
 from generales.tank import TankCluster  # noqa: E402
 from generales.tusk import TuskBoveda  # noqa: E402
@@ -48,20 +50,35 @@ def main() -> int:
     checks: list[dict] = []
     fallos = 0
 
-    # 1) Doctrina
+    # 1) Doctrina (perfil-aware: normal $5 vs piedra $0.20)
+    perfil = str(getattr(config, "BERU_RANGO_PERFIL", "normal") or "normal").lower()
+    if perfil not in getattr(config, "BERU_RANGO_PERFILES", {}):
+        config.aplicar_perfil_beru_rango(perfil)
     geo = beru_rango.resumen_geometria()
-    doctrina_ok = (
-        geo.get("nacimiento") == "cinco_usd"
-        and geo.get("engorde") == "desde_activacion"
-        and geo.get("saco_techo") == "sin_tope"
-        and geo.get("cero") == "wake"
-        and abs(float(geo.get("masa_usd") or 0) - 5.0) < 1e-9
-    )
+    if perfil == "piedra":
+        doctrina_ok = (
+            geo.get("nacimiento") == "piedra_usd"
+            and geo.get("engorde_modo") == "peldaños_sumados"
+            and geo.get("saco_techo") == "peldaños_sumados"
+            and geo.get("engorde") == "desde_activacion"
+            and geo.get("cero") == "wake"
+            and abs(float(geo.get("masa_usd") or 0) - 0.20) < 1e-9
+        )
+        doctrina_tag = "doctrina_piedra"
+    else:
+        doctrina_ok = (
+            geo.get("nacimiento") == "cinco_usd"
+            and geo.get("engorde") == "desde_activacion"
+            and geo.get("saco_techo") == "sin_tope"
+            and geo.get("cero") == "wake"
+            and abs(float(geo.get("masa_usd") or 0) - 5.0) < 1e-9
+        )
+        doctrina_tag = "doctrina_normal"
     checks.append(
         _ok(
-            "doctrina",
+            doctrina_tag,
             doctrina_ok,
-            f"geo={ {k: geo.get(k) for k in ('cero','nacimiento','engorde','saco_techo','masa_usd','vacio_pct','red_activacion_pct')} }",
+            f"perfil={perfil} geo={ {k: geo.get(k) for k in ('cero','nacimiento','engorde','engorde_modo','saco_techo','masa_usd')} }",
         )
     )
     if not doctrina_ok:
@@ -73,14 +90,14 @@ def main() -> int:
     if manos:
         fallos += 1
 
-    # 3) Puentes propios (identidad + ws_bases aislados)
+    # 3) Puentes propios (identidad + ws_bases aislados; mar = OKX o Bybit)
     bellion = BellionAuditor()
     tusk = TuskBoveda(bellion)
     probes = ["AAA", "BBB", "CCC"]
     bridges = []
     for act in probes:
         tank = TankCluster(tusk, bellion, ticker_base=getattr(config, "TICKER_BASE", "USDT"))
-        br = BybitBridge(tank, tusk, bellion, None, None, ws_bases=[act])
+        br = beru_bridge.crear_beru_bridge(tank, tusk, bellion, ws_bases=[act])
         bridges.append(br)
     ids = {id(b) for b in bridges}
     bases = [tuple(b.ws_bases or []) for b in bridges]
@@ -89,7 +106,7 @@ def main() -> int:
         _ok(
             "bridge_propio_por_santo",
             multi_ok,
-            f"ids_distintos={len(ids)} bases={bases}",
+            f"mar={beru_mar.mar_activo()} ids_distintos={len(ids)} bases={bases}",
         )
     )
     if not multi_ok:
