@@ -50,3 +50,20 @@ python scripts/sync_okx_minimos_beru.py
 - `core/lote_okx.py` — contratos / minSz
 - `core/beru_bridge.py` — fábrica del puente
 - `data/okx_parametros_mercado.json` — sync público
+
+## Despertar escalonado (reloj BTC mil)
+
+Entrada despromediada: cada cruce de **mil USD** en BTC despierta **1 rojo + 1 amarillo** de `piedra_asignacion.json`.
+
+**Regla dura:** cada Santo = **proceso propio** (sin fila API compartida como Bybit viejo).
+
+```bash
+python scripts/inicializar_cola_despertar_mil_btc.py
+python scripts/vigilar_btc_mil_despertar.py --intervalo 30
+```
+
+Estado: `data/beru/rango/despertar_mil_btc.json` · logs: `data/beru/rango/despertar_mil/`
+
+Modos cruce: `cada_zona` (default) · `por_direccion` · `unico`.
+
+Manos solo con `--manos-go` en el vigilante (después de ojos validados).

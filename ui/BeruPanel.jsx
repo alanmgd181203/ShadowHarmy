@@ -1,27 +1,16 @@
 import { useEffect, useState } from "react";
 import BeruAssetDetail from "./BeruAssetDetail.jsx";
 import BeruChartScreen from "./BeruChartScreen.jsx";
-import { flotaDesdeEstado, fmtUsd, fmtDistSilbato, cargarSnapBeru } from "./beruAssetDetailModel.js";
-import { nombreGrado } from "./beruMantoRegla.js";
-
-const COLOR_GRADO = {
-  SOLDADO: "#1e3a5f",
-  CAPITAN: "#3b82f6",
-  GENERAL: "#22d3ee",
-  MARISCAL: "#67e8f9",
-};
-
-const RANGOS_SANTOS = [
-  { id: "MARISCAL", plural: "Mariscales" },
-  { id: "GENERAL", plural: "Generales" },
-  { id: "CAPITAN", plural: "Capitanes" },
-  { id: "SOLDADO", plural: "Soldados" },
-];
-
-function colorGrado(grado) {
-  const g = String(grado || "").toUpperCase();
-  return COLOR_GRADO[g] || "#64748b";
-}
+import {
+  cargarSnapBeru,
+  fmtDistSilbato,
+  fmtUsd,
+} from "./beruAssetDetailModel.js";
+import {
+  cargarCatalogoOkx,
+  fmtPrecioLista,
+  listaPerpetuosDesdeCatalogo,
+} from "./beruCatalogoModel.js";
 
 function etiquetaOficio(oficio) {
   const o = String(oficio || "").toLowerCase();
@@ -31,14 +20,16 @@ function etiquetaOficio(oficio) {
 }
 
 /**
- * BeruPanel — flota por moneda → Sub-Santuario.
+ * BeruPanel — catálogo completo USDT-SWAP (perp + TradeFi) → Sub-Santuario.
+ * Sin filtros de color/rango todavía; solo lista viva del mar OKX.
  */
 export default function BeruPanel({ onClose }) {
   const [panelVisible, setPanelVisible] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [flota, setFlota] = useState(() => flotaDesdeEstado({}));
-  const [menuSantos, setMenuSantos] = useState(false);
-  const [filtroGrado, setFiltroGrado] = useState(null);
+  const [lista, setLista] = useState(() =>
+    listaPerpetuosDesdeCatalogo({ activos: {} }),
+  );
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setPanelVisible(true));
@@ -48,15 +39,25 @@ export default function BeruPanel({ onClose }) {
   useEffect(() => {
     let alive = true;
     async function load() {
+      let catalogo = { activos: {} };
       try {
-        const snap = await cargarSnapBeru();
-        if (alive) setFlota(flotaDesdeEstado(snap));
+        catalogo = await cargarCatalogoOkx();
       } catch {
         /* silencio */
       }
+      if (alive) {
+        setLista(listaPerpetuosDesdeCatalogo(catalogo, null));
+        setCargando(false);
+      }
+      try {
+        const snap = await cargarSnapBeru();
+        if (alive) setLista(listaPerpetuosDesdeCatalogo(catalogo, snap));
+      } catch {
+        /* silencio — catálogo ya visible */
+      }
     }
     load();
-    const t = setInterval(load, 2000);
+    const t = setInterval(load, 15000);
     return () => {
       alive = false;
       clearInterval(t);
@@ -83,11 +84,7 @@ export default function BeruPanel({ onClose }) {
     );
   }
 
-  const todos = flota.activos || [];
-  const activos = filtroGrado ? todos.filter((a) => a.grado === filtroGrado) : todos;
-  const nSantos = flota.n_santos || todos.length;
-  const conteo = flota.conteo_grados || {};
-  const filtroLabel = RANGOS_SANTOS.find((r) => r.id === filtroGrado)?.plural;
+  const activos = lista.activos || [];
 
   return (
     <div
@@ -107,177 +104,104 @@ export default function BeruPanel({ onClose }) {
             <path d="M12 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl italic font-bold tracking-widest pointer-events-none">
-          BERU
-        </h1>
-        <button
-          type="button"
-          onClick={() => setMenuSantos((v) => !v)}
-          aria-expanded={menuSantos}
-          aria-label={`${nSantos} Santos de la flota`}
-          className={`flex flex-col items-end justify-center min-w-[4.5rem] px-2.5 py-1.5 rounded-xl border active:scale-95 ${
-            menuSantos || filtroGrado
-              ? "border-cyan-300/70 bg-cyan-400/20"
-              : "border-cyan-400/45 bg-cyan-400/10"
-          }`}
-        >
-          <span className="text-lg font-bold tabular-nums leading-none text-cyan-300">{nSantos}</span>
-          <span className="text-[9px] uppercase tracking-[0.18em] text-cyan-400/90">Santos</span>
-        </button>
+        <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none">
+          <h1 className="text-2xl italic font-bold tracking-widest">BERU</h1>
+          <p className="text-[9px] uppercase tracking-[0.22em] text-cyan-400/75 mt-0.5">
+            OKX · USDT perpetuo
+          </p>
+        </div>
+        <div className="flex flex-col items-end justify-center min-w-[4.5rem] px-2.5 py-1.5 rounded-xl border border-cyan-400/45 bg-cyan-400/10">
+          <span className="text-lg font-bold tabular-nums leading-none text-cyan-300">
+            {lista.n_total || activos.length}
+          </span>
+          <span className="text-[9px] uppercase tracking-[0.18em] text-cyan-400/90">pares</span>
+        </div>
       </header>
 
-      {menuSantos ? (
-        <div className="mx-4 mt-3 rounded-2xl border border-cyan-400/25 bg-[#12141a] p-3 space-y-1 shadow-[0_0_24px_rgba(103,232,249,0.08)]">
-          {RANGOS_SANTOS.map((r) => {
-            const n = Number(conteo[r.id]) || 0;
-            const activo = filtroGrado === r.id;
-            return (
-              <button
-                key={r.id}
-                type="button"
-                disabled={n <= 0}
-                onClick={() => {
-                  setFiltroGrado(r.id);
-                  setMenuSantos(false);
-                }}
-                className={`w-full flex justify-between items-center px-3 py-2 rounded-xl text-sm ${
-                  n <= 0
-                    ? "text-white/25 cursor-not-allowed"
-                    : activo
-                      ? "bg-cyan-400/15 text-cyan-200"
-                      : "text-white/85 active:scale-[0.99]"
-                }`}
-              >
-                <span style={{ color: n > 0 ? colorGrado(r.id) : undefined }}>{r.plural}</span>
-                <span className="tabular-nums font-semibold">{n}</span>
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={() => {
-              setFiltroGrado(null);
-              setMenuSantos(false);
-            }}
-            className="w-full mt-1 px-3 py-2 rounded-xl text-xs uppercase tracking-[0.2em] text-white/50 active:scale-[0.99]"
-          >
-            Todos
-          </button>
-        </div>
-      ) : null}
+      <div className="px-4 py-2 border-b border-white/5 text-[10px] uppercase tracking-[0.16em] text-white/40 flex flex-wrap gap-x-3 gap-y-1">
+        <span>{lista.n_perp ?? 0} crypto</span>
+        <span>{lista.n_tradefi ?? 0} tradefi</span>
+        {lista.n_vivos > 0 ? (
+          <span className="text-cyan-300/80">{lista.n_vivos} vivos</span>
+        ) : null}
+        <span className="ml-auto normal-case tracking-normal text-white/30">
+          sin filtro · colores después
+        </span>
+      </div>
 
-      {filtroLabel && !menuSantos ? (
-        <div className="px-4 pt-3">
-          <button
-            type="button"
-            onClick={() => setFiltroGrado(null)}
-            className="text-[11px] uppercase tracking-[0.18em] text-cyan-300/80"
-          >
-            {filtroLabel} · todos
-          </button>
-        </div>
-      ) : null}
-
-      <div className="px-4 pt-4 pb-10 space-y-2">
-        {activos.length === 0 ? (
+      <div className="px-4 pt-3 pb-10 space-y-1.5">
+        {cargando && activos.length === 0 ? (
+          <p className="text-center text-white/40 text-sm py-8">Cargando catálogo OKX…</p>
+        ) : activos.length === 0 ? (
           <p className="text-center text-white/40 text-sm py-8">
-            {filtroGrado ? "Ningún Santo de este rango." : "Nadie activo — Beru rango en silencio."}
+            Catálogo vacío — corre sync OKX (`okx_parametros_mercado.json`).
           </p>
         ) : (
           activos.map((a) => {
-            const cerrado = String(a.oficio || "").toLowerCase() === "cerrado";
-            const distTxt = fmtDistSilbato(a.dist_silbato, a.oficio);
-            const tono = colorGrado(a.grado);
-            const mariscal = String(a.grado || "").toUpperCase() === "MARISCAL";
-            const saco = a.saco_usd != null ? a.saco_usd : a.masa_total_usd;
-            const cazas = Number(a.n_cazas) || 0;
-            const paso = Number(a.engorde_paso_usd);
-            const rango = nombreGrado(a.grado);
+            const vivo = a.vivo;
+            const enRango = String(a.oficio_beru || "").toUpperCase() === "RANGO";
+            const oficio = vivo ? etiquetaOficio(a.oficio) : "";
+            const distTxt = vivo ? fmtDistSilbato(vivo.dist_silbato, a.oficio) : "";
             return (
               <div
                 key={a.activo}
-                className="w-full text-left rounded-2xl border bg-[#12141a]/90 p-3.5"
-                style={{
-                  borderColor: cerrado
-                    ? "rgba(255,255,255,0.08)"
-                    : mariscal
-                      ? "rgba(103,232,249,0.45)"
-                      : "rgba(255,255,255,0.10)",
-                  boxShadow: mariscal && !cerrado ? "0 0 18px rgba(103,232,249,0.12)" : "none",
-                  opacity: cerrado ? 0.72 : 1,
-                }}
+                className={`w-full rounded-xl border bg-[#12141a]/90 px-3 py-2.5 ${
+                  vivo ? "border-cyan-400/25" : "border-white/8"
+                }`}
               >
-                <div className="flex justify-between items-baseline mb-1">
+                <div className="flex justify-between items-baseline gap-2">
                   <button
                     type="button"
                     onClick={() => setSelected({ symbol: a.activo, vista: "chart" })}
-                    className="text-lg font-semibold tracking-wide text-left active:scale-[0.98]"
+                    className="text-left active:scale-[0.98] min-w-0"
                     aria-label={`Velas ${a.activo}`}
                   >
-                    {a.activo}
-                    {a.oficio_beru === "RANGO" ? (
-                      <span className="ml-2 text-[10px] uppercase text-cyan-400/80">rango</span>
-                    ) : a.es_semilla ? (
-                      <span className="ml-2 text-[10px] uppercase text-emerald-400/80">semilla</span>
+                    <span className="text-[15px] font-semibold tracking-wide">{a.activo}</span>
+                    <span
+                      className={`ml-2 text-[9px] uppercase tracking-wider ${
+                        a.tradefi ? "text-amber-400/90" : "text-white/35"
+                      }`}
+                    >
+                      {a.tradefi ? "tradefi" : "perp"}
+                    </span>
+                    {enRango ? (
+                      <span className="ml-1.5 text-[9px] uppercase text-cyan-400/85">rango</span>
                     ) : null}
                   </button>
                   <button
                     type="button"
                     onClick={() => setSelected({ symbol: a.activo, vista: "ficha" })}
-                    className="text-xs text-white/70 tabular-nums active:scale-[0.98]"
-                    aria-label={`Precio ${a.activo}`}
+                    className="text-xs tabular-nums text-white/75 shrink-0 active:scale-[0.98]"
+                    aria-label={`Ficha ${a.activo}`}
                   >
-                    {a.oficio_beru === "RANGO"
-                      ? (a.last > 0 ? Number(a.last).toFixed(2) : "—")
-                      : fmtUsd(cerrado ? null : saco)}
+                    {fmtPrecioLista(a.precio)}
                   </button>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelected({ symbol: a.activo, vista: "ficha" })}
-                  className="w-full text-left active:scale-[0.99]"
-                  aria-label={`Ficha ${a.activo}`}
+                  className="w-full text-left active:scale-[0.99] mt-0.5"
+                  aria-label={`Detalle ${a.activo}`}
                 >
-                  <p
-                    className="text-[12px] font-semibold tracking-wide mb-1"
-                    style={{
-                      color: tono,
-                      textShadow: mariscal ? "0 0 10px rgba(103,232,249,0.55)" : "none",
-                    }}
-                  >
-                    {a.oficio_beru === "RANGO"
-                      ? `0=${a.cero > 0 ? Number(a.cero).toFixed(2) : "—"} · Red=${a.red > 0 ? Number(a.red).toFixed(2) : "—"}`
-                      : rango === "00"
-                        ? ""
-                        : rango}
-                    {a.oficio_beru === "RANGO" && a.sangre_lado ? (
-                      <span className="ml-2 text-[11px] font-normal opacity-90">
-                        sangre {a.sangre_lado}
-                      </span>
-                    ) : !cerrado && Number.isFinite(paso) && paso > 0 ? (
-                      <span className="ml-2 text-[11px] font-normal tabular-nums opacity-90">
-                        +{fmtUsd(paso)} / 0,1
-                      </span>
-                    ) : null}
-                  </p>
-                  <div className="flex justify-between text-[11px] text-white/55">
-                    <span>
-                      {etiquetaOficio(a.oficio)}
-                      {a.manos ? " · manos ON" : ""}
-                    </span>
+                  <div className="flex justify-between text-[10px] text-white/45">
                     <span className="tabular-nums">
-                      {a.oficio_beru === "RANGO"
-                        ? (cazas > 0 ? `${cazas} oz` : distTxt || "")
-                        : cerrado
-                          ? (cazas > 0 ? `${cazas} ${cazas === 1 ? "caza" : "cazas"}` : "")
-                          : distTxt
-                            ? distTxt
-                            : `${cazas} ${cazas === 1 ? "caza" : "cazas"}`}
+                      min {a.minUsd > 0 ? fmtUsd(a.minUsd) : "—"}
                     </span>
+                    {vivo ? (
+                      <span className="text-cyan-300/75">
+                        {oficio}
+                        {vivo.manos ? " · manos" : ""}
+                        {distTxt ? ` · ${distTxt}` : ""}
+                      </span>
+                    ) : (
+                      <span className="text-white/25">—</span>
+                    )}
                   </div>
-                  {a.ultima_lecturas ? (
-                    <p className="text-[10px] text-white/40 mt-1 tabular-nums leading-snug">
-                      {a.ultima_lecturas}
+                  {enRango && vivo ? (
+                    <p className="text-[10px] text-white/40 mt-0.5 tabular-nums">
+                      0={vivo.cero > 0 ? Number(vivo.cero).toFixed(2) : "—"}
+                      {vivo.red > 0 ? ` · Red=${Number(vivo.red).toFixed(2)}` : ""}
+                      {vivo.sangre_lado ? ` · sangre ${vivo.sangre_lado}` : ""}
                     </p>
                   ) : null}
                 </button>

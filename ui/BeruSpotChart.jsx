@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createChart, CandlestickSeries } from "lightweight-charts";
+import { createChart } from "lightweight-charts";
 import { fmtUsd, fmtNum, decimalesPrecio } from "./beruAssetDetailModel.js";
 import { marcaAguaManto, reglaEnPunto } from "./beruMantoRegla.js";
 
@@ -329,8 +329,7 @@ export default function BeruSpotChart({
     });
     const prec = Number.isInteger(Number(meta?.precision)) ? Number(meta.precision) : 4;
     const move = Number(meta?.min_move) > 0 ? Number(meta.min_move) : Number((10 ** -prec).toFixed(prec));
-    // lightweight-charts v5: addSeries(CandlestickSeries) — no addCandlestickSeries
-    series = chart.addSeries(CandlestickSeries, {
+    series = chart.addCandlestickSeries({
       upColor: "#34d399",
       downColor: "#fb7185",
       borderVisible: false,

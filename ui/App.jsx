@@ -33,9 +33,22 @@ const ARIA = {
   bellion: "Abrir oído · Bellion",
 };
 
+function portalDesdeUrl() {
+  if (typeof window === "undefined") return null;
+  const h = String(window.location.hash || "").replace(/^#/, "").toLowerCase();
+  if (h === "beru") return "beru";
+  if (h === "igris") return "igris";
+  if (h === "bellion") return "bellion";
+  const q = new URLSearchParams(window.location.search);
+  const p = String(q.get("portal") || "").toLowerCase();
+  if (p === "beru" || p === "igris" || p === "bellion") return p;
+  return null;
+}
+
 export default function App() {
-  const [activeGeneral, setActiveGeneral] = useState(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const boot = portalDesdeUrl();
+  const [activeGeneral, setActiveGeneral] = useState(boot);
+  const [isTransitioning, setIsTransitioning] = useState(Boolean(boot));
   const [ascensionOpen, setAscensionOpen] = useState(false);
 
   const umbralActivo =
