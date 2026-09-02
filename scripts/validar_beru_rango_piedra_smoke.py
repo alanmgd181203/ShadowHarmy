@@ -93,7 +93,7 @@ def main() -> int:
         assert abs(m7 - 0.30) < 1e-9, f"amarillo nace $0.30, got {m7}"
         print("  amarillo nace 0.30 OK")
 
-        # Tope rojo congela engorde en $0.50
+        # Tope rojo: a ~1 % la serie sigue (2,45); el tope capa cada +0,1 % a $0,50
         os.environ.pop("BERU_RANGO_PIEDRA_SIN_TOPE", None)
         os.environ["BERU_RANGO_SEMAFORO"] = "rojo"
         b8 = BeruShip(uid="RANGO_DOT_CAZA", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
@@ -101,8 +101,11 @@ def main() -> int:
         br.toca_vacio(b8, 100.0)
         br.armar_tramo_desde_vacio(b8, "ABAJO", precio=98.8)
         br.actualizar_trailing_oz(b8, 98.8 * (1.0 - 0.010))
-        assert abs(float(b8.masa) - 0.50) < 1e-9, f"rojo tope 0.50, got {b8.masa}"
-        print("  rojo tope 0.50 OK")
+        assert abs(float(b8.masa) - 2.45) < 1e-9, f"rojo 1pct serie 2.45, got {b8.masa}"
+        s31 = br.masa_peldaños_sumados_usd(31, base=0.20, tope_por_peldaño=0.50)
+        s32 = br.masa_peldaños_sumados_usd(32, base=0.20, tope_por_peldaño=0.50)
+        assert abs(s32 - s31 - 0.50) < 1e-9, f"peldaño 32+ aporta max 0.50, delta={s32 - s31}"
+        print("  rojo tope por peldaño 0.50 OK")
         os.environ["BERU_RANGO_PIEDRA_SIN_TOPE"] = "1"
 
         # Oz cosecha -> sangre +/-1.2 % desde Oz; al armar sangre ya trae ~2.45+ (12 peldaños)

@@ -514,8 +514,8 @@ async def ritual(
         tank.expandir_frentes(beru_rango_ojos.frentes_ojo_tank([act], MERCADO))
         beru_rango_ojos.inyectar_precios_rest(bridge, tank, [act], mercado=MERCADO)
         try:
-            if str(getattr(config, "BERU_MAR", "okx") or "okx").lower() != "okx":
-                await tusk.reconciliar_con_exchange(bridge)
+            if hasattr(bridge, "get_positions"):
+                await tusk.reconciliar_con_exchange(bridge, activo=act)
         except Exception as exc:
             print(f"[RANGO] reconciliación previa: {exc}", flush=True)
 

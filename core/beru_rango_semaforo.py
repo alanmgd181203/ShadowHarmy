@@ -151,6 +151,7 @@ def serie_base_usd(beru: Any | None) -> float | None:
 
 
 def tope_masa_viva(beru: Any | None, activo: str | None = None) -> float:
+    """Tope de engorde por cada 0,1 % (un peldaño), según semáforo del Santo."""
     from core import beru_rango as br
 
     if str(os.getenv("BERU_RANGO_PIEDRA_SIN_TOPE", "") or "").strip().lower() in (

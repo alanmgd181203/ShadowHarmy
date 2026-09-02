@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import ssl
 import time
 import uuid
@@ -13,6 +14,58 @@ from core import beru_rango_ojos
 from core import okx_rest
 from core.bridge import OrdenResultado
 import core.config as config
+
+
+def _okx_client_id(cl: str) -> str:
+  """OKX clOrdId / algoClOrdId: alfanumérico, máx 32."""
+  raw = re.sub(r"[^A-Za-z0-9]", "", str(cl or ""))
+  return (raw[:32] if raw else f"BRG{uuid.uuid4().hex[:12]}")
+
+
+def _map_okx_position_row(row: dict) -> dict | None:
+  """Fila OKX SWAP → forma Bybit que Tusk / telemetría ya entienden."""
+  try:
+    pos_ct = float(row.get("pos") or 0)
+  except (TypeError, ValueError):
+    pos_ct = 0.0
+  if abs(pos_ct) < 1e-12:
+    return None
+  inst = str(row.get("instId") or "")
+  if not inst.endswith("-USDT-SWAP"):
+    return None
+  act = beru_mar.inst_id_a_activo(inst)
+  symbol = f"{act}USDT"
+  pos_side = str(row.get("posSide") or "net").lower()
+  if pos_side == "short":
+    side = "Sell"
+    size_ct = abs(pos_ct)
+  elif pos_side == "long":
+    side = "Buy"
+    size_ct = abs(pos_ct)
+  elif pos_ct > 0:
+    side = "Buy"
+    size_ct = pos_ct
+  else:
+    side = "Sell"
+    size_ct = abs(pos_ct)
+  from core import lote_okx
+
+  ct = float(lote_okx.filtros_lote(f"{act}USDT_LINEAL").get("ctVal") or 1.0)
+  size_base = size_ct * ct
+  avg = float(row.get("avgPx") or row.get("markPx") or 0)
+  mark = float(row.get("markPx") or avg or 0)
+  return {
+    "symbol": symbol,
+    "side": side,
+    "size": str(size_base),
+    "avgPrice": str(avg or mark or 0),
+    "markPrice": str(mark or avg or 0),
+    "leverage": str(row.get("lever") or ""),
+    "positionIM": row.get("imr") or row.get("margin") or "",
+    "positionValue": str(size_base * avg) if avg > 0 else "",
+    "category": "linear",
+    "_category": "linear",
+  }
 
 
 def _map_algo_status(state: str) -> str:
@@ -39,9 +92,71 @@ class OkxBridge:
       self.ws_bases = [str(b).strip().upper() for b in ws_bases if str(b).strip()]
     else:
       self.ws_bases = None
-    # Tusk reconciliar mira ``bridge.session`` truthy.
+    # Tusk reconciliar mira ``bridge.session`` truthy (get_positions sync).
     self.session = self if okx_rest.credenciales_ok() else None
     self._nav_errores_consecutivos = 0
+
+  def get_positions(self, **kwargs) -> dict:
+    """Compat Bybit → OKX SWAP USDT (Tusk / telemetría). Inverse: lista vacía."""
+    cat = str(kwargs.get("category") or "linear").lower()
+    if cat == "inverse":
+      return {"retCode": 0, "retMsg": "OK", "result": {"list": []}}
+    if not okx_rest.credenciales_ok():
+      return {"retCode": 1, "retMsg": "Sin credenciales OKX", "result": {"list": []}}
+    params: dict[str, str] = {"instType": "SWAP"}
+    sym = str(kwargs.get("symbol") or "").upper().strip()
+    if sym:
+      act = sym[:-4] if sym.endswith("USDT") else sym
+      params["instId"] = beru_mar.activo_a_inst_id(act)
+    try:
+      rows = okx_rest.get_private("/api/v5/account/positions", params=params)
+    except okx_rest.OkxRestError as exc:
+      return {"retCode": 1, "retMsg": str(exc), "result": {"list": []}}
+    out: list[dict] = []
+    for row in list(rows or []):
+      if not isinstance(row, dict):
+        continue
+      mapped = _map_okx_position_row(row)
+      if mapped:
+        out.append(mapped)
+    return {"retCode": 0, "retMsg": "OK", "result": {"list": out}}
+
+  def get_wallet_balance(self, accountType: str = "UNIFIED") -> dict:
+    """Compat mínima Bybit NAV — equity USDT desde balance OKX."""
+    _ = accountType
+    if not okx_rest.credenciales_ok():
+      return {"retCode": 1, "retMsg": "Sin credenciales OKX", "result": {"list": []}}
+    try:
+      data = okx_rest.get_private("/api/v5/account/balance")
+    except okx_rest.OkxRestError as exc:
+      return {"retCode": 1, "retMsg": str(exc), "result": {"list": []}}
+    rows = list(data or [])
+    row0 = rows[0] if rows else {}
+    eq = 0.0
+    for det in row0.get("details") or []:
+      if str(det.get("ccy") or "").upper() == "USDT":
+        try:
+          eq = float(det.get("eq") or det.get("cashBal") or 0)
+        except (TypeError, ValueError):
+          eq = 0.0
+        break
+    if eq <= 0:
+      try:
+        eq = float(row0.get("totalEq") or 0)
+      except (TypeError, ValueError):
+        eq = 0.0
+    return {
+      "retCode": 0,
+      "retMsg": "OK",
+      "result": {
+        "list": [
+          {
+            "totalEquity": str(eq),
+            "coin": [{"coin": "USDT", "equity": str(eq), "walletBalance": str(eq)}],
+          }
+        ]
+      },
+    }
 
   def _inst_ids(self) -> list[str]:
     bases = list(self.ws_bases or [])
@@ -181,19 +296,23 @@ class OkxBridge:
     if not self.session:
       return OrdenResultado(False, mensaje="Sin credenciales OKX")
     inst = self._symbol_to_inst(symbol)
-    cl = str(link_id or f"BRG-{uuid.uuid4().hex[:12]}")[:32]
+    cl = _okx_client_id(str(link_id or f"BRG{uuid.uuid4().hex[:12]}"))
     side_okx = "buy" if str(side).lower().startswith("b") else "sell"
     sz = str(qty)
 
     try:
       if trigger_price is not None and str(order_filter or "").lower() in ("stoporder", "stop"):
+        from core import lote_okx
+
+        act = beru_mar.inst_id_a_activo(inst)
+        trig = lote_okx.cuantizar_precio(float(trigger_price), f"{act}USDT_LINEAL")
         body = {
           "instId": inst,
           "tdMode": "cross",
           "side": side_okx,
           "ordType": "trigger",
           "sz": sz,
-          "triggerPx": str(trigger_price),
+          "triggerPx": str(trig),
           "orderPx": "-1",
           "triggerPxType": "last",
           "algoClOrdId": cl,
@@ -240,9 +359,9 @@ class OkxBridge:
     if not self.session:
       return OrdenResultado(False, mensaje="Sin credenciales OKX")
     inst = self._symbol_to_inst(symbol)
-    cl = str(link_id or "")
+    cl = _okx_client_id(str(link_id or ""))
     try:
-      if str(order_filter or "").lower() in ("stoporder", "stop") or cl.startswith("BRG-"):
+      if str(order_filter or "").lower() in ("stoporder", "stop") or str(link_id or "").startswith("BRG"):
         body: dict = {"instId": inst}
         if order_id:
           body["algoId"] = str(order_id)
@@ -281,7 +400,7 @@ class OkxBridge:
     if not self.session:
       return OrdenResultado(False, mensaje="Sin credenciales OKX")
     inst = self._symbol_to_inst(symbol)
-    cl = str(link_id or "")
+    cl = _okx_client_id(str(link_id or ""))
     try:
       body: dict = {"instId": inst}
       if order_id:
@@ -312,9 +431,9 @@ class OkxBridge:
     if not link_id:
       return OrdenResultado(False, mensaje="Se requiere linkId")
     inst = self._symbol_to_inst(symbol)
-    cl = str(link_id)
+    cl = _okx_client_id(str(link_id))
     try:
-      if str(order_filter or "").lower() in ("stoporder", "stop") or cl.startswith("BRG-"):
+      if str(order_filter or "").lower() in ("stoporder", "stop") or str(link_id or "").startswith("BRG"):
         data = await asyncio.to_thread(
           okx_rest.get_private,
           "/api/v5/trade/order-algo",

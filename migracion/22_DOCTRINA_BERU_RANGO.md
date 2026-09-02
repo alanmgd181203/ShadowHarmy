@@ -94,8 +94,8 @@ Ejemplo: 10 peldaños (≈1 %) → **$2,45** en la Oz; +0,1 % → **$2,75**; Red
 
 Asignación en `data/beru/rango/piedra_asignacion.json` (teatro/ranking llena `activos`). Sin entrada → **`BERU_RANGO_SEMAFORO`** (default **amarillo**).
 
-| Color | Nacimiento (paz) | Tope serie |
-|-------|-----------------:|-----------:|
+| Color | Nacimiento (paz) | Tope engorde / 0,1 % |
+|-------|-----------------:|---------------------:|
 | Rojo | $0,20 | $0,50 |
 | Amarillo | $0,30 | $0,80 |
 | Verde | $0,50 | $1,00 |
@@ -112,7 +112,7 @@ Pierna viva = max(saco LONG, saco SHORT) + masa del tramo cazando. Al **armar** 
 
 **Histéresis 80 %** al evolucionar de vuelta: tras involución en $100 → paz si pierna ≤ $80; tras $300 → medio si pierna ≤ $240. Se registra precio al cruzar umbral (`pierna_px_involucion`).
 
-Al llegar al **tope serie**, la masa viva **se congela** (no engorda más en ese tramo). Smoke de geometría pura puede usar `BERU_RANGO_PIEDRA_SIN_TOPE=1` (solo laboratorio).
+Al llegar al **tope por peldaño** (0,1 %), ese escalón deja de subir el peso de la serie (no congela la orden entera). Smoke de geometría pura puede usar `BERU_RANGO_PIEDRA_SIN_TOPE=1` (solo laboratorio).
 
 ```powershell
 $env:BERU_RANGO_PERFIL = "piedra"

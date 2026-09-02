@@ -97,6 +97,38 @@ def _assert_tank_latido() -> None:
     print("  tank vaso latido lineal OK")
 
 
+def _assert_sangre_no_oz_mecha_stale() -> None:
+    """Tras ARMAR_SANGRE: mecha vieja del vaso no debe cosechar Oz al instante."""
+    b = BeruShip(uid="M3S", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
+    br.despertar(b, 100.0, activo="ETH")
+    br.toca_vacio(b, 100.0)
+    br.armar_tramo_desde_vacio(b, "ARRIBA", precio=101.2)
+    br.actualizar_trailing_oz(b, 101.2)
+    oz = float(b.oz_adan or 0)
+    br.cosechar_oz_y_mover_cero(b, oz, oz_despliegue=oz)
+    sangre_px = float(b.sangre_adan or 0)
+    assert sangre_px > 0
+    masa = br.armar_tramo_desde_sangre(b, precio=sangre_px)
+    assert masa > 0 and str(b.direccion).upper() == "LONG"
+    assert b.estado == "CAZANDO"
+    oz0 = float(b.oz_adan or 0)
+    assert oz0 > sangre_px
+    # Vela ancha: low tocó sangre; high ya pasó la Oz — no debe contar sin trail.
+    lat = {
+        "last": (sangre_px + oz0) / 2.0,
+        "high": oz0 + 0.05,
+        "low": sangre_px - 0.01,
+        "prints": [],
+    }
+    assert not br.mecha_caza_permitida(b)
+    assert not br.toca_oz_en_latido(b, lat["last"], lat)
+    assert not br.toca_oz(b, lat["last"])
+    br.actualizar_trailing_oz(b, sangre_px * (1.0 - 0.003))
+    assert br.mecha_caza_permitida(b)
+    assert br.toca_oz_en_latido(b, lat["high"], lat)
+    print("  sangre sin Oz mecha stale OK")
+
+
 def _assert_latido_sugerido() -> None:
     b = BeruShip(uid="M2", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
     br.despertar(b, 100.0, activo="ETH")
@@ -126,6 +158,7 @@ def main() -> int:
     print("=== validar_beru_rango_ojos_smoke ===")
     _assert_mecha_red()
     _assert_misma_vela_sangre_antes_que_red()
+    _assert_sangre_no_oz_mecha_stale()
     _assert_tank_latido()
     _assert_latido_sugerido()
     print("OK")

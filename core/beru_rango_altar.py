@@ -3,7 +3,7 @@
 Manos OFF por defecto. Mar por defecto OKX (``BERU_MAR``):
   · Al armar: orden trigger en la Oz (SHORT: detona al bajar; LONG: al subir)
   · Mientras CAZA: enmienda el trigger si el rastro sube/baja el extremo
-  · Al detonar: Market si hace falta; el cerebro ya marcó el fill
+  · Al detonar: Market si hace falta; cosecha solo con fill/posición en casa
 """
 from __future__ import annotations
 
@@ -214,7 +214,7 @@ async def armar_condicional(bridge: Any, beru: Any, plan: PlanLinealRango):
     )
     if getattr(creada, "exito", False):
         beru.altar_order_id = str(getattr(creada, "order_id", "") or "")
-        beru.altar_link_id = plan.link_id
+        beru.altar_link_id = str(getattr(creada, "link_id", "") or plan.link_id)
         beru.altar_order_status = "Untriggered"
         beru.altar_trigger_price = float(plan.trigger_price)
         beru.altar_cancel_confirmado = False

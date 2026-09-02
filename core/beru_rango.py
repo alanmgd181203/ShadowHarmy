@@ -96,18 +96,43 @@ def registrar_masa_doctrinal(beru: Any, masa: float) -> None:
     beru.masa_doctrinal_usd = max(0.0, float(masa or 0))
 
 
-def _masa_suma_peldaños(n: int, base: float, step: float) -> float:
-    """Suma k=1..n de (base + (k-1)*step). n=0 → 0."""
+def _masa_suma_peldaños(
+    n: int,
+    base: float,
+    step: float,
+    *,
+    tope_por_peldaño: float = 0.0,
+) -> float:
+    """Suma k=1..n de min(base + (k-1)*step, tope). tope=0 → serie libre."""
     if n <= 0:
         return 0.0
-    return float(n) * base + float(step) * float(n) * float(n - 1) / 2.0
+    if tope_por_peldaño <= 0:
+        return float(n) * base + float(step) * float(n) * float(n - 1) / 2.0
+    total = 0.0
+    for k in range(1, n + 1):
+        term = base + float(k - 1) * step
+        total += min(term, tope_por_peldaño)
+    return total
 
 
-def _masa_delta_peldaños(n: int, offset: int, base: float, step: float) -> float:
-    """Masa viva = peldaños n − offset (una orden; serie $0,20 + $0,21 + …)."""
+def _masa_delta_peldaños(
+    n: int,
+    offset: int,
+    base: float,
+    step: float,
+    *,
+    tope_por_peldaño: float = 0.0,
+) -> float:
+    """Masa viva = peldaños n − offset (una orden; serie $0,20 + $0,21 + …).
+
+    ``tope_por_peldaño``: techo por cada 0,1 % (semáforo), no tope de orden entera.
+    """
     if n <= offset:
         return max(0.0, base)
-    delta = _masa_suma_peldaños(n, base, step) - _masa_suma_peldaños(offset, base, step)
+    delta = (
+        _masa_suma_peldaños(n, base, step, tope_por_peldaño=tope_por_peldaño)
+        - _masa_suma_peldaños(offset, base, step, tope_por_peldaño=tope_por_peldaño)
+    )
     return max(base, delta)
 
 
@@ -117,10 +142,13 @@ def masa_peldaños_sumados_usd(
     offset: int = 0,
     base: float | None = None,
     step: float | None = None,
+    tope_por_peldaño: float = 0.0,
 ) -> float:
     b = float(base if base is not None else masa_tramo_usd())
     s = float(step if step is not None else engorde_paso_usd())
-    return _masa_delta_peldaños(int(n), int(offset), b, s)
+    return _masa_delta_peldaños(
+        int(n), int(offset), b, s, tope_por_peldaño=float(tope_por_peldaño or 0),
+    )
 
 
 def _base_masa_origen(origen: str, beru: Any | None = None) -> float:
@@ -152,7 +180,10 @@ def _masa_viva_en_px(beru: Any, px: float, *, base: float) -> float:
     if ref <= 0 or px <= 0:
         return base
     n = peldaños_entre(ref, px)
-    return _masa_delta_peldaños(n, offset, base, engorde_paso_usd())
+    tope = engorde_tope_usd(beru) if engorde_modo_peldaños_sumados() else 0.0
+    return _masa_delta_peldaños(
+        n, offset, base, engorde_paso_usd(), tope_por_peldaño=tope,
+    )
 
 
 def _preparar_engorde_desde_oz(
@@ -167,7 +198,10 @@ def _preparar_engorde_desde_oz(
     if oz0 <= 0 or px <= 0 or not engorde_modo_peldaños_sumados():
         return float(base), 0.0
     offset = int(getattr(beru, "engorde_peldaño_offset", 0) or 0)
-    masa = _masa_delta_peldaños(peldaños_entre(oz0, px), offset, base, engorde_paso_usd())
+    tope = engorde_tope_usd(beru)
+    masa = _masa_delta_peldaños(
+        peldaños_entre(oz0, px), offset, base, engorde_paso_usd(), tope_por_peldaño=tope,
+    )
     return masa, oz0
 
 
@@ -254,7 +288,7 @@ def piedra_tier_activo(activo: str | None) -> str | None:
 
 
 def engorde_tope_usd(beru: Any | None = None, *, activo: str | None = None) -> float:
-    """Tope de masa viva por peldaño (0 = sin tope). Piedra: semáforo por Santo."""
+    """Tope máx. de engorde por peldaño (cada 0,1 %). No es tope de orden entera."""
     if engorde_modo_peldaños_sumados():
         from core import beru_rango_semaforo as sem
 
@@ -268,6 +302,9 @@ def engorde_tope_usd(beru: Any | None = None, *, activo: str | None = None) -> f
 
 
 def _limitar_masa_viva(viva: float, beru: Any | None = None) -> float:
+    """Tope lineal normal/feria. Piedra: el tope va por peldaño en la serie, no aquí."""
+    if engorde_modo_peldaños_sumados():
+        return float(viva)
     tope = engorde_tope_usd(beru)
     if tope > 0:
         return min(float(viva), tope)
@@ -595,6 +632,8 @@ def _plantar_trailing(
     beru.altar_order_id = ""
     beru.altar_order_status = ""
     beru.altar_trigger_price = 0.0
+    beru.tramo_precio_activacion = px
+    beru.caza_trail_iniciado = False
     # Recalcula: engorde desde ancla.
     actualizar_engorde(beru, px)
     return float(getattr(beru, "masa", 0) or masa_f)
@@ -654,6 +693,13 @@ def actualizar_trailing_oz(beru: Any, precio: float) -> bool:
         moved = True
     if actualizar_engorde(beru, extremo):
         moved = True
+    act = float(getattr(beru, "tramo_precio_activacion", 0) or 0)
+    if act > 0 and not bool(getattr(beru, "caza_trail_iniciado", False)):
+        eps = max(act * 1e-6, 1e-9)
+        if d == "LONG" and extremo < act - eps:
+            beru.caza_trail_iniciado = True
+        elif d == "SHORT" and extremo > act + eps:
+            beru.caza_trail_iniciado = True
     return moved
 
 
@@ -791,11 +837,41 @@ def toca_vacio_en_latido(
     return ""
 
 
+def mecha_caza_permitida(beru: Any) -> bool:
+    """Mechas del vaso solo cuentan tras el rastro huir del precio de activación."""
+    return bool(getattr(beru, "caza_trail_iniciado", False))
+
+
+def precio_trail_caza(
+    beru: Any,
+    precio: float,
+    latido: dict[str, Any] | None = None,
+) -> float:
+    """Extremo para trailing: sin mechas stale del vaso que disparó el armado."""
+    px = float(precio or 0)
+    if not mecha_caza_permitida(beru):
+        return px
+    lat = latido or {}
+    px_trail = extremo_latido_trailing(beru, px, lat) or px
+    d = str(getattr(beru, "direccion", "") or "").upper()
+    if d == "SHORT":
+        hi = float(lat.get("high") or 0)
+        if hi > px_trail:
+            px_trail = hi
+    elif d == "LONG":
+        lo = float(lat.get("low") or 0)
+        if lo > 0 and (px_trail <= 0 or lo < px_trail):
+            px_trail = lo
+    return px_trail
+
+
 def toca_oz_en_latido(
     beru: Any,
     precio: float,
     latido: dict[str, Any] | None = None,
 ) -> bool:
+    if not mecha_caza_permitida(beru):
+        return False
     for px in secuencia_latido(precio, latido):
         if toca_oz(beru, px):
             return True
@@ -1117,6 +1193,8 @@ def cosechar_oz_y_mover_cero(
     beru.masa = 0.0
     beru.masa_tramo_usd = 0.0
     beru.direccion = ""
+    beru.tramo_precio_activacion = 0.0
+    beru.caza_trail_iniciado = False
     ancla = ancla_mapa_red(oz_dep, fill, d)
     _plantar_orejas_post_oz(beru, ancla, d)
     beru.cosechas_continuas = int(getattr(beru, "cosechas_continuas", 0) or 0) + 1

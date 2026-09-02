@@ -168,46 +168,45 @@ class BeruRango:
             return {"ok": True, "evento": "ACECHO"}
 
         if beru.estado == "CAZANDO":
-            # Ojos: primero beber alto/bajo del vaso (mecha), luego last.
-            px_trail = beru_rango.extremo_latido_trailing(beru, px, lat) or px
-            if str(beru.direccion or "").upper() == "SHORT":
-                hi = float(lat.get("high") or 0)
-                if hi > px_trail:
-                    px_trail = hi
-            elif str(beru.direccion or "").upper() == "LONG":
-                lo = float(lat.get("low") or 0)
-                if lo > 0 and (px_trail <= 0 or lo < px_trail):
-                    px_trail = lo
+            # Tras armar (sangre/Red/Vacío): mechas del mismo vaso no cuentan
+            # hasta que el rastro huya del precio de activación.
+            px_trail = beru_rango.precio_trail_caza(beru, px, lat)
             beru_rango.actualizar_trailing_oz(beru, px_trail)
             if self._manos():
+                if not str(getattr(beru, "altar_link_id", "") or ""):
+                    await self._intentar_sello_entrada(
+                        beru, float(getattr(beru, "masa", 0) or 0), origen="REPARAR_SELLO",
+                    )
                 await beru_rango_altar.seguir_trailing(
                     self.bridge, beru, activo=self._activo,
                 )
             if beru_rango.toca_oz_en_latido(beru, px, lat) or beru_rango.toca_oz(beru, px):
                 oz_viva = float(beru.oz_adan or 0)
-                # Peldaño = Oz viva; fill = plata Tusk (no mueve wake ni mapa base).
-                fill = oz_viva or float(px)
                 masa_hecha = float(getattr(beru, "masa", 0) or 0)
                 extremo = float(getattr(beru, "trail_extremo", 0) or 0)
                 dir_caza = str(getattr(beru, "direccion", "") or "").upper()
                 wake = beru_rango.cero_wake(beru)
                 if self._manos():
-                    fill_casa = await self._consultar_fill(beru)
-                    if fill_casa:
-                        fill = float(fill_casa.get("avgPrice") or fill)
-                    else:
-                        # Evita doble fill: cancela Stop vivo antes del Market.
-                        await beru_rango_altar.cancelar_pendiente(
-                            self.bridge,
-                            beru,
-                            activo=self._activo,
-                            motivo="PRE_MARKET_OZ",
+                    pack = await self._confirmar_fill_oz_manos(
+                        beru, oz_viva=oz_viva, px=px, masa_hecha=masa_hecha,
+                    )
+                    if pack is None:
+                        await self.bel.anotar(
+                            "BERU_RANGO",
+                            "OZ_SIN_FILL",
+                            f"{beru.uid} Oz @{oz_viva:.6f} sin plata en casa "
+                            f"({dir_caza} · doctrina: no cosechar mapa)",
                         )
-                        beru_rango_altar.limpiar_sello_altar(beru)
-                        await beru_rango_altar.disparar_entrada_market(
-                            self.bridge, beru, activo=self._activo, masa_usd=masa_hecha,
+                        print(
+                            f"[RANGO] OZ_SIN_FILL {self._activo} Oz @{oz_viva:.6f} "
+                            f"— esperando fill/posición",
+                            flush=True,
                         )
-                        fill = oz_viva or float(px)
+                        return {"ok": True, "evento": "CAZA", "nota": "oz_sin_fill_casa"}
+                    fill = float(pack.get("avgPrice") or oz_viva or px)
+                else:
+                    # Ojos / teatro: fill del mapa (sin manos).
+                    fill = oz_viva or float(px)
                 beru_rango.cosechar_oz_y_mover_cero(
                     beru, fill, oz_despliegue=oz_viva or None,
                 )
@@ -272,6 +271,159 @@ class BeruRango:
         )
         beru_rango_altar.limpiar_sello_altar(beru)
 
+    async def _reconciliar_casa(self) -> None:
+        if self.tusk is None or self.bridge is None:
+            return
+        if not hasattr(self.bridge, "get_positions"):
+            return
+        try:
+            await self.tusk.reconciliar_con_exchange(self.bridge, activo=self._activo)
+        except Exception:
+            pass
+
+    def _posicion_tramo_casa(self, beru: BeruShip) -> dict[str, float] | None:
+        """Pierna viva en Tusk alineada con la dirección de la caza."""
+        from core import beru_rango_panel
+
+        d = str(getattr(beru, "direccion", "") or "").upper()
+        if d not in ("LONG", "SHORT"):
+            return None
+        umbral = max(0.05, float(getattr(beru, "masa", 0) or 0) * 0.08)
+        for row in beru_rango_panel.posicion_desde_tusk(self.tusk, self._activo):
+            if str(row.get("lado") or "").upper() != d:
+                continue
+            masa = float(row.get("masa_usd") or 0)
+            if masa + 1e-9 < umbral:
+                continue
+            px = float(row.get("precio") or 0)
+            if px <= 0:
+                continue
+            return {"avgPrice": px, "masa_usd": masa, "orderStatus": "Filled"}
+        return None
+
+    async def _intentar_sello_entrada(
+        self, beru: BeruShip, masa: float, *, origen: str,
+    ) -> bool:
+        """Coloca Stop en Oz o Market si el last ya pasó la Oz."""
+        if not self._manos():
+            return True
+        px_now = self._precio_lineal(self._activo)
+        if not beru_rango_altar.stop_trigger_valido(beru, px_now):
+            oz = float(getattr(beru, "oz_adan", 0) or 0)
+            await self.bel.anotar(
+                "BERU_RANGO",
+                "ALTAR_SKIP_STOP",
+                f"{beru.uid} {origen}: last={px_now:.6f} ya pasó Oz @{oz:.6f} · Market",
+            )
+            mkt = await beru_rango_altar.disparar_entrada_market(
+                self.bridge, beru, activo=self._activo, masa_usd=masa,
+            )
+            if not getattr(mkt, "exito", False):
+                msg = str(getattr(mkt, "mensaje", "") or "market_rechazada")
+                await self.bel.anotar(
+                    "BERU_RANGO",
+                    "ALTAR_MARKET_ARM_FALLIDO",
+                    f"{beru.uid} {origen}: {msg}",
+                )
+                print(
+                    f"[RANGO] ALTAR_MARKET_ARM_FALLIDO {self._activo} {origen}: {msg}",
+                    flush=True,
+                )
+                return False
+            await self._reconciliar_casa()
+            return True
+        try:
+            plan = beru_rango_altar.plan_trailing_entrada(
+                beru, activo=self._activo, masa_usd=masa,
+            )
+            res = await beru_rango_altar.armar_condicional(
+                self.bridge, beru, plan,
+            )
+            if getattr(res, "exito", False):
+                return True
+            msg = str(getattr(res, "mensaje", "") or "orden_rechazada")
+            if "110092" in msg or "expect Rising" in msg or "expect Falling" in msg:
+                await self.bel.anotar(
+                    "BERU_RANGO",
+                    "ALTAR_STOP_INVALIDO",
+                    f"{beru.uid}: {msg} · sin Stop · Oz→Market",
+                )
+                beru_rango_altar.limpiar_sello_altar(beru)
+                mkt = await beru_rango_altar.disparar_entrada_market(
+                    self.bridge, beru, activo=self._activo, masa_usd=masa,
+                )
+                if getattr(mkt, "exito", False):
+                    await self._reconciliar_casa()
+                    return True
+            else:
+                await self.bel.anotar(
+                    "BERU_RANGO",
+                    "ALTAR_ORDEN_FALLIDA",
+                    f"{beru.uid} {origen}: {msg} · sin sello en exchange",
+                )
+                print(
+                    f"[RANGO] ALTAR_ORDEN_FALLIDA {self._activo} {origen}: {msg}",
+                    flush=True,
+                )
+            return False
+        except ValueError as exc:
+            await self.bel.anotar(
+                "BERU_RANGO", "ALTAR_PLAN_FALLIDO", f"{beru.uid}: {exc}",
+            )
+            return False
+
+    async def _confirmar_fill_oz_manos(
+        self,
+        beru: BeruShip,
+        *,
+        oz_viva: float,
+        px: float,
+        masa_hecha: float,
+    ) -> dict[str, float] | None:
+        """Fill = plata en casa. Sin avg ni posición → no cosechar."""
+        fill_casa = await self._consultar_fill(beru)
+        if fill_casa and float(fill_casa.get("avgPrice") or 0) > 0:
+            return fill_casa
+
+        await self._reconciliar_casa()
+        pos = self._posicion_tramo_casa(beru)
+        if pos:
+            return pos
+
+        await beru_rango_altar.cancelar_pendiente(
+            self.bridge,
+            beru,
+            activo=self._activo,
+            motivo="PRE_MARKET_OZ",
+        )
+        beru_rango_altar.limpiar_sello_altar(beru)
+        mkt = await beru_rango_altar.disparar_entrada_market(
+            self.bridge, beru, activo=self._activo, masa_usd=masa_hecha,
+        )
+        if not getattr(mkt, "exito", False):
+            msg_m = str(getattr(mkt, "mensaje", "") or "market_rechazada")
+            await self.bel.anotar(
+                "BERU_RANGO",
+                "ALTAR_MARKET_FALLIDO",
+                f"{beru.uid} Oz @{oz_viva:.6f}: {msg_m}",
+            )
+            print(
+                f"[RANGO] ALTAR_MARKET_FALLIDO {self._activo}: {msg_m}",
+                flush=True,
+            )
+            return None
+
+        await self._reconciliar_casa()
+        pos = self._posicion_tramo_casa(beru)
+        if pos:
+            return pos
+
+        datos = getattr(mkt, "datos", None) or {}
+        avg = float(datos.get("avgPrice") or datos.get("fillPx") or 0)
+        if avg > 0:
+            return {"avgPrice": avg, "orderStatus": "Filled"}
+        return None
+
     async def _tras_armar(self, beru: BeruShip, *, origen: str, masa: float) -> None:
         await self.bel.anotar(
             "BERU_RANGO", "ARMAR",
@@ -289,35 +441,12 @@ class BeruRango:
             trail_extremo=getattr(beru, "trail_extremo", None),
         )
         if self._manos():
-            px_now = self._precio_lineal(self._activo)
-            if not beru_rango_altar.stop_trigger_valido(beru, px_now):
-                await self.bel.anotar(
-                    "BERU_RANGO",
-                    "ALTAR_SKIP_STOP",
-                    f"{beru.uid} {origen}: last={px_now:.6f} ya pasó Oz "
-                    f"@{float(getattr(beru, 'oz_adan', 0) or 0):.6f} · "
-                    f"entrada en Oz vía Market",
-                )
-                return
-            try:
-                plan = beru_rango_altar.plan_trailing_entrada(
-                    beru, activo=self._activo, masa_usd=masa,
-                )
-                res = await beru_rango_altar.armar_condicional(
-                    self.bridge, beru, plan,
-                )
-                if not getattr(res, "exito", False):
-                    msg = str(getattr(res, "mensaje", "") or "")
-                    if "110092" in msg or "expect Rising" in msg or "expect Falling" in msg:
-                        await self.bel.anotar(
-                            "BERU_RANGO",
-                            "ALTAR_STOP_INVALIDO",
-                            f"{beru.uid}: {msg} · sin Stop · Oz→Market",
-                        )
-                        beru_rango_altar.limpiar_sello_altar(beru)
-            except ValueError as exc:
-                await self.bel.anotar(
-                    "BERU_RANGO", "ALTAR_PLAN_FALLIDO", f"{beru.uid}: {exc}",
+            ok = await self._intentar_sello_entrada(beru, masa, origen=origen)
+            if not ok:
+                print(
+                    f"[RANGO] sello pendiente {self._activo} {origen} "
+                    f"— CAZA sin altar hasta fill",
+                    flush=True,
                 )
 
     async def _consultar_fill(self, beru: BeruShip) -> dict | None:
@@ -344,11 +473,14 @@ class BeruRango:
             return None
         avg = float(datos.get("avgPrice") or 0)
         oz = float(getattr(beru, "oz_adan", 0) or 0)
-        if avg > 0 and oz > 0 and abs(avg - oz) / oz > 0.01:
+        if avg <= 0:
+            # OKX algo «effective» sin avg — no inventar fill desde el mapa.
+            return None
+        if oz > 0 and abs(avg - oz) / oz > 0.01:
             # >1% de la Oz: casi seguro sello viejo o slip extremo — no contaminar 0.
             return None
         return {
-            "avgPrice": avg if avg > 0 else oz,
+            "avgPrice": avg,
             "cumExecQty": float(datos.get("cumExecQty") or 0),
             "orderStatus": status,
         }
