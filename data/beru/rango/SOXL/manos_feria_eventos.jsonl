@@ -1,0 +1,2 @@
+{"ts": 1788189002.443, "activo": "SOXL", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788189026.1441338, "activo": "SOXL", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 113.74, "fill": 111.5, "oz_despliegue": 111.46, "sangre": "ARRIBA", "red": 110.12248, "masa_hecha": 5.0, "trail_extremo": 111.24, "oz": 111.46, "dir": "LONG"}}

@@ -1,0 +1,206 @@
+
+════════════════════════════════════════════════════════
+    ARISE BERU RANGO — MANOS ON
+    Santo: SYSTEM.COLLECTIONS.HASHTABLEUSDT_LINEAL · mercado=linear · perfil=feria · Vacío ±2.4% · masa $5.0 · Red $5.0
+    FASE: HIERRO | SIM=False | TESTNET=False
+════════════════════════════════════════════════════════
+[2026-08-30 23:03:33] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 25x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:33).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "25", "sellLeverage": "25"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:33] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 20x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:33).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "20", "sellLeverage": "20"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:34] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 15x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:34).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "15", "sellLeverage": "15"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:34] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 12x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:34).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "12", "sellLeverage": "12"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:34] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 10x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:34).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "10", "sellLeverage": "10"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:35] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 8x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:35).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "8", "sellLeverage": "8"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:35] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 5x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:35).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "5", "sellLeverage": "5"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:35] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 3x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:35).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "3", "sellLeverage": "3"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:35] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 2x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:35).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "2", "sellLeverage": "2"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:36] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 1x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:36).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "1", "sellLeverage": "1"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:36] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 23x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:36).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "23", "sellLeverage": "23"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:36] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 21x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:36).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "21", "sellLeverage": "21"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:37] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 19x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:37).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "19", "sellLeverage": "19"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:37] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 17x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:37).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "17", "sellLeverage": "17"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:37] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 13x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:37).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "13", "sellLeverage": "13"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:37] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 11x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:37).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "11", "sellLeverage": "11"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:38] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 9x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:38).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "9", "sellLeverage": "9"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:38] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 7x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:38).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "7", "sellLeverage": "7"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:38] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 24x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:38).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "24", "sellLeverage": "24"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:39] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 22x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:39).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "22", "sellLeverage": "22"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:39] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 18x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:39).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "18", "sellLeverage": "18"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:39] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 16x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:39).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "16", "sellLeverage": "16"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:40] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 14x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:40).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "14", "sellLeverage": "14"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:40] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 6x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:40).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "6", "sellLeverage": "6"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:40] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSD 4x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:40).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "4", "sellLeverage": "4"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:40] [IGRIS] LEVERAGE_MAX_AVISO: SYSTEM.COLLECTIONS.HASHTABLE · SYSTEM.COLLECTIONS.HASHTABLEUSD (inverse): pedido 25x · Bybit NO dejó · params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:40).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "4", "sellLeverage": "4"}.
+[BELLION OIDO · CRITICO] IGRIS LEVERAGE_MAX_AVISO
+[2026-08-30 23:03:40] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 25x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:40).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "25", "sellLeverage": "25"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:41] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 20x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:41).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "20", "sellLeverage": "20"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:41] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 15x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:41).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "15", "sellLeverage": "15"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:41] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 12x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:41).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "12", "sellLeverage": "12"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:42] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 10x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:42).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "10", "sellLeverage": "10"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:42] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 8x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:42).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "8", "sellLeverage": "8"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:42] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 5x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:42).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "5", "sellLeverage": "5"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:43] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 3x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:43).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "3", "sellLeverage": "3"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:43] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 2x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:43).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "2", "sellLeverage": "2"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:43] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 1x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:43).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "1", "sellLeverage": "1"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:44] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 23x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:44).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "23", "sellLeverage": "23"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:44] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 21x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:44).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "21", "sellLeverage": "21"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:44] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 19x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:44).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "19", "sellLeverage": "19"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:45] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 17x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:45).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "17", "sellLeverage": "17"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:45] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 13x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:45).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "13", "sellLeverage": "13"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:45] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 11x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:45).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "11", "sellLeverage": "11"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:46] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 9x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:46).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "9", "sellLeverage": "9"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:46] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 7x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:46).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "7", "sellLeverage": "7"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:46] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 24x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:46).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "24", "sellLeverage": "24"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:47] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 22x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:47).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "22", "sellLeverage": "22"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:47] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 18x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:47).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "18", "sellLeverage": "18"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:48] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 16x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:48).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "16", "sellLeverage": "16"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:48] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 14x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:48).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "14", "sellLeverage": "14"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:48] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 6x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:48).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "6", "sellLeverage": "6"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:49] [BRIDGE] LEVERAGE_ERROR: SYSTEM.COLLECTIONS.HASHTABLEUSDT 4x: params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:49).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "4", "sellLeverage": "4"}.
+[BELLION OIDO · CRITICO] BRIDGE LEVERAGE_ERROR
+[2026-08-30 23:03:49] [IGRIS] LEVERAGE_MAX_AVISO: SYSTEM.COLLECTIONS.HASHTABLE · SYSTEM.COLLECTIONS.HASHTABLEUSDT (linear): pedido 25x · Bybit NO dejó · params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:49).
+Request → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "4", "sellLeverage": "4"}.
+[BELLION OIDO · CRITICO] IGRIS LEVERAGE_MAX_AVISO
+[RANGO] apalanc SYSTEM.COLLECTIONS.HASHTABLE AVISO: [{'ok': False, 'activo': 'SYSTEM.COLLECTIONS.HASHTABLE', 'symbol': 'SYSTEM.COLLECTIONS.HASHTABLEUSD', 'category': 'inverse', 'pedido': 25, 'aplicado': None, 'motivo': 'params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSD (ErrCode: 10001) (ErrTime: 05:03:40).\nRequest → POST https://api.bybit.com/v5/position/set-leverage: {"category": "inverse", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSD", "buyLeverage": "4", "sellLeverage": "4"}.'}, {'ok': False, 'activo': 'SYSTEM.COLLECTIONS.HASHTABLE', 'symbol': 'SYSTEM.COLLECTIONS.HASHTABLEUSDT', 'category': 'linear', 'pedido': 25, 'aplicado': None, 'motivo': 'params error: symbol invalid SYSTEM.COLLECTIONS.HASHTABLEUSDT (ErrCode: 10001) (ErrTime: 05:03:49).\nRequest → POST https://api.bybit.com/v5/position/set-leverage: {"category": "linear", "symbol": "SYSTEM.COLLECTIONS.HASHTABLEUSDT", "buyLeverage": "4", "sellLeverage": "4"}.'}]
+[2026-08-30 23:03:50] [TUSK] RECONCILIACIÓN: COTIUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:519.000000/S:0.000000
+[2026-08-30 23:03:50] [TUSK] RECONCILIACIÓN: KORUUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:5.110000
+[2026-08-30 23:03:50] [TUSK] RECONCILIACIÓN: SKHYNIXUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.043000/S:0.000000
+[2026-08-30 23:03:50] [TUSK] RECONCILIACIÓN: SKHYUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.260000/S:0.000000
+[2026-08-30 23:03:50] [TUSK] RECONCILIACIÓN: DRAMUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.600000/S:0.000000
+[2026-08-30 23:03:50] [TUSK] RECONCILIACIÓN: BIOUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:1016.000000/S:0.000000
+[2026-08-30 23:03:50] [TUSK] RECONCILIACIÓN: BLUAIUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:850.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: ACUUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:118.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: OUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:44.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: XANUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:1007.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: AKTUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:209.400000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: LSKUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:94.400000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: SYRUPUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:516.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: BEATUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:116.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: POWERUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:67.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: SAFEUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:46.600000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: HUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:140.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: CFGUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:1015.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: ESPUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:1170.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: NILUSDT_LINEAL: interno L:0.000000/S:0.000000 -> real L:0.000000/S:285.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: SOLUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:201.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: HYPEUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:291.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: XRPUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:250.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: LTCUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:239.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: ETHUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:210.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: AAVEUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:178.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: APTUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:210.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: AVAXUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:200.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: BCHUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:180.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: DOGEUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:219.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: ETCUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:283.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: LINKUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:199.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: MNTUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:69.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: NEARUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:113.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: OPUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:225.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: SUIUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:208.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: FILUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:198.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: XLMUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:206.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: ADAUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:207.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN: DOTUSD_INVERSE: interno L:0.000000/S:0.000000 -> real L:200.000000/S:0.000000
+[2026-08-30 23:03:51] [TUSK] RECONCILIACIÓN_OK: 40 frentes alineados con exchange
+
+[!] ERROR ARISE BERU RANGO MANOS:

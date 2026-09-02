@@ -1,0 +1,7 @@
+# Beru piedra OKX — semáforo verde (piedra_asignacion.json)
+# Ritual: scripts/despertar_piedra_verde_okx_win.ps1
+AEON
+GRAM
+KORU
+SPCX
+XAG

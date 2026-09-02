@@ -1,0 +1,4 @@
+{"ts": 1788198259.7230191, "activo": "BEAT", "evento": "ARMAR_ARRIBA", "detalle": {"ok": true, "evento": "ARMAR_ARRIBA", "masa": 5.0, "dir": "SHORT"}}
+{"ts": 1788198274.4720397, "activo": "BEAT", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 0.12154, "fill": 0.1242, "oz_despliegue": 0.1242, "sangre": "ABAJO", "red": 0.1256904, "masa_hecha": 5.0, "trail_extremo": 0.12445, "oz": 0.1242, "dir": "SHORT"}}
+{"ts": 1788200844.8877017, "activo": "BEAT", "evento": "ARMAR_RED", "detalle": {"ok": true, "evento": "ARMAR_RED", "masa": 5.0, "dir": "SHORT", "escalon": 1, "nota": "Red meta-saco -> trailing callback 0.2"}}
+{"ts": 1788200861.3571422, "activo": "BEAT", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 0.12154, "fill": 0.1257, "oz_despliegue": 0.1257, "sangre": "ABAJO", "red": 0.1272084, "masa_hecha": 6.0, "trail_extremo": 0.12603, "oz": 0.1257, "dir": "SHORT"}}

@@ -1,0 +1,2 @@
+{"ts": 1788194611.7113247, "activo": "BMNR", "evento": "ARMAR_ARRIBA", "detalle": {"ok": true, "evento": "ARMAR_ARRIBA", "masa": 5.0, "dir": "SHORT"}}
+{"ts": 1788194679.8053381, "activo": "BMNR", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 24.076, "fill": 24.628, "oz_despliegue": 24.628, "sangre": "ABAJO", "red": 24.923536000000002, "masa_hecha": 6.0, "trail_extremo": 24.678, "oz": 24.628, "dir": "SHORT"}}

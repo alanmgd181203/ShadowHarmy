@@ -104,6 +104,14 @@ def ojos_feria_eventos(activo: str) -> Path:
     return dir_santo(activo) / "ojos_feria_eventos.jsonl"
 
 
+def manos_piedra_informe(activo: str) -> Path:
+    return dir_santo(activo) / "manos_piedra_informe.json"
+
+
+def manos_piedra_eventos(activo: str) -> Path:
+    return dir_santo(activo) / "manos_piedra_eventos.jsonl"
+
+
 def informe_manos(
     activo: str,
     mercado: str = "linear",
@@ -117,6 +125,8 @@ def informe_manos(
         return manos_inverso_informe(activo)
     if p == "feria":
         return manos_feria_informe(activo)
+    if p == "piedra":
+        return manos_piedra_informe(activo)
     return manos_informe(activo)
 
 
@@ -133,6 +143,8 @@ def eventos_manos(
         return manos_inverso_eventos(activo)
     if p == "feria":
         return manos_feria_eventos(activo)
+    if p == "piedra":
+        return manos_piedra_eventos(activo)
     return manos_eventos(activo)
 
 

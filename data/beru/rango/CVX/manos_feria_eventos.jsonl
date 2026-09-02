@@ -1,0 +1,4 @@
+{"ts": 1788200472.4881248, "activo": "CVX", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788200474.029849, "activo": "CVX", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 2.2209, "fill": 2.1774, "oz_despliegue": 2.1774, "sangre": "ARRIBA", "red": 2.1512712, "masa_hecha": 6.0, "trail_extremo": 2.1731, "oz": 2.1774, "dir": "LONG"}}
+{"ts": 1788207907.1881306, "activo": "CVX", "evento": "ARMAR_SANGRE", "detalle": {"ok": true, "evento": "ARMAR_SANGRE", "masa": 5.0, "dir": "SHORT"}}
+{"ts": 1788207916.446538, "activo": "CVX", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 2.2209, "fill": 2.2335, "oz_despliegue": 2.2335, "sangre": "ABAJO", "red": 2.260302, "masa_hecha": 7.0, "trail_extremo": 2.238, "oz": 2.2335, "dir": "SHORT"}}

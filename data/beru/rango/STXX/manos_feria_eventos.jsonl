@@ -1,0 +1,2 @@
+{"ts": 1788193237.230459, "activo": "STXX", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788193238.7258976, "activo": "STXX", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 830.95, "fill": 813.72, "oz_despliegue": 813.72, "sangre": "ARRIBA", "red": 803.95536, "masa_hecha": 5.0, "trail_extremo": 812.1, "oz": 813.72, "dir": "LONG"}}

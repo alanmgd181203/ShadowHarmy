@@ -1,0 +1,4 @@
+{"ts": 1788193448.3500028, "activo": "BLUAI", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788193449.8875415, "activo": "BLUAI", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 0.012591, "fill": 0.012236, "oz_despliegue": 0.012236, "sangre": "ARRIBA", "red": 0.012089168, "masa_hecha": 9.0, "trail_extremo": 0.012212, "oz": 0.012236, "dir": "LONG"}}
+{"ts": 1788194712.4623158, "activo": "BLUAI", "evento": "ARMAR_SANGRE", "detalle": {"ok": true, "evento": "ARMAR_SANGRE", "masa": 5.0, "dir": "SHORT"}}
+{"ts": 1788194795.8662236, "activo": "BLUAI", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 0.012591, "fill": 0.012483, "oz_despliegue": 0.012483, "sangre": "ABAJO", "red": 0.012632796, "masa_hecha": 5.0, "trail_extremo": 0.012509, "oz": 0.012483, "dir": "SHORT"}}

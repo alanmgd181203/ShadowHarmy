@@ -1,0 +1,2 @@
+{"ts": 1788189080.8123188, "activo": "SOXS", "evento": "ARMAR_ARRIBA", "detalle": {"ok": true, "evento": "ARMAR_ARRIBA", "masa": 5.0, "dir": "SHORT"}}
+{"ts": 1788189145.6488473, "activo": "SOXS", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 48.84, "fill": 49.88, "oz_despliegue": 49.88, "sangre": "ABAJO", "red": 50.47856, "masa_hecha": 5.0, "trail_extremo": 49.98, "oz": 49.88, "dir": "SHORT"}}

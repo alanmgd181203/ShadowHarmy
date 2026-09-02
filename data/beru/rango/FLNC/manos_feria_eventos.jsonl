@@ -1,0 +1,2 @@
+{"ts": 1788187901.4372334, "activo": "FLNC", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788187905.5883749, "activo": "FLNC", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 11.05, "fill": 10.81158, "oz_despliegue": 10.81158, "sangre": "ARRIBA", "red": 10.681841039999998, "masa_hecha": 5.0, "trail_extremo": 10.79, "oz": 10.81158, "dir": "LONG"}}

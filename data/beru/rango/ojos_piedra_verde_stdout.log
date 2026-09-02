@@ -1,0 +1,52 @@
+
+════════════════════════════════════════════════════════
+    RITUAL OJOS — Beru rango MULTI (lineal USDT)
+    Santos: 5 · manos OFF · bridge PROPIO por Santo
+    AEON, GRAM, KORU, SPCX, XAG
+    FASE: HIERRO | SIM=True
+    Oído: tratos públicos ON (mecha trato a trato) · libros OFF
+════════════════════════════════════════════════════════
+
+[RANGO] Levantando 5 puentes independientes (sin fila compartida)…
+[RANGO] Flota multi 5 · cada uno pide a la API · sin disparos. Ctrl+C sella.
+
+[2026-09-01 17:54:32] [BERU_RANGO] WAKE: RANGO_AEON_d4848e3f 0=0.057530 Vacío ±1.2% → trailing Oz 0.2% · masa $0.20 · Red→$0.
+[BERU_RANGO] WAKE RANGO_AEON_d4848e3f 0=0.05753 precio=0.05753 masa_usd=0.2
+[RANGO] Wake AEON 0=0.05753 · manos=OFF · bridge=PROPIO · pid=16920
+[TANK] Trinidad 22 activos | pentiverso ['LTC', 'BTC'] | beru ['ETHUSDT_SPOT'] | ref: ETH (HIERRO).
+[2026-09-01 17:54:32] [OKX_BRIDGE] OJOS: WS tickers SWAP · 1 inst · bases=AEON
+[2026-09-01 17:54:33] [BERU_RANGO] WAKE: RANGO_GRAM_c3c3f320 0=1.315000 Vacío ±1.2% → trailing Oz 0.2% · masa $0.20 · Red→$0.
+[BERU_RANGO] WAKE RANGO_GRAM_c3c3f320 0=1.315 precio=1.315 masa_usd=0.2
+[RANGO] Wake GRAM 0=1.315 · manos=OFF · bridge=PROPIO · pid=16920
+[TANK] Trinidad 22 activos | pentiverso ['LTC', 'BTC'] | beru ['ETHUSDT_SPOT'] | ref: ETH (HIERRO).
+[2026-09-01 17:54:33] [OKX_BRIDGE] OJOS: WS tickers SWAP · 1 inst · bases=GRAM
+[2026-09-01 17:54:33] [BERU_RANGO] WAKE: RANGO_KORU_2a195071 0=19.070000 Vacío ±1.2% → trailing Oz 0.2% · masa $0.20 · Red→$0.
+[BERU_RANGO] WAKE RANGO_KORU_2a195071 0=19.07 precio=19.07 masa_usd=0.2
+[RANGO] Wake KORU 0=19.07 · manos=OFF · bridge=PROPIO · pid=16920
+[2026-09-01 17:54:34] [BERU_RANGO] WAKE: RANGO_SPCX_8c426625 0=142.230000 Vacío ±1.2% → trailing Oz 0.2% · masa $0.20 · Red→$0.
+[BERU_RANGO] WAKE RANGO_SPCX_8c426625 0=142.23 precio=142.23 masa_usd=0.2
+[RANGO] Wake SPCX 0=142.23 · manos=OFF · bridge=PROPIO · pid=16920
+[TANK] Trinidad 22 activos | pentiverso ['LTC', 'BTC'] | beru ['ETHUSDT_SPOT'] | ref: ETH (HIERRO).
+[2026-09-01 17:54:34] [OKX_BRIDGE] OJOS: WS tickers SWAP · 1 inst · bases=KORU
+[TANK] Trinidad 22 activos | pentiverso ['LTC', 'BTC'] | beru ['ETHUSDT_SPOT'] | ref: ETH (HIERRO).
+[2026-09-01 17:54:34] [OKX_BRIDGE] OJOS: WS tickers SWAP · 1 inst · bases=SPCX
+[2026-09-01 17:54:34] [BERU_RANGO] WAKE: RANGO_XAG_f8744bf8 0=64.300000 Vacío ±1.2% → trailing Oz 0.2% · masa $0.20 · Red→$0.
+[BERU_RANGO] WAKE RANGO_XAG_f8744bf8 0=64.3 precio=64.3 masa_usd=0.2
+[RANGO] Wake XAG 0=64.3 · manos=OFF · bridge=PROPIO · pid=16920
+[TANK] Trinidad 22 activos | pentiverso ['LTC', 'BTC'] | beru ['ETHUSDT_SPOT'] | ref: ETH (HIERRO).
+[2026-09-01 17:54:34] [OKX_BRIDGE] OJOS: WS tickers SWAP · 1 inst · bases=XAG
+[RANGO] GRAMUSDT_LINEAL last=1.315 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] AEONUSDT_LINEAL last=0.05753 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] SPCXUSDT_LINEAL last=142.23 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] XAGUSDT_LINEAL last=64.3 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] KORUUSDT_LINEAL last=19.07 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] GRAMUSDT_LINEAL last=1.315 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] AEONUSDT_LINEAL last=0.05753 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] SPCXUSDT_LINEAL last=142.23 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] XAGUSDT_LINEAL last=64.3 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] KORUUSDT_LINEAL last=19.07 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] GRAMUSDT_LINEAL last=1.314 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] AEONUSDT_LINEAL last=0.05742 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] SPCXUSDT_LINEAL last=142.23 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] XAGUSDT_LINEAL last=64.25 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO
+[RANGO] KORUUSDT_LINEAL last=19.09 · río=WS · estado=ACECHANDO · manos=OFF · pid=16920 · bridge=PROPIO

@@ -129,12 +129,58 @@
       "ZRO",
       "ZRX"
     ],
-    "idx_rojo": 0,
-    "idx_amarillo": 0
+    "idx_rojo": 1,
+    "idx_amarillo": 1
   },
   "sellos_cruce": {},
-  "ultimo_precio_btc": 76981.0,
-  "ultima_zona_mil": 76000,
-  "historial": [],
-  "procesos_vivos": []
+  "ultimo_precio_btc": 77459.9,
+  "ultima_zona_mil": 77000,
+  "historial": [
+    {
+      "zona_mil": 77000,
+      "direccion": "arriba",
+      "paso_usd": 1000,
+      "ts_utc": "2026-09-02T02:13:15.280562+00:00",
+      "precio_btc": 77117.2,
+      "rojo": "A",
+      "amarillo": "1INCH",
+      "fase": "ojos",
+      "procesos": [
+        {
+          "ts_utc": "2026-09-02T02:13:15.306193+00:00",
+          "activo": "A",
+          "fase": "ojos",
+          "pid": 6220,
+          "stdout": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\despertar_mil\\ojos_A_20260902_021315_stdout.log",
+          "stderr": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\despertar_mil\\ojos_A_20260902_021315_stderr.log"
+        },
+        {
+          "ts_utc": "2026-09-02T02:13:15.837639+00:00",
+          "activo": "1INCH",
+          "fase": "ojos",
+          "pid": 1084,
+          "stdout": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\despertar_mil\\ojos_1INCH_20260902_021315_stdout.log",
+          "stderr": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\despertar_mil\\ojos_1INCH_20260902_021315_stderr.log"
+        }
+      ]
+    }
+  ],
+  "procesos_vivos": [
+    {
+      "ts_utc": "2026-09-02T02:13:15.306193+00:00",
+      "activo": "A",
+      "fase": "ojos",
+      "pid": 6220,
+      "stdout": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\despertar_mil\\ojos_A_20260902_021315_stdout.log",
+      "stderr": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\despertar_mil\\ojos_A_20260902_021315_stderr.log"
+    },
+    {
+      "ts_utc": "2026-09-02T02:13:15.837639+00:00",
+      "activo": "1INCH",
+      "fase": "ojos",
+      "pid": 1084,
+      "stdout": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\despertar_mil\\ojos_1INCH_20260902_021315_stdout.log",
+      "stderr": "C:\\Users\\lenovo\\ShadowHarmy\\data\\beru\\rango\\despertar_mil\\ojos_1INCH_20260902_021315_stderr.log"
+    }
+  ]
 }

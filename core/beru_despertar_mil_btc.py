@@ -312,7 +312,17 @@ def lanzar_santo_proceso(
         if not manos_go:
             raise ValueError("manos requiere manos_go=True")
         script = root / "scripts" / "arise_beru_rango_manos.py"
-        cmd = [sys.executable, "-u", str(script), "--activo", act, "--manos-go"]
+        cmd = [
+            sys.executable,
+            "-u",
+            str(script),
+            "--activo",
+            act,
+            "--perfil",
+            "piedra",
+            "--manos-go",
+            "--desde-cero",
+        ]
     else:
         script = root / "scripts" / "arise_beru_rango_ojos.py"
         cmd = [sys.executable, "-u", str(script), "--activo", act]

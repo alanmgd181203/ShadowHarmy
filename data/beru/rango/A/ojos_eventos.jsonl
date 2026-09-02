@@ -1,0 +1,4 @@
+{"ts": 1788318240.5724652, "activo": "A", "evento": "ARMAR_ARRIBA", "detalle": {"ok": true, "evento": "ARMAR_ARRIBA", "masa": 0.2, "dir": "SHORT"}, "pid": 6220}
+{"ts": 1788318594.1210186, "activo": "A", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 0.07373, "fill": 0.07454062, "oz_despliegue": 0.07454062, "sangre": "ABAJO", "red": 0.07513694496000001, "masa_hecha": 0.41000000000000003, "trail_extremo": 0.07469, "oz": 0.07454062, "dir": "SHORT"}, "pid": 6220}
+{"ts": 1788322955.3664453, "activo": "A", "evento": "ARMAR_RED", "detalle": {"ok": true, "evento": "ARMAR_RED", "masa": 0.5, "dir": "SHORT", "escalon": 1, "nota": "Red meta-saco -> trailing callback 0.2"}, "pid": 6220}
+{"ts": 1788322955.4352167, "activo": "A", "evento": "ARMAR_ARRIBA", "detalle": {"ok": true, "evento": "ARMAR_ARRIBA", "masa": 0.2, "dir": "SHORT"}, "pid": 19704}

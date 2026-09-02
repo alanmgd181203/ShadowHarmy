@@ -1,0 +1,2 @@
+{"ts": 1788201876.3888633, "activo": "POPCAT", "evento": "ARMAR_ARRIBA", "detalle": {"ok": true, "evento": "ARMAR_ARRIBA", "masa": 5.0, "dir": "SHORT"}}
+{"ts": 1788201909.7717166, "activo": "POPCAT", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 0.05208, "fill": 0.05312, "oz_despliegue": 0.05313, "sangre": "ABAJO", "red": 0.05376756, "masa_hecha": 5.0, "trail_extremo": 0.05324, "oz": 0.05313, "dir": "SHORT"}}

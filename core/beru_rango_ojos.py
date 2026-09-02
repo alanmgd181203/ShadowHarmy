@@ -29,11 +29,11 @@ def mercado_norm(mercado: str | None = None) -> str:
 
 
 def perfil_norm(perfil: str | None = None) -> str:
-    """Geometría Beru rango: normal (default) · feria (orejas x2)."""
+    """Geometría Beru rango: normal · feria (orejas x2) · piedra (OKX micro)."""
     p = str(
         perfil or getattr(config, "BERU_RANGO_PERFIL", "normal") or "normal"
     ).strip().lower()
-    return p if p in ("normal", "feria") else "normal"
+    return p if p in ("normal", "feria", "piedra") else "normal"
 
 
 def _claves(mercado: str | None = None) -> tuple[str, ...]:

@@ -1,0 +1,2 @@
+{"ts": 1788321130.3035786, "activo": "KORU", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 0.5, "dir": "LONG"}}
+{"ts": 1788321912.5220633, "activo": "KORU", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 19.52, "fill": 19.14822, "oz_despliegue": 19.14822, "sangre": "ARRIBA", "red": 19.014182459999997, "masa_hecha": 1.0, "trail_extremo": 19.11, "oz": 19.14822, "dir": "LONG"}}

@@ -1,0 +1,2 @@
+{"ts": 1788190696.5854912, "activo": "SHAZ", "evento": "ARMAR_ARRIBA", "detalle": {"ok": true, "evento": "ARMAR_ARRIBA", "masa": 5.0, "dir": "SHORT"}}
+{"ts": 1788190698.358215, "activo": "SHAZ", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 53.02, "fill": 54.08, "oz_despliegue": 54.08, "sangre": "ABAJO", "red": 54.72896, "masa_hecha": 5.0, "trail_extremo": 54.19, "oz": 54.08, "dir": "SHORT"}}

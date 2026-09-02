@@ -87,8 +87,8 @@ def _parse_args():
     ap.add_argument(
         "--perfil",
         default=os.getenv("BERU_RANGO_PERFIL", "normal"),
-        choices=("normal", "feria"),
-        help="Geometría: normal (±1,2%%) o feria (±2,4%% · monedas violentas)",
+        choices=("normal", "feria", "piedra"),
+        help="Geometría: normal · feria (±2,4%%) · piedra (OKX micro)",
     )
     return ap.parse_args()
 
@@ -123,6 +123,7 @@ else:
     os.environ["BRIDGE_WS_SOLO_INVERSE"] = "false"
     os.environ["BRIDGE_WS_PUBLIC_TRADES_LINEAR"] = "true"
 os.environ.setdefault("BRIDGE_WS_SUBSCRIBE_BOOKS", "false")
+os.environ.setdefault("BERU_MAR", "okx")
 os.environ.setdefault("BINANCE_REF_ENABLED", "false")
 os.environ["MODO_SIMULACION"] = "false"
 os.environ["ARISE_BERU_RANGO_PERMITIR_MANOS"] = "true"
@@ -149,7 +150,7 @@ LEGACY_EVENTOS = beru_rango_paths.LEGACY_MANOS_EVENTOS
 
 def _sello_aislado() -> bool:
     """No publicar al panel legacy ni espejo lineal normal."""
-    return MERCADO == "inverse" or PERFIL == "feria"
+    return MERCADO == "inverse" or PERFIL in ("feria", "piedra")
 
 
 def _configurar_mercado_runtime() -> None:

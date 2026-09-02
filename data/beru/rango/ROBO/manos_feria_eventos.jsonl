@@ -1,0 +1,2 @@
+{"ts": 1788200724.6041985, "activo": "ROBO", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788200727.1200566, "activo": "ROBO", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 0.01266, "fill": 0.01242, "oz_despliegue": 0.012414, "sangre": "ARRIBA", "red": 0.012265032, "masa_hecha": 5.0, "trail_extremo": 0.01239, "oz": 0.012414, "dir": "LONG"}}

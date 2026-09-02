@@ -1,0 +1,6 @@
+{"ts": 1788185772.3179126, "activo": "AXTI", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788185774.0191946, "activo": "AXTI", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 62.11, "fill": 60.86, "oz_despliegue": 60.85, "sangre": "ARRIBA", "red": 60.1198, "masa_hecha": 5.0, "trail_extremo": 60.73, "oz": 60.85, "dir": "LONG"}}
+{"ts": 1788189913.0354097, "activo": "AXTI", "evento": "ARMAR_SANGRE", "detalle": {"ok": true, "evento": "ARMAR_SANGRE", "masa": 5.0, "dir": "SHORT"}}
+{"ts": 1788189961.1751087, "activo": "AXTI", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 62.11, "fill": 62.09, "oz_despliegue": 62.13, "sangre": "ABAJO", "red": 62.87556, "masa_hecha": 5.0, "trail_extremo": 62.26, "oz": 62.13, "dir": "SHORT"}}
+{"ts": 1788192525.4330423, "activo": "AXTI", "evento": "ARMAR_SANGRE", "detalle": {"ok": true, "evento": "ARMAR_SANGRE", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788192540.938397, "activo": "AXTI", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 62.11, "fill": 60.75, "oz_despliegue": 60.75, "sangre": "ARRIBA", "red": 60.021, "masa_hecha": 5.0, "trail_extremo": 60.63, "oz": 60.75, "dir": "LONG"}}

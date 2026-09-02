@@ -1,0 +1,2 @@
+{"ts": 1788199622.9025278, "activo": "USAR", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788199624.6972003, "activo": "USAR", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 18.14, "fill": 17.77, "oz_despliegue": 17.77, "sangre": "ARRIBA", "red": 17.55676, "masa_hecha": 5.0, "trail_extremo": 17.74, "oz": 17.77, "dir": "LONG"}}

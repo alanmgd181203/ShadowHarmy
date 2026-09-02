@@ -1,0 +1,2 @@
+{"ts": 1788203501.7936404, "activo": "ONDS", "evento": "ARMAR_ABAJO", "detalle": {"ok": true, "evento": "ARMAR_ABAJO", "masa": 5.0, "dir": "LONG"}}
+{"ts": 1788203602.2506483, "activo": "ONDS", "evento": "OZ_COSECHA", "detalle": {"ok": true, "evento": "OZ_COSECHA", "cero": 7.842, "fill": 7.671, "oz_despliegue": 7.671, "sangre": "ARRIBA", "red": 7.5789480000000005, "masa_hecha": 5.0, "trail_extremo": 7.656, "oz": 7.671, "dir": "LONG"}}
