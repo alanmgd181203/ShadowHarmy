@@ -87,10 +87,12 @@ async def _test_oz_con_posicion_casa() -> None:
     g._activo = "ETH"
     beru = _beru_cazando()
     beru.altar_link_id = "BRGTEST"
+    beru.pierna_snap_usd = 0.0
+    beru.pierna_snap_lado = "LONG"
     g.vivo = beru
     g._consultar_fill = AsyncMock(return_value=None)  # type: ignore[method-assign]
     g._reconciliar_casa = AsyncMock()  # type: ignore[method-assign]
-    g._posicion_tramo_casa = MagicMock(  # type: ignore[method-assign]
+    g._delta_pierna_tramo = MagicMock(  # type: ignore[method-assign]
         return_value={"avgPrice": 100.18, "masa_usd": 1.0, "orderStatus": "Filled"},
     )
     g._precio_lineal = MagicMock(return_value=100.25)  # type: ignore[method-assign]
@@ -98,11 +100,15 @@ async def _test_oz_con_posicion_casa() -> None:
     with patch(
         "generales.beru_rango.beru_rango_altar.seguir_trailing",
         new_callable=AsyncMock,
+    ), patch(
+        "generales.beru_rango.beru_rango_altar.cancelar_pendiente",
+        new_callable=AsyncMock,
     ):
         out = await g.pulso(precio=100.25, latido={"last": 100.25, "high": 100.25, "low": 100.0})
     assert out.get("evento") == "OZ_COSECHA", out
     assert beru.estado == "ACECHANDO", beru.estado
-    print("  manos: Oz con posición casa cosecha OK")
+    assert abs(float(out.get("masa_hecha") or 0) - 1.0) < 1e-9, out
+    print("  manos: Oz con delta casa cosecha OK")
 
 
 async def _test_consultar_fill_sin_avg() -> None:

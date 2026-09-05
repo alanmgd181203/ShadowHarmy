@@ -13,6 +13,8 @@ from typing import Any
 
 import core.config as config
 
+_SERVER_OFFSET_MS: float | None = None
+
 
 class OkxRestError(RuntimeError):
   def __init__(self, code: str, msg: str, *, data: Any = None):
@@ -27,6 +29,31 @@ def _base_url() -> str:
   if flag == "1":
     return "https://www.okx.com"
   return "https://www.okx.com"
+
+
+def _sync_server_time(force: bool = False) -> None:
+  """Alinea reloj local con OKX (evita 50102 Timestamp request expired)."""
+  global _SERVER_OFFSET_MS
+  if _SERVER_OFFSET_MS is not None and not force:
+    return
+  try:
+    data = _request("GET", "/api/v5/public/time", auth=False, timeout=8.0)
+    rows = list(data or [])
+    server_ms = int(float((rows[0] if rows else {}).get("ts") or 0))
+    if server_ms > 0:
+      _SERVER_OFFSET_MS = float(server_ms - int(time.time() * 1000))
+    else:
+      _SERVER_OFFSET_MS = 0.0
+  except Exception:
+    _SERVER_OFFSET_MS = 0.0
+
+
+def _timestamp_iso() -> str:
+  _sync_server_time()
+  now_ms = int(time.time() * 1000) + int(_SERVER_OFFSET_MS or 0)
+  sec = now_ms // 1000
+  ms = now_ms % 1000
+  return time.strftime("%Y-%m-%dT%H:%M:%S.", time.gmtime(sec)) + f"{ms:03d}Z"
 
 
 def _credenciales() -> tuple[str, str, str]:
@@ -71,7 +98,7 @@ def _request(
     key, secret, phrase = _credenciales()
     if not (key and secret and phrase):
       raise OkxRestError("0", "Sin credenciales OKX")
-    ts = time.strftime("%Y-%m-%dT%H:%M:%S.", time.gmtime()) + f"{int(time.time() * 1000) % 1000:03d}Z"
+    ts = _timestamp_iso()
     if body:
       payload = json.dumps(body, separators=(",", ":"))
     sign_path = f"{path}{query}"
@@ -96,6 +123,17 @@ def _request(
       raise OkxRestError(str(exc.code), raw or str(exc)) from exc
     code = str(parsed.get("code") or exc.code)
     msg = str(parsed.get("msg") or raw)
+    # Un reintento con reloj fresco si el timestamp local se desfasó.
+    if auth and str(code) == "50102":
+      _sync_server_time(force=True)
+      if not getattr(_request, "_reintentando_ts", False):
+        try:
+          _request._reintentando_ts = True  # type: ignore[attr-defined]
+          return _request(
+            method, path, params=params, body=body, auth=auth, timeout=timeout,
+          )
+        finally:
+          _request._reintentando_ts = False  # type: ignore[attr-defined]
     raise OkxRestError(code, msg, data=parsed.get("data")) from exc
   except (urllib.error.URLError, TimeoutError, OSError) as exc:
     raise OkxRestError("NET", str(exc)) from exc

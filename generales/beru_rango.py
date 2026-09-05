@@ -132,6 +132,21 @@ class BeruRango:
                         "dir": beru.direccion,
                     }
                 if trig == "RED":
+                    pierna_casa = 0.0
+                    if self._manos():
+                        d_hoz = str(
+                            getattr(beru, "ultima_hoz_direccion", "") or ""
+                        ).upper()
+                        pierna_casa, _px = self._masa_lado_casa(d_hoz)
+                    if beru_rango.red_bloqueada_por_pierna(
+                        beru, pierna_casa_usd=pierna_casa,
+                    ):
+                        return {
+                            "ok": True,
+                            "evento": "ACECHO",
+                            "nota": "red_pierna_gorda",
+                            "pierna_casa": pierna_casa,
+                        }
                     masa = beru_rango.armar_tramo_desde_red(beru, precio=px_arm)
                     if masa <= 0:
                         return {"ok": True, "evento": "ACECHO", "nota": "red_sin_masa"}
@@ -173,7 +188,8 @@ class BeruRango:
             px_trail = beru_rango.precio_trail_caza(beru, px, lat)
             beru_rango.actualizar_trailing_oz(beru, px_trail)
             if self._manos():
-                if not str(getattr(beru, "altar_link_id", "") or ""):
+                # Candado: no REPARAR con Market si ya hay sello o entrada disparada.
+                if not beru_rango_altar.sello_entrada_activo(beru):
                     await self._intentar_sello_entrada(
                         beru, float(getattr(beru, "masa", 0) or 0), origen="REPARAR_SELLO",
                     )
@@ -191,24 +207,34 @@ class BeruRango:
                         beru, oz_viva=oz_viva, px=px, masa_hecha=masa_hecha,
                     )
                     if pack is None:
-                        await self.bel.anotar(
-                            "BERU_RANGO",
-                            "OZ_SIN_FILL",
-                            f"{beru.uid} Oz @{oz_viva:.6f} sin plata en casa "
-                            f"({dir_caza} · doctrina: no cosechar mapa)",
-                        )
-                        print(
-                            f"[RANGO] OZ_SIN_FILL {self._activo} Oz @{oz_viva:.6f} "
-                            f"— esperando fill/posición",
-                            flush=True,
-                        )
+                        last = float(getattr(beru, "_oz_sin_fill_aviso_ts", 0) or 0)
+                        now = __import__("time").time()
+                        if now - last >= 60.0:
+                            beru._oz_sin_fill_aviso_ts = now
+                            await self.bel.anotar(
+                                "BERU_RANGO",
+                                "OZ_SIN_FILL",
+                                f"{beru.uid} Oz @{oz_viva:.6f} sin plata en casa "
+                                f"({dir_caza} · doctrina: no cosechar mapa)",
+                            )
+                            print(
+                                f"[RANGO] OZ_SIN_FILL {self._activo} Oz @{oz_viva:.6f} "
+                                f"— esperando fill/posición",
+                                flush=True,
+                            )
                         return {"ok": True, "evento": "CAZA", "nota": "oz_sin_fill_casa"}
                     fill = float(pack.get("avgPrice") or oz_viva or px)
+                    masa_real = float(pack.get("masa_usd") or 0)
+                    if masa_real <= 0:
+                        masa_real = float(
+                            getattr(beru, "altar_masa_colocada_usd", 0) or 0
+                        ) or masa_hecha
                 else:
                     # Ojos / teatro: fill del mapa (sin manos).
                     fill = oz_viva or float(px)
+                    masa_real = masa_hecha
                 beru_rango.cosechar_oz_y_mover_cero(
-                    beru, fill, oz_despliegue=oz_viva or None,
+                    beru, fill, oz_despliegue=oz_viva or None, masa_usd=masa_real,
                 )
                 if self._manos():
                     await beru_rango_altar.cancelar_pendiente(
@@ -221,6 +247,7 @@ class BeruRango:
                 await self.bel.anotar(
                     "BERU_RANGO", "OZ_COSECHA",
                     f"{beru.uid} Oz peldaño @{oz_viva:.6f} fill @{fill:.6f} · wake={wake:.6f} · "
+                    f"masa_casa=${masa_real:.4f} · "
                     f"sangre act. {beru.sangre_lado} "
                     f"{beru_rango.sangre_contraria_pct()*100:.1f}% · "
                     f"Red trailing act. @{beru.red_adan:.6f} "
@@ -231,10 +258,10 @@ class BeruRango:
                     "OZ_COSECHA",
                     detalle=(
                         f"wake={wake} oz={oz_viva} fill={fill} sangre={beru.sangre_lado} "
-                        f"red={beru.red_adan} extremo={extremo}"
+                        f"red={beru.red_adan} extremo={extremo} masa_casa={masa_real}"
                     ),
                     precio=fill,
-                    masa_usd=masa_hecha,
+                    masa_usd=masa_real,
                 )
                 return {
                     "ok": True,
@@ -244,7 +271,7 @@ class BeruRango:
                     "oz_despliegue": oz_viva,
                     "sangre": getattr(beru, "sangre_lado", ""),
                     "red": beru.red_adan,
-                    "masa_hecha": masa_hecha,
+                    "masa_hecha": masa_real,
                     "trail_extremo": extremo,
                     "oz": oz_viva,
                     "dir": dir_caza,
@@ -281,25 +308,70 @@ class BeruRango:
         except Exception:
             pass
 
-    def _posicion_tramo_casa(self, beru: BeruShip) -> dict[str, float] | None:
-        """Pierna viva en Tusk alineada con la dirección de la caza."""
+    def _masa_lado_casa(self, lado: str) -> tuple[float, float]:
+        """(masa_usd, precio_medio) de la pierna del lado en Tusk; (0,0) si no hay."""
         from core import beru_rango_panel
 
-        d = str(getattr(beru, "direccion", "") or "").upper()
+        d = str(lado or "").upper()
         if d not in ("LONG", "SHORT"):
-            return None
-        umbral = max(0.05, float(getattr(beru, "masa", 0) or 0) * 0.08)
+            return 0.0, 0.0
         for row in beru_rango_panel.posicion_desde_tusk(self.tusk, self._activo):
             if str(row.get("lado") or "").upper() != d:
                 continue
-            masa = float(row.get("masa_usd") or 0)
-            if masa + 1e-9 < umbral:
-                continue
-            px = float(row.get("precio") or 0)
-            if px <= 0:
-                continue
-            return {"avgPrice": px, "masa_usd": masa, "orderStatus": "Filled"}
-        return None
+            return float(row.get("masa_usd") or 0), float(row.get("precio") or 0)
+        return 0.0, 0.0
+
+    def _snapshot_pierna_tramo(self, beru: BeruShip) -> None:
+        """Ancla de pierna al armar: la cosecha solo cuenta el delta real."""
+        d = str(getattr(beru, "direccion", "") or "").upper()
+        masa, _px = self._masa_lado_casa(d)
+        beru.pierna_snap_lado = d
+        beru.pierna_snap_usd = float(masa)
+
+    def _delta_pierna_tramo(self, beru: BeruShip) -> dict[str, float] | None:
+        """Fill real = crecimiento de pierna desde el snapshot del tramo."""
+        d = str(getattr(beru, "direccion", "") or "").upper()
+        if d not in ("LONG", "SHORT"):
+            return None
+        ahora, px = self._masa_lado_casa(d)
+        base = float(getattr(beru, "pierna_snap_usd", 0) or 0)
+        if str(getattr(beru, "pierna_snap_lado", "") or "").upper() not in ("", d):
+            base = 0.0
+        delta = ahora - base
+        plan = float(getattr(beru, "altar_masa_colocada_usd", 0) or 0)
+        doctrinal = float(getattr(beru, "masa", 0) or 0)
+        umbral = max(0.05, min(doctrinal, plan or doctrinal) * 0.08 if (doctrinal or plan) else 0.05)
+        if delta + 1e-9 < umbral:
+            return None
+        if px <= 0:
+            px = float(self._precio_lineal(self._activo) or 0)
+        if px <= 0:
+            return None
+        return {
+            "avgPrice": px,
+            "masa_usd": round(delta, 6),
+            "orderStatus": "Filled",
+            "via": "delta_pierna",
+        }
+
+    def _posicion_tramo_casa(self, beru: BeruShip) -> dict[str, float] | None:
+        """LEGADO: pierna viva del lado. Preferir ``_delta_pierna_tramo``."""
+        return self._delta_pierna_tramo(beru)
+
+    def _pack_fill_con_masa(
+        self, beru: BeruShip, fill_casa: dict[str, float],
+    ) -> dict[str, float]:
+        """Asegura masa_usd = casa (orden/delta), no solo doctrinal."""
+        out = dict(fill_casa or {})
+        masa = float(out.get("masa_usd") or 0)
+        if masa <= 0:
+            delta = self._delta_pierna_tramo(beru)
+            if delta:
+                return delta
+            masa = float(getattr(beru, "altar_masa_colocada_usd", 0) or 0)
+        if masa > 0:
+            out["masa_usd"] = masa
+        return out
 
     async def _intentar_sello_entrada(
         self, beru: BeruShip, masa: float, *, origen: str,
@@ -307,8 +379,12 @@ class BeruRango:
         """Coloca Stop en Oz o Market si el last ya pasó la Oz."""
         if not self._manos():
             return True
+        if beru_rango_altar.sello_entrada_activo(beru) and origen == "REPARAR_SELLO":
+            return True
         px_now = self._precio_lineal(self._activo)
         if not beru_rango_altar.stop_trigger_valido(beru, px_now):
+            if bool(getattr(beru, "altar_entrada_disparada", False)):
+                return True
             oz = float(getattr(beru, "oz_adan", 0) or 0)
             await self.bel.anotar(
                 "BERU_RANGO",
@@ -320,6 +396,8 @@ class BeruRango:
             )
             if not getattr(mkt, "exito", False):
                 msg = str(getattr(mkt, "mensaje", "") or "market_rechazada")
+                if msg in ("entrada_ya_disparada", "market_cooldown"):
+                    return True
                 await self.bel.anotar(
                     "BERU_RANGO",
                     "ALTAR_MARKET_ARM_FALLIDO",
@@ -355,6 +433,9 @@ class BeruRango:
                 if getattr(mkt, "exito", False):
                     await self._reconciliar_casa()
                     return True
+                msg_m = str(getattr(mkt, "mensaje", "") or "")
+                if msg_m in ("entrada_ya_disparada", "market_cooldown"):
+                    return True
             else:
                 await self.bel.anotar(
                     "BERU_RANGO",
@@ -367,6 +448,32 @@ class BeruRango:
                 )
             return False
         except ValueError as exc:
+            msg = str(exc)
+            soft = any(
+                t in msg
+                for t in (
+                    "qty_cero_deuda",
+                    "qty_cero",
+                    "bajo_min_usd",
+                    "masa_o_precio_cero",
+                )
+            )
+            if soft:
+                last = float(getattr(beru, "_altar_plan_aviso_ts", 0) or 0)
+                import time as _time
+                now = _time.time()
+                if now - last >= 60.0:
+                    beru._altar_plan_aviso_ts = now
+                    await self.bel.anotar(
+                        "BERU_RANGO",
+                        "ALTAR_ESPERA_PISO",
+                        f"{beru.uid}: {exc}",
+                    )
+                    print(
+                        f"[RANGO] ALTAR_ESPERA_PISO {self._activo}: {exc}",
+                        flush=True,
+                    )
+                return False
             await self.bel.anotar(
                 "BERU_RANGO", "ALTAR_PLAN_FALLIDO", f"{beru.uid}: {exc}",
             )
@@ -380,15 +487,20 @@ class BeruRango:
         px: float,
         masa_hecha: float,
     ) -> dict[str, float] | None:
-        """Fill = plata en casa. Sin avg ni posición → no cosechar."""
+        """Fill = plata en casa (delta/orden). Sin eso → no cosechar."""
         fill_casa = await self._consultar_fill(beru)
         if fill_casa and float(fill_casa.get("avgPrice") or 0) > 0:
-            return fill_casa
+            await self._reconciliar_casa()
+            return self._pack_fill_con_masa(beru, fill_casa)
 
         await self._reconciliar_casa()
-        pos = self._posicion_tramo_casa(beru)
-        if pos:
-            return pos
+        delta = self._delta_pierna_tramo(beru)
+        if delta:
+            return delta
+
+        # Ya mandamos Market de este tramo: esperar delta, no repetir.
+        if bool(getattr(beru, "altar_entrada_disparada", False)):
+            return None
 
         await beru_rango_altar.cancelar_pendiente(
             self.bridge,
@@ -396,32 +508,74 @@ class BeruRango:
             activo=self._activo,
             motivo="PRE_MARKET_OZ",
         )
-        beru_rango_altar.limpiar_sello_altar(beru)
-        mkt = await beru_rango_altar.disparar_entrada_market(
-            self.bridge, beru, activo=self._activo, masa_usd=masa_hecha,
-        )
-        if not getattr(mkt, "exito", False):
-            msg_m = str(getattr(mkt, "mensaje", "") or "market_rechazada")
+        # Conservar snap; solo limpiar sello Stop para poder Market.
+        beru.altar_link_id = ""
+        beru.altar_order_id = ""
+        beru.altar_order_status = ""
+        beru.altar_trigger_price = 0.0
+        try:
+            mkt = await beru_rango_altar.disparar_entrada_market(
+                self.bridge, beru, activo=self._activo, masa_usd=masa_hecha,
+            )
+        except ValueError as exc:
             await self.bel.anotar(
                 "BERU_RANGO",
-                "ALTAR_MARKET_FALLIDO",
+                "ALTAR_PLAN_FALLIDO",
+                f"{beru.uid} Oz @{oz_viva:.6f}: {exc}",
+            )
+            return None
+        if not getattr(mkt, "exito", False):
+            msg_m = str(getattr(mkt, "mensaje", "") or "market_rechazada")
+            if msg_m in ("entrada_ya_disparada", "market_cooldown"):
+                return None
+            soft = any(
+                x in msg_m
+                for x in ("qty_cero_deuda", "qty_cero", "bajo_min_usd", "masa_o_precio_cero")
+            )
+            if soft:
+                last = float(getattr(beru, "_altar_mkt_aviso_ts", 0) or 0)
+                now = __import__("time").time()
+                if now - last < 60.0:
+                    return None
+                beru._altar_mkt_aviso_ts = now
+                tag = "ALTAR_ESPERA_PISO"
+            else:
+                tag = "ALTAR_MARKET_FALLIDO"
+            await self.bel.anotar(
+                "BERU_RANGO",
+                tag,
                 f"{beru.uid} Oz @{oz_viva:.6f}: {msg_m}",
             )
             print(
-                f"[RANGO] ALTAR_MARKET_FALLIDO {self._activo}: {msg_m}",
+                f"[RANGO] {tag} {self._activo}: {msg_m}",
                 flush=True,
             )
             return None
 
         await self._reconciliar_casa()
-        pos = self._posicion_tramo_casa(beru)
-        if pos:
-            return pos
+        delta = self._delta_pierna_tramo(beru)
+        if delta:
+            return delta
 
         datos = getattr(mkt, "datos", None) or {}
         avg = float(datos.get("avgPrice") or datos.get("fillPx") or 0)
-        if avg > 0:
-            return {"avgPrice": avg, "orderStatus": "Filled"}
+        masa_plan = float(getattr(beru, "altar_masa_colocada_usd", 0) or 0) or float(
+            masa_hecha or 0
+        )
+        if avg > 0 and masa_plan > 0:
+            return {
+                "avgPrice": avg,
+                "masa_usd": masa_plan,
+                "orderStatus": "Filled",
+                "via": "market_plan",
+            }
+        if masa_plan > 0:
+            return {
+                "avgPrice": float(px or oz_viva or 0),
+                "masa_usd": masa_plan,
+                "orderStatus": "Filled",
+                "via": "market_plan",
+            }
         return None
 
     async def _tras_armar(self, beru: BeruShip, *, origen: str, masa: float) -> None:
@@ -441,6 +595,10 @@ class BeruRango:
             trail_extremo=getattr(beru, "trail_extremo", None),
         )
         if self._manos():
+            await self._reconciliar_casa()
+            self._snapshot_pierna_tramo(beru)
+            beru.altar_entrada_disparada = False
+            beru.altar_market_ts = 0.0
             ok = await self._intentar_sello_entrada(beru, masa, origen=origen)
             if not ok:
                 print(
@@ -450,6 +608,8 @@ class BeruRango:
                 )
 
     async def _consultar_fill(self, beru: BeruShip) -> dict | None:
+        if str(getattr(beru, "altar_order_status", "") or "") == "MarketSent":
+            return None  # fill se confirma por delta de pierna, no por Stop
         link = str(getattr(beru, "altar_link_id", "") or "")
         if not link or self.bridge is None:
             return None

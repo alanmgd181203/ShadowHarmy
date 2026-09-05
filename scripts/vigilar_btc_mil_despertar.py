@@ -39,12 +39,13 @@ os.environ.setdefault("BERU_RANGO_PERFIL", "piedra")
 from core import beru_despertar_mil_btc as dm
 
 
-def _despertar_evento(ev: dict, *, manos_go: bool, dry_run: bool) -> list[dict]:
+def _despertar_evento(ev: dict, *, manos_go: bool, dry_run: bool, solo_rojos: bool = False) -> list[dict]:
     fase = str(ev.get("fase") or "ojos")
     if manos_go:
         fase = "manos"
     pids: list[dict] = []
-    for color in ("rojo", "amarillo"):
+    colores = ("rojo",) if solo_rojos else ("rojo", "amarillo")
+    for color in colores:
         act = ev.get(color)
         if not act:
             continue
@@ -94,7 +95,13 @@ def main() -> int:
     print("  VIGILANTE BTC MIL — despertar escalonado piedra OKX")
     print(f"  Estado: {path}")
     print(f"  Intervalo: {args.intervalo}s · manos_go={args.manos_go} · dry_run={args.dry_run}")
-    print("  Cada cruce: 1 rojo + 1 amarillo · proceso PROPIO por Santo")
+    st0 = dm.cargar_estado(path)
+    if dm.rojos_manos_total(st0):
+        print("  Modo: COLA COMPLETA — flota piedra ya despertada")
+    elif dm.amarillos_manos_total(st0):
+        print("  Modo: SOLO ROJOS (ojos) — amarillos ya con manos total")
+    else:
+        print("  Cada cruce: 1 rojo + 1 amarillo · proceso PROPIO por Santo")
     print("=" * 56)
 
     while not stop:
@@ -125,11 +132,15 @@ def main() -> int:
                         return 0
                     print(
                         f"  cruce z={ev.get('zona_mil')} {ev.get('direccion')} "
-                        f"-> rojo={ev.get('rojo')} amarillo={ev.get('amarillo')}",
+                        f"-> rojo={ev.get('rojo')}"
+                        + ("" if dm.amarillos_manos_total(st) else f" amarillo={ev.get('amarillo')}"),
                         flush=True,
                     )
                     pids = _despertar_evento(
-                        ev, manos_go=bool(args.manos_go), dry_run=bool(args.dry_run)
+                        ev,
+                        manos_go=bool(args.manos_go),
+                        dry_run=bool(args.dry_run),
+                        solo_rojos=dm.amarillos_manos_total(st) and not dm.rojos_manos_total(st),
                     )
                     dm.registrar_evento(st, ev, pids=pids)
                 dm.guardar_estado(st, path)

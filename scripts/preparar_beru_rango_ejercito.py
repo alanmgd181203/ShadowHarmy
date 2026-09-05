@@ -205,13 +205,13 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(sello, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    print("═" * 56)
-    print("  PREPARAR EJÉRCITO — Beru rango (sin despertar)")
-    print("═" * 56)
+    print("=" * 56)
+    print("  PREPARAR EJERCITO - Beru rango (sin despertar)")
+    print("=" * 56)
     for c in checks:
         marca = "OK" if c["ok"] else "FAIL"
         print(f"  [{marca}] {c['check']}: {c['detalle']}")
-    print("─" * 56)
+    print("-" * 56)
     print(f"  Sello: {OUT}")
     print(f"  Resultado: {'LISTO' if fallos == 0 else f'{fallos} fallos'}")
     if fallos == 0:

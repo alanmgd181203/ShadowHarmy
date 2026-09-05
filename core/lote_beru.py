@@ -43,11 +43,14 @@ def masa_a_qty_con_deuda(
   *,
   pendiente: float = 0.0,
   usar_floor: bool = False,
+  ticket_min_si_cero: bool = False,
 ) -> dict[str, Any]:
   """Piedra: floor + deuda. Legacy: ceil + piso exchange."""
   objetivo = max(0.0, float(masa_doctrinal or 0) + float(pendiente or 0))
   if usar_floor and beru_mar.es_okx():
-    return lote_okx.masa_a_qty_piso_deuda(objetivo, precio, frente)
+    return lote_okx.masa_a_qty_piso_deuda(
+      objetivo, precio, frente, ticket_min_si_cero=ticket_min_si_cero,
+    )
   pack = masa_a_qty(objetivo, precio, frente, mode="ceil")
   if pack.get("ok"):
     pack = dict(pack)

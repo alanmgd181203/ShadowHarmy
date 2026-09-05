@@ -1,5 +1,5 @@
-# Shadow Army — Despertar Santos Beru piedra OKX (semáforo verde)
-# Mar OKX · perfil piedra · manos live con --manos-go
+# Shadow Army - Despertar Santos Beru piedra OKX (semaforo verde)
+# Mar OKX - perfil piedra - manos live con --manos-go
 #
 # Uso:
 #   .\scripts\despertar_piedra_verde_okx_win.ps1
@@ -34,18 +34,18 @@ $ListaPath = Join-Path $Root "data\beru\rango\piedra_verde_santos.txt"
 
 if ($Santos -and $Santos.Trim()) {
     $list = @(
-        $Santos -split "[,;]" |
+        $Santos -split '[,;]' |
             ForEach-Object { $_.Trim().ToUpper() } |
-            Where-Object { $_ -and $_ -notmatch "^#" }
+            Where-Object { $_ -and $_ -notmatch '^#' }
     )
 } elseif (Test-Path $ListaPath) {
     $list = @(
         Get-Content $ListaPath |
             ForEach-Object { $_.Trim().ToUpper() } |
-            Where-Object { $_ -and $_ -notmatch "^#" }
+            Where-Object { $_ -and $_ -notmatch '^#' }
     )
 } else {
-    Write-Error "Sin lista verde — pasa -Santos o crea piedra_verde_santos.txt"
+    Write-Error 'Sin lista verde - pasa -Santos o crea piedra_verde_santos.txt'
 }
 
 if ($list.Count -eq 0) {
@@ -59,30 +59,30 @@ $env:BERU_RANGO_MANOS = "false"
 $env:IGRIS_FORCE_MAX_LEVERAGE = "true"
 
 Write-Host ""
-Write-Host "=== PIEDRA OKX — VERDE ($($list -join ', ')) ===" -ForegroundColor Cyan
-Write-Host "Mar OKX · perfil piedra · escalon ${EscalonSegundos}s" -ForegroundColor Gray
+Write-Host "=== PIEDRA OKX - VERDE ($($list -join ', ')) ===" -ForegroundColor Cyan
+Write-Host "Mar OKX - perfil piedra - escalon ${EscalonSegundos}s" -ForegroundColor Gray
 
 Write-Host ""
 Write-Host "Ritual preparacion..." -ForegroundColor Yellow
 & $PythonExe scripts/revisar_pre_despertar_piedra_okx.py
 if ($LASTEXITCODE -ne 0) {
-    Write-Warning "Pre-despertar con avisos/bloqueos — revisar pre_despertar_piedra_okx.json"
+    Write-Warning "Pre-despertar con avisos - revisar pre_despertar_piedra_okx.json"
 }
 
 $env:BERU_RANGO_PERFIL = "piedra"
 & $PythonExe scripts/preparar_beru_rango_ejercito.py
 if ($LASTEXITCODE -ne 0) {
-    Write-Warning "Preparar ejercito con fallos — revisar preparar_sanidad.json"
+    Write-Warning "Preparar ejercito con fallos - revisar preparar_sanidad.json"
 }
 
 & $PythonExe scripts/validar_beru_okx_smoke.py
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "Smoke OKX fallo — corregir antes de manos"
+    Write-Error "Smoke OKX fallo - corregir antes de manos"
 }
 
 & $PythonExe scripts/validar_beru_rango_piedra_smoke.py
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "Smoke piedra fallo — corregir antes de manos"
+    Write-Error "Smoke piedra fallo - corregir antes de manos"
 }
 
 if ($SoloPreparar) {

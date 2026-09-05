@@ -187,24 +187,70 @@ def _marcar_sello(st: dict[str, Any], cruce: dict[str, Any]) -> None:
     sellos[key] = _ahora_utc()
 
 
+def amarillos_manos_total(st: dict[str, Any]) -> bool:
+    """True si los amarillos ya despertaron todos con manos (reloj solo rojos)."""
+    cfg = st.get("config") or {}
+    if bool(cfg.get("amarillos_manos_total")):
+        return True
+    cola = st.get("cola") or {}
+    ia = int(cola.get("idx_amarillo") or 0)
+    return ia >= len(cola.get("amarillos") or [])
+
+
+def rojos_manos_total(st: dict[str, Any]) -> bool:
+    """True si los rojos ya despertaron todos con manos (reloj sin cola)."""
+    cfg = st.get("config") or {}
+    if bool(cfg.get("rojos_manos_total")):
+        return True
+    cola = st.get("cola") or {}
+    ir = int(cola.get("idx_rojo") or 0)
+    return ir >= len(cola.get("rojos") or [])
+
+
 def siguiente_par(st: dict[str, Any]) -> tuple[str | None, str | None]:
     cola = st.get("cola") or {}
     rojos = list(cola.get("rojos") or [])
     amarillos = list(cola.get("amarillos") or [])
     ir = int(cola.get("idx_rojo") or 0)
     ia = int(cola.get("idx_amarillo") or 0)
-    rojo = rojos[ir] if ir < len(rojos) else None
-    amarillo = amarillos[ia] if ia < len(amarillos) else None
+    if rojos_manos_total(st):
+        rojo = None
+    else:
+        rojo = rojos[ir] if ir < len(rojos) else None
+    if amarillos_manos_total(st):
+        amarillo = None
+    else:
+        amarillo = amarillos[ia] if ia < len(amarillos) else None
     return rojo, amarillo
+
+
+def marcar_amarillos_manos_total(st: dict[str, Any]) -> None:
+    """Sella cola amarilla: reloj BTC solo despierta rojos (ojos)."""
+    cola = st.setdefault("cola", {})
+    amarillos = list(cola.get("amarillos") or [])
+    cola["idx_amarillo"] = len(amarillos)
+    cfg = st.setdefault("config", {})
+    cfg["amarillos_manos_total"] = True
+    cfg["amarillos_manos_total_utc"] = _ahora_utc()
+
+
+def marcar_rojos_manos_total(st: dict[str, Any]) -> None:
+    """Sella cola roja: reloj BTC sin mas despertares."""
+    cola = st.setdefault("cola", {})
+    rojos = list(cola.get("rojos") or [])
+    cola["idx_rojo"] = len(rojos)
+    cfg = st.setdefault("config", {})
+    cfg["rojos_manos_total"] = True
+    cfg["rojos_manos_total_utc"] = _ahora_utc()
 
 
 def avanzar_cola(st: dict[str, Any]) -> None:
     cola = st.setdefault("cola", {})
     ir = int(cola.get("idx_rojo") or 0)
     ia = int(cola.get("idx_amarillo") or 0)
-    if ir < len(cola.get("rojos") or []):
+    if ir < len(cola.get("rojos") or []) and not rojos_manos_total(st):
         cola["idx_rojo"] = ir + 1
-    if ia < len(cola.get("amarillos") or []):
+    if not amarillos_manos_total(st) and ia < len(cola.get("amarillos") or []):
         cola["idx_amarillo"] = ia + 1
 
 
@@ -280,6 +326,8 @@ def lanzar_santo_proceso(
     manos_go: bool = False,
     segundos: float = 0,
     log_dir: Path | None = None,
+    continuar: bool = False,
+    log_en_santo: bool = False,
 ) -> dict[str, Any]:
     """Un Santo = un subprocess (ojos o manos). Sin fila API compartida."""
     import subprocess
@@ -290,16 +338,26 @@ def lanzar_santo_proceso(
     if not act:
         raise ValueError("activo vacío")
     fase = str(fase or "ojos").lower()
-    log_dir = Path(log_dir) if log_dir else root / "data" / "beru" / "rango" / "despertar_mil"
+    if log_en_santo and fase == "manos":
+        from core import beru_rango_paths as paths
+
+        sdir = paths.dir_santo(act)
+        out = sdir / "manos_piedra_stdout.log"
+        err = sdir / "manos_piedra_stderr.log"
+        log_dir = sdir
+    else:
+        log_dir = Path(log_dir) if log_dir else root / "data" / "beru" / "rango" / "despertar_mil"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        tag = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        out = log_dir / f"{fase}_{act}_{tag}_stdout.log"
+        err = log_dir / f"{fase}_{act}_{tag}_stderr.log"
     log_dir.mkdir(parents=True, exist_ok=True)
-    manifest = log_dir / "procesos_manifest.jsonl"
-    tag = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    out = log_dir / f"{fase}_{act}_{tag}_stdout.log"
-    err = log_dir / f"{fase}_{act}_{tag}_stderr.log"
+    manifest = root / "data" / "beru" / "rango" / "despertar_mil" / "procesos_manifest.jsonl"
 
     env = {**os.environ}
     env["BERU_MAR"] = str(env.get("BERU_MAR") or "okx")
     env["BERU_RANGO_PERFIL"] = str(env.get("BERU_RANGO_PERFIL") or "piedra")
+    env["IGRIS_FORCE_MAX_LEVERAGE"] = str(env.get("IGRIS_FORCE_MAX_LEVERAGE") or "true")
     env["PYTHONUTF8"] = "1"
     if fase == "manos" and manos_go:
         env["BERU_RANGO_MANOS"] = "true"
@@ -321,8 +379,11 @@ def lanzar_santo_proceso(
             "--perfil",
             "piedra",
             "--manos-go",
-            "--desde-cero",
         ]
+        if continuar:
+            cmd.append("--continuar")
+        else:
+            cmd.append("--desde-cero")
     else:
         script = root / "scripts" / "arise_beru_rango_ojos.py"
         cmd = [sys.executable, "-u", str(script), "--activo", act]

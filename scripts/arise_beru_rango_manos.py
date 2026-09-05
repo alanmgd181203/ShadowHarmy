@@ -139,6 +139,10 @@ from generales.beru_rango import BeruRango  # noqa: E402
 from generales.tank import TankCluster  # noqa: E402
 from generales.tusk import TuskBoveda  # noqa: E402
 
+from core.beru_rango_altar_espera import parchar_espera_piso_sello  # noqa: E402
+
+parchar_espera_piso_sello(BeruRango)
+
 _ACT = str(ARGS.activo or "HYPE").upper()
 MERCADO = beru_rango_ojos.mercado_norm(_MERCADO)
 PERFIL = beru_rango_ojos.perfil_norm(_PERFIL)
@@ -223,6 +227,34 @@ async def _hilo_beru(
 ):
     from core import beru_rango as cerebro
 
+    def _registrar_pulso_exc(exc: BaseException) -> None:
+        msg = str(exc)
+        low = msg.lower()
+        es_aviso = (
+            "beru_rango_altar:" in low
+            and any(
+                t in low
+                for t in (
+                    "bajo_min_usd",
+                    "qty_cero",
+                    "qty_cero_deuda",
+                    "masa_o_precio_cero",
+                    "lote_lineal_invalido",
+                )
+            )
+        )
+        if es_aviso:
+            contadores.setdefault("avisos", 0)
+            contadores["avisos"] = int(contadores.get("avisos") or 0) + 1
+            contadores.setdefault("por_aviso", {})
+            clave = msg.split("(")[0].strip()[:80]
+            contadores["por_aviso"][clave] = int(
+                contadores["por_aviso"].get(clave, 0)
+            ) + 1
+            return
+        print(f"[RANGO] pulso error: {exc}", flush=True)
+        contadores["errores"] = int(contadores.get("errores") or 0) + 1
+
     await asyncio.sleep(2.0)
     while not shutdown_event.is_set():
         try:
@@ -253,8 +285,7 @@ async def _hilo_beru(
                 _append_evento(row)
                 print(f"[RANGO] {activo} → {ev} {r}", flush=True)
         except Exception as exc:
-            print(f"[RANGO] pulso error: {exc}", flush=True)
-            contadores["errores"] = int(contadores.get("errores") or 0) + 1
+            _registrar_pulso_exc(exc)
         px = beru_rango_ojos.last_desde_tank(beru_g.tank, activo, MERCADO)
         # Caza: no sellar panel en el latido 0.1s (candado disco).
         # La crónica (~10s) mantiene la foto. Acecho sí publica (latido lento).
@@ -481,7 +512,7 @@ async def ritual(
 
     shutdown_event = asyncio.Event()
     _senales(asyncio.get_running_loop(), shutdown_event)
-    contadores: dict[str, Any] = {"eventos": 0, "errores": 0, "por_evento": {}}
+    contadores: dict[str, Any] = {"eventos": 0, "errores": 0, "avisos": 0, "por_evento": {}}
     ts0 = time.time()
 
     try:
@@ -522,8 +553,8 @@ async def ritual(
         beru_g = BeruRango(tusk, bellion, tank, bridge=bridge)
         px = beru_rango_ojos.last_desde_tank(tank, act, MERCADO)
         if px <= 0:
-            for _ in range(5):
-                await asyncio.sleep(0.4)
+            for _ in range(30):
+                await asyncio.sleep(1.0)
                 beru_rango_ojos.inyectar_precios_rest(bridge, tank, [act], mercado=MERCADO)
                 px = beru_rango_ojos.last_desde_tank(tank, act, MERCADO)
                 if px > 0:
@@ -590,15 +621,40 @@ async def ritual(
                 escalones_red=int(vivo_prev.get("escalones_red") or 0),
                 cosechas=int(vivo_prev.get("cosechas") or 0),
                 uid=str(vivo_prev.get("uid") or ""),
+                saco_long=float(vivo_prev.get("saco_long") or 0),
+                saco_short=float(vivo_prev.get("saco_short") or 0),
+                ultima_hoz_direccion=str(vivo_prev.get("ultima_hoz_direccion") or ""),
+                oz_despliegue=float(vivo_prev.get("oz_despliegue") or 0),
             )
             if not beru_g.vivo.uid:
                 beru_g.vivo.uid = (
                     f"RANGO_{act}_CAZA_{int(vivo_prev.get('escalones_red') or 0)}_"
                     f"{uuid.uuid4().hex[:6]}"
                 )
-            reeng = await altar.reenganchar_o_rearmar(
-                bridge, beru_g.vivo, activo=act,
+            # Baseline pierna = casa ahora (si no, el primer delta contaría toda la pierna).
+            try:
+                await tusk.reconciliar_con_exchange(bridge, activo=act)
+            except Exception:
+                pass
+            d_hunt = str(getattr(beru_g.vivo, "direccion", "") or "").upper()
+            for row in beru_rango_panel.posicion_desde_tusk(tusk, act, MERCADO):
+                if str(row.get("lado") or "").upper() == d_hunt:
+                    beru_g.vivo.pierna_snap_usd = float(row.get("masa_usd") or 0)
+                    beru_g.vivo.pierna_snap_lado = d_hunt
+                    break
+            print(
+                f"    → saco L={float(getattr(beru_g.vivo,'saco_long_usd',0) or 0):.2f} "
+                f"S={float(getattr(beru_g.vivo,'saco_short_usd',0) or 0):.2f} "
+                f"snap={float(getattr(beru_g.vivo,'pierna_snap_usd',0) or 0):.2f}",
+                flush=True,
             )
+            try:
+                reeng = await altar.reenganchar_o_rearmar(
+                    bridge, beru_g.vivo, activo=act,
+                )
+            except ValueError as exc:
+                print(f"[RANGO] CONTINUAR_CAZA espera piso {act}: {exc}", flush=True)
+                reeng = None
             await bellion.anotar(
                 "BERU_RANGO", "CONTINUAR_CAZA",
                 f"{beru_g.vivo.uid} dir={beru_g.vivo.direccion} "

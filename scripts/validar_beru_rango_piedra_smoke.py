@@ -149,8 +149,9 @@ def main() -> int:
         assert abs(float(b3.masa) - 1.95) < 1e-9, f"+0.1pct -> ~1.95, got {b3.masa}"
         print("  Red Beru2 1.60 -> 1.95 OK")
 
-        # Floor + deuda (WLD paso fino vs doctrina 2.45)
+        # Floor + deuda: una Oz = floor(suma absoluta). Sin doble conteo +deuda.
         from core import lote_beru as lb
+        from core import lote_okx as lokx
         b5 = BeruShip(uid="R5", centro_local=100.0, masa=2.45, direccion="LONG", estado="CAZANDO")
         b5.masa_pendiente_usd = 0.0
         px_wld = 0.365
@@ -159,15 +160,27 @@ def main() -> int:
         assert pack1.get("ok"), pack1
         not1 = float(pack1["notional_usd"])
         deuda1 = float(pack1["deuda_usd"])
-        assert deuda1 > 0.01, deuda1
+        assert deuda1 >= 0.0
         assert abs(2.45 - not1 - deuda1) < 0.02
-        pack2b = lb.masa_a_qty_con_deuda(2.75 + deuda1, px_wld, frente, usar_floor=True)
-        assert pack2b.get("ok")
-        assert float(pack2b["notional_usd"]) >= not1 + 0.01
-        assert float(pack2b["deuda_usd"]) < deuda1 + 0.01
+        # Nueva suma absoluta 2.75 (no 2.75+deuda1 — eso era tumor de doble conteo)
+        pack2b = lb.masa_a_qty_con_deuda(2.75, px_wld, frente, usar_floor=True)
+        assert pack2b.get("ok"), pack2b
+        assert float(pack2b["notional_usd"]) + 1e-9 >= not1
+        assert abs(2.75 - float(pack2b["notional_usd"]) - float(pack2b["deuda_usd"])) < 0.02
+        # Nacimiento flaco DOGE-like: no inventar 1 lote; esperar piso
+        pack0 = lokx.masa_a_qty_piso_deuda(0.30, 0.08, "DOGEUSDT_LINEAL")
+        assert not pack0.get("ok"), pack0
+        assert pack0.get("motivo") == "qty_cero_deuda", pack0
+        assert float(pack0.get("qty") or 0) == 0.0
+        assert abs(float(pack0.get("deuda_usd") or 0) - 0.30) < 1e-9
+        # Misma suma ya gorda: una sola Oz con el piso del total
+        pack_fat = lokx.masa_a_qty_piso_deuda(2.45, 0.08, "DOGEUSDT_LINEAL")
+        assert pack_fat.get("ok"), pack_fat
+        assert float(pack_fat["qty"]) > 0
+        assert abs(2.45 - float(pack_fat["notional_usd"]) - float(pack_fat["deuda_usd"])) < 0.05
         br.limpiar_masa_pendiente(b5)
         assert float(b5.masa_pendiente_usd) == 0.0
-        print("  floor deuda WLD OK")
+        print("  floor deuda WLD + espera piso DOGE OK")
 
         # Sangre inverso borra deuda
         b6 = BeruShip(uid="R6", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")

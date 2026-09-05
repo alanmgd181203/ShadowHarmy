@@ -42,10 +42,20 @@ def test_get_positions_inverse_empty():
     assert r.get("result", {}).get("list") == []
 
 
+def test_sz_okx_sin_polvo_float():
+    from core import lote_okx
+
+    f = "KORUUSDT_LINEAL"
+    assert lote_okx.sz_okx_str(0.41000000000000003, f) == "0.41"
+    assert lote_okx.cuantizar_qty(0.35000000000000003, f) == 0.35
+    assert lote_okx.cuantizar_qty(0.35, f) == lote_okx.cuantizar_qty(0.3500001, f)
+
+
 def main() -> int:
     test_map_long_net()
     test_map_flat()
     test_get_positions_inverse_empty()
+    test_sz_okx_sin_polvo_float()
     print("OK validar_okx_positions_smoke")
     return 0
 

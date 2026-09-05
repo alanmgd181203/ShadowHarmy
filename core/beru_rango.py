@@ -90,6 +90,46 @@ def limpiar_masa_pendiente(beru: Any) -> None:
     beru.masa_pendiente_usd = 0.0
 
 
+def red_tope_pierna_usd() -> float:
+    """Tope para no reengordar Red en el mismo lado. 0 = desactivado.
+
+    Piedra: default = umbral medio ($100). Override:
+    ``BERU_RANGO_RED_TOPE_PIERNA_USD`` (número) o ``0`` para apagar.
+    """
+    raw = os.environ.get("BERU_RANGO_RED_TOPE_PIERNA_USD")
+    if raw is not None and str(raw).strip() != "":
+        try:
+            return max(0.0, float(raw))
+        except (TypeError, ValueError):
+            return 0.0
+    if engorde_modo_peldaños_sumados():
+        from core.beru_rango_semaforo import umbral_pierna_medio
+
+        return float(umbral_pierna_medio())
+    return 0.0
+
+
+def red_bloqueada_por_pierna(
+    beru: Any,
+    *,
+    pierna_casa_usd: float = 0.0,
+) -> bool:
+    """True si Red no debe sumar al mismo lado (pierna ya gorda).
+
+    Mide max(saco del lado de la última Oz, pierna viva en casa).
+    Sangre (contraria) no usa este candado.
+    """
+    tope = red_tope_pierna_usd()
+    if tope <= 0 or beru is None:
+        return False
+    d = str(getattr(beru, "ultima_hoz_direccion", "") or "").upper()
+    if d not in ("LONG", "SHORT"):
+        return False
+    saco = saco_lado_usd(beru, d)
+    pierna = max(saco, float(pierna_casa_usd or 0))
+    return pierna + 1e-9 >= tope
+
+
 def registrar_masa_doctrinal(beru: Any, masa: float) -> None:
     if beru is None:
         return
@@ -1098,6 +1138,10 @@ def restaurar_caza_trailing(
     escalones_red: int = 0,
     cosechas: int = 0,
     uid: str = "",
+    saco_long: float = 0.0,
+    saco_short: float = 0.0,
+    ultima_hoz_direccion: str = "",
+    oz_despliegue: float = 0.0,
 ) -> None:
     """Reengancha CAZANDO mid-hunt: Oz + extremo + sello del altar (Stop vivo)."""
     if beru is None:
@@ -1134,12 +1178,27 @@ def restaurar_caza_trailing(
     beru.sangre_lado = str(sangre_lado or "")
     beru.rango_escalones_red = int(escalones_red or 0)
     beru.cosechas_continuas = int(cosechas or 0)
+    beru.saco_long_usd = max(0.0, float(saco_long or 0))
+    beru.saco_short_usd = max(0.0, float(saco_short or 0))
+    hoz = str(ultima_hoz_direccion or "").upper()
+    if hoz in ("LONG", "SHORT"):
+        beru.ultima_hoz_direccion = hoz
+    oz_dep = float(oz_despliegue or 0)
+    if oz_dep > 0:
+        beru.oz_despliegue_px = oz_dep
+        if engorde_modo_peldaños_sumados():
+            beru.engorde_cero_oz_px = oz_dep
     beru.altar_revision = int(altar_revision or 0)
     beru.altar_link_id = str(altar_link_id or "")
     beru.altar_order_id = str(altar_order_id or "")
     beru.altar_order_status = "Untriggered" if beru.altar_link_id else ""
     beru.altar_trigger_price = float(altar_trigger_price or oz_px)
     beru.altar_cancel_confirmado = False
+    beru.altar_entrada_disparada = False
+    beru.altar_market_ts = 0.0
+    # Snap de pierna: al reenganchar, baseline = saco no sirve; se fija al 1er reconcile
+    beru.pierna_snap_usd = 0.0
+    beru.pierna_snap_lado = d
 
 
 def cosechar_oz_y_mover_cero(
@@ -1147,8 +1206,13 @@ def cosechar_oz_y_mover_cero(
     precio_fill: float,
     *,
     oz_despliegue: float | None = None,
+    masa_usd: float | None = None,
 ) -> float:
-    """Trailing detonó: wake intacto; fill → Tusk; Red desde peldaño Oz."""
+    """Trailing detonó: wake intacto; fill → Tusk; Red desde peldaño Oz.
+
+    ``masa_usd``: si viene de manos, debe ser el notional real de OKX (delta /
+    orden colocada). Sin eso, ojos/teatro usan la masa doctrinal del tramo.
+    """
     oz_dep = float(
         oz_despliegue
         if oz_despliegue is not None
@@ -1160,7 +1224,10 @@ def cosechar_oz_y_mover_cero(
     if oz_dep <= 0:
         oz_dep = fill
     d = str(getattr(beru, "direccion", "") or "").upper()
-    masa_hecha = float(getattr(beru, "masa", 0) or 0) or masa_tramo_usd()
+    if masa_usd is not None and float(masa_usd) > 0:
+        masa_hecha = float(masa_usd)
+    else:
+        masa_hecha = float(getattr(beru, "masa", 0) or 0) or masa_tramo_usd()
     wake = cero_wake(beru)
     beru.ultima_hoz_tocada_precio = fill
     beru.ultima_hoz_tocada_pct = pct_desde_cero(beru, fill) if wake > 0 else 0.0
@@ -1195,6 +1262,8 @@ def cosechar_oz_y_mover_cero(
     beru.direccion = ""
     beru.tramo_precio_activacion = 0.0
     beru.caza_trail_iniciado = False
+    beru.pierna_snap_usd = 0.0
+    beru.pierna_snap_lado = ""
     ancla = ancla_mapa_red(oz_dep, fill, d)
     _plantar_orejas_post_oz(beru, ancla, d)
     beru.cosechas_continuas = int(getattr(beru, "cosechas_continuas", 0) or 0) + 1
@@ -1204,6 +1273,8 @@ def cosechar_oz_y_mover_cero(
     beru.altar_order_status = ""
     beru.altar_trigger_price = 0.0
     beru.altar_cancel_confirmado = False
+    beru.altar_entrada_disparada = False
+    beru.altar_market_ts = 0.0
     return masa_sangre_usd()
 
 
@@ -1250,13 +1321,19 @@ def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
 
 
 def armar_tramo_desde_red(beru: Any, precio: float | None = None) -> float:
-    """Red → trailing; engorde desde Oz-0 si piedra sumados."""
+    """Red → trailing; engorde desde Oz-0 si piedra sumados.
+
+    Candado pierna: si el mismo lado ya está gordo (saco/casa ≥ tope),
+    no reengorda Red — la sangre (contraria) sigue libre.
+    """
     red = float(getattr(beru, "red_adan", 0) or 0)
     px = float(precio or 0) or red
     if px <= 0:
         return 0.0
     d = str(getattr(beru, "ultima_hoz_direccion", "") or "").upper()
     if d not in ("LONG", "SHORT"):
+        return 0.0
+    if red_bloqueada_por_pierna(beru):
         return 0.0
     beru.origen_tramo = "RED"
     if engorde_modo_peldaños_sumados():

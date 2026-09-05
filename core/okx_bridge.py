@@ -298,7 +298,11 @@ class OkxBridge:
     inst = self._symbol_to_inst(symbol)
     cl = _okx_client_id(str(link_id or f"BRG{uuid.uuid4().hex[:12]}"))
     side_okx = "buy" if str(side).lower().startswith("b") else "sell"
-    sz = str(qty)
+    from core import lote_okx
+
+    act = beru_mar.inst_id_a_activo(inst)
+    frente = f"{act}USDT_LINEAL"
+    sz = lote_okx.sz_okx_str(float(qty or 0), frente)
 
     try:
       if trigger_price is not None and str(order_filter or "").lower() in ("stoporder", "stop"):
@@ -410,9 +414,16 @@ class OkxBridge:
       else:
         return OrdenResultado(False, mensaje="Se requiere algoId o linkId")
       if new_trigger_price is not None:
-        body["newTriggerPx"] = str(new_trigger_price)
+        from core import lote_okx
+
+        act = beru_mar.inst_id_a_activo(inst)
+        trig = lote_okx.cuantizar_precio(float(new_trigger_price), f"{act}USDT_LINEAL")
+        body["newTriggerPx"] = str(trig)
       if new_qty is not None:
-        body["newSz"] = str(new_qty)
+        from core import lote_okx
+
+        act = beru_mar.inst_id_a_activo(inst)
+        body["newSz"] = lote_okx.sz_okx_str(float(new_qty), f"{act}USDT_LINEAL")
       if new_price is not None:
         body["newPx"] = str(new_price)
       await asyncio.to_thread(okx_rest.post_private, "/api/v5/trade/amend-algos", body)

@@ -78,19 +78,67 @@ def filtros_lote(frente: str) -> dict[str, Any]:
 
 
 def _redondear_paso(val: float, paso: float, modo: ModoRedondeo) -> float:
+  """Floor verdadero: si no alcanza 1 paso → 0 (nunca inventa un lote mínimo).
+
+  Tumor histórico: ``else paso`` / ``max(paso, …)`` forzaba 1 lotSz aunque el
+  notional doctrinal no cubriera ese contrato → mini-orden fantasma + bajo_min.
+  """
   if paso <= 0:
-    return val
-  n = val / paso
+    return float(val or 0)
+  v = float(val or 0)
+  if v <= 0:
+    return 0.0
+  n = v / paso
   if modo == "ceil":
     n = math.ceil(n - 1e-12)
   else:
     n = math.floor(n + 1e-12)
-  return max(paso, n * paso) if n > 0 else paso
+  if n <= 0:
+    return 0.0
+  return n * paso
 
 
 def cuantizar_precio(precio: float, frente: str) -> float:
   tick = filtros_lote(frente).get("tickSz") or 0.01
   return _redondear_paso(float(precio or 0), float(tick), "floor")
+
+
+def cuantizar_qty(
+  qty: float,
+  frente: str,
+  *,
+  modo: ModoRedondeo = "floor",
+) -> float:
+  """Contratos SWAP en múltiplo de lotSz (sin polvo float)."""
+  f = filtros_lote(frente)
+  step = float(f.get("lotSz") or 1.0)
+  min_q = float(f.get("minSz") or step)
+  q = float(qty or 0)
+  if q <= 0 or step <= 0:
+    return 0.0
+  out = _redondear_paso(q, step, modo)
+  if out > 0 and out + 1e-12 < min_q:
+    if q + 1e-12 >= min_q:
+      out = _redondear_paso(min_q, step, "ceil")
+    else:
+      return 0.0
+  dec = max(0, min(12, -int(math.floor(math.log10(step))) if step < 1 else 0))
+  return round(out, dec + 2)
+
+
+def sz_okx_str(qty: float, frente: str) -> str:
+  """String OKX sin artefactos float (0.41, no 0.41000000000000003)."""
+  q = cuantizar_qty(qty, frente, modo="floor")
+  if q <= 0:
+    return "0"
+  step = float(filtros_lote(frente).get("lotSz") or 1.0)
+  if step >= 1 and abs(step - round(step)) < 1e-12:
+    return str(int(round(q)))
+  dec = max(0, min(12, -int(math.floor(math.log10(step))) if step < 1 else 0))
+  s = f"{q:.{dec}f}"
+  if "." in s:
+    s = s.rstrip("0").rstrip(".")
+  return s or "0"
 
 
 def masa_a_contratos(masa_usd: float, precio: float, frente: str) -> float:
@@ -152,46 +200,67 @@ def masa_a_qty_piso_deuda(
   masa_objetivo: float,
   precio: float,
   frente: str,
+  *,
+  ticket_min_si_cero: bool = False,
 ) -> dict[str, Any]:
-  """Floor en lotSz: coloca fracción inferior; deuda = objetivo − notional."""
+  """Una sola Oz = floor(suma doctrinal completa).
+
+  Cerebro lleva el total ($2,45). Mar recibe solo el piso en contratos.
+  Deuda = objetivo − notional (cola en cabeza). Si ni 1 minSz cabe → ok=False
+  ``qty_cero_deuda`` (esperar engorde; no inventar mini-orden).
+
+  ``ticket_min_si_cero``: solo al disparar Market cuando la Oz ya tocó y el
+  floor sigue en 0 — un contrato minSz (no engorde a pedazos).
+  """
   f = filtros_lote(frente)
   lot = float(f.get("lotSz") or 1.0)
   min_sz = float(f.get("minSz") or lot)
   ct = float(f.get("ctVal") or 1.0)
   px = float(precio or 0)
-  min_usd = float(f.get("min_usd_est") or 1.0)
   objetivo = max(0.0, float(masa_objetivo or 0))
+  paso_usd = round(paso_notional_usd(px, frente), 6)
 
   if px <= 0 or objetivo <= 0:
-    return {"ok": False, "motivo": "masa_o_precio_cero", "qty": 0.0, "deuda_usd": objetivo}
+    return {
+      "ok": False,
+      "motivo": "masa_o_precio_cero",
+      "qty": 0.0,
+      "notional_usd": 0.0,
+      "deuda_usd": round(objetivo, 6),
+      "paso_usd": paso_usd,
+    }
 
   bruto = masa_a_contratos(objetivo, px, frente)
   qty = _redondear_paso(bruto, lot, "floor")
-  if qty > 0 and qty < min_sz:
+  if qty + 1e-12 < min_sz:
     qty = 0.0
   notional = qty * ct * px if qty > 0 else 0.0
   deuda = max(0.0, objetivo - notional)
 
   if qty <= 0:
+    if ticket_min_si_cero and objetivo > 0:
+      qty = _redondear_paso(min_sz, lot, "ceil")
+      notional = qty * ct * px if qty > 0 else 0.0
+      deuda = max(0.0, objetivo - notional)
+      if qty > 0:
+        return {
+          "ok": True,
+          "qty": qty,
+          "notional_usd": round(notional, 6),
+          "deuda_usd": round(deuda, 6),
+          "instId": f.get("instId"),
+          "paso_usd": paso_usd,
+          "ticket_min": True,
+        }
     return {
       "ok": False,
       "motivo": "qty_cero_deuda",
       "qty": 0.0,
       "notional_usd": 0.0,
-      "deuda_usd": round(deuda, 6),
+      "deuda_usd": round(objetivo, 6),
       "instId": f.get("instId"),
-      "paso_usd": round(paso_notional_usd(px, frente), 6),
-    }
-  if notional + 1e-9 < min_usd:
-    return {
-      "ok": False,
-      "motivo": "bajo_min_usd",
-      "qty": qty,
-      "notional_usd": round(notional, 6),
-      "deuda_usd": round(deuda, 6),
-      "instId": f.get("instId"),
-      "min_usd": min_usd,
-      "paso_usd": round(paso_notional_usd(px, frente), 6),
+      "paso_usd": paso_usd,
+      "min_usd": float(f.get("min_usd_est") or 0),
     }
   return {
     "ok": True,
@@ -199,5 +268,5 @@ def masa_a_qty_piso_deuda(
     "notional_usd": round(notional, 6),
     "deuda_usd": round(deuda, 6),
     "instId": f.get("instId"),
-    "paso_usd": round(paso_notional_usd(px, frente), 6),
+    "paso_usd": paso_usd,
   }
