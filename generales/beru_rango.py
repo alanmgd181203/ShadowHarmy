@@ -329,7 +329,12 @@ class BeruRango:
         beru.pierna_snap_usd = float(masa)
 
     def _delta_pierna_tramo(self, beru: BeruShip) -> dict[str, float] | None:
-        """Fill real = crecimiento de pierna desde el snapshot del tramo."""
+        """Fill real = crecimiento de pierna desde el snapshot del tramo.
+
+        Candado anti-tumor: no aceptar una pierna gorda huérfana como «fill»
+        de este tramo (p.ej. long viejo de $200 cuando la caza es $7). Eso
+        cosechaba el mapa y disparaba sangre que, en neto, se comía el long.
+        """
         d = str(getattr(beru, "direccion", "") or "").upper()
         if d not in ("LONG", "SHORT"):
             return None

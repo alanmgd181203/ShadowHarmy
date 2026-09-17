@@ -120,9 +120,13 @@ def _cuantizar_masa_plan(
     ``masa_doctrinal`` ya es el total ($2,45). No se suma ``masa_pendiente``
     otra vez (tumor: doble conteo doctrina+deuda). La deuda tras el piso es
     solo cola en cabeza = doctrina − notional colocado.
+
+    Candado: en piedra/sumados NUNCA ceil (hincharía de más la orden).
     """
     doctrina = max(0.0, float(masa_doctrinal or 0))
     usar_floor = beru_rango.redondeo_floor_manos()
+    if beru_rango.engorde_modo_peldaños_sumados() and not usar_floor:
+        raise ValueError("beru_rango_altar: piedra exige floor+deuda (ceil prohibido)")
     objetivo = doctrina
     if not usar_floor:
         minimo = 0.0
@@ -326,6 +330,8 @@ async def seguir_trailing(bridge: Any, beru: Any, *, activo: str) -> Any:
         category="linear",
         new_trigger_price=oz if trig_changed else None,
         new_qty=new_qty,
+        position_idx=1 if str(getattr(beru, "direccion", "") or "").upper() == "LONG" else 2,
+        side="Buy" if str(getattr(beru, "direccion", "") or "").upper() == "LONG" else "Sell",
     )
     if getattr(amend, "exito", False):
         if trig_changed:

@@ -43,9 +43,26 @@ def test_plan_trailing():
   )
   plan = altar.plan_trailing_entrada(b, activo="ETH", masa_usd=5.0, trigger_price=98.0)
   assert plan.side == "Sell"
+  assert plan.position_idx == 2
   assert plan.qty > 0
   assert plan.trigger_price > 0
   assert plan.link_id.startswith("BRG-")
+  from core.okx_bridge import pos_side_entrada
+  assert pos_side_entrada(side=plan.side, position_idx=plan.position_idx) == "short"
+
+  b2 = BeruShip(
+    uid="SMOKE_L",
+    centro_local=100.0,
+    masa=5.0,
+    direccion="LONG",
+    estado="CAZANDO",
+    oz_adan=102.0,
+    altar_revision=1,
+  )
+  plan_l = altar.plan_trailing_entrada(b2, activo="ETH", masa_usd=5.0, trigger_price=102.0)
+  assert plan_l.side == "Buy"
+  assert plan_l.position_idx == 1
+  assert pos_side_entrada(side=plan_l.side, position_idx=plan_l.position_idx) == "long"
 
 
 def main():

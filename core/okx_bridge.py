@@ -22,6 +22,26 @@ def _okx_client_id(cl: str) -> str:
   return (raw[:32] if raw else f"BRG{uuid.uuid4().hex[:12]}")
 
 
+def pos_side_entrada(*, side: str, position_idx=None) -> str:
+  """Pierna OKX de *entrada* Beru (long/short), nunca net.
+
+  Doctrina: sangre/Oz abren la caza del lado; no deben atropellar la pierna
+  contraria. En modo neto un Sell se come el long (tumor 2026-09-16).
+  """
+  try:
+    idx = int(position_idx) if position_idx is not None else 0
+  except (TypeError, ValueError):
+    idx = 0
+  if idx == 2:
+    return "short"
+  if idx == 1:
+    return "long"
+  s = str(side or "").strip().lower()
+  if s.startswith("s"):
+    return "short"
+  return "long"
+
+
 def _map_okx_position_row(row: dict) -> dict | None:
   """Fila OKX SWAP → forma Bybit que Tusk / telemetría ya entienden."""
   try:
@@ -95,6 +115,53 @@ class OkxBridge:
     # Tusk reconciliar mira ``bridge.session`` truthy (get_positions sync).
     self.session = self if okx_rest.credenciales_ok() else None
     self._nav_errores_consecutivos = 0
+    self._pos_mode: str | None = None  # long_short_mode | net_mode
+    self._pos_mode_listo = False
+
+  async def asegurar_modo_piernas(self) -> OrdenResultado:
+    """Exige long_short_mode: long y short conviven; Sell no come long.
+
+    Si la cuenta está en neto con posiciones abiertas, OKX no deja cambiar:
+    se anota y se falla a conciencia (no seguir como si hubiera piernas).
+    """
+    if self._pos_mode_listo and self._pos_mode == "long_short_mode":
+      return OrdenResultado(True, mensaje="piernas_ok")
+    if not self.session:
+      return OrdenResultado(False, mensaje="Sin credenciales OKX")
+    try:
+      cfg = await asyncio.to_thread(okx_rest.get_private, "/api/v5/account/config")
+      row = (cfg or [{}])[0] if isinstance(cfg, list) else (cfg or {})
+      modo = str((row or {}).get("posMode") or "").strip()
+      self._pos_mode = modo or None
+      if modo == "long_short_mode":
+        self._pos_mode_listo = True
+        return OrdenResultado(True, mensaje="piernas_ya")
+      data = await asyncio.to_thread(
+        okx_rest.post_private,
+        "/api/v5/account/set-position-mode",
+        {"posMode": "long_short_mode"},
+      )
+      _ = data
+      self._pos_mode = "long_short_mode"
+      self._pos_mode_listo = True
+      await self.bel.anotar(
+        "OKX_BRIDGE", "MODO_PIERNAS",
+        "Cuenta en long_short_mode (Sell ya no come long).",
+      )
+      return OrdenResultado(True, mensaje="piernas_armadas")
+    except okx_rest.OkxRestError as exc:
+      msg = str(exc)
+      # Ya en el modo pedido / cuenta que no admite el switch
+      if "long_short" in msg.lower() and "same" in msg.lower():
+        self._pos_mode = "long_short_mode"
+        self._pos_mode_listo = True
+        return OrdenResultado(True, mensaje=msg)
+      await self.bel.anotar(
+        "OKX_BRIDGE", "MODO_PIERNAS_FALLIDO",
+        f"No se pudo exigir piernas long/short: {msg}. "
+        f"Sangre short puede atropellar long si la cuenta sigue en neto.",
+      )
+      return OrdenResultado(False, mensaje=msg)
 
   def get_positions(self, **kwargs) -> dict:
     """Compat Bybit → OKX SWAP USDT (Tusk / telemetría). Inverse: lista vacía."""
@@ -260,19 +327,32 @@ class OkxBridge:
   async def set_leverage(self, symbol_or_inst: str, leverage: int, category: str = "linear"):
     inst = self._symbol_to_inst(symbol_or_inst)
     lev = str(int(leverage))
+    await self.asegurar_modo_piernas()
     try:
-      data = await asyncio.to_thread(
-        okx_rest.post_private,
-        "/api/v5/account/set-leverage",
-        {"instId": inst, "lever": lev, "mgnMode": "cross"},
-      )
-      _ = data
+      # En long_short_mode OKX pide apalancamiento por pierna.
+      for pos_side in ("long", "short"):
+        data = await asyncio.to_thread(
+          okx_rest.post_private,
+          "/api/v5/account/set-leverage",
+          {"instId": inst, "lever": lev, "mgnMode": "cross", "posSide": pos_side},
+        )
+        _ = data
       return OrdenResultado(True, mensaje="OK")
     except okx_rest.OkxRestError as exc:
       msg = str(exc)
       if "leverage" in msg.lower() and "same" in msg.lower():
         return OrdenResultado(True, mensaje=msg)
-      return OrdenResultado(False, mensaje=msg)
+      # Fallback neto (cuenta aún sin piernas): un solo set sin posSide.
+      try:
+        data = await asyncio.to_thread(
+          okx_rest.post_private,
+          "/api/v5/account/set-leverage",
+          {"instId": inst, "lever": lev, "mgnMode": "cross"},
+        )
+        _ = data
+        return OrdenResultado(True, mensaje="OK_net_fallback")
+      except okx_rest.OkxRestError as exc2:
+        return OrdenResultado(False, mensaje=str(exc2))
 
   async def place_order(
     self,
@@ -295,6 +375,14 @@ class OkxBridge:
   ):
     if not self.session:
       return OrdenResultado(False, mensaje="Sin credenciales OKX")
+    piernas = await self.asegurar_modo_piernas()
+    if not getattr(piernas, "exito", False):
+      # Fallar cerrado: mejor no operar que Sell neto coma el long.
+      return OrdenResultado(
+        False,
+        link_id=_okx_client_id(str(link_id or "")),
+        mensaje=f"sin_modo_piernas: {getattr(piernas, 'mensaje', '')}",
+      )
     inst = self._symbol_to_inst(symbol)
     cl = _okx_client_id(str(link_id or f"BRG{uuid.uuid4().hex[:12]}"))
     side_okx = "buy" if str(side).lower().startswith("b") else "sell"
@@ -303,6 +391,8 @@ class OkxBridge:
     act = beru_mar.inst_id_a_activo(inst)
     frente = f"{act}USDT_LINEAL"
     sz = lote_okx.sz_okx_str(float(qty or 0), frente)
+    pos_side = pos_side_entrada(side=side, position_idx=position_idx)
+    reduce = bool(reduce_only) if reduce_only is not None else False
 
     try:
       if trigger_price is not None and str(order_filter or "").lower() in ("stoporder", "stop"):
@@ -314,6 +404,7 @@ class OkxBridge:
           "instId": inst,
           "tdMode": "cross",
           "side": side_okx,
+          "posSide": pos_side,
           "ordType": "trigger",
           "sz": sz,
           "triggerPx": str(trig),
@@ -321,23 +412,28 @@ class OkxBridge:
           "triggerPxType": "last",
           "algoClOrdId": cl,
         }
+        if reduce:
+          body["reduceOnly"] = True
         data = await asyncio.to_thread(okx_rest.post_private, "/api/v5/trade/order-algo", body)
         rows = list(data or [])
         algo_id = str((rows[0] if rows else {}).get("algoId") or "")
         await self.bel.anotar(
           "OKX_BRIDGE", "TRIGGER_ARMADO",
-          f"{side_okx} {sz} {inst} @ {trigger_price} | algo:{algo_id} LINK:{cl}",
+          f"{side_okx} {pos_side} {sz} {inst} @ {trigger_price} | algo:{algo_id} LINK:{cl}",
         )
-        return OrdenResultado(True, order_id=algo_id, link_id=cl, datos={"algoId": algo_id, "orderStatus": "Untriggered"})
+        return OrdenResultado(True, order_id=algo_id, link_id=cl, datos={"algoId": algo_id, "orderStatus": "Untriggered", "posSide": pos_side})
 
       body = {
         "instId": inst,
         "tdMode": "cross",
         "side": side_okx,
+        "posSide": pos_side,
         "ordType": "market" if str(order_type).lower() == "market" else "limit",
         "sz": sz,
         "clOrdId": cl,
       }
+      if reduce:
+        body["reduceOnly"] = True
       if body["ordType"] == "limit" and price is not None:
         body["px"] = str(price)
       data = await asyncio.to_thread(okx_rest.post_private, "/api/v5/trade/order", body)
@@ -345,9 +441,9 @@ class OkxBridge:
       oid = str((rows[0] if rows else {}).get("ordId") or "")
       await self.bel.anotar(
         "OKX_BRIDGE", "ORDEN_ENVIADA",
-        f"{side_okx} {sz} {inst} | ID:{oid} LINK:{cl}",
+        f"{side_okx} {pos_side} {sz} {inst} | ID:{oid} LINK:{cl}",
       )
-      return OrdenResultado(True, order_id=oid, link_id=cl, datos=rows[0] if rows else {})
+      return OrdenResultado(True, order_id=oid, link_id=cl, datos={**(rows[0] if rows else {}), "posSide": pos_side})
     except okx_rest.OkxRestError as exc:
       await self.bel.anotar("OKX_BRIDGE", "ORDEN_RECHAZADA", f"{exc} | LINK:{cl}")
       return OrdenResultado(False, link_id=cl, mensaje=str(exc))
@@ -400,6 +496,8 @@ class OkxBridge:
     new_price=None,
     new_trigger_price=None,
     category="linear",
+    position_idx=None,
+    side=None,
   ):
     if not self.session:
       return OrdenResultado(False, mensaje="Sin credenciales OKX")
@@ -426,6 +524,9 @@ class OkxBridge:
         body["newSz"] = lote_okx.sz_okx_str(float(new_qty), f"{act}USDT_LINEAL")
       if new_price is not None:
         body["newPx"] = str(new_price)
+      # Hedge: enmienda debe nombrar la pierna (si el caller la conoce).
+      if position_idx is not None or side is not None:
+        body["posSide"] = pos_side_entrada(side=str(side or ""), position_idx=position_idx)
       await asyncio.to_thread(okx_rest.post_private, "/api/v5/trade/amend-algos", body)
       return OrdenResultado(True, order_id=order_id or "", link_id=cl)
     except okx_rest.OkxRestError as exc:

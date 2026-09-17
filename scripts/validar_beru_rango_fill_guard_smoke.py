@@ -111,6 +111,50 @@ async def _test_oz_con_posicion_casa() -> None:
     print("  manos: Oz con delta casa cosecha OK")
 
 
+async def _test_oz_rehusa_huerfano_gordo() -> None:
+    """Pierna huérfana 200$ no cuenta como fill de tramo $1 → no cosecha mapa."""
+    os.environ["BERU_RANGO_MANOS"] = "1"
+    import core.config as config
+
+    config.BERU_RANGO_MANOS = True
+    tusk = Tusk()
+    g = BeruRango(tusk, Bel(), MagicMock(), bridge=MagicMock())
+    g._activo = "ETH"
+    beru = _beru_cazando()
+    beru.masa = 1.0
+    beru.altar_masa_colocada_usd = 1.0
+    beru.altar_link_id = "BRGTEST"
+    g.vivo = beru
+    g._consultar_fill = AsyncMock(return_value=None)  # type: ignore[method-assign]
+    g._reconciliar_casa = AsyncMock()  # type: ignore[method-assign]
+    g._precio_lineal = MagicMock(return_value=100.25)  # type: ignore[method-assign]
+
+    # Tusk con long huérfano enorme (no mock de _posicion_tramo_casa: ejercita candado)
+    from unittest.mock import patch as _patch
+
+    with _patch(
+        "core.beru_rango_panel.posicion_desde_tusk",
+        return_value=[{"lado": "LONG", "qty": 200.0, "precio": 100.0, "masa_usd": 200.0}],
+    ), patch(
+        "generales.beru_rango.beru_rango_altar.seguir_trailing",
+        new_callable=AsyncMock,
+    ), patch(
+        "generales.beru_rango.beru_rango_altar.cancelar_pendiente",
+        new_callable=AsyncMock,
+    ), patch(
+        "generales.beru_rango.beru_rango_altar.disparar_entrada_market",
+        new_callable=AsyncMock,
+        return_value=__import__("core.bridge", fromlist=["OrdenResultado"]).OrdenResultado(
+            False, mensaje="rechazada"
+        ),
+    ):
+        out = await g.pulso(precio=100.25, latido={"last": 100.25, "high": 100.25, "low": 100.0})
+    assert out.get("evento") == "CAZA", out
+    assert out.get("nota") == "oz_sin_fill_casa", out
+    assert beru.estado == "CAZANDO", beru.estado
+    print("  manos: Oz rechaza huérfano gordo OK")
+
+
 async def _test_consultar_fill_sin_avg() -> None:
     """_consultar_fill no acepta Filled sin avgPrice (OKX algo)."""
     g = BeruRango(Tusk(), Bel(), MagicMock(), bridge=MagicMock())
@@ -156,6 +200,7 @@ async def main() -> int:
     _test_ojos_cosecha_mapa()
     await _test_oz_sin_fill_manos()
     await _test_oz_con_posicion_casa()
+    await _test_oz_rehusa_huerfano_gordo()
     print("OK")
     return 0
 
