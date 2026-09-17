@@ -112,7 +112,7 @@ async def _test_oz_con_posicion_casa() -> None:
 
 
 async def _test_oz_rehusa_huerfano_gordo() -> None:
-    """Pierna huérfana 200$ no cuenta como fill de tramo $1 → no cosecha mapa."""
+    """Pierna huérfana 200$ anclada al armar → delta 0 → no cosecha mapa."""
     os.environ["BERU_RANGO_MANOS"] = "1"
     import core.config as config
 
@@ -124,12 +124,15 @@ async def _test_oz_rehusa_huerfano_gordo() -> None:
     beru.masa = 1.0
     beru.altar_masa_colocada_usd = 1.0
     beru.altar_link_id = "BRGTEST"
+    # Snapshot al armar ya veía el huérfano: solo cuenta el crecimiento del tramo.
+    beru.pierna_snap_usd = 200.0
+    beru.pierna_snap_lado = "LONG"
     g.vivo = beru
     g._consultar_fill = AsyncMock(return_value=None)  # type: ignore[method-assign]
     g._reconciliar_casa = AsyncMock()  # type: ignore[method-assign]
     g._precio_lineal = MagicMock(return_value=100.25)  # type: ignore[method-assign]
 
-    # Tusk con long huérfano enorme (no mock de _posicion_tramo_casa: ejercita candado)
+    # Tusk sigue con long huérfano; sin delta nuevo no hay fill.
     from unittest.mock import patch as _patch
 
     with _patch(
