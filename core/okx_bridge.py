@@ -118,14 +118,22 @@ class OkxBridge:
     self._pos_mode: str | None = None  # long_short_mode | net_mode
     self._pos_mode_listo = False
 
-  async def asegurar_modo_piernas(self) -> OrdenResultado:
-    """Exige long_short_mode: long y short conviven; Sell no come long.
+  def _en_piernas(self) -> bool:
+    return str(self._pos_mode or "") == "long_short_mode"
 
-    Si la cuenta está en neto con posiciones abiertas, OKX no deja cambiar:
-    se anota y se falla a conciencia (no seguir como si hubiera piernas).
+  async def asegurar_modo_piernas(self) -> OrdenResultado:
+    """Intenta long_short_mode (piernas). Si hay basura en neto, opera en neto temporal.
+
+    Doctrina: piernas es la meta (Sell no come long). OKX no deja cambiar el
+    modo con posiciones/órdenes abiertas — en ese caso se acepta net_mode
+    para no dejar el ejército ciego, con aviso crítico. Cuando la cuenta
+    quede plana, el próximo ritual arma piernas de verdad.
     """
-    if self._pos_mode_listo and self._pos_mode == "long_short_mode":
-      return OrdenResultado(True, mensaje="piernas_ok")
+    if self._pos_mode_listo and self._pos_mode in ("long_short_mode", "net_mode"):
+      return OrdenResultado(
+        True,
+        mensaje="piernas_ok" if self._en_piernas() else "neto_temporal_ok",
+      )
     if not self.session:
       return OrdenResultado(False, mensaje="Sin credenciales OKX")
     try:
@@ -156,12 +164,16 @@ class OkxBridge:
         self._pos_mode = "long_short_mode"
         self._pos_mode_listo = True
         return OrdenResultado(True, mensaje=msg)
+      # Basura abierta: OKX 59000 — seguir en neto para no matar el arise.
+      modo_ahora = str(self._pos_mode or "net_mode")
+      self._pos_mode = modo_ahora if modo_ahora else "net_mode"
+      self._pos_mode_listo = True
       await self.bel.anotar(
-        "OKX_BRIDGE", "MODO_PIERNAS_FALLIDO",
-        f"No se pudo exigir piernas long/short: {msg}. "
-        f"Sangre short puede atropellar long si la cuenta sigue en neto.",
+        "OKX_BRIDGE", "MODO_NETO_TEMPORAL",
+        f"Piernas bloqueadas ({msg}). Operando en neto hasta aplanar. "
+        f"Sangre short aún puede atropellar long en esta cuenta.",
       )
-      return OrdenResultado(False, mensaje=msg)
+      return OrdenResultado(True, mensaje=f"neto_temporal: {msg}")
 
   def get_positions(self, **kwargs) -> dict:
     """Compat Bybit → OKX SWAP USDT (Tusk / telemetría). Inverse: lista vacía."""
@@ -377,7 +389,6 @@ class OkxBridge:
       return OrdenResultado(False, mensaje="Sin credenciales OKX")
     piernas = await self.asegurar_modo_piernas()
     if not getattr(piernas, "exito", False):
-      # Fallar cerrado: mejor no operar que Sell neto coma el long.
       return OrdenResultado(
         False,
         link_id=_okx_client_id(str(link_id or "")),
@@ -391,7 +402,8 @@ class OkxBridge:
     act = beru_mar.inst_id_a_activo(inst)
     frente = f"{act}USDT_LINEAL"
     sz = lote_okx.sz_okx_str(float(qty or 0), frente)
-    pos_side = pos_side_entrada(side=side, position_idx=position_idx)
+    hedge = self._en_piernas()
+    pos_side = pos_side_entrada(side=side, position_idx=position_idx) if hedge else "net"
     reduce = bool(reduce_only) if reduce_only is not None else False
 
     try:
@@ -404,7 +416,6 @@ class OkxBridge:
           "instId": inst,
           "tdMode": "cross",
           "side": side_okx,
-          "posSide": pos_side,
           "ordType": "trigger",
           "sz": sz,
           "triggerPx": str(trig),
@@ -412,6 +423,8 @@ class OkxBridge:
           "triggerPxType": "last",
           "algoClOrdId": cl,
         }
+        if hedge:
+          body["posSide"] = pos_side
         if reduce:
           body["reduceOnly"] = True
         data = await asyncio.to_thread(okx_rest.post_private, "/api/v5/trade/order-algo", body)
@@ -427,11 +440,12 @@ class OkxBridge:
         "instId": inst,
         "tdMode": "cross",
         "side": side_okx,
-        "posSide": pos_side,
         "ordType": "market" if str(order_type).lower() == "market" else "limit",
         "sz": sz,
         "clOrdId": cl,
       }
+      if hedge:
+        body["posSide"] = pos_side
       if reduce:
         body["reduceOnly"] = True
       if body["ordType"] == "limit" and price is not None:
@@ -525,7 +539,8 @@ class OkxBridge:
       if new_price is not None:
         body["newPx"] = str(new_price)
       # Hedge: enmienda debe nombrar la pierna (si el caller la conoce).
-      if position_idx is not None or side is not None:
+      await self.asegurar_modo_piernas()
+      if self._en_piernas() and (position_idx is not None or side is not None):
         body["posSide"] = pos_side_entrada(side=str(side or ""), position_idx=position_idx)
       await asyncio.to_thread(okx_rest.post_private, "/api/v5/trade/amend-algos", body)
       return OrdenResultado(True, order_id=order_id or "", link_id=cl)
