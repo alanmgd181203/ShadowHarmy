@@ -229,6 +229,8 @@ class BeruRango:
                         masa_real = float(
                             getattr(beru, "altar_masa_colocada_usd", 0) or 0
                         ) or masa_hecha
+                    # Nunca cosechar bolsa de casa: solo ticket del tramo (surf OK).
+                    masa_real = self._cap_masa_fill(beru, masa_real)
                 else:
                     # Ojos / teatro: fill del mapa (sin manos).
                     fill = oz_viva or float(px)
@@ -321,20 +323,146 @@ class BeruRango:
             return float(row.get("masa_usd") or 0), float(row.get("precio") or 0)
         return 0.0, 0.0
 
+    def _bolsa_neta_casa(self) -> tuple[float, float]:
+        """Bolsa firmada en casa: +LONG −SHORT (USD) y precio de marca.
+
+        En OKX neto solo hay un saco; Tusk lo mapea a un lado. Esta lectura
+        unifica piernas y neto para confirmar fill por *cambio de posición*.
+        """
+        from core import beru_rango_panel
+
+        net = 0.0
+        px = 0.0
+        for row in beru_rango_panel.posicion_desde_tusk(self.tusk, self._activo):
+            lado = str(row.get("lado") or "").upper()
+            m = float(row.get("masa_usd") or 0)
+            p = float(row.get("precio") or 0)
+            if m <= 1e-12:
+                continue
+            if lado == "LONG":
+                net += m
+            elif lado == "SHORT":
+                net -= m
+            if p > 0:
+                px = p
+        return float(net), float(px)
+
     def _snapshot_pierna_tramo(self, beru: BeruShip) -> None:
-        """Ancla de pierna al armar: la cosecha solo cuenta el delta real."""
+        """Ancla al armar: pierna del lado + bolsa neta (fill = cambio real)."""
         d = str(getattr(beru, "direccion", "") or "").upper()
         masa, _px = self._masa_lado_casa(d)
         beru.pierna_snap_lado = d
         beru.pierna_snap_usd = float(masa)
+        net, _ = self._bolsa_neta_casa()
+        beru.pierna_snap_net_usd = float(net)
+
+    def _umbral_fill_tramo(self, beru: BeruShip) -> float:
+        plan = float(getattr(beru, "altar_masa_colocada_usd", 0) or 0)
+        doctrinal = float(getattr(beru, "masa", 0) or 0)
+        if doctrinal or plan:
+            return max(0.05, min(doctrinal, plan or doctrinal) * 0.08)
+        return 0.05
+
+    def _techo_fill_tramo(self, beru: BeruShip) -> float:
+        """Techo del fill = ticket del tramo (doctrina / altar), no la bolsa de casa.
+
+        Mega $40–60 solo si Beru surfeó de verdad (masa/altar engordó).
+        Holgura 20 % por floor OKX.
+        """
+        plan = float(getattr(beru, "altar_masa_colocada_usd", 0) or 0)
+        doctrinal = float(getattr(beru, "masa", 0) or 0)
+        doc2 = float(getattr(beru, "masa_doctrinal_usd", 0) or 0)
+        techo = max(plan, doctrinal, doc2)
+        if techo <= 0:
+            techo = float(beru_rango.masa_tramo_usd() or 0) or float(
+                beru_rango.masa_sangre_usd() or 0
+            )
+        return max(0.0, techo) * 1.20
+
+    def _cap_masa_fill(self, beru: BeruShip, masa: float) -> float:
+        """Recorta masa de cosecha al techo del tramo (anti-bolsa huérfana)."""
+        m = float(masa or 0)
+        if m <= 0:
+            return 0.0
+        techo = self._techo_fill_tramo(beru)
+        if techo > 0 and m > techo + 1e-9:
+            return round(techo, 6)
+        return round(m, 6)
+
+    def _sanar_snap_ante_huerfano(self, beru: BeruShip) -> bool:
+        """Si el ancla falló (snap≈0) y la casa ya trae saco gordo, ancla a la casa.
+
+        Sin esto, el primer delta = bolsa entera → mega falsa y sangre que reduce de más.
+        """
+        d = str(getattr(beru, "direccion", "") or "").upper()
+        if d not in ("LONG", "SHORT"):
+            return False
+        ahora, _px = self._masa_lado_casa(d)
+        base = float(getattr(beru, "pierna_snap_usd", 0) or 0)
+        if str(getattr(beru, "pierna_snap_lado", "") or "").upper() not in ("", d):
+            base = 0.0
+        plan = float(getattr(beru, "altar_masa_colocada_usd", 0) or 0)
+        doctrinal = float(getattr(beru, "masa", 0) or 0)
+        ticket = max(plan, doctrinal, float(getattr(beru, "masa_doctrinal_usd", 0) or 0))
+        if ticket <= 0:
+            ticket = float(beru_rango.masa_tramo_usd() or 0) or 1.0
+        # Snap ciego + pierna ya gorda → reanclar; solo el crecimiento futuro es fill.
+        if base + 1e-9 < ticket * 0.25 and ahora > ticket * 2.0:
+            beru.pierna_snap_lado = d
+            beru.pierna_snap_usd = float(ahora)
+            net, _ = self._bolsa_neta_casa()
+            beru.pierna_snap_net_usd = float(net)
+            return True
+        return False
+
+    def _delta_bolsa_neta_tramo(self, beru: BeruShip) -> dict[str, float] | None:
+        """Fill = la bolsa neta se movió a favor de la caza (Monarca 2026-09-17).
+
+        En neto, un Buy contra short no «abre long»: reduce el short. Mirar solo
+        la pierna del lado devolvía 0 → Oz_SIN_FILL → Market gemelo (tumor).
+        Progreso LONG = net_ahora − net_snap; SHORT = net_snap − net_ahora.
+        """
+        d = str(getattr(beru, "direccion", "") or "").upper()
+        if d not in ("LONG", "SHORT"):
+            return None
+        if not hasattr(beru, "pierna_snap_net_usd"):
+            return None
+        snap = float(getattr(beru, "pierna_snap_net_usd", 0) or 0)
+        ahora, px = self._bolsa_neta_casa()
+        if d == "LONG":
+            progreso = ahora - snap
+        else:
+            progreso = snap - ahora
+        umbral = self._umbral_fill_tramo(beru)
+        if progreso + 1e-9 < umbral:
+            return None
+        if px <= 0:
+            px = float(self._precio_lineal(self._activo) or 0)
+        if px <= 0:
+            return None
+        masa = self._cap_masa_fill(beru, progreso)
+        if masa + 1e-9 < umbral:
+            return None
+        return {
+            "avgPrice": px,
+            "masa_usd": round(masa, 6),
+            "orderStatus": "Filled",
+            "via": "delta_bolsa_neta",
+        }
 
     def _delta_pierna_tramo(self, beru: BeruShip) -> dict[str, float] | None:
-        """Fill real = crecimiento de pierna desde el snapshot del tramo.
+        """Fill real = cambio de posición desde el snapshot del tramo.
 
-        Candado anti-tumor: no aceptar una pierna gorda huérfana como «fill»
-        de este tramo (p.ej. long viejo de $200 cuando la caza es $7). Eso
-        cosechaba el mapa y disparaba sangre que, en neto, se comía el long.
+        1) Bolsa neta (OKX net / unifica piernas).
+        2) Pierna del lado (modo hedge).
+
+        Candado anti-tumor: no aceptar pierna gorda huérfana como fill del tramo.
+        Techo = ticket doctrinal/altar (mega solo si Beru surfeó).
         """
+        net = self._delta_bolsa_neta_tramo(beru)
+        if net:
+            return net
+        self._sanar_snap_ante_huerfano(beru)
         d = str(getattr(beru, "direccion", "") or "").upper()
         if d not in ("LONG", "SHORT"):
             return None
@@ -343,18 +471,19 @@ class BeruRango:
         if str(getattr(beru, "pierna_snap_lado", "") or "").upper() not in ("", d):
             base = 0.0
         delta = ahora - base
-        plan = float(getattr(beru, "altar_masa_colocada_usd", 0) or 0)
-        doctrinal = float(getattr(beru, "masa", 0) or 0)
-        umbral = max(0.05, min(doctrinal, plan or doctrinal) * 0.08 if (doctrinal or plan) else 0.05)
+        umbral = self._umbral_fill_tramo(beru)
         if delta + 1e-9 < umbral:
             return None
         if px <= 0:
             px = float(self._precio_lineal(self._activo) or 0)
         if px <= 0:
             return None
+        masa = self._cap_masa_fill(beru, delta)
+        if masa + 1e-9 < umbral:
+            return None
         return {
             "avgPrice": px,
-            "masa_usd": round(delta, 6),
+            "masa_usd": round(masa, 6),
             "orderStatus": "Filled",
             "via": "delta_pierna",
         }
@@ -366,7 +495,7 @@ class BeruRango:
     def _pack_fill_con_masa(
         self, beru: BeruShip, fill_casa: dict[str, float],
     ) -> dict[str, float]:
-        """Asegura masa_usd = casa (orden/delta), no solo doctrinal."""
+        """Masa de cosecha = ticket del tramo (orden/delta capado), nunca bolsa casa."""
         out = dict(fill_casa or {})
         masa = float(out.get("masa_usd") or 0)
         if masa <= 0:
@@ -375,8 +504,13 @@ class BeruRango:
                 return delta
             masa = float(getattr(beru, "altar_masa_colocada_usd", 0) or 0)
         if masa > 0:
-            out["masa_usd"] = masa
+            out["masa_usd"] = self._cap_masa_fill(beru, masa)
         return out
+
+    async def _casa_ya_lleno_tramo(self, beru: BeruShip) -> bool:
+        """True si el trigger/casa ya movió la bolsa — no mandar Market gemelo."""
+        await self._reconciliar_casa()
+        return bool(self._delta_pierna_tramo(beru))
 
     async def _intentar_sello_entrada(
         self, beru: BeruShip, masa: float, *, origen: str,
@@ -389,6 +523,9 @@ class BeruRango:
         px_now = self._precio_lineal(self._activo)
         if not beru_rango_altar.stop_trigger_valido(beru, px_now):
             if bool(getattr(beru, "altar_entrada_disparada", False)):
+                return True
+            # Trigger pudo llenar mientras el last ya pasó Oz: no gemelo.
+            if await self._casa_ya_lleno_tramo(beru):
                 return True
             oz = float(getattr(beru, "oz_adan", 0) or 0)
             await self.bel.anotar(
@@ -431,7 +568,13 @@ class BeruRango:
                     "ALTAR_STOP_INVALIDO",
                     f"{beru.uid}: {msg} · sin Stop · Oz→Market",
                 )
-                beru_rango_altar.limpiar_sello_altar(beru)
+                # No borrar snap: si el trigger ya llenó, el delta lo dice.
+                if await self._casa_ya_lleno_tramo(beru):
+                    return True
+                beru.altar_link_id = ""
+                beru.altar_order_id = ""
+                beru.altar_order_status = ""
+                beru.altar_trigger_price = 0.0
                 mkt = await beru_rango_altar.disparar_entrada_market(
                     self.bridge, beru, activo=self._activo, masa_usd=masa,
                 )
@@ -492,7 +635,11 @@ class BeruRango:
         px: float,
         masa_hecha: float,
     ) -> dict[str, float] | None:
-        """Fill = plata en casa (delta/orden). Sin eso → no cosechar."""
+        """Fill = cambio de posición en casa. Sin eso → no cosechar.
+
+        Cirugía 2026-09-17: si la bolsa ya se movió (trigger OKX), NO mandar
+        Market gemelo. Confirmación = delta neto/pierna; un solo ticket por tramo.
+        """
         fill_casa = await self._consultar_fill(beru)
         if fill_casa and float(fill_casa.get("avgPrice") or 0) > 0:
             await self._reconciliar_casa()
@@ -513,6 +660,12 @@ class BeruRango:
             activo=self._activo,
             motivo="PRE_MARKET_OZ",
         )
+        # Tras cancel: el trigger pudo haber llenado — releer casa antes de Market.
+        await self._reconciliar_casa()
+        delta = self._delta_pierna_tramo(beru)
+        if delta:
+            return delta
+
         # Conservar snap; solo limpiar sello Stop para poder Market.
         beru.altar_link_id = ""
         beru.altar_order_id = ""
@@ -602,6 +755,7 @@ class BeruRango:
         if self._manos():
             await self._reconciliar_casa()
             self._snapshot_pierna_tramo(beru)
+            self._sanar_snap_ante_huerfano(beru)
             beru.altar_entrada_disparada = False
             beru.altar_market_ts = 0.0
             ok = await self._intentar_sello_entrada(beru, masa, origen=origen)
@@ -677,6 +831,8 @@ class BeruRango:
             "sangre_lado": getattr(beru, "sangre_lado", ""),
             "sangre": float(getattr(beru, "sangre_adan", 0) or 0),
             "sangre_adan": float(getattr(beru, "sangre_adan", 0) or 0),
+            "sangre_campana_oz0": float(getattr(beru, "sangre_campana_oz0_px", 0) or 0),
+            "sangre_campana_dir": str(getattr(beru, "sangre_campana_dir", "") or ""),
             "cosechas": int(getattr(beru, "cosechas_continuas", 0) or 0),
             "escalones_red": int(getattr(beru, "rango_escalones_red", 0) or 0),
             "ultima_hoz_direccion": getattr(beru, "ultima_hoz_direccion", "") or "",

@@ -313,6 +313,9 @@ def aplicar_plan(beru: Any, plan: PlanArranque) -> None:
         oz_despliegue=float(vivo.get("oz_despliegue") or 0),
         saco_long=float(vivo.get("saco_long") or 0),
         saco_short=float(vivo.get("saco_short") or 0),
+        sangre_campana_oz0=float(vivo.get("sangre_campana_oz0") or 0),
+        sangre_campana_dir=str(vivo.get("sangre_campana_dir") or ""),
+        sangre_sello_px=float(vivo.get("sangre") or vivo.get("sangre_adan") or 0),
     )
 
 

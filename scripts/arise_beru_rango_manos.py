@@ -637,15 +637,23 @@ async def ritual(
             except Exception:
                 pass
             d_hunt = str(getattr(beru_g.vivo, "direccion", "") or "").upper()
+            snap_n = 0.0
             for row in beru_rango_panel.posicion_desde_tusk(tusk, act, MERCADO):
-                if str(row.get("lado") or "").upper() == d_hunt:
-                    beru_g.vivo.pierna_snap_usd = float(row.get("masa_usd") or 0)
+                lado = str(row.get("lado") or "").upper()
+                m = float(row.get("masa_usd") or 0)
+                if lado == "LONG":
+                    snap_n += m
+                elif lado == "SHORT":
+                    snap_n -= m
+                if lado == d_hunt:
+                    beru_g.vivo.pierna_snap_usd = m
                     beru_g.vivo.pierna_snap_lado = d_hunt
-                    break
+            beru_g.vivo.pierna_snap_net_usd = float(snap_n)
             print(
                 f"    → saco L={float(getattr(beru_g.vivo,'saco_long_usd',0) or 0):.2f} "
                 f"S={float(getattr(beru_g.vivo,'saco_short_usd',0) or 0):.2f} "
-                f"snap={float(getattr(beru_g.vivo,'pierna_snap_usd',0) or 0):.2f}",
+                f"snap={float(getattr(beru_g.vivo,'pierna_snap_usd',0) or 0):.2f} "
+                f"net={float(getattr(beru_g.vivo,'pierna_snap_net_usd',0) or 0):.2f}",
                 flush=True,
             )
             try:

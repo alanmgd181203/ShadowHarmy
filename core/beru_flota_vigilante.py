@@ -84,6 +84,26 @@ def flota_esperada(asig_path: Path | None = None) -> list[str]:
     return out
 
 
+def cupo_vivos(override: int | None = None) -> int:
+    """Tope de manos vivas. 0 = sin tope (flota completa)."""
+    if override is not None:
+        try:
+            return max(0, int(override))
+        except (TypeError, ValueError):
+            return 0
+    raw = os.getenv("BERU_FLOTA_CUPO_VIVOS", "0")
+    try:
+        return max(0, int(float(raw or 0)))
+    except (TypeError, ValueError):
+        return 0
+
+
+def modo_campamento() -> bool:
+    return str(os.getenv("BERU_FLOTA_MODO_CAMPAMENTO", "") or "").lower() in (
+        "1", "true", "yes",
+    )
+
+
 def _powershell_json(script: str, *, timeout: float = 120.0) -> Any:
     cmd = ["powershell", "-NoProfile", "-Command", script]
     raw = subprocess.check_output(
@@ -123,7 +143,7 @@ def escanear_manos_piedra() -> dict[str, list[int]]:
         $c = $_.CommandLine
         if ($c -notmatch '--perfil\s+piedra' -and $c -notmatch 'BERU_RANGO_PERFIL=piedra') { return }
         if ($c -match '--activo\s+(\S+)') {
-          $rows += [PSCustomObject]@{ activo = $matches[1].ToUpper(); pid = $_.ProcessId }
+          $rows += [PSCustomObject]@{ activo = $matches[1].ToUpper(); procId = $_.ProcessId }
         }
       }
     if ($rows.Count -eq 0) { '[]' } else { $rows | ConvertTo-Json -Compress }
@@ -138,7 +158,7 @@ def escanear_manos_piedra() -> dict[str, list[int]]:
         if not isinstance(row, dict):
             continue
         act = str(row.get("activo") or "").upper()
-        pid = int(row.get("pid") or 0)
+        pid = int(row.get("procId") or row.get("pid") or 0)
         if act and pid > 0:
             out.setdefault(act, []).append(pid)
             vivos_reg[act] = pid
@@ -240,16 +260,35 @@ def lanzar_manos_piedra(
         "--manos-go",
         "--continuar" if continuar else "--desde-cero",
     ]
-    with out_log.open("a", encoding="utf-8") as fo, err_log.open("a", encoding="utf-8") as fe:
+    # Despegue duro: SSH/job del padre no debe matar la flota al cortar.
+    _DETACHED = int(getattr(subprocess, "DETACHED_PROCESS", 0x00000008))
+    _NEW_GROUP = int(getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0x00000200))
+    _NO_WIN = int(getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000))
+    flags = _DETACHED | _NEW_GROUP | _NO_WIN
+    fo = out_log.open("a", encoding="utf-8")
+    fe = err_log.open("a", encoding="utf-8")
+    try:
         fo.write(f"\n=== VIGILANTE_FLOTA {tag} continuar={continuar} ===\n")
+        fo.flush()
         proc = subprocess.Popen(
             cmd,
             cwd=str(ROOT),
             env=env,
             stdout=fo,
             stderr=fe,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            creationflags=flags,
+            close_fds=False,
         )
+    finally:
+        # El hijo ya heredó handles; cerrar copia del padre.
+        try:
+            fo.close()
+        except OSError:
+            pass
+        try:
+            fe.close()
+        except OSError:
+            pass
     manifest = LOG_DIR / "relanzos_manifest.jsonl"
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     row = {
@@ -272,10 +311,12 @@ def tick_flota(
     dry_run: bool = False,
     escalon_s: float = 30.0,
     max_relanzar_por_tick: int = 15,
+    cupo: int | None = None,
 ) -> dict[str, Any]:
     esperados = flota_esperada()
     esperado_set = set(esperados)
     net_ok, net_nota = internet_ok()
+    tope = cupo_vivos(cupo)
 
     vivo_raw = escanear_manos_piedra()
     limpio, dedupe_acciones = dedupe_manos(vivo_raw, dry_run=dry_run)
@@ -283,11 +324,29 @@ def tick_flota(
     faltan = [a for a in esperados if a not in limpio]
     extras = [a for a in limpio if a not in esperado_set]
 
+    # Cupo: solo relanza hasta llenar el tope (0 = sin tope).
+    slots_libres = None
+    cupo_lleno = False
+    if tope > 0:
+        vivos_n = len(limpio)
+        slots_libres = max(0, tope - vivos_n)
+        cupo_lleno = slots_libres <= 0
+        if cupo_lleno:
+            faltan_relanzar: list[str] = []
+        else:
+            faltan_relanzar = faltan[:slots_libres]
+    else:
+        faltan_relanzar = list(faltan)
+
+    # En modo campamento no reponer Santo a Santo (evitar doble ejército).
+    if modo_campamento():
+        faltan_relanzar = []
+
     relanzados: list[dict[str, Any]] = []
-    if net_ok and faltan and not dry_run:
-        lote = faltan[: max(1, int(max_relanzar_por_tick))]
-    elif net_ok and faltan and dry_run:
-        lote = faltan[: max(1, int(max_relanzar_por_tick))]
+    if net_ok and faltan_relanzar and not dry_run:
+        lote = faltan_relanzar[: max(1, int(max_relanzar_por_tick))]
+    elif net_ok and faltan_relanzar and dry_run:
+        lote = faltan_relanzar[: max(1, int(max_relanzar_por_tick))]
     else:
         lote = []
 
@@ -312,6 +371,11 @@ def tick_flota(
         "relanzados_este_tick": relanzados,
         "pct_cobertura": round(100.0 * len(limpio) / max(1, len(esperados)), 1),
         "dry_run": bool(dry_run),
+        "cupo_vivos": tope,
+        "slots_libres": slots_libres,
+        "cupo_lleno": cupo_lleno,
+        "modo_campamento": modo_campamento(),
+        "modo_ojos": "ws",
     }
     if not dry_run:
         INFORME_PATH.write_text(

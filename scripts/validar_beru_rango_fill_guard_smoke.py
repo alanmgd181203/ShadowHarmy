@@ -158,6 +158,165 @@ async def _test_oz_rehusa_huerfano_gordo() -> None:
     print("  manos: Oz rechaza huérfano gordo OK")
 
 
+def _test_snap_ciego_sana_bolsa_gorda() -> None:
+    """Snap≈0 + casa $200 + ticket $5 → reancla; no inventa mega fill."""
+    g = BeruRango(Tusk(), Bel(), MagicMock(), bridge=MagicMock())
+    g._activo = "ETH"
+    beru = _beru_cazando()
+    beru.masa = 5.0
+    beru.altar_masa_colocada_usd = 5.0
+    beru.pierna_snap_usd = 0.0
+    beru.pierna_snap_lado = "LONG"
+    with patch(
+        "core.beru_rango_panel.posicion_desde_tusk",
+        return_value=[{"lado": "LONG", "qty": 2.0, "precio": 100.0, "masa_usd": 200.0}],
+    ):
+        assert g._sanar_snap_ante_huerfano(beru) is True
+        assert abs(float(beru.pierna_snap_usd) - 200.0) < 1e-9
+        assert g._delta_pierna_tramo(beru) is None
+    print("  snap ciego ante bolsa gorda -> sana OK")
+
+
+def _test_cap_fill_no_mega_falsa() -> None:
+    """Delta gordo se corta al techo del tramo; surf real ($45) pasa."""
+    g = BeruRango(Tusk(), Bel(), MagicMock(), bridge=MagicMock())
+    beru = _beru_cazando()
+    beru.masa = 5.0
+    beru.altar_masa_colocada_usd = 5.0
+    capped = g._cap_masa_fill(beru, 60.0)
+    assert capped <= 5.0 * 1.20 + 1e-9, capped
+    beru.masa = 45.0
+    beru.altar_masa_colocada_usd = 45.0
+    ok_surf = g._cap_masa_fill(beru, 45.0)
+    assert abs(ok_surf - 45.0) < 1e-9, ok_surf
+    print("  cap fill: mega falsa corta · surf real pasa OK")
+
+
+def _test_pack_fill_capado() -> None:
+    g = BeruRango(Tusk(), Bel(), MagicMock(), bridge=MagicMock())
+    beru = _beru_cazando()
+    beru.masa = 5.0
+    beru.altar_masa_colocada_usd = 5.0
+    beru.pierna_snap_usd = 100.0
+    beru.pierna_snap_lado = "LONG"
+    # Sin snap neto: cae a delta pierna (hedge).
+    with patch(
+        "core.beru_rango_panel.posicion_desde_tusk",
+        return_value=[{"lado": "LONG", "qty": 1.6, "precio": 100.0, "masa_usd": 160.0}],
+    ):
+        # Crecimiento $60 con ticket $5 → fill capado (~6), no $60.
+        pack = g._delta_pierna_tramo(beru)
+    assert pack is not None, pack
+    assert float(pack["masa_usd"]) <= 5.0 * 1.20 + 1e-9, pack
+    print("  delta pierna capado a ticket OK")
+
+
+def _test_delta_neto_long_contra_short() -> None:
+    """Neto: caza LONG con bolsa short → Buy reduce short = fill (no Market gemelo)."""
+    g = BeruRango(Tusk(), Bel(), MagicMock(), bridge=MagicMock())
+    g._activo = "ONE"
+    beru = _beru_cazando()
+    beru.direccion = "LONG"
+    beru.masa = 3.0
+    beru.altar_masa_colocada_usd = 3.0
+    beru.pierna_snap_lado = "LONG"
+    beru.pierna_snap_usd = 0.0
+    beru.pierna_snap_net_usd = -100.0  # short $100 al armar
+    with patch(
+        "core.beru_rango_panel.posicion_desde_tusk",
+        return_value=[{"lado": "SHORT", "qty": 1.0, "precio": 0.002, "masa_usd": 97.0}],
+    ):
+        pack = g._delta_pierna_tramo(beru)
+    assert pack is not None, pack
+    assert pack.get("via") == "delta_bolsa_neta", pack
+    assert abs(float(pack["masa_usd"]) - 3.0) < 1e-9, pack  # progreso 3, cap ticket
+    print("  delta neto LONG contra short OK")
+
+
+async def _test_oz_no_market_si_neto_ya_movio() -> None:
+    """Trigger ya redujo el short: cosecha por delta neto, cero BRGMKT."""
+    os.environ["BERU_RANGO_MANOS"] = "1"
+    import core.config as config
+
+    config.BERU_RANGO_MANOS = True
+    g = BeruRango(Tusk(), Bel(), MagicMock(), bridge=MagicMock())
+    g._activo = "ONE"
+    beru = _beru_cazando()
+    beru.direccion = "LONG"
+    beru.masa = 3.0
+    beru.altar_masa_colocada_usd = 3.0
+    beru.altar_link_id = "BRGTEST"
+    beru.pierna_snap_lado = "LONG"
+    beru.pierna_snap_usd = 0.0
+    beru.pierna_snap_net_usd = -50.0
+    g.vivo = beru
+    g._consultar_fill = AsyncMock(return_value=None)  # type: ignore[method-assign]
+    g._reconciliar_casa = AsyncMock()  # type: ignore[method-assign]
+    g._precio_lineal = MagicMock(return_value=100.25)  # type: ignore[method-assign]
+    mkt = AsyncMock(
+        return_value=__import__("core.bridge", fromlist=["OrdenResultado"]).OrdenResultado(
+            False, mensaje="no_debe_llamarse"
+        )
+    )
+    with patch(
+        "core.beru_rango_panel.posicion_desde_tusk",
+        return_value=[{"lado": "SHORT", "qty": 0.47, "precio": 100.0, "masa_usd": 47.0}],
+    ), patch(
+        "generales.beru_rango.beru_rango_altar.seguir_trailing",
+        new_callable=AsyncMock,
+    ), patch(
+        "generales.beru_rango.beru_rango_altar.cancelar_pendiente",
+        new_callable=AsyncMock,
+    ), patch(
+        "generales.beru_rango.beru_rango_altar.disparar_entrada_market",
+        mkt,
+    ):
+        out = await g.pulso(precio=100.25, latido={"last": 100.25, "high": 100.25, "low": 100.0})
+    assert out.get("evento") == "OZ_COSECHA", out
+    assert mkt.await_count == 0, "Market gemelo prohibido si neto ya movio"
+    assert abs(float(out.get("masa_hecha") or 0) - 3.0) < 1e-9, out
+    print("  Oz: neto ya movio -> cosecha sin Market OK")
+
+
+async def _test_reparar_no_market_si_casa_lleno() -> None:
+    """REPARAR/armar: last ya pasó Oz pero bolsa ya movió → sin Market gemelo."""
+    os.environ["BERU_RANGO_MANOS"] = "1"
+    import core.config as config
+
+    config.BERU_RANGO_MANOS = True
+    g = BeruRango(Tusk(), Bel(), MagicMock(), bridge=MagicMock())
+    g._activo = "ONE"
+    beru = _beru_cazando()
+    beru.direccion = "LONG"
+    beru.oz_adan = 100.0
+    beru.masa = 3.0
+    beru.altar_masa_colocada_usd = 3.0
+    beru.altar_link_id = ""  # sello caído
+    beru.altar_entrada_disparada = False
+    beru.pierna_snap_lado = "LONG"
+    beru.pierna_snap_usd = 0.0
+    beru.pierna_snap_net_usd = -50.0
+    g.vivo = beru
+    g._reconciliar_casa = AsyncMock()  # type: ignore[method-assign]
+    g._precio_lineal = MagicMock(return_value=100.5)  # type: ignore[method-assign]
+    mkt = AsyncMock(
+        return_value=__import__("core.bridge", fromlist=["OrdenResultado"]).OrdenResultado(
+            False, mensaje="no_debe_llamarse"
+        )
+    )
+    with patch(
+        "core.beru_rango_panel.posicion_desde_tusk",
+        return_value=[{"lado": "SHORT", "qty": 0.47, "precio": 100.0, "masa_usd": 47.0}],
+    ), patch(
+        "generales.beru_rango.beru_rango_altar.disparar_entrada_market",
+        mkt,
+    ):
+        ok = await g._intentar_sello_entrada(beru, 3.0, origen="REPARAR_SELLO")
+    assert ok is True
+    assert mkt.await_count == 0, "REPARAR no debe Market si casa ya lleno"
+    print("  REPARAR: casa llena -> sin Market OK")
+
+
 async def _test_consultar_fill_sin_avg() -> None:
     """_consultar_fill no acepta Filled sin avgPrice (OKX algo)."""
     g = BeruRango(Tusk(), Bel(), MagicMock(), bridge=MagicMock())
@@ -204,6 +363,12 @@ async def main() -> int:
     await _test_oz_sin_fill_manos()
     await _test_oz_con_posicion_casa()
     await _test_oz_rehusa_huerfano_gordo()
+    _test_snap_ciego_sana_bolsa_gorda()
+    _test_cap_fill_no_mega_falsa()
+    _test_pack_fill_capado()
+    _test_delta_neto_long_contra_short()
+    await _test_oz_no_market_si_neto_ya_movio()
+    await _test_reparar_no_market_si_casa_lleno()
     print("OK")
     return 0
 
