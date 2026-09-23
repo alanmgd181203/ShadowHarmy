@@ -113,6 +113,9 @@ os.environ["BERU_RANGO_HILO"] = "true"
 os.environ["BERU_RANGO_ACTIVO"] = str(ARGS.activo or "HYPE").upper()
 os.environ["BERU_RANGO_MERCADO"] = _MERCADO
 os.environ["BERU_RANGO_PERFIL"] = _PERFIL
+# Monarca 2026-09-22: Red expansiva ON (piedra / flota).
+if _PERFIL == "piedra":
+    os.environ["BERU_RANGO_RED_EXPANSIVA"] = "1"
 if _MERCADO == "inverse":
     os.environ["BRIDGE_WS_SOLO_INVERSE"] = "true"
     os.environ["BRIDGE_WS_SOLO_LINEAR"] = "false"

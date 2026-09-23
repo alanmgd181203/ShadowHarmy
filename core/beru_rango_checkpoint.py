@@ -15,6 +15,7 @@ import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 from core import beru_rango
@@ -127,8 +128,18 @@ def _infer_hoz(vivo: dict[str, Any], sangre: str) -> str:
     return "LONG"
 
 
-def _red_desde_ancla(ancla: float, sangre: str, hoz: str) -> float:
-    """Red LONG 0,7 / SHORT 0,8 desde ancla. Sangre ABAJO → Red arriba; ARRIBA → abajo."""
+def _red_desde_ancla(
+    ancla: float,
+    sangre: str,
+    hoz: str,
+    *,
+    escalones_red: int = 0,
+) -> float:
+    """Red desde ancla: base doctrinal + expansiva si flag ON y hay escalones.
+
+    Corte 3C: al inventar Red faltante en el sello, no ignorar escalones_red.
+    Con flag OFF (flota viva) el extra es 0 — idéntico al viejo.
+    """
     a = float(ancla or 0)
     if a <= 0:
         return 0.0
@@ -137,15 +148,22 @@ def _red_desde_ancla(ancla: float, sangre: str, hoz: str) -> float:
     if not lado:
         lado = "ABAJO" if hoz_u == "SHORT" else "ARRIBA"
     dir_red = "SHORT" if (lado == "ABAJO" or (not sangre and hoz_u == "SHORT")) else "LONG"
-    red_act = beru_rango.red_activacion_pct(dir_red)
+    proxy = SimpleNamespace(rango_escalones_red=int(escalones_red or 0))
+    red_act = beru_rango.red_mapa_pct(proxy, dir_red)
     if dir_red == "SHORT":
         return a * (1.0 + red_act)
     return a * (1.0 - red_act)
 
 
-def _red_desde_cero(cero: float, sangre: str, hoz: str) -> float:
+def _red_desde_cero(
+    cero: float,
+    sangre: str,
+    hoz: str,
+    *,
+    escalones_red: int = 0,
+) -> float:
     """Compat: sin oz_despliegue usa cero como ancla (legacy)."""
-    return _red_desde_ancla(cero, sangre, hoz)
+    return _red_desde_ancla(cero, sangre, hoz, escalones_red=escalones_red)
 
 
 def decidir_arranque(
@@ -227,7 +245,12 @@ def decidir_arranque(
         oz_dep = float(vivo.get("oz_despliegue") or 0)
         ancla = oz_dep if oz_dep > 0 else cero
         red_sello = float(vivo.get("red") or 0)
-        red = red_sello if red_sello > 0 else _red_desde_ancla(ancla, sangre, hoz)
+        esc = int(vivo.get("escalones_red") or 0)
+        red = (
+            red_sello
+            if red_sello > 0
+            else _red_desde_ancla(ancla, sangre, hoz, escalones_red=esc)
+        )
         return PlanArranque(
             modo="ACECHO_AJUSTE",
             sello=sello,
@@ -243,15 +266,14 @@ def decidir_arranque(
     # Sello podrido o vacío: posición manda
     sangre_p, hoz_p = _lado_desde_pos(pos)
     if sangre_p and px > 0:
-        esc = int(vivo.get("escalones_red") or 0) if util else 0
-        cos = int(vivo.get("cosechas") or 0) if util else 1
+        # SEMBRAR_POS = campaña nueva desde posición: Red base (sin heredar escalones).
         return PlanArranque(
             modo="SEMBRAR_POS",
             sello=sello,
             vivo=vivo,
             edad_s=edad,
             cero=px,
-            red=_red_desde_cero(px, sangre_p, hoz_p),
+            red=_red_desde_cero(px, sangre_p, hoz_p, escalones_red=0),
             sangre_lado=sangre_p,
             hoz_dir=hoz_p,
             nota=(
@@ -271,7 +293,12 @@ def decidir_arranque(
         oz_dep = float(vivo.get("oz_despliegue") or 0)
         red_sello = float(vivo.get("red") or 0)
         ancla = oz_dep if oz_dep > 0 else cero
-        red = red_sello if red_sello > 0 else _red_desde_ancla(ancla, sangre, hoz)
+        esc = int(vivo.get("escalones_red") or 0)
+        red = (
+            red_sello
+            if red_sello > 0
+            else _red_desde_ancla(ancla, sangre, hoz, escalones_red=esc)
+        )
         return PlanArranque(
             modo="ACECHO_AJUSTE",
             sello=sello,

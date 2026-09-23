@@ -84,6 +84,78 @@ def sangre_estiron_tick_pct() -> float:
     )
 
 
+# --- Red expansiva (Monarca 2026-09-22) ---------------------------------
+# OFF por defecto. Cada escalón de Red ya tocado → +tick al vacío de la
+# próxima Red (tendencia). Paralelo doctrinal de sangre_estiron, pero cuenta
+# toques de Red, no frente Oz-0.
+# Corte 2: mapa vivo en _plantar_orejas_post_oz.
+# Corte 3A: restore/acecho usa el mismo mapa (escalones antes de ancla).
+# Corte 3B: sangre gana → escalones_red = 0 (tendencia muere con la campaña).
+# Corte 3C: checkpoint inventa Red con mapa si faltaba precio.
+# red_desde_ancla pura sigue siendo base (helpers / legacy).
+
+
+def red_expansiva_activo() -> bool:
+    """Red expansiva: OFF salvo env=1/true. No tocar flota viva sin orden."""
+    raw = os.getenv("BERU_RANGO_RED_EXPANSIVA", "0")
+    return str(raw or "0").strip().lower() in ("1", "true", "yes", "on")
+
+
+def red_expansiva_tick_pct() -> float:
+    """Cuánto se aleja la próxima Red por cada escalón ya tocado (+0,1 %)."""
+    return max(
+        0.0,
+        float(
+            os.getenv("BERU_RANGO_RED_EXPANSIVA_TICK_PCT")
+            or getattr(config, "BERU_RANGO_RED_EXPANSIVA_TICK_PCT", 0.001)
+            or 0.001
+        ),
+    )
+
+
+def red_expansiva_max_escalones() -> int:
+    """Tope de escalones que cuentan para expansiva (evita deuda histórica absurda).
+
+    Contador viejo podía ir a cientos; sin tope la Red nace al 30 %+ y queda ciega.
+    Default 15 → +1,5 % máx sobre la base.
+    """
+    return max(
+        0,
+        int(
+            os.getenv("BERU_RANGO_RED_EXPANSIVA_MAX_ESCALONES")
+            or getattr(config, "BERU_RANGO_RED_EXPANSIVA_MAX_ESCALONES", 15)
+            or 15
+        ),
+    )
+
+
+def red_expansiva_extra_pct(beru: Any) -> float:
+    """Extra de mapa Red = min(escalones, tope) × tick. 0 si OFF o sin escalones.
+
+    Tumor vigilado: no confundir con sangre_estiron (ese mide frente Oz-0).
+    Tumor vigilado: no aplicar al Vacío de nacimiento ni a sangre.
+    Tumor vigilado: contador histórico sin tope → Red imposible (cap obligatorio).
+    """
+    if not red_expansiva_activo() or beru is None:
+        return 0.0
+    n = int(getattr(beru, "rango_escalones_red", 0) or 0)
+    if n <= 0:
+        return 0.0
+    tope = red_expansiva_max_escalones()
+    if tope > 0:
+        n = min(n, tope)
+    return float(n) * float(red_expansiva_tick_pct())
+
+
+def red_mapa_pct(beru: Any, direccion: str | None = None) -> float:
+    """% de plantado de la Red (base doctrinal + expansiva). Como sangre_mapa_pct.
+
+    Tumor vigilado: red_desde_ancla / restore siguen leyendo solo la base;
+    este mapa es para el plantado vivo tras Oz.
+    """
+    return float(red_activacion_pct(direccion)) + float(red_expansiva_extra_pct(beru))
+
+
 def limpiar_sangre_campana(beru: Any) -> None:
     """Fin de campaña (sangre ganó / wake): el próximo Oz vuelve a estirón 0."""
     if beru is None:
@@ -1202,16 +1274,18 @@ def _cancelar_red(beru: Any) -> None:
 
 
 def _plantar_orejas_post_oz(beru: Any, ancla_red: float, direccion: str) -> None:
-    """Tras Oz: sangre (1,2 %+estirón) del peldaño vivo + Red doctrinal.
+    """Tras Oz: sangre (1,2 %+estirón) del peldaño vivo + Red (base+expansiva).
 
     Wake (0) sigue eterno para meta/saco. El *llamado* de sangre no se queda
     clavado al wake: si la Red escala el frente, la sangre renace junto al Oz.
 
     ``llamado_tramo_pct`` = siempre 1,2 % doctrinal (masa/engorde sordos al
     estirón). El mapa (``sangre_adan``) sí puede alejarse con la campaña.
+    Red: con expansiva OFF, idéntica a la base; con ON, se aleja por escalones.
     """
     d = str(direccion or "").upper()
-    red_act = red_activacion_pct(d)
+    red_base = red_activacion_pct(d)
+    red_act = red_mapa_pct(beru, d) if beru is not None else red_base
     sil_doc = sangre_contraria_pct()
     ancla = float(ancla_red or 0)
     sil_mapa = sangre_mapa_pct(beru, ancla) if ancla > 0 else sil_doc
@@ -1248,7 +1322,11 @@ def restaurar_acecho_post_oz(
     sangre_campana_dir: str = "",
     sangre_sello_px: float = 0.0,
 ) -> None:
-    """Reengancha acecho tras sello: wake / Red / sangre (sin nuevo wake)."""
+    """Reengancha acecho tras sello: wake / Red / sangre (sin nuevo wake).
+
+    Corte 3A: escalones antes del mapa Red — si expansiva ON, ancla/sangre no
+    se tuercen al dividir con el % base viejo.
+    """
     wake = float(cero or 0)
     if wake <= 0 or beru is None:
         return
@@ -1256,12 +1334,35 @@ def restaurar_acecho_post_oz(
     hoz = str(ultima_hoz_direccion or "").upper()
     if not hoz:
         hoz = "LONG" if lado == "ARRIBA" else "SHORT" if lado == "ABAJO" else "LONG"
+    # Escalones ANTES del mapa: restore/expansiva leen el contador del sello.
+    # Tope: no heredar deuda de cientos de escalones al mapa vivo.
+    esc_in = int(escalones_red or 0)
+    tope = red_expansiva_max_escalones() if red_expansiva_activo() else 0
+    if tope > 0 and esc_in > tope:
+        esc_in = tope
+    beru.rango_escalones_red = esc_in
     red_px = float(red or 0)
-    red_act = red_activacion_pct(hoz)
+    red_act = red_mapa_pct(beru, hoz)
     oz_dep = float(oz_despliegue or 0)
     if red_px <= 0:
         ancla = oz_dep if oz_dep > 0 else wake
-        red_px = red_desde_ancla(ancla, hoz)
+        if ancla > 0:
+            if hoz == "SHORT":
+                red_px = ancla * (1.0 + red_act)
+            else:
+                red_px = ancla * (1.0 - red_act)
+        else:
+            red_px = 0.0
+    elif oz_dep > 0 and red_expansiva_activo():
+        # Saneamiento: Red del sello más lejos que el mapa con tope → reclavar.
+        if hoz == "SHORT":
+            red_mapa_px = oz_dep * (1.0 + red_act)
+            if red_px > red_mapa_px * (1.0 + 1e-6):
+                red_px = red_mapa_px
+        else:
+            red_mapa_px = oz_dep * (1.0 - red_act)
+            if red_px < red_mapa_px * (1.0 - 1e-6):
+                red_px = red_mapa_px
     beru.cero_wake = wake
     beru.centro_local = wake
     beru.ancla_tramo = wake
@@ -1281,6 +1382,7 @@ def restaurar_acecho_post_oz(
     beru.sangre_lado = lado or ("ABAJO" if hoz == "SHORT" else "ARRIBA")
     beru.llamado_tramo_pct = sangre_contraria_pct()
     beru.red_adan = red_px
+    # % coherente con el precio plantado (mapa; OFF = base).
     beru.red_pct = red_act if beru.sangre_lado == "ABAJO" else -red_act
     # Campana del estirón: sello nuevo la trae; sello viejo puede traer solo sangre abs.
     camp_oz = float(sangre_campana_oz0 or 0)
@@ -1298,16 +1400,24 @@ def restaurar_acecho_post_oz(
         beru.sangre_campana_dir = ""
     # Misma ancla que la Red viva (fill peor puede haber subido el peldaño).
     # Preferir oz_despliegue del sello: evita drift si la Red nació con % viejo.
+    # Comparar contra Red de mapa (base+expansiva), no solo base.
     ancla_sangre = 0.0
     if oz_dep > 0:
-        red_doctrinal = red_desde_ancla(oz_dep, hoz)
+        if hoz == "SHORT":
+            red_doctrinal = oz_dep * (1.0 + red_act)
+        else:
+            red_doctrinal = oz_dep * (1.0 - red_act)
         if red_px > 0:
             mas_lejos = (
                 (hoz == "SHORT" and red_px > red_doctrinal + 1e-12)
                 or (hoz == "LONG" and red_px < red_doctrinal - 1e-12)
             )
             if mas_lejos:
-                if beru.sangre_lado == "ABAJO":
+                # Solo fill-peor chico; exceso grande = Red histórica, no torcer ancla.
+                exceso = abs(red_px - red_doctrinal) / oz_dep
+                if exceso > 0.01:
+                    ancla_sangre = oz_dep
+                elif beru.sangre_lado == "ABAJO":
                     ancla_sangre = red_px / (1.0 + red_act) if red_act < 1 else red_px
                 else:
                     ancla_sangre = red_px / (1.0 - red_act) if red_act < 1 else red_px
@@ -1343,7 +1453,6 @@ def restaurar_acecho_post_oz(
             beru.sangre_adan = ancla_sangre * (1.0 + sil)
     beru.oreja_sangre_activa = True
     beru.oreja_red_activa = True
-    beru.rango_escalones_red = int(escalones_red or 0)
     beru.cosechas_continuas = int(cosechas or 0)
     beru.saco_long_usd = max(0.0, float(saco_long or 0))
     beru.saco_short_usd = max(0.0, float(saco_short or 0))
@@ -1526,7 +1635,8 @@ def cosechar_oz_y_mover_cero(
 def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
     """Sangre → trailing; mapa puede estar estirado · masa como si fuera 1,2 %.
 
-    Al ganar sangre se cierra la campaña del estirón (limpiar campana).
+    Al ganar sangre se cierra la campaña del estirón (limpiar campana) y se
+    reinician los escalones de Red (corte 3B: la tendencia de Red muere aquí).
     """
     limpiar_masa_pendiente(beru)
     _cancelar_red(beru)
@@ -1535,6 +1645,9 @@ def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
     sangre_px = float(getattr(beru, "sangre_adan", 0) or 0)
     # Fin de campaña: el próximo Oz del otro lado nace con estirón 0.
     limpiar_sangre_campana(beru)
+    # Corte 3B: misma puerta — Red expansiva no hereda escalones al otro lado.
+    if beru is not None:
+        beru.rango_escalones_red = 0
 
     def _px_y_base(short: bool, px_default: float) -> tuple[float, float]:
         px = float(precio or 0) or px_default

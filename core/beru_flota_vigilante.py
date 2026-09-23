@@ -245,6 +245,7 @@ def lanzar_manos_piedra(
     env["BERU_MAR"] = "okx"
     env["BERU_RANGO_PERFIL"] = "piedra"
     env["BERU_RANGO_MANOS"] = "true"
+    env["BERU_RANGO_RED_EXPANSIVA"] = "1"
     env["MODO_SIMULACION"] = "false"
     env["IGRIS_FORCE_MAX_LEVERAGE"] = "true"
     env["PYTHONUTF8"] = "1"
