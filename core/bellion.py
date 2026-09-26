@@ -66,9 +66,13 @@ class BellionAuditor:
         nivel = clasificar(general, accion, detalle)
 
         async with self._lock:
-            with open(self.ruta_historial, "a", encoding="utf-8") as f:
-                f.write(registro)
-            self._actualizar_cola(registro)
+            try:
+                with open(self.ruta_historial, "a", encoding="utf-8") as f:
+                    f.write(registro)
+                self._actualizar_cola(registro)
+            except OSError as e:
+                # Historial hinchado / candado Windows (Errno 22) — no tumbar el Santo.
+                print(f"[BELLION] historial skip: {e}")
             self._oido.push(
                 general=general, accion=accion, detalle=detalle, nivel=nivel,
             )

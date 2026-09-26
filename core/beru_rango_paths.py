@@ -14,6 +14,26 @@ RANGO_DIR = BERU_DIR / "rango"
 RANGO_VIVO_PATH = BERU_DIR / "rango_vivo.json"
 
 
+def balanza_legion() -> Path:
+    """Sello de la balanza L/S de la flota (sin BTC) — oído del escudo Igris."""
+    RANGO_DIR.mkdir(parents=True, exist_ok=True)
+    return RANGO_DIR / "balanza_legion.json"
+
+
+def escudo_btc_sim() -> Path:
+    """Libro de papel del escudo BTC (simulación Igris — sin órdenes reales)."""
+    d = BERU_DIR / "escudo"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / "escudo_btc_sim.json"
+
+
+def escudo_btc_sim_eventos() -> Path:
+    """Crónica de latidos del escudo en simulación."""
+    d = BERU_DIR / "escudo"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / "escudo_btc_sim_eventos.jsonl"
+
+
 def _act(activo: str) -> str:
     return str(activo or "").strip().upper()
 

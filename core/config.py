@@ -40,6 +40,65 @@ OKX_PARAMETROS_PATH = os.getenv("OKX_PARAMETROS_PATH", "")
 MODO_SIMULACION = os.getenv("MODO_SIMULACION", "True").lower() == "true"
 SAFE_MODE = os.getenv("SAFE_MODE", "False").lower() == "true"
 
+# Igris Escudo BTC — cobertura BTC de la masa abierta de Beru (otro oficio que el manto L/S).
+# Default sim; live solo con IGRIS_ESCUDO_BTC_LIVE_OK=1 y orden del Monarca.
+# ACTIVO=0 → no latea en campamento; ritual vigilar_escudo sigue disponible a mano.
+IGRIS_ESCUDO_BTC_ACTIVO = os.getenv("IGRIS_ESCUDO_BTC_ACTIVO", "0").lower() in (
+    "1", "true", "yes", "on", "si",
+)
+IGRIS_ESCUDO_BTC_MODO = str(os.getenv("IGRIS_ESCUDO_BTC_MODO", "sim") or "sim").strip().lower()
+# Sellado Monarca 2026-09-23: manto en BTC inverso OKX (paso $10 fijo).
+# No hay tarifa más barata por liquidar en USDC vs USDT; BTC-USDC-SWAP ni existe.
+IGRIS_ESCUDO_BTC_FRENTE = str(
+    os.getenv("IGRIS_ESCUDO_BTC_FRENTE", "inverso") or "inverso"
+).strip().lower()
+
+
+def _parse_igris_escudo_r(raw: str | None, default: float = 1.5) -> float:
+    """Numérico para config; ``dinamico``/auto no son float → default (Igris lee env)."""
+    s = str(raw or "").strip().lower()
+    if not s or s in ("dinamico", "dynamic", "auto", "total3"):
+        return float(default)
+    try:
+        return float(s)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+IGRIS_ESCUDO_BTC_R = _parse_igris_escudo_r(os.getenv("IGRIS_ESCUDO_BTC_R"), 1.5)
+IGRIS_ESCUDO_BTC_UMBRAL_USD = float(os.getenv("IGRIS_ESCUDO_BTC_UMBRAL_USD", "100") or 100)
+IGRIS_ESCUDO_BTC_UMBRAL_PCT = float(os.getenv("IGRIS_ESCUDO_BTC_UMBRAL_PCT", "0.01") or 0.01)
+# Polvo / desarme: |neto| ≤ esto → escudo 0 (Monarca 2026-09-24: ±$250)
+IGRIS_ESCUDO_BTC_POLVO_USD = float(os.getenv("IGRIS_ESCUDO_BTC_POLVO_USD", "250") or 250)
+# Peldaños de cobertura: $1000 · arma al primer peldaño (Monarca 2026-09-25)
+# Env ASCII `PELDANO` (sin ñ) para .bat Windows; `PELDAÑO` también vale.
+IGRIS_ESCUDO_BTC_PELDAÑO_USD = float(
+    os.getenv("IGRIS_ESCUDO_BTC_PELDANO_USD")
+    or os.getenv("IGRIS_ESCUDO_BTC_PELDAÑO_USD")
+    or "1000"
+    or 1000
+)
+IGRIS_ESCUDO_BTC_ACTIVAR_USD = float(os.getenv("IGRIS_ESCUDO_BTC_ACTIVAR_USD", "1000") or 1000)
+# Manos del escudo: market (fill ya) — Monarca 2026-09-24. limit opcional por env.
+IGRIS_ESCUDO_BTC_ORD_TIPO = str(
+    os.getenv("IGRIS_ESCUDO_BTC_ORD_TIPO", "market") or "market"
+).strip().lower()
+# Veda tras asalto (anti ida-vuelta del tumor ciego). Cirugía 2026-09-24.
+IGRIS_ESCUDO_BTC_VEDA_S = float(os.getenv("IGRIS_ESCUDO_BTC_VEDA_S", "25") or 25)
+# Si modo limit y no llena: Igris acerca el px (solo aplica con ORD_TIPO=limit).
+IGRIS_ESCUDO_BTC_LIMIT_MOVER = os.getenv("IGRIS_ESCUDO_BTC_LIMIT_MOVER", "1").lower() in (
+    "1", "true", "yes", "on", "si",
+)
+IGRIS_ESCUDO_BTC_LIMIT_ESPERA_S = float(os.getenv("IGRIS_ESCUDO_BTC_LIMIT_ESPERA_S", "8") or 8)
+IGRIS_ESCUDO_BTC_LIMIT_PASO_PCT = float(os.getenv("IGRIS_ESCUDO_BTC_LIMIT_PASO_PCT", "0.0015") or 0.0015)
+IGRIS_ESCUDO_BTC_LIMIT_MAX_MOVES = int(float(os.getenv("IGRIS_ESCUDO_BTC_LIMIT_MAX_MOVES", "40") or 40))
+IGRIS_ESCUDO_BTC_LIMIT_MAX_DRIFT_PCT = float(
+    os.getenv("IGRIS_ESCUDO_BTC_LIMIT_MAX_DRIFT_PCT", "0.02") or 0.02
+)
+IGRIS_ESCUDO_BTC_LIMIT_OFFSET_PCT = float(
+    os.getenv("IGRIS_ESCUDO_BTC_LIMIT_OFFSET_PCT", "0.00015") or 0.00015
+)
+
 # Testeo Igris — Beru y Greed hibernados; solo Igris + Tank + Tusk en arise.py
 MODO_ENFOQUE_IGRIS = os.getenv("MODO_ENFOQUE_IGRIS", "True").lower() in ("1", "true", "yes")
 
@@ -139,11 +198,13 @@ BERU_RANGO_PIEDRA_TIERS = {
     "medio": 0.8,
     "cenido": 0.5,
 }
-# Semáforo piedra: nacimiento por bando de pierna (paz / medio / pesado) · tope serie
+# Semáforo piedra — sellado Monarca 2026-09-24:
+#   verde=$1 · amarillo=$0.60 · rojo=$0.40 · tope engorde $2 / 0.1% · paso +$0.02
+# (antes: columna verde paz/medio/pesado del mapa viejo, duplicada)
 BERU_RANGO_SEMAFORO_MAPA = {
-    "rojo": {"paz": 0.20, "medio": 0.20, "pesado": 0.20, "tope": 0.50},
-    "amarillo": {"paz": 0.30, "medio": 0.25, "pesado": 0.20, "tope": 0.80},
-    "verde": {"paz": 0.50, "medio": 0.30, "pesado": 0.20, "tope": 1.00},
+    "rojo": {"paz": 0.40, "medio": 0.40, "pesado": 0.40, "tope": 2.00},
+    "amarillo": {"paz": 0.60, "medio": 0.60, "pesado": 0.60, "tope": 2.00},
+    "verde": {"paz": 1.00, "medio": 1.00, "pesado": 1.00, "tope": 2.00},
 }
 BERU_RANGO_PIERNA_UMBRAL_MEDIO = float(os.getenv("BERU_RANGO_PIERNA_UMBRAL_MEDIO", "100") or 100)
 BERU_RANGO_PIERNA_UMBRAL_PESADO = float(os.getenv("BERU_RANGO_PIERNA_UMBRAL_PESADO", "300") or 300)
@@ -184,16 +245,16 @@ BERU_RANGO_PERFILES = {
         "ENGORDE_TOPE_USD": 0.0,
     },
     "piedra": {
-        # OKX USDT micro: misma geometría clásica · Red SHORT 0,8 % · nace $0,20
+        # OKX USDT · Monarca 2026-09-24: engorde +$0.02/0.1% · nace vía semáforo
         "VACIO_PCT": 0.012,
         "OZ_GAP_PCT": 0.002,
         "RED_DESDE_OZ_PCT": 0.007,
         "RED_DESDE_OZ_SHORT_PCT": 0.008,
         "SANGRE_PCT": 0.012,
-        "MASA_USD": 0.20,
-        "MASA_RED_USD": 0.20,
-        "MASA_SANGRE_USD": 0.20,
-        "ENGORDE_USD": 0.01,
+        "MASA_USD": 0.40,
+        "MASA_RED_USD": 0.40,
+        "MASA_SANGRE_USD": 0.40,
+        "ENGORDE_USD": 0.02,
         "ENGORDE_PASO_PCT": 0.001,
         "TRAILING_PCT": 0.002,
         "ENGORDE_MODO": "peldaños_sumados",

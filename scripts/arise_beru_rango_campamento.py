@@ -52,6 +52,11 @@ def _parse_args():
     ap.add_argument("--continuar", action="store_true")
     ap.add_argument("--desde-cero", action="store_true")
     ap.add_argument(
+        "--con-escudo",
+        action="store_true",
+        help="Igris Escudo BTC listo (papel): latea tras balanza; no es manto L/S",
+    )
+    ap.add_argument(
         "--mercado",
         default=os.getenv("BERU_RANGO_MERCADO", "linear"),
         choices=("linear", "inverse"),
@@ -95,6 +100,14 @@ os.environ.setdefault("BERU_MAR", "okx")
 os.environ.setdefault("BINANCE_REF_ENABLED", "false")
 os.environ["MODO_SIMULACION"] = "false"
 os.environ["ARISE_BERU_RANGO_PERMITIR_MANOS"] = "true"
+# Escudo BTC (otro oficio): listo al despertar limpio — papel, no live.
+if bool(ARGS.con_escudo) or os.getenv("IGRIS_ESCUDO_BTC_ACTIVO", "").lower() in (
+    "1", "true", "yes", "on", "si",
+):
+    os.environ["IGRIS_ESCUDO_BTC_ACTIVO"] = "1"
+    os.environ.setdefault("IGRIS_ESCUDO_BTC_MODO", "sim")
+    os.environ.setdefault("IGRIS_ESCUDO_BTC_R", "dinamico")
+    os.environ.setdefault("IGRIS_ESCUDO_BTC_FRENTE", "inverso")
 if _MERCADO == "inverse":
     os.environ["BRIDGE_WS_SOLO_INVERSE"] = "true"
     os.environ["BRIDGE_WS_SOLO_LINEAR"] = "false"
@@ -337,6 +350,32 @@ async def _autosello_camp(stacks: dict[str, Any], contadores: dict[str, Any], tu
 
             snap = balanza.sellar_balanza()
             print(f"[CAMP] balanza · {snap.get('frase')}", flush=True)
+            # Escudo BTC (otro oficio): solo si el Monarca encendió ACTIVO.
+            # Default OFF — Beru caza igual; Igris escudo latea en papel, no toca manos Beru.
+            try:
+                import core.config as cfg
+                from core import igris_escudo_btc as escudo
+
+                if bool(getattr(cfg, "IGRIS_ESCUDO_BTC_ACTIVO", False)):
+                    # sim por defecto; live solo si MODO=live + LIVE_OK (candado)
+                    modo_e = str(
+                        getattr(cfg, "IGRIS_ESCUDO_BTC_MODO", "sim") or "sim"
+                    ).strip().lower()
+                    if modo_e != "live":
+                        modo_e = "sim"
+                    lat = escudo.latido_escudo(
+                        snap=snap,
+                        ojos_live=False,
+                        forzar_modo=modo_e,
+                        aplicar_manos=True,
+                    )
+                    frase_e = escudo.frase_latido(lat)
+                    print(f"[CAMP] escudo · {frase_e}", flush=True)
+                    mov = lat.get("mover_limite") or {}
+                    if mov.get("movido"):
+                        print(f"[CAMP] escudo limite · {mov.get('frase')}", flush=True)
+            except Exception as exc_e:
+                print(f"[CAMP] escudo: {exc_e}", flush=True)
         except Exception as exc:
             print(f"[CAMP] balanza: {exc}", flush=True)
         await asyncio.sleep(30.0)
@@ -519,7 +558,23 @@ async def ritual(
     print(f"    ARISE CAMPAMENTO {_CAMP_ID}")
     print(f"    Santos ({len(acts)}): {', '.join(acts)}")
     print(f"    Mar={nombre_mar()} perfil={PERFIL} mercado={MERCADO} · WS ON · books OFF")
+    if desde_cero:
+        print("    Wake: DESDE CERO (semilla nueva · sin memoria de acecho)")
+    if os.getenv("IGRIS_ESCUDO_BTC_ACTIVO", "").lower() in ("1", "true", "yes", "on", "si"):
+        print("    Escudo BTC: LISTO (papel · R dinámico · live cerrado)")
     print("═" * 56)
+
+    # Despertar limpio: Igris no hereda manto de una vida anterior.
+    if desde_cero and os.getenv("IGRIS_ESCUDO_BTC_ACTIVO", "").lower() in (
+        "1", "true", "yes", "on", "si",
+    ):
+        try:
+            from core import igris_escudo_btc as escudo
+
+            escudo.resetear_libro_escudo(motivo="campamento_desde_cero")
+            print("[CAMP] escudo · memoria borrada (libro papel en 0)", flush=True)
+        except Exception as exc:
+            print(f"[CAMP] escudo reset: {exc}", flush=True)
 
     shutdown_event = asyncio.Event()
     _senales(asyncio.get_running_loop(), shutdown_event)
