@@ -1,0 +1,1029 @@
+{
+  "tamano": 8,
+  "receta_preferida": {
+    "verde": 2,
+    "amarillo": 3,
+    "rojo": 3
+  },
+  "nota": "Reparto parejo por color. Ningún cuartel se llena de rojos.",
+  "n_campamentos": 28,
+  "n_santos": 228,
+  "campamentos": [
+    {
+      "id": "CAMP_001",
+      "santos": [
+        "1INCH",
+        "MASK",
+        "BAND",
+        "FOGO",
+        "OFC",
+        "SUI",
+        "BRETT",
+        "RIVER"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "1INCH",
+          "MASK"
+        ],
+        "amarillo": [
+          "BAND",
+          "FOGO",
+          "OFC",
+          "SUI"
+        ],
+        "rojo": [
+          "BRETT",
+          "RIVER"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_002",
+      "santos": [
+        "ACU",
+        "MON",
+        "BASED",
+        "GMT",
+        "OL",
+        "SUSHI",
+        "BSB",
+        "S"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "ACU",
+          "MON"
+        ],
+        "amarillo": [
+          "BASED",
+          "GMT",
+          "OL",
+          "SUSHI"
+        ],
+        "rojo": [
+          "BSB",
+          "S"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_003",
+      "santos": [
+        "AEON",
+        "NEAR",
+        "BAT",
+        "GRT",
+        "ONE",
+        "THETA",
+        "COAI",
+        "SAHARA"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "AEON",
+          "NEAR"
+        ],
+        "amarillo": [
+          "BAT",
+          "GRT",
+          "ONE",
+          "THETA"
+        ],
+        "rojo": [
+          "COAI",
+          "SAHARA"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_004",
+      "santos": [
+        "ALGO",
+        "ONT",
+        "BICO",
+        "HMSTR",
+        "OP",
+        "TIA",
+        "CORE",
+        "SIGN"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "ALGO",
+          "ONT"
+        ],
+        "amarillo": [
+          "BICO",
+          "HMSTR",
+          "OP",
+          "TIA"
+        ],
+        "rojo": [
+          "CORE",
+          "SIGN"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_005",
+      "santos": [
+        "ARX",
+        "ORDI",
+        "BIO",
+        "ICP",
+        "OPG",
+        "TRIA",
+        "EDEN",
+        "SLX"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "ARX",
+          "ORDI"
+        ],
+        "amarillo": [
+          "BIO",
+          "ICP",
+          "OPG",
+          "TRIA"
+        ],
+        "rojo": [
+          "EDEN",
+          "SLX"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_006",
+      "santos": [
+        "ATOM",
+        "PENDLE",
+        "BLUR",
+        "IMX",
+        "PENGU",
+        "TRUMP",
+        "EIGEN",
+        "SNX"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "ATOM",
+          "PENDLE"
+        ],
+        "amarillo": [
+          "BLUR",
+          "IMX",
+          "PENGU",
+          "TRUMP"
+        ],
+        "rojo": [
+          "EIGEN",
+          "SNX"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_007",
+      "santos": [
+        "AXS",
+        "PEOPLE",
+        "BONK",
+        "INIT",
+        "PI",
+        "TRUTH",
+        "F",
+        "SOON"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "AXS",
+          "PEOPLE"
+        ],
+        "amarillo": [
+          "BONK",
+          "INIT",
+          "PI",
+          "TRUTH"
+        ],
+        "rojo": [
+          "F",
+          "SOON"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_008",
+      "santos": [
+        "AZTEC",
+        "POL",
+        "BREV",
+        "IOTA",
+        "PNUT",
+        "WCT",
+        "FLOW",
+        "STRK"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "AZTEC",
+          "POL"
+        ],
+        "amarillo": [
+          "BREV",
+          "IOTA",
+          "PNUT",
+          "WCT"
+        ],
+        "rojo": [
+          "FLOW",
+          "STRK"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_009",
+      "santos": [
+        "BLEND",
+        "RENDER",
+        "CELO",
+        "IRYS",
+        "PONS",
+        "WET",
+        "GALA",
+        "TRUST"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "BLEND",
+          "RENDER"
+        ],
+        "amarillo": [
+          "CELO",
+          "IRYS",
+          "PONS",
+          "WET"
+        ],
+        "rojo": [
+          "GALA",
+          "TRUST"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_010",
+      "santos": [
+        "BZ",
+        "SNDK",
+        "CFX",
+        "JTO",
+        "POPCAT",
+        "WIF",
+        "H",
+        "USELESS"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "BZ",
+          "SNDK"
+        ],
+        "amarillo": [
+          "CFX",
+          "JTO",
+          "POPCAT",
+          "WIF"
+        ],
+        "rojo": [
+          "H",
+          "USELESS"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_011",
+      "santos": [
+        "CASHCAT",
+        "SNXX",
+        "CHZ",
+        "KAITO",
+        "PROS",
+        "WLD",
+        "HOME",
+        "W"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "CASHCAT",
+          "SNXX"
+        ],
+        "amarillo": [
+          "CHZ",
+          "KAITO",
+          "PROS",
+          "WLD"
+        ],
+        "rojo": [
+          "HOME",
+          "W"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_012",
+      "santos": [
+        "CC",
+        "SOL",
+        "CNPY",
+        "KAT",
+        "PROVE",
+        "WLFI",
+        "LA",
+        "WAL"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "CC",
+          "SOL"
+        ],
+        "amarillo": [
+          "CNPY",
+          "KAT",
+          "PROVE",
+          "WLFI"
+        ],
+        "rojo": [
+          "LA",
+          "WAL"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_013",
+      "santos": [
+        "CRV",
+        "SOXL",
+        "CP",
+        "KGEN",
+        "PYTH",
+        "WOO",
+        "LAB",
+        "XPL"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "CRV",
+          "SOXL"
+        ],
+        "amarillo": [
+          "CP",
+          "KGEN",
+          "PYTH",
+          "WOO"
+        ],
+        "rojo": [
+          "LAB",
+          "XPL"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_014",
+      "santos": [
+        "DATA",
+        "SPCX",
+        "AEVO",
+        "CRO",
+        "LAYER",
+        "RAY",
+        "ZBT",
+        "LIGHT",
+        "YB"
+      ],
+      "n": 9,
+      "por_color": {
+        "verde": [
+          "DATA",
+          "SPCX"
+        ],
+        "amarillo": [
+          "AEVO",
+          "CRO",
+          "LAYER",
+          "RAY",
+          "ZBT"
+        ],
+        "rojo": [
+          "LIGHT",
+          "YB"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_015",
+      "santos": [
+        "DOGE",
+        "STX",
+        "AGLD",
+        "DASH",
+        "LDO",
+        "RLS",
+        "ZEN",
+        "LINEA",
+        "YGG"
+      ],
+      "n": 9,
+      "por_color": {
+        "verde": [
+          "DOGE",
+          "STX"
+        ],
+        "amarillo": [
+          "AGLD",
+          "DASH",
+          "LDO",
+          "RLS",
+          "ZEN"
+        ],
+        "rojo": [
+          "LINEA",
+          "YGG"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_016",
+      "santos": [
+        "DOS",
+        "SYRUP",
+        "AI",
+        "DGAI",
+        "LPT",
+        "ROBO",
+        "ZETA",
+        "ME",
+        "ZK"
+      ],
+      "n": 9,
+      "por_color": {
+        "verde": [
+          "DOS",
+          "SYRUP"
+        ],
+        "amarillo": [
+          "AI",
+          "DGAI",
+          "LPT",
+          "ROBO",
+          "ZETA"
+        ],
+        "rojo": [
+          "ME",
+          "ZK"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_017",
+      "santos": [
+        "ETC",
+        "VIRTUAL",
+        "AIXBT",
+        "DOT",
+        "LQTY",
+        "RSR",
+        "ZIL",
+        "MEGA",
+        "ZORA"
+      ],
+      "n": 9,
+      "por_color": {
+        "verde": [
+          "ETC",
+          "VIRTUAL"
+        ],
+        "amarillo": [
+          "AIXBT",
+          "DOT",
+          "LQTY",
+          "RSR",
+          "ZIL"
+        ],
+        "rojo": [
+          "MEGA",
+          "ZORA"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_018",
+      "santos": [
+        "GLM",
+        "XAG",
+        "ANIME",
+        "DYDX",
+        "LUNA",
+        "RVN",
+        "ZKP",
+        "MERL"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "GLM",
+          "XAG"
+        ],
+        "amarillo": [
+          "ANIME",
+          "DYDX",
+          "LUNA",
+          "RVN",
+          "ZKP"
+        ],
+        "rojo": [
+          "MERL"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_019",
+      "santos": [
+        "GPS",
+        "XLM",
+        "APE",
+        "EGLD",
+        "MAGIC",
+        "SAND",
+        "0G",
+        "MMT"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "GPS",
+          "XLM"
+        ],
+        "amarillo": [
+          "APE",
+          "EGLD",
+          "MAGIC",
+          "SAND"
+        ],
+        "rojo": [
+          "0G",
+          "MMT"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_020",
+      "santos": [
+        "GRAM",
+        "XRP",
+        "API3",
+        "ENA",
+        "MANA",
+        "SAPIEN",
+        "2Z",
+        "MOVE"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "GRAM",
+          "XRP"
+        ],
+        "amarillo": [
+          "API3",
+          "ENA",
+          "MANA",
+          "SAPIEN"
+        ],
+        "rojo": [
+          "2Z",
+          "MOVE"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_021",
+      "santos": [
+        "GRASS",
+        "XTZ",
+        "APR",
+        "ENJ",
+        "MEME",
+        "SEI",
+        "APT",
+        "OPN"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "GRASS",
+          "XTZ"
+        ],
+        "amarillo": [
+          "APR",
+          "ENJ",
+          "MEME",
+          "SEI"
+        ],
+        "rojo": [
+          "APT",
+          "OPN"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_022",
+      "santos": [
+        "GRVT",
+        "ZAMA",
+        "AR",
+        "ENS",
+        "MET",
+        "SENT",
+        "ATH",
+        "ORDER"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "GRVT",
+          "ZAMA"
+        ],
+        "amarillo": [
+          "AR",
+          "ENS",
+          "MET",
+          "SENT"
+        ],
+        "rojo": [
+          "ATH",
+          "ORDER"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_023",
+      "santos": [
+        "HBAR",
+        "ZRO",
+        "ARB",
+        "ENSO",
+        "MINA",
+        "SHELL",
+        "AVNT",
+        "PARTI"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "HBAR",
+          "ZRO"
+        ],
+        "amarillo": [
+          "ARB",
+          "ENSO",
+          "MINA",
+          "SHELL"
+        ],
+        "rojo": [
+          "AVNT",
+          "PARTI"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_024",
+      "santos": [
+        "HUMA",
+        "ZRX",
+        "ARKM",
+        "ETHFI",
+        "MOODENG",
+        "SHIB",
+        "BARD",
+        "PIPPIN"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "HUMA",
+          "ZRX"
+        ],
+        "amarillo": [
+          "ARKM",
+          "ETHFI",
+          "MOODENG",
+          "SHIB"
+        ],
+        "rojo": [
+          "BARD",
+          "PIPPIN"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_025",
+      "santos": [
+        "INJ",
+        "ASTER",
+        "ETHW",
+        "NEIRO",
+        "SOPH",
+        "BEAT",
+        "PLUME",
+        "A"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "INJ"
+        ],
+        "amarillo": [
+          "ASTER",
+          "ETHW",
+          "NEIRO",
+          "SOPH",
+          "A"
+        ],
+        "rojo": [
+          "BEAT",
+          "PLUME"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_026",
+      "santos": [
+        "KITE",
+        "AT",
+        "FARTCOIN",
+        "NES",
+        "SPACE",
+        "BERA",
+        "RAVE",
+        "ACH"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "KITE"
+        ],
+        "amarillo": [
+          "AT",
+          "FARTCOIN",
+          "NES",
+          "SPACE",
+          "ACH"
+        ],
+        "rojo": [
+          "BERA",
+          "RAVE"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_027",
+      "santos": [
+        "KORU",
+        "AVAX",
+        "FET",
+        "NIGHT",
+        "SPK",
+        "BIGTIME",
+        "RECALL",
+        "ACT"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "KORU"
+        ],
+        "amarillo": [
+          "AVAX",
+          "FET",
+          "NIGHT",
+          "SPK",
+          "ACT"
+        ],
+        "rojo": [
+          "BIGTIME",
+          "RECALL"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    },
+    {
+      "id": "CAMP_028",
+      "santos": [
+        "LINK",
+        "BABY",
+        "FIL",
+        "NOT",
+        "SPX",
+        "BILL",
+        "RESOLV",
+        "ADA"
+      ],
+      "n": 8,
+      "por_color": {
+        "verde": [
+          "LINK"
+        ],
+        "amarillo": [
+          "BABY",
+          "FIL",
+          "NOT",
+          "SPX",
+          "ADA"
+        ],
+        "rojo": [
+          "BILL",
+          "RESOLV"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": true
+    }
+  ]
+}

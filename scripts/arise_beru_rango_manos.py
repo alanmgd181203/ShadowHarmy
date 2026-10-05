@@ -259,6 +259,7 @@ async def _hilo_beru(
         contadores["errores"] = int(contadores.get("errores") or 0) + 1
 
     await asyncio.sleep(2.0)
+    ultima_palanca = 0.0
     while not shutdown_event.is_set():
         try:
             lat = beru_rango_ojos.latido_desde_tank(beru_g.tank, activo, MERCADO)
@@ -289,6 +290,16 @@ async def _hilo_beru(
                 print(f"[RANGO] {activo} → {ev} {r}", flush=True)
         except Exception as exc:
             _registrar_pulso_exc(exc)
+        if time.time() - ultima_palanca >= 600.0:
+            ultima_palanca = time.time()
+            try:
+                from core import beru_leverage as blev
+
+                await blev.forzar_max_leverage_activo(
+                    beru_g.bridge, None, activo,
+                )
+            except Exception:
+                pass
         px = beru_rango_ojos.last_desde_tank(beru_g.tank, activo, MERCADO)
         # Caza: no sellar panel en el latido 0.1s (candado disco).
         # La crónica (~10s) mantiene la foto. Acecho sí publica (latido lento).

@@ -25,8 +25,161 @@ import core.config as config
 from core import beru_mar
 
 
-def vacio_adan_pct() -> float:
+def _sala_por_color_activa() -> bool:
+    """Sala por color en vigor. Se apaga solo con env=0/false."""
+    raw = os.getenv("BERU_RANGO_SALA_POR_COLOR", "1")
+    return str(raw or "1").strip().lower() not in ("0", "false", "no", "off")
+
+
+_PUERTA_CUOTA: dict[str, Any] = {"mtime": None, "nombres": None}
+
+
+def _ruta_puerta_cuota() -> str:
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(root, "data", "beru", "sala_cuota", "puerta.json")
+
+
+def _puerta_cuota_nombres() -> dict[str, str] | None:
+    """Lista de quien ya se ganó una puerta. None si el pergamino no existe.
+
+    El semáforo de la masa no abre esta puerta. Santo que no está en la lista
+    se queda en la sala de hoy.
+    """
+    ruta = _ruta_puerta_cuota()
+    try:
+        mtime = os.stat(ruta).st_mtime
+    except OSError:
+        _PUERTA_CUOTA["mtime"] = None
+        _PUERTA_CUOTA["nombres"] = None
+        return None
+    previo = _PUERTA_CUOTA.get("nombres")
+    if _PUERTA_CUOTA.get("mtime") == mtime and isinstance(previo, dict):
+        return previo
+    try:
+        with open(ruta, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
+    nombres: dict[str, str] = {}
+    if isinstance(data, dict):
+        for color in ("verde", "amarillo", "rojo"):
+            for santo in data.get(color) or []:
+                nombre = str(santo or "").strip().upper()
+                if nombre:
+                    nombres[nombre] = color
+    _PUERTA_CUOTA["mtime"] = mtime
+    _PUERTA_CUOTA["nombres"] = nombres
+    return nombres
+
+
+def bolsa_casa_desde_informe(activo: str | None) -> float:
+    """Notional abierto que manos dejó en el informe de piedra."""
+    act = str(activo or "").strip().upper()
+    if not act:
+        return 0.0
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ruta = os.path.join(root, "data", "beru", "rango", act, "manos_piedra_informe.json")
+    try:
+        with open(ruta, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError, TypeError):
+        return 0.0
+    total = 0.0
+    pos = data.get("posicion") if isinstance(data, dict) else None
+    if isinstance(pos, list):
+        for fila in pos:
+            if not isinstance(fila, dict):
+                continue
+            total += abs(float(fila.get("masa_usd") or 0))
+    return float(total)
+
+
+def _color_reloj(beru: Any | None) -> str | None:
+    """Sala del reloj / semáforo, sin la puerta por gordura."""
+    if beru is None:
+        return None
+    ensayo = str(getattr(beru, "puerta_ensayo", "") or "").strip().lower()
+    if ensayo in ("verde", "amarillo", "rojo", "feria", "v", "a", "r"):
+        from cirugias.sala_por_color.sala import color_sala
+
+        return color_sala(ensayo)
+    cuota = _puerta_cuota_nombres()
+    if cuota is not None:
+        act = activo_desde_beru(beru)
+        color = cuota.get(act) if act else None
+        if color in ("verde", "amarillo", "rojo"):
+            from cirugias.sala_por_color.sala import color_sala
+
+            return color_sala(color)
+        # En la lista no está: sala de hoy.
+        return "verde"
+    if not _sala_por_color_activa():
+        return None
+    color = str(getattr(beru, "semaforo_color", "") or "").strip().lower()
+    if color not in ("verde", "amarillo", "rojo", "feria", "v", "a", "r"):
+        act = activo_desde_beru(beru)
+        row = (_piedra_asignacion().get("activos") or {}).get(act) if act else None
+        if not isinstance(row, dict):
+            return None
+        color = str(row.get("semaforo") or row.get("color") or "").strip().lower()
+    if not color:
+        return None
+    from cirugias.sala_por_color.sala import color_sala
+
+    return color_sala(color)
+
+
+def _color_sala(beru: Any | None) -> str | None:
+    """Verde, amarillo o rojo del Santo.
+
+    El reloj pone la base. La gordura de la bolsa puede subir (500→amarillo,
+    1000→rojo) y solo baja con holgura (800 / 300). Se queda la más alta.
+    El ensayo del contador no mira la bolsa.
+    """
+    if beru is None:
+        return None
+    ensayo = str(getattr(beru, "puerta_ensayo", "") or "").strip().lower()
+    if ensayo in ("verde", "amarillo", "rojo", "feria", "v", "a", "r"):
+        from cirugias.sala_por_color.sala import color_sala
+
+        return color_sala(ensayo)
+    base = _color_reloj(beru)
+    if not _sala_por_color_activa():
+        return base
+    if base is None:
+        base = "verde"
+    act = activo_desde_beru(beru)
+    if not act:
+        return base
+    if not bool(getattr(beru, "bolsa_casa_leida", False)):
+        # Sin lectura de casa aún: no inventa ni baja; respeta memoria/reloj.
+        from cirugias.sala_por_color.gordura import sala_memoria, unir
+
+        return unir(base, sala_memoria(act))
+    neto = abs(float(getattr(beru, "bolsa_casa_usd", 0) or 0))
+    px = float(
+        getattr(beru, "ultimo_precio", 0)
+        or getattr(beru, "oz_adan", 0)
+        or getattr(beru, "trail_extremo", 0)
+        or getattr(beru, "cero", 0)
+        or 0
+    )
+    frente = str(getattr(beru, "frente_asignado", "") or "").strip()
+    if not frente:
+        frente = f"{act}USDT_LINEAL"
+    from cirugias.sala_por_color.gordura import actualizar, unir
+
+    gorda = actualizar(act, neto, precio=px, frente=frente)
+    return unir(base, gorda)
+
+
+def vacio_adan_pct(beru: Any | None = None) -> float:
     """Activación del trailing semilla / sangre (± desde el wake)."""
+    color = _color_sala(beru)
+    if color:
+        from cirugias.sala_por_color.sala import vacio_pct
+
+        return float(vacio_pct(color))
     return float(getattr(config, "BERU_RANGO_VACIO_PCT", 0.012) or 0.012)
 
 
@@ -35,8 +188,13 @@ def oz_gap_pct() -> float:
     return float(getattr(config, "BERU_RANGO_OZ_GAP_PCT", 0.002) or 0.002)
 
 
-def red_activacion_pct(direccion: str | None = None) -> float:
-    """Activación Red desde Oz. Piedra: L 0,7 % · S 0,8 %; normal/feria simétricos."""
+def red_activacion_pct(direccion: str | None = None, beru: Any | None = None) -> float:
+    """Activación Red desde Oz. Con sala: según color. Sin color: perfil de hoy."""
+    color = _color_sala(beru)
+    if color:
+        from cirugias.sala_por_color.sala import red_pct
+
+        return float(red_pct(color, direccion))
     d = str(direccion or "").upper()
     if d == "SHORT":
         return float(getattr(config, "BERU_RANGO_RED_DESDE_OZ_SHORT_PCT", 0.007) or 0.007)
@@ -50,7 +208,12 @@ def red_desde_oz_pct(direccion: str | None = None) -> float:
     return red_activacion_pct(direccion)
 
 
-def sangre_contraria_pct() -> float:
+def sangre_contraria_pct(beru: Any | None = None) -> float:
+    color = _color_sala(beru)
+    if color:
+        from cirugias.sala_por_color.sala import sangre_pct
+
+        return float(sangre_pct(color))
     return float(getattr(config, "BERU_RANGO_SANGRE_PCT", 0.012) or 0.012)
 
 
@@ -60,8 +223,13 @@ def sangre_estiron_activo() -> bool:
     return str(raw or "1").strip().lower() not in ("0", "false", "no", "off")
 
 
-def sangre_estiron_paso_pct() -> float:
+def sangre_estiron_paso_pct(beru: Any | None = None) -> float:
     """Metro del frente: cada este % de camino desde Oz-0 de campaña → +1 tick."""
+    color = _color_sala(beru)
+    if color:
+        from cirugias.sala_por_color.sala import estiron_paso_pct
+
+        return max(1e-9, float(estiron_paso_pct(color)))
     return max(
         1e-9,
         float(
@@ -153,7 +321,7 @@ def red_mapa_pct(beru: Any, direccion: str | None = None) -> float:
     Tumor vigilado: red_desde_ancla / restore siguen leyendo solo la base;
     este mapa es para el plantado vivo tras Oz.
     """
-    return float(red_activacion_pct(direccion)) + float(red_expansiva_extra_pct(beru))
+    return float(red_activacion_pct(direccion, beru)) + float(red_expansiva_extra_pct(beru))
 
 
 def limpiar_sangre_campana(beru: Any) -> None:
@@ -198,7 +366,7 @@ def sangre_estiron_extra_pct(beru: Any, ancla_viva: float) -> float:
     if cero <= 0 or ancla <= 0:
         return 0.0
     dist = abs(ancla - cero) / cero
-    n = int(math.floor(dist / sangre_estiron_paso_pct() + 1e-12))
+    n = int(math.floor(dist / sangre_estiron_paso_pct(beru) + 1e-12))
     if n <= 0:
         return 0.0
     return float(n) * sangre_estiron_tick_pct()
@@ -206,16 +374,18 @@ def sangre_estiron_extra_pct(beru: Any, ancla_viva: float) -> float:
 
 def sangre_mapa_pct(beru: Any, ancla_viva: float) -> float:
     """% de plantado de la oreja (1,2 % + estirón). No usar para masa/engorde."""
-    return float(sangre_contraria_pct()) + float(sangre_estiron_extra_pct(beru, ancla_viva))
+    return float(sangre_contraria_pct(beru)) + float(sangre_estiron_extra_pct(beru, ancla_viva))
 
 
-def oz0_detras_sangre_doctrinal(sangre_px: float, lado: str) -> float:
-    """Oz virtual 1,2 % detrás de la oreja — engorde sordo al estirón del mapa.
+def oz0_detras_sangre_doctrinal(
+    sangre_px: float, lado: str, base_pct: float | None = None,
+) -> float:
+    """Oz virtual a la sangre base detrás de la oreja — engorde sordo al estirón.
 
     Si la sangre está al 1,2 % real del ancla, coincide con ese ancla.
     Si el mapa la alejó, la masa al armar cuenta solo el camino doctrinal 1,2 %.
     """
-    sil = float(sangre_contraria_pct())
+    sil = float(sangre_contraria_pct() if base_pct is None else base_pct)
     px = float(sangre_px or 0)
     lado_u = str(lado or "").upper()
     if px <= 0 or sil <= 0 or sil >= 1.0:
@@ -449,6 +619,32 @@ def _masa_viva_en_px(beru: Any, px: float, *, base: float) -> float:
     tope = engorde_tope_usd(beru) if engorde_modo_peldaños_sumados() else 0.0
     return _masa_delta_peldaños(
         n, offset, base, engorde_paso_usd(), tope_por_peldaño=tope,
+    )
+
+
+def masa_al_llamado(beru: Any) -> float:
+    """La Oz que pondrá cuando el llamado se toque. No lo mueve.
+
+    Es la serie desde el cero de esa sangre hasta el precio del llamado,
+    con el techo de cada peldaño. No es la semilla ni el engorde de ahora.
+    """
+    if not engorde_modo_peldaños_sumados():
+        return max(0.0, masa_sangre_usd())
+    sil = float(sangre_contraria_pct(beru) or 0)
+    paso = float(engorde_paso_pct() or 0)
+    if sil <= 0 or paso <= 0:
+        return 0.0
+    n = max(0, int(round(sil / paso)))
+    from core import beru_rango_semaforo as sem
+
+    base = sem.serie_base_usd(beru)
+    if base is None:
+        color = sem.semaforo_resuelto(activo_desde_beru(beru), beru)
+        bando = str(getattr(beru, "pierna_bando", "") or "paz")
+        base = sem.masa_nacimiento_por_bando(color, bando)
+    tope = float(engorde_tope_usd(beru) or 0)
+    return _masa_delta_peldaños(
+        n, 0, float(base), engorde_paso_usd(), tope_por_peldaño=tope,
     )
 
 
@@ -707,6 +903,29 @@ def masa_engordada_usd(beru: Any, precio: float | None = None) -> float:
     return masa_tramo_viva_usd(beru, precio)
 
 
+def intencion_en_cabeza(beru: Any, precio: float | None = None) -> float:
+    """Lo que Beru ya tiene en la cabeza. No firma orden.
+
+    Positivo es corto. Negativo es largo. Cero si no hay lado o no hay masa.
+    """
+    masa = max(0.0, float(masa_tramo_viva_usd(beru, precio) or 0))
+    lado = str(getattr(beru, "direccion", "") or "").upper()
+    if masa <= 0 or lado not in ("LONG", "SHORT"):
+        return 0.0
+    return masa if lado == "SHORT" else -masa
+
+
+def publicar_voz(beru: Any, precio: float | None = None) -> float:
+    """La dice en este latido. Si el cálculo falla, calla en cero."""
+    try:
+        voz = float(intencion_en_cabeza(beru, precio))
+    except Exception:
+        voz = 0.0
+    if beru is not None:
+        beru.voz_intencion = voz
+    return voz
+
+
 def actualizar_engorde(beru: Any, precio: float) -> bool:
     """Engorda el tramo vivo desde ancla ($5 + peldaños)."""
     if bool(getattr(beru, "engorde_bloqueado", True)):
@@ -814,7 +1033,7 @@ def despertar(beru: Any, precio: float, *, activo: str = "") -> None:
     beru.red_adan = 0.0
     beru.oz_despliegue_px = 0.0
     beru.trail_extremo = 0.0
-    beru.llamado_tramo_pct = vacio_adan_pct()
+    beru.llamado_tramo_pct = vacio_adan_pct(beru)
     beru.oreja_sangre_activa = True
     beru.oreja_red_activa = False
     beru.sangre_vista_dentro = False
@@ -847,7 +1066,7 @@ def despertar(beru: Any, precio: float, *, activo: str = "") -> None:
 def marcar_visto_dentro(beru: Any, precio: float) -> None:
     if bool(getattr(beru, "sangre_vista_dentro", False)):
         return
-    vac = vacio_adan_pct()
+    vac = vacio_adan_pct(beru)
     if abs(pct_desde_cero(beru, precio)) <= vac + 1e-12:
         beru.sangre_vista_dentro = True
 
@@ -863,7 +1082,7 @@ def toca_vacio(beru: Any, precio: float) -> str:
     marcar_visto_dentro(beru, precio)
     if not bool(getattr(beru, "sangre_vista_dentro", False)):
         return ""
-    vac = vacio_adan_pct()
+    vac = vacio_adan_pct(beru)
     pct = pct_desde_cero(beru, precio)
     if pct >= vac - 1e-12:
         return "ARRIBA"
@@ -939,7 +1158,7 @@ def armar_tramo_desde_vacio(
 ) -> float:
     """Vacío ±1,2 → trailing; hasta_oz nace con masa hasta la Oz (~1 %)."""
     lado_u = str(lado or "").upper()
-    vac = vacio_adan_pct()
+    vac = vacio_adan_pct(beru)
     if lado_u == "ARRIBA":
         px = float(precio or 0) or precio_desde_cero(beru, vac)
         beru.origen_tramo = "VACIO"
@@ -1060,7 +1279,7 @@ def toca_sangre(beru: Any, precio: float) -> bool:
             return px >= sangre_px - 1e-12
         return False
     # Respaldo legacy: ±1,2 desde wake (semillas viejas sin sangre_adan).
-    sil = float(getattr(beru, "llamado_tramo_pct", 0) or sangre_contraria_pct())
+    sil = float(getattr(beru, "llamado_tramo_pct", 0) or sangre_contraria_pct(beru))
     pct = pct_desde_cero(beru, px)
     if lado == "ABAJO":
         return pct <= -sil + 1e-12
@@ -1243,11 +1462,11 @@ def latido_sugerido_s(
     if red > 0 and bool(getattr(beru, "oreja_red_activa", False)):
         candidatos.append(red)
     cero = cero_wake(beru)
-    vac = vacio_adan_pct()
+    vac = vacio_adan_pct(beru)
     if cero > 0 and not bool(getattr(beru, "es_relevo_cazador", False)):
         candidatos.extend([cero * (1.0 + vac), cero * (1.0 - vac)])
     lado = str(getattr(beru, "sangre_lado", "") or "").upper()
-    sil = sangre_contraria_pct()
+    sil = sangre_contraria_pct(beru)
     if bool(getattr(beru, "oreja_sangre_activa", False)):
         sangre_px = float(getattr(beru, "sangre_adan", 0) or 0)
         if sangre_px > 0:
@@ -1284,9 +1503,9 @@ def _plantar_orejas_post_oz(beru: Any, ancla_red: float, direccion: str) -> None
     Red: con expansiva OFF, idéntica a la base; con ON, se aleja por escalones.
     """
     d = str(direccion or "").upper()
-    red_base = red_activacion_pct(d)
+    red_base = red_activacion_pct(d, beru)
     red_act = red_mapa_pct(beru, d) if beru is not None else red_base
-    sil_doc = sangre_contraria_pct()
+    sil_doc = sangre_contraria_pct(beru)
     ancla = float(ancla_red or 0)
     sil_mapa = sangre_mapa_pct(beru, ancla) if ancla > 0 else sil_doc
     # Sordo al estirón: cualquier código que lea el % del tramo ve 1,2 %.
@@ -1363,6 +1582,17 @@ def restaurar_acecho_post_oz(
             red_mapa_px = oz_dep * (1.0 - red_act)
             if red_px < red_mapa_px * (1.0 - 1e-6):
                 red_px = red_mapa_px
+    # Sala más ancha que la oreja sellada: el acecho adopta el mapa nuevo.
+    # Si la red ya está más lejos (expansiva), no se acerca.
+    if oz_dep > 0 and red_act > 0 and _color_sala(beru):
+        if hoz == "SHORT":
+            red_sala = oz_dep * (1.0 + red_act)
+            if red_px < red_sala * (1.0 - 1e-6):
+                red_px = red_sala
+        else:
+            red_sala = oz_dep * (1.0 - red_act)
+            if red_px > red_sala * (1.0 + 1e-6):
+                red_px = red_sala
     beru.cero_wake = wake
     beru.centro_local = wake
     beru.ancla_tramo = wake
@@ -1380,7 +1610,7 @@ def restaurar_acecho_post_oz(
     beru.engorde_bloqueado = True
     beru.ultima_hoz_direccion = hoz
     beru.sangre_lado = lado or ("ABAJO" if hoz == "SHORT" else "ARRIBA")
-    beru.llamado_tramo_pct = sangre_contraria_pct()
+    beru.llamado_tramo_pct = sangre_contraria_pct(beru)
     beru.red_adan = red_px
     # % coherente con el precio plantado (mapa; OFF = base).
     beru.red_pct = red_act if beru.sangre_lado == "ABAJO" else -red_act
@@ -1445,7 +1675,7 @@ def restaurar_acecho_post_oz(
         beru.sangre_adan = sangre_abs
         beru.sangre_mapa_pct = 0.0
     else:
-        sil = sangre_contraria_pct()
+        sil = sangre_contraria_pct(beru)
         beru.sangre_mapa_pct = float(sil)
         if beru.sangre_lado == "ABAJO":
             beru.sangre_adan = ancla_sangre * (1.0 - sil)
@@ -1641,7 +1871,7 @@ def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
     limpiar_masa_pendiente(beru)
     _cancelar_red(beru)
     lado = str(getattr(beru, "sangre_lado", "") or "").upper()
-    vac = vacio_adan_pct()
+    vac = vacio_adan_pct(beru)
     sangre_px = float(getattr(beru, "sangre_adan", 0) or 0)
     # Fin de campaña: el próximo Oz del otro lado nace con estirón 0.
     limpiar_sangre_campana(beru)
@@ -1663,7 +1893,7 @@ def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
 
     def _arm(short: bool, px: float, base: float, lado_sangre: str) -> float:
         beru.origen_tramo = "SANGRE"
-        oz0_doc = oz0_detras_sangre_doctrinal(px, lado_sangre)
+        oz0_doc = oz0_detras_sangre_doctrinal(px, lado_sangre, sangre_contraria_pct(beru))
         if engorde_modo_hasta_oz():
             if oz0_doc > 0:
                 beru.engorde_cero_oz_px = oz0_doc

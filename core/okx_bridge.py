@@ -339,32 +339,31 @@ class OkxBridge:
   async def set_leverage(self, symbol_or_inst: str, leverage: int, category: str = "linear"):
     inst = self._symbol_to_inst(symbol_or_inst)
     lev = str(int(leverage))
-    await self.asegurar_modo_piernas()
+    cuerpo = {"instId": inst, "lever": lev, "mgnMode": "cross"}
     try:
-      # En long_short_mode OKX pide apalancamiento por pierna.
-      for pos_side in ("long", "short"):
-        data = await asyncio.to_thread(
-          okx_rest.post_private,
-          "/api/v5/account/set-leverage",
-          {"instId": inst, "lever": lev, "mgnMode": "cross", "posSide": pos_side},
-        )
-        _ = data
-      return OrdenResultado(True, mensaje="OK")
+      await asyncio.to_thread(
+        okx_rest.post_private, "/api/v5/account/set-leverage", cuerpo,
+      )
+      return OrdenResultado(True, mensaje="OK_net")
     except okx_rest.OkxRestError as exc:
       msg = str(exc)
       if "leverage" in msg.lower() and "same" in msg.lower():
         return OrdenResultado(True, mensaje=msg)
-      # Fallback neto (cuenta aún sin piernas): un solo set sin posSide.
-      try:
-        data = await asyncio.to_thread(
+      if "posSide" not in msg and "posside" not in msg.lower():
+        return OrdenResultado(False, mensaje=msg)
+    try:
+      for pos_side in ("long", "short"):
+        await asyncio.to_thread(
           okx_rest.post_private,
           "/api/v5/account/set-leverage",
-          {"instId": inst, "lever": lev, "mgnMode": "cross"},
+          {**cuerpo, "posSide": pos_side},
         )
-        _ = data
-        return OrdenResultado(True, mensaje="OK_net_fallback")
-      except okx_rest.OkxRestError as exc2:
-        return OrdenResultado(False, mensaje=str(exc2))
+      return OrdenResultado(True, mensaje="OK")
+    except okx_rest.OkxRestError as exc2:
+      msg2 = str(exc2)
+      if "leverage" in msg2.lower() and "same" in msg2.lower():
+        return OrdenResultado(True, mensaje=msg2)
+      return OrdenResultado(False, mensaje=msg2)
 
   async def place_order(
     self,

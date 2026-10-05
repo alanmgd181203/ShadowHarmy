@@ -418,7 +418,7 @@ def aplicar_mover_limite(
 def escudo_peldaño_usd() -> float:
     """Ancho del peldaño del escudo (USD).
 
-    Sellado Monarca 2026-09-25: **$1000** (antes $500).
+    Sellado Monarca 2026-09-29: **$250**. El polvo sigue en 250.
     La meta no usa el piso en cada latido: ver ``neto_peldaño_atrasado``.
     """
     return max(
@@ -426,20 +426,20 @@ def escudo_peldaño_usd() -> float:
         float(
             os.getenv("IGRIS_ESCUDO_BTC_PELDANO_USD")
             or os.getenv("IGRIS_ESCUDO_BTC_PELDAÑO_USD")
-            or getattr(config, "IGRIS_ESCUDO_BTC_PELDAÑO_USD", 1000.0)
-            or 1000.0
+            or getattr(config, "IGRIS_ESCUDO_BTC_PELDAÑO_USD", 250.0)
+            or 250.0
         ),
     )
 
 
 def escudo_activar_usd() -> float:
-    """Primera activación: |neto| en peldaños ≥ esto (1000 = 1× peldaño)."""
+    """Primera silla: hay que pasar el polvo y un escalón más. No es el mismo dólar."""
     return max(
         0.0,
         float(
             os.getenv("IGRIS_ESCUDO_BTC_ACTIVAR_USD")
-            or getattr(config, "IGRIS_ESCUDO_BTC_ACTIVAR_USD", 1000.0)
-            or 1000.0
+            or getattr(config, "IGRIS_ESCUDO_BTC_ACTIVAR_USD", 500.0)
+            or 500.0
         ),
     )
 

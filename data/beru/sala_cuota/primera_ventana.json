@@ -1,0 +1,4345 @@
+{
+  "cuando": "2026-09-28 16:45:03",
+  "nota": "Papel. Dos ventanas de tres días. Firma solo si la misma sala sale dos veces. Nadie fue movido de color.",
+  "piso_toques": 3,
+  "mantiene_si": "dos tercios de la puerta de hoy",
+  "firmas": {
+    "verde": 156,
+    "espera": 64,
+    "amarillo": 8
+  },
+  "santos": [
+    {
+      "santo": "1INCH",
+      "ventanas": {
+        "previa": {
+          "verde": 40,
+          "amarillo": 24,
+          "rojo": 16,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 25,
+          "amarillo": 13,
+          "rojo": 6,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "MASK",
+      "ventanas": {
+        "previa": {
+          "verde": 41,
+          "amarillo": 23,
+          "rojo": 15,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 31,
+          "amarillo": 23,
+          "rojo": 17,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "BAND",
+      "ventanas": {
+        "previa": {
+          "verde": 44,
+          "amarillo": 25,
+          "rojo": 14,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 32,
+          "amarillo": 18,
+          "rojo": 11,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "FOGO",
+      "ventanas": {
+        "previa": {
+          "verde": 79,
+          "amarillo": 43,
+          "rojo": 24,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 78,
+          "amarillo": 42,
+          "rojo": 29,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "OFC",
+      "ventanas": {
+        "previa": {
+          "verde": 141,
+          "amarillo": 74,
+          "rojo": 41,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 87,
+          "amarillo": 46,
+          "rojo": 30,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "SUI",
+      "ventanas": {
+        "previa": {
+          "verde": 101,
+          "amarillo": 65,
+          "rojo": 37,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 99,
+          "amarillo": 53,
+          "rojo": 31,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "BRETT",
+      "ventanas": {
+        "previa": {
+          "verde": 80,
+          "amarillo": 50,
+          "rojo": 36,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 75,
+          "amarillo": 56,
+          "rojo": 32,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "RIVER",
+      "ventanas": {
+        "previa": {
+          "verde": 104,
+          "amarillo": 48,
+          "rojo": 34,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 47,
+          "amarillo": 27,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "ACU",
+      "ventanas": {
+        "previa": {
+          "verde": 92,
+          "amarillo": 59,
+          "rojo": 41,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 61,
+          "amarillo": 30,
+          "rojo": 20,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "MON",
+      "ventanas": {
+        "previa": {
+          "verde": 92,
+          "amarillo": 38,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 138,
+          "amarillo": 83,
+          "rojo": 55,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "BASED",
+      "ventanas": {
+        "previa": {
+          "verde": 51,
+          "amarillo": 36,
+          "rojo": 15,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 70,
+          "amarillo": 38,
+          "rojo": 22,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "GMT",
+      "ventanas": {
+        "previa": {
+          "verde": 59,
+          "amarillo": 30,
+          "rojo": 15,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 43,
+          "amarillo": 20,
+          "rojo": 11,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "OL",
+      "ventanas": {
+        "previa": {
+          "verde": 153,
+          "amarillo": 105,
+          "rojo": 57,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 91,
+          "amarillo": 52,
+          "rojo": 32,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "SUSHI",
+      "ventanas": {
+        "previa": {
+          "verde": 105,
+          "amarillo": 60,
+          "rojo": 35,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 54,
+          "amarillo": 36,
+          "rojo": 17,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "BSB",
+      "ventanas": {
+        "previa": {
+          "verde": 60,
+          "amarillo": 21,
+          "rojo": 16,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 35,
+          "amarillo": 17,
+          "rojo": 9,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "S",
+      "ventanas": {
+        "previa": {
+          "verde": 93,
+          "amarillo": 52,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 52,
+          "amarillo": 27,
+          "rojo": 17,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "AEON",
+      "ventanas": {
+        "previa": {
+          "verde": 104,
+          "amarillo": 78,
+          "rojo": 48,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 53,
+          "amarillo": 30,
+          "rojo": 22,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "NEAR",
+      "ventanas": {
+        "previa": {
+          "verde": 218,
+          "amarillo": 130,
+          "rojo": 89,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 127,
+          "amarillo": 66,
+          "rojo": 37,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "BAT",
+      "ventanas": {
+        "previa": {
+          "verde": 61,
+          "amarillo": 38,
+          "rojo": 26,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 37,
+          "amarillo": 19,
+          "rojo": 16,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "GRT",
+      "ventanas": {
+        "previa": {
+          "verde": 138,
+          "amarillo": 75,
+          "rojo": 41,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 106,
+          "amarillo": 91,
+          "rojo": 58,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "ONE",
+      "ventanas": {
+        "previa": {
+          "verde": 767,
+          "amarillo": 620,
+          "rojo": 481,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 410,
+          "amarillo": 270,
+          "rojo": 191,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "THETA",
+      "ventanas": {
+        "previa": {
+          "verde": 69,
+          "amarillo": 28,
+          "rojo": 19,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 38,
+          "amarillo": 29,
+          "rojo": 13,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "COAI",
+      "ventanas": {
+        "previa": {
+          "verde": 55,
+          "amarillo": 30,
+          "rojo": 20,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 33,
+          "amarillo": 21,
+          "rojo": 10,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "SAHARA",
+      "ventanas": {
+        "previa": {
+          "verde": 52,
+          "amarillo": 28,
+          "rojo": 14,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 43,
+          "amarillo": 26,
+          "rojo": 11,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "ALGO",
+      "ventanas": {
+        "previa": {
+          "verde": 48,
+          "amarillo": 30,
+          "rojo": 22,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 109,
+          "amarillo": 56,
+          "rojo": 40,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "ONT",
+      "ventanas": {
+        "previa": {
+          "verde": 37,
+          "amarillo": 25,
+          "rojo": 11,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 38,
+          "amarillo": 21,
+          "rojo": 13,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "BICO",
+      "ventanas": {
+        "previa": {
+          "verde": 68,
+          "amarillo": 31,
+          "rojo": 17,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 52,
+          "amarillo": 33,
+          "rojo": 17,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "HMSTR",
+      "ventanas": {
+        "previa": {
+          "verde": 41,
+          "amarillo": 25,
+          "rojo": 12,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 33,
+          "amarillo": 15,
+          "rojo": 11,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "OP",
+      "ventanas": {
+        "previa": {
+          "verde": 121,
+          "amarillo": 75,
+          "rojo": 50,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 71,
+          "amarillo": 31,
+          "rojo": 23,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "TIA",
+      "ventanas": {
+        "previa": {
+          "verde": 147,
+          "amarillo": 81,
+          "rojo": 47,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 66,
+          "amarillo": 28,
+          "rojo": 22,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "CORE",
+      "ventanas": {
+        "previa": {
+          "verde": 138,
+          "amarillo": 67,
+          "rojo": 52,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 66,
+          "amarillo": 37,
+          "rojo": 23,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "SIGN",
+      "ventanas": {
+        "previa": {
+          "verde": 59,
+          "amarillo": 29,
+          "rojo": 23,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 48,
+          "amarillo": 32,
+          "rojo": 24,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "ARX",
+      "ventanas": {
+        "previa": {
+          "verde": 170,
+          "amarillo": 102,
+          "rojo": 52,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 233,
+          "amarillo": 147,
+          "rojo": 102,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "ORDI",
+      "ventanas": {
+        "previa": {
+          "verde": 67,
+          "amarillo": 36,
+          "rojo": 26,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 62,
+          "amarillo": 35,
+          "rojo": 26,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "BIO",
+      "ventanas": {
+        "previa": {
+          "verde": 95,
+          "amarillo": 59,
+          "rojo": 32,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 51,
+          "amarillo": 23,
+          "rojo": 14,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "ICP",
+      "ventanas": {
+        "previa": {
+          "verde": 94,
+          "amarillo": 58,
+          "rojo": 32,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 57,
+          "amarillo": 27,
+          "rojo": 12,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "OPG",
+      "ventanas": {
+        "previa": {
+          "verde": 55,
+          "amarillo": 36,
+          "rojo": 21,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 42,
+          "amarillo": 33,
+          "rojo": 25,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "TRIA",
+      "ventanas": {
+        "previa": {
+          "verde": 118,
+          "amarillo": 75,
+          "rojo": 56,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 164,
+          "amarillo": 106,
+          "rojo": 67,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "EDEN",
+      "ventanas": {
+        "previa": {
+          "verde": 87,
+          "amarillo": 54,
+          "rojo": 33,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 59,
+          "amarillo": 38,
+          "rojo": 26,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "SLX",
+      "ventanas": {
+        "previa": {
+          "verde": 95,
+          "amarillo": 51,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 35,
+          "amarillo": 19,
+          "rojo": 15,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "ATOM",
+      "ventanas": {
+        "previa": {
+          "verde": 59,
+          "amarillo": 25,
+          "rojo": 24,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 40,
+          "amarillo": 25,
+          "rojo": 13,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "PENDLE",
+      "ventanas": {
+        "previa": {
+          "verde": 87,
+          "amarillo": 51,
+          "rojo": 36,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 52,
+          "amarillo": 32,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "BLUR",
+      "ventanas": {
+        "previa": {
+          "verde": 50,
+          "amarillo": 20,
+          "rojo": 15,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 49,
+          "amarillo": 32,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "IMX",
+      "ventanas": {
+        "previa": {
+          "verde": 69,
+          "amarillo": 35,
+          "rojo": 22,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 108,
+          "amarillo": 73,
+          "rojo": 48,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1729
+    },
+    {
+      "santo": "PENGU",
+      "ventanas": {
+        "previa": {
+          "verde": 171,
+          "amarillo": 97,
+          "rojo": 59,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 104,
+          "amarillo": 58,
+          "rojo": 33,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "TRUMP",
+      "ventanas": {
+        "previa": {
+          "verde": 87,
+          "amarillo": 47,
+          "rojo": 27,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 59,
+          "amarillo": 36,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "EIGEN",
+      "ventanas": {
+        "previa": {
+          "verde": 124,
+          "amarillo": 69,
+          "rojo": 45,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 108,
+          "amarillo": 59,
+          "rojo": 32,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1729
+    },
+    {
+      "santo": "SNX",
+      "ventanas": {
+        "previa": {
+          "verde": 114,
+          "amarillo": 56,
+          "rojo": 38,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 40,
+          "amarillo": 28,
+          "rojo": 23,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "AXS",
+      "ventanas": {
+        "previa": {
+          "verde": 97,
+          "amarillo": 60,
+          "rojo": 33,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 42,
+          "amarillo": 18,
+          "rojo": 9,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "PEOPLE",
+      "ventanas": {
+        "previa": {
+          "verde": 97,
+          "amarillo": 47,
+          "rojo": 27,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 60,
+          "amarillo": 31,
+          "rojo": 19,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "BONK",
+      "ventanas": {
+        "previa": {
+          "verde": 164,
+          "amarillo": 111,
+          "rojo": 53,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 79,
+          "amarillo": 47,
+          "rojo": 23,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "INIT",
+      "ventanas": {
+        "previa": {
+          "verde": 67,
+          "amarillo": 39,
+          "rojo": 22,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 50,
+          "amarillo": 34,
+          "rojo": 23,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "PI",
+      "ventanas": {
+        "previa": {
+          "verde": 38,
+          "amarillo": 22,
+          "rojo": 13,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 20,
+          "amarillo": 8,
+          "rojo": 1,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "TRUTH",
+      "ventanas": {
+        "previa": {
+          "verde": 11,
+          "amarillo": 3,
+          "rojo": 2,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 15,
+          "amarillo": 8,
+          "rojo": 5,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "F",
+      "ventanas": {
+        "previa": {
+          "verde": 30,
+          "amarillo": 19,
+          "rojo": 13,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 30,
+          "amarillo": 9,
+          "rojo": 6,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "SOON",
+      "ventanas": {
+        "previa": {
+          "verde": 48,
+          "amarillo": 21,
+          "rojo": 11,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 410,
+          "amarillo": 288,
+          "rojo": 199,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "AZTEC",
+      "ventanas": {
+        "previa": {
+          "verde": 68,
+          "amarillo": 41,
+          "rojo": 22,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 155,
+          "amarillo": 112,
+          "rojo": 76,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "POL",
+      "ventanas": {
+        "previa": {
+          "verde": 60,
+          "amarillo": 28,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 57,
+          "amarillo": 37,
+          "rojo": 19,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "BREV",
+      "ventanas": {
+        "previa": {
+          "verde": 38,
+          "amarillo": 23,
+          "rojo": 11,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 22,
+          "amarillo": 20,
+          "rojo": 9,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "IOTA",
+      "ventanas": {
+        "previa": {
+          "verde": 77,
+          "amarillo": 41,
+          "rojo": 25,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 123,
+          "amarillo": 73,
+          "rojo": 43,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "PNUT",
+      "ventanas": {
+        "previa": {
+          "verde": 71,
+          "amarillo": 40,
+          "rojo": 24,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 47,
+          "amarillo": 28,
+          "rojo": 17,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "WCT",
+      "ventanas": {
+        "previa": {
+          "verde": 61,
+          "amarillo": 33,
+          "rojo": 19,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 47,
+          "amarillo": 30,
+          "rojo": 12,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "FLOW",
+      "ventanas": {
+        "previa": {
+          "verde": 92,
+          "amarillo": 53,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 62,
+          "amarillo": 28,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "STRK",
+      "ventanas": {
+        "previa": {
+          "verde": 93,
+          "amarillo": 57,
+          "rojo": 31,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 72,
+          "amarillo": 43,
+          "rojo": 27,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "BLEND",
+      "ventanas": {
+        "previa": {
+          "verde": 16,
+          "amarillo": 8,
+          "rojo": 4,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 23,
+          "amarillo": 13,
+          "rojo": 9,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "RENDER",
+      "ventanas": {
+        "previa": {
+          "verde": 72,
+          "amarillo": 46,
+          "rojo": 24,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 62,
+          "amarillo": 39,
+          "rojo": 21,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "CELO",
+      "ventanas": {
+        "previa": {
+          "verde": 39,
+          "amarillo": 21,
+          "rojo": 14,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 61,
+          "amarillo": 34,
+          "rojo": 22,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "IRYS",
+      "ventanas": {
+        "previa": {
+          "verde": 42,
+          "amarillo": 23,
+          "rojo": 10,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 83,
+          "amarillo": 55,
+          "rojo": 43,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "PONS",
+      "ventanas": {
+        "previa": {
+          "verde": 169,
+          "amarillo": 103,
+          "rojo": 65,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 100,
+          "amarillo": 59,
+          "rojo": 38,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "WET",
+      "ventanas": {
+        "previa": {
+          "verde": 35,
+          "amarillo": 19,
+          "rojo": 9,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 23,
+          "amarillo": 14,
+          "rojo": 7,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "GALA",
+      "ventanas": {
+        "previa": {
+          "verde": 79,
+          "amarillo": 49,
+          "rojo": 27,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 97,
+          "amarillo": 49,
+          "rojo": 31,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "TRUST",
+      "ventanas": {
+        "previa": {
+          "verde": 33,
+          "amarillo": 20,
+          "rojo": 11,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 108,
+          "amarillo": 75,
+          "rojo": 51,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "BZ",
+      "ventanas": {
+        "previa": {
+          "verde": 14,
+          "amarillo": 8,
+          "rojo": 5,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 14,
+          "amarillo": 8,
+          "rojo": 5,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "SNDK",
+      "ventanas": {
+        "previa": {
+          "verde": 25,
+          "amarillo": 16,
+          "rojo": 9,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 11,
+          "amarillo": 8,
+          "rojo": 7,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "CFX",
+      "ventanas": {
+        "previa": {
+          "verde": 57,
+          "amarillo": 28,
+          "rojo": 17,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 48,
+          "amarillo": 28,
+          "rojo": 13,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "JTO",
+      "ventanas": {
+        "previa": {
+          "verde": 77,
+          "amarillo": 54,
+          "rojo": 39,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 87,
+          "amarillo": 63,
+          "rojo": 30,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "amarillo",
+      "velas": 1730
+    },
+    {
+      "santo": "POPCAT",
+      "ventanas": {
+        "previa": {
+          "verde": 96,
+          "amarillo": 60,
+          "rojo": 34,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 60,
+          "amarillo": 35,
+          "rojo": 25,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "WIF",
+      "ventanas": {
+        "previa": {
+          "verde": 116,
+          "amarillo": 61,
+          "rojo": 44,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 70,
+          "amarillo": 35,
+          "rojo": 20,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "H",
+      "ventanas": {
+        "previa": {
+          "verde": 175,
+          "amarillo": 105,
+          "rojo": 72,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 128,
+          "amarillo": 73,
+          "rojo": 44,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "USELESS",
+      "ventanas": {
+        "previa": {
+          "verde": 234,
+          "amarillo": 157,
+          "rojo": 99,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 133,
+          "amarillo": 93,
+          "rojo": 58,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "amarillo",
+      "velas": 1730
+    },
+    {
+      "santo": "CASHCAT",
+      "ventanas": {
+        "previa": {
+          "verde": 263,
+          "amarillo": 158,
+          "rojo": 91,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 230,
+          "amarillo": 139,
+          "rojo": 88,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "SNXX",
+      "ventanas": {
+        "previa": {
+          "verde": 81,
+          "amarillo": 49,
+          "rojo": 31,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 26,
+          "amarillo": 15,
+          "rojo": 13,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "CHZ",
+      "ventanas": {
+        "previa": {
+          "verde": 61,
+          "amarillo": 36,
+          "rojo": 17,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 34,
+          "amarillo": 20,
+          "rojo": 7,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "KAITO",
+      "ventanas": {
+        "previa": {
+          "verde": 86,
+          "amarillo": 55,
+          "rojo": 28,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 55,
+          "amarillo": 35,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "PROS",
+      "ventanas": {
+        "previa": {
+          "verde": 87,
+          "amarillo": 60,
+          "rojo": 43,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 112,
+          "amarillo": 75,
+          "rojo": 55,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "amarillo",
+      "velas": 1730
+    },
+    {
+      "santo": "WLD",
+      "ventanas": {
+        "previa": {
+          "verde": 90,
+          "amarillo": 54,
+          "rojo": 34,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 122,
+          "amarillo": 75,
+          "rojo": 46,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "HOME",
+      "ventanas": {
+        "previa": {
+          "verde": 76,
+          "amarillo": 45,
+          "rojo": 30,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 36,
+          "amarillo": 14,
+          "rojo": 13,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "W",
+      "ventanas": {
+        "previa": {
+          "verde": 79,
+          "amarillo": 39,
+          "rojo": 19,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 238,
+          "amarillo": 139,
+          "rojo": 76,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "CC",
+      "ventanas": {
+        "previa": {
+          "verde": 69,
+          "amarillo": 34,
+          "rojo": 26,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 134,
+          "amarillo": 78,
+          "rojo": 49,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "SOL",
+      "ventanas": {
+        "previa": {
+          "verde": 37,
+          "amarillo": 18,
+          "rojo": 11,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 22,
+          "amarillo": 9,
+          "rojo": 4,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "CNPY",
+      "ventanas": {
+        "previa": {
+          "verde": 203,
+          "amarillo": 119,
+          "rojo": 66,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 94,
+          "amarillo": 65,
+          "rojo": 40,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "KAT",
+      "ventanas": {
+        "previa": {
+          "verde": 48,
+          "amarillo": 21,
+          "rojo": 13,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 35,
+          "amarillo": 26,
+          "rojo": 7,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "PROVE",
+      "ventanas": {
+        "previa": {
+          "verde": 56,
+          "amarillo": 26,
+          "rojo": 14,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 28,
+          "amarillo": 19,
+          "rojo": 9,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "WLFI",
+      "ventanas": {
+        "previa": {
+          "verde": 33,
+          "amarillo": 14,
+          "rojo": 10,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 25,
+          "amarillo": 13,
+          "rojo": 11,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "LA",
+      "ventanas": {
+        "previa": {
+          "verde": 59,
+          "amarillo": 31,
+          "rojo": 20,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 61,
+          "amarillo": 30,
+          "rojo": 19,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "WAL",
+      "ventanas": {
+        "previa": {
+          "verde": 66,
+          "amarillo": 30,
+          "rojo": 22,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 55,
+          "amarillo": 37,
+          "rojo": 26,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "CRV",
+      "ventanas": {
+        "previa": {
+          "verde": 75,
+          "amarillo": 41,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 64,
+          "amarillo": 43,
+          "rojo": 23,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "SOXL",
+      "ventanas": {
+        "previa": {
+          "verde": 77,
+          "amarillo": 39,
+          "rojo": 32,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 41,
+          "amarillo": 28,
+          "rojo": 18,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "CP",
+      "ventanas": {
+        "previa": {
+          "verde": 93,
+          "amarillo": 42,
+          "rojo": 27,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 78,
+          "amarillo": 41,
+          "rojo": 26,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "KGEN",
+      "ventanas": {
+        "previa": {
+          "verde": 38,
+          "amarillo": 23,
+          "rojo": 14,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 41,
+          "amarillo": 22,
+          "rojo": 12,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "PYTH",
+      "ventanas": {
+        "previa": {
+          "verde": 128,
+          "amarillo": 73,
+          "rojo": 39,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 136,
+          "amarillo": 88,
+          "rojo": 53,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "WOO",
+      "ventanas": {
+        "previa": {
+          "verde": 40,
+          "amarillo": 23,
+          "rojo": 10,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 59,
+          "amarillo": 31,
+          "rojo": 22,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "LAB",
+      "ventanas": {
+        "previa": {
+          "verde": 104,
+          "amarillo": 59,
+          "rojo": 42,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 33,
+          "amarillo": 18,
+          "rojo": 10,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "XPL",
+      "ventanas": {
+        "previa": {
+          "verde": 266,
+          "amarillo": 162,
+          "rojo": 96,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 140,
+          "amarillo": 80,
+          "rojo": 50,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "DATA",
+      "ventanas": {
+        "previa": {
+          "verde": 81,
+          "amarillo": 53,
+          "rojo": 42,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 52,
+          "amarillo": 32,
+          "rojo": 21,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "SPCX",
+      "ventanas": {
+        "previa": {
+          "verde": 9,
+          "amarillo": 3,
+          "rojo": 3,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 8,
+          "amarillo": 6,
+          "rojo": 3,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "AEVO",
+      "ventanas": {
+        "previa": {
+          "verde": 69,
+          "amarillo": 30,
+          "rojo": 17,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 43,
+          "amarillo": 18,
+          "rojo": 10,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "CRO",
+      "ventanas": {
+        "previa": {
+          "verde": 52,
+          "amarillo": 29,
+          "rojo": 15,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 52,
+          "amarillo": 26,
+          "rojo": 15,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "LAYER",
+      "ventanas": {
+        "previa": {
+          "verde": 27,
+          "amarillo": 11,
+          "rojo": 7,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 42,
+          "amarillo": 31,
+          "rojo": 27,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "RAY",
+      "ventanas": {
+        "previa": {
+          "verde": 157,
+          "amarillo": 100,
+          "rojo": 71,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 95,
+          "amarillo": 57,
+          "rojo": 37,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "ZBT",
+      "ventanas": {
+        "previa": {
+          "verde": 67,
+          "amarillo": 38,
+          "rojo": 18,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 33,
+          "amarillo": 19,
+          "rojo": 6,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "LIGHT",
+      "ventanas": {
+        "previa": {
+          "verde": 92,
+          "amarillo": 50,
+          "rojo": 35,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 61,
+          "amarillo": 34,
+          "rojo": 17,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "YB",
+      "ventanas": {
+        "previa": {
+          "verde": 41,
+          "amarillo": 23,
+          "rojo": 12,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 54,
+          "amarillo": 40,
+          "rojo": 27,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "DOGE",
+      "ventanas": {
+        "previa": {
+          "verde": 59,
+          "amarillo": 29,
+          "rojo": 20,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 31,
+          "amarillo": 17,
+          "rojo": 8,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "STX",
+      "ventanas": {
+        "previa": {
+          "verde": 70,
+          "amarillo": 34,
+          "rojo": 23,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 55,
+          "amarillo": 38,
+          "rojo": 23,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "AGLD",
+      "ventanas": {
+        "previa": {
+          "verde": 45,
+          "amarillo": 24,
+          "rojo": 14,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 42,
+          "amarillo": 20,
+          "rojo": 13,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "DASH",
+      "ventanas": {
+        "previa": {
+          "verde": 124,
+          "amarillo": 65,
+          "rojo": 38,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 94,
+          "amarillo": 46,
+          "rojo": 27,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "LDO",
+      "ventanas": {
+        "previa": {
+          "verde": 115,
+          "amarillo": 62,
+          "rojo": 44,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 81,
+          "amarillo": 43,
+          "rojo": 21,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "RLS",
+      "ventanas": {
+        "previa": {
+          "verde": 168,
+          "amarillo": 111,
+          "rojo": 62,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 96,
+          "amarillo": 61,
+          "rojo": 44,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "ZEN",
+      "ventanas": {
+        "previa": {
+          "verde": 97,
+          "amarillo": 62,
+          "rojo": 36,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 63,
+          "amarillo": 43,
+          "rojo": 28,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "LINEA",
+      "ventanas": {
+        "previa": {
+          "verde": 49,
+          "amarillo": 32,
+          "rojo": 17,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 59,
+          "amarillo": 32,
+          "rojo": 25,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "YGG",
+      "ventanas": {
+        "previa": {
+          "verde": 64,
+          "amarillo": 38,
+          "rojo": 23,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 38,
+          "amarillo": 17,
+          "rojo": 14,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "DOS",
+      "ventanas": {
+        "previa": {
+          "verde": 58,
+          "amarillo": 35,
+          "rojo": 18,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 34,
+          "amarillo": 16,
+          "rojo": 10,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "SYRUP",
+      "ventanas": {
+        "previa": {
+          "verde": 69,
+          "amarillo": 40,
+          "rojo": 23,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 50,
+          "amarillo": 31,
+          "rojo": 19,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "AI",
+      "ventanas": {
+        "previa": {
+          "verde": 55,
+          "amarillo": 26,
+          "rojo": 17,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 32,
+          "amarillo": 18,
+          "rojo": 9,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "DGAI",
+      "ventanas": {
+        "previa": {
+          "verde": 14,
+          "amarillo": 10,
+          "rojo": 4,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 8,
+          "amarillo": 4,
+          "rojo": 2,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "LPT",
+      "ventanas": {
+        "previa": {
+          "verde": 73,
+          "amarillo": 41,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 57,
+          "amarillo": 41,
+          "rojo": 21,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "ROBO",
+      "ventanas": {
+        "previa": {
+          "verde": 72,
+          "amarillo": 38,
+          "rojo": 20,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 60,
+          "amarillo": 37,
+          "rojo": 22,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "ZETA",
+      "ventanas": {
+        "previa": {
+          "verde": 114,
+          "amarillo": 54,
+          "rojo": 40,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 63,
+          "amarillo": 41,
+          "rojo": 23,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "ME",
+      "ventanas": {
+        "previa": {
+          "verde": 52,
+          "amarillo": 32,
+          "rojo": 20,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 43,
+          "amarillo": 31,
+          "rojo": 16,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "ZK",
+      "ventanas": {
+        "previa": {
+          "verde": 100,
+          "amarillo": 65,
+          "rojo": 41,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 61,
+          "amarillo": 35,
+          "rojo": 26,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "ETC",
+      "ventanas": {
+        "previa": {
+          "verde": 126,
+          "amarillo": 69,
+          "rojo": 37,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 44,
+          "amarillo": 20,
+          "rojo": 12,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1730
+    },
+    {
+      "santo": "VIRTUAL",
+      "ventanas": {
+        "previa": {
+          "verde": 102,
+          "amarillo": 60,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 87,
+          "amarillo": 60,
+          "rojo": 36,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "AIXBT",
+      "ventanas": {
+        "previa": {
+          "verde": 81,
+          "amarillo": 54,
+          "rojo": 31,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 62,
+          "amarillo": 45,
+          "rojo": 26,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "amarillo",
+      "velas": 1730
+    },
+    {
+      "santo": "DOT",
+      "ventanas": {
+        "previa": {
+          "verde": 58,
+          "amarillo": 34,
+          "rojo": 21,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 71,
+          "amarillo": 51,
+          "rojo": 27,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "LQTY",
+      "ventanas": {
+        "previa": {
+          "verde": 40,
+          "amarillo": 27,
+          "rojo": 17,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 52,
+          "amarillo": 33,
+          "rojo": 21,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1730
+    },
+    {
+      "santo": "RSR",
+      "ventanas": {
+        "previa": {
+          "verde": 70,
+          "amarillo": 39,
+          "rojo": 30,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 49,
+          "amarillo": 23,
+          "rojo": 15,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ZIL",
+      "ventanas": {
+        "previa": {
+          "verde": 53,
+          "amarillo": 32,
+          "rojo": 26,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 35,
+          "amarillo": 16,
+          "rojo": 9,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "MEGA",
+      "ventanas": {
+        "previa": {
+          "verde": 74,
+          "amarillo": 51,
+          "rojo": 31,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 48,
+          "amarillo": 32,
+          "rojo": 21,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "amarillo",
+      "velas": 1731
+    },
+    {
+      "santo": "ZORA",
+      "ventanas": {
+        "previa": {
+          "verde": 86,
+          "amarillo": 51,
+          "rojo": 33,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 52,
+          "amarillo": 30,
+          "rojo": 14,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "GLM",
+      "ventanas": {
+        "previa": {
+          "verde": 25,
+          "amarillo": 18,
+          "rojo": 11,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 29,
+          "amarillo": 17,
+          "rojo": 8,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "XAG",
+      "ventanas": {
+        "previa": {
+          "verde": 10,
+          "amarillo": 8,
+          "rojo": 3,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 5,
+          "amarillo": 4,
+          "rojo": 3,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "amarillo",
+      "velas": 1731
+    },
+    {
+      "santo": "ANIME",
+      "ventanas": {
+        "previa": {
+          "verde": 46,
+          "amarillo": 29,
+          "rojo": 14,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 37,
+          "amarillo": 20,
+          "rojo": 11,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "DYDX",
+      "ventanas": {
+        "previa": {
+          "verde": 80,
+          "amarillo": 49,
+          "rojo": 32,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 81,
+          "amarillo": 40,
+          "rojo": 33,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "LUNA",
+      "ventanas": {
+        "previa": {
+          "verde": 76,
+          "amarillo": 32,
+          "rojo": 22,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 34,
+          "amarillo": 21,
+          "rojo": 12,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "RVN",
+      "ventanas": {
+        "previa": {
+          "verde": 49,
+          "amarillo": 26,
+          "rojo": 17,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 40,
+          "amarillo": 22,
+          "rojo": 16,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ZKP",
+      "ventanas": {
+        "previa": {
+          "verde": 38,
+          "amarillo": 25,
+          "rojo": 11,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 48,
+          "amarillo": 25,
+          "rojo": 13,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "MERL",
+      "ventanas": {
+        "previa": {
+          "verde": 96,
+          "amarillo": 65,
+          "rojo": 38,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 73,
+          "amarillo": 44,
+          "rojo": 17,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "GPS",
+      "ventanas": {
+        "previa": {
+          "verde": 54,
+          "amarillo": 26,
+          "rojo": 18,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 64,
+          "amarillo": 33,
+          "rojo": 27,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "XLM",
+      "ventanas": {
+        "previa": {
+          "verde": 73,
+          "amarillo": 37,
+          "rojo": 21,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 53,
+          "amarillo": 31,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "APE",
+      "ventanas": {
+        "previa": {
+          "verde": 78,
+          "amarillo": 43,
+          "rojo": 17,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 77,
+          "amarillo": 48,
+          "rojo": 28,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "EGLD",
+      "ventanas": {
+        "previa": {
+          "verde": 101,
+          "amarillo": 51,
+          "rojo": 30,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 69,
+          "amarillo": 39,
+          "rojo": 22,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "MAGIC",
+      "ventanas": {
+        "previa": {
+          "verde": 38,
+          "amarillo": 18,
+          "rojo": 12,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 95,
+          "amarillo": 64,
+          "rojo": 36,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "SAND",
+      "ventanas": {
+        "previa": {
+          "verde": 82,
+          "amarillo": 38,
+          "rojo": 22,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 56,
+          "amarillo": 30,
+          "rojo": 20,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "0G",
+      "ventanas": {
+        "previa": {
+          "verde": 122,
+          "amarillo": 64,
+          "rojo": 35,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 92,
+          "amarillo": 50,
+          "rojo": 33,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "MMT",
+      "ventanas": {
+        "previa": {
+          "verde": 57,
+          "amarillo": 34,
+          "rojo": 14,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 73,
+          "amarillo": 49,
+          "rojo": 24,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "GRAM",
+      "ventanas": {
+        "previa": {
+          "verde": 22,
+          "amarillo": 11,
+          "rojo": 8,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 100,
+          "amarillo": 57,
+          "rojo": 34,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "XRP",
+      "ventanas": {
+        "previa": {
+          "verde": 74,
+          "amarillo": 26,
+          "rojo": 18,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 24,
+          "amarillo": 15,
+          "rojo": 8,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "API3",
+      "ventanas": {
+        "previa": {
+          "verde": 75,
+          "amarillo": 36,
+          "rojo": 24,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 45,
+          "amarillo": 27,
+          "rojo": 17,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ENA",
+      "ventanas": {
+        "previa": {
+          "verde": 174,
+          "amarillo": 106,
+          "rojo": 57,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 106,
+          "amarillo": 58,
+          "rojo": 33,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "MANA",
+      "ventanas": {
+        "previa": {
+          "verde": 39,
+          "amarillo": 28,
+          "rojo": 13,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 41,
+          "amarillo": 23,
+          "rojo": 10,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "SAPIEN",
+      "ventanas": {
+        "previa": {
+          "verde": 31,
+          "amarillo": 16,
+          "rojo": 10,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 24,
+          "amarillo": 17,
+          "rojo": 5,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "2Z",
+      "ventanas": {
+        "previa": {
+          "verde": 85,
+          "amarillo": 57,
+          "rojo": 35,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 200,
+          "amarillo": 127,
+          "rojo": 82,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "MOVE",
+      "ventanas": {
+        "previa": {
+          "verde": 87,
+          "amarillo": 47,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 53,
+          "amarillo": 29,
+          "rojo": 19,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "GRASS",
+      "ventanas": {
+        "previa": {
+          "verde": 191,
+          "amarillo": 127,
+          "rojo": 69,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 235,
+          "amarillo": 146,
+          "rojo": 105,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "XTZ",
+      "ventanas": {
+        "previa": {
+          "verde": 49,
+          "amarillo": 30,
+          "rojo": 20,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 43,
+          "amarillo": 20,
+          "rojo": 10,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "APR",
+      "ventanas": {
+        "previa": {
+          "verde": 82,
+          "amarillo": 43,
+          "rojo": 30,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 82,
+          "amarillo": 55,
+          "rojo": 37,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "ENJ",
+      "ventanas": {
+        "previa": {
+          "verde": 66,
+          "amarillo": 35,
+          "rojo": 23,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 67,
+          "amarillo": 41,
+          "rojo": 24,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "MEME",
+      "ventanas": {
+        "previa": {
+          "verde": 55,
+          "amarillo": 41,
+          "rojo": 21,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 42,
+          "amarillo": 21,
+          "rojo": 14,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "SEI",
+      "ventanas": {
+        "previa": {
+          "verde": 107,
+          "amarillo": 70,
+          "rojo": 30,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 138,
+          "amarillo": 88,
+          "rojo": 51,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "APT",
+      "ventanas": {
+        "previa": {
+          "verde": 111,
+          "amarillo": 66,
+          "rojo": 37,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 80,
+          "amarillo": 43,
+          "rojo": 27,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "OPN",
+      "ventanas": {
+        "previa": {
+          "verde": 68,
+          "amarillo": 36,
+          "rojo": 19,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 88,
+          "amarillo": 53,
+          "rojo": 32,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "GRVT",
+      "ventanas": {
+        "previa": {
+          "verde": 75,
+          "amarillo": 42,
+          "rojo": 22,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 38,
+          "amarillo": 27,
+          "rojo": 13,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "ZAMA",
+      "ventanas": {
+        "previa": {
+          "verde": 159,
+          "amarillo": 120,
+          "rojo": 67,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 88,
+          "amarillo": 47,
+          "rojo": 26,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "AR",
+      "ventanas": {
+        "previa": {
+          "verde": 147,
+          "amarillo": 90,
+          "rojo": 39,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 63,
+          "amarillo": 49,
+          "rojo": 35,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "ENS",
+      "ventanas": {
+        "previa": {
+          "verde": 79,
+          "amarillo": 46,
+          "rojo": 34,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 40,
+          "amarillo": 22,
+          "rojo": 13,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "MET",
+      "ventanas": {
+        "previa": {
+          "verde": 273,
+          "amarillo": 175,
+          "rojo": 112,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 110,
+          "amarillo": 67,
+          "rojo": 43,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "SENT",
+      "ventanas": {
+        "previa": {
+          "verde": 149,
+          "amarillo": 93,
+          "rojo": 49,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 70,
+          "amarillo": 37,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ATH",
+      "ventanas": {
+        "previa": {
+          "verde": 124,
+          "amarillo": 79,
+          "rojo": 55,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 62,
+          "amarillo": 32,
+          "rojo": 21,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ORDER",
+      "ventanas": {
+        "previa": {
+          "verde": 41,
+          "amarillo": 21,
+          "rojo": 10,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 64,
+          "amarillo": 35,
+          "rojo": 19,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "HBAR",
+      "ventanas": {
+        "previa": {
+          "verde": 68,
+          "amarillo": 35,
+          "rojo": 25,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 151,
+          "amarillo": 107,
+          "rojo": 55,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "ZRO",
+      "ventanas": {
+        "previa": {
+          "verde": 242,
+          "amarillo": 163,
+          "rojo": 89,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 134,
+          "amarillo": 90,
+          "rojo": 55,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "amarillo",
+      "velas": 1731
+    },
+    {
+      "santo": "ARB",
+      "ventanas": {
+        "previa": {
+          "verde": 135,
+          "amarillo": 78,
+          "rojo": 50,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 109,
+          "amarillo": 59,
+          "rojo": 34,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ENSO",
+      "ventanas": {
+        "previa": {
+          "verde": 37,
+          "amarillo": 23,
+          "rojo": 12,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 38,
+          "amarillo": 24,
+          "rojo": 11,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "MINA",
+      "ventanas": {
+        "previa": {
+          "verde": 144,
+          "amarillo": 84,
+          "rojo": 46,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 79,
+          "amarillo": 42,
+          "rojo": 26,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "SHELL",
+      "ventanas": {
+        "previa": {
+          "verde": 81,
+          "amarillo": 41,
+          "rojo": 22,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 46,
+          "amarillo": 28,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "AVNT",
+      "ventanas": {
+        "previa": {
+          "verde": 57,
+          "amarillo": 36,
+          "rojo": 19,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 109,
+          "amarillo": 61,
+          "rojo": 38,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "PARTI",
+      "ventanas": {
+        "previa": {
+          "verde": 64,
+          "amarillo": 42,
+          "rojo": 23,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 73,
+          "amarillo": 47,
+          "rojo": 33,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "HUMA",
+      "ventanas": {
+        "previa": {
+          "verde": 95,
+          "amarillo": 68,
+          "rojo": 46,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 122,
+          "amarillo": 80,
+          "rojo": 49,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "ZRX",
+      "ventanas": {
+        "previa": {
+          "verde": 40,
+          "amarillo": 23,
+          "rojo": 14,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 33,
+          "amarillo": 16,
+          "rojo": 9,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ARKM",
+      "ventanas": {
+        "previa": {
+          "verde": 85,
+          "amarillo": 49,
+          "rojo": 27,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 74,
+          "amarillo": 50,
+          "rojo": 25,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "ETHFI",
+      "ventanas": {
+        "previa": {
+          "verde": 86,
+          "amarillo": 52,
+          "rojo": 29,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 71,
+          "amarillo": 49,
+          "rojo": 25,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "MOODENG",
+      "ventanas": {
+        "previa": {
+          "verde": 104,
+          "amarillo": 65,
+          "rojo": 40,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 65,
+          "amarillo": 37,
+          "rojo": 17,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "SHIB",
+      "ventanas": {
+        "previa": {
+          "verde": 54,
+          "amarillo": 28,
+          "rojo": 19,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 40,
+          "amarillo": 23,
+          "rojo": 12,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "BARD",
+      "ventanas": {
+        "previa": {
+          "verde": 55,
+          "amarillo": 31,
+          "rojo": 18,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 47,
+          "amarillo": 32,
+          "rojo": 14,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "PIPPIN",
+      "ventanas": {
+        "previa": {
+          "verde": 66,
+          "amarillo": 37,
+          "rojo": 21,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 24,
+          "amarillo": 18,
+          "rojo": 10,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "INJ",
+      "ventanas": {
+        "previa": {
+          "verde": 159,
+          "amarillo": 94,
+          "rojo": 65,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 69,
+          "amarillo": 35,
+          "rojo": 21,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ASTER",
+      "ventanas": {
+        "previa": {
+          "verde": 46,
+          "amarillo": 27,
+          "rojo": 12,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 27,
+          "amarillo": 14,
+          "rojo": 6,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ETHW",
+      "ventanas": {
+        "previa": {
+          "verde": 66,
+          "amarillo": 36,
+          "rojo": 23,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 50,
+          "amarillo": 28,
+          "rojo": 16,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "NEIRO",
+      "ventanas": {
+        "previa": {
+          "verde": 91,
+          "amarillo": 51,
+          "rojo": 37,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 50,
+          "amarillo": 30,
+          "rojo": 20,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "SOPH",
+      "ventanas": {
+        "previa": {
+          "verde": 28,
+          "amarillo": 8,
+          "rojo": 5,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 14,
+          "amarillo": 11,
+          "rojo": 8,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "BEAT",
+      "ventanas": {
+        "previa": {
+          "verde": 102,
+          "amarillo": 58,
+          "rojo": 34,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 104,
+          "amarillo": 63,
+          "rojo": 47,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "PLUME",
+      "ventanas": {
+        "previa": {
+          "verde": 163,
+          "amarillo": 113,
+          "rojo": 77,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 105,
+          "amarillo": 67,
+          "rojo": 36,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "A",
+      "ventanas": {
+        "previa": {
+          "verde": 65,
+          "amarillo": 40,
+          "rojo": 28,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 55,
+          "amarillo": 29,
+          "rojo": 18,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "KITE",
+      "ventanas": {
+        "previa": {
+          "verde": 85,
+          "amarillo": 44,
+          "rojo": 25,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 108,
+          "amarillo": 63,
+          "rojo": 39,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "AT",
+      "ventanas": {
+        "previa": {
+          "verde": 38,
+          "amarillo": 19,
+          "rojo": 8,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 33,
+          "amarillo": 10,
+          "rojo": 5,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "FARTCOIN",
+      "ventanas": {
+        "previa": {
+          "verde": 141,
+          "amarillo": 82,
+          "rojo": 55,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 77,
+          "amarillo": 53,
+          "rojo": 19,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "NES",
+      "ventanas": {
+        "previa": {
+          "verde": 39,
+          "amarillo": 23,
+          "rojo": 19,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 42,
+          "amarillo": 24,
+          "rojo": 13,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "SPACE",
+      "ventanas": {
+        "previa": {
+          "verde": 49,
+          "amarillo": 28,
+          "rojo": 15,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 53,
+          "amarillo": 27,
+          "rojo": 20,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "BERA",
+      "ventanas": {
+        "previa": {
+          "verde": 79,
+          "amarillo": 48,
+          "rojo": 31,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 65,
+          "amarillo": 35,
+          "rojo": 19,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "RAVE",
+      "ventanas": {
+        "previa": {
+          "verde": 85,
+          "amarillo": 47,
+          "rojo": 25,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 47,
+          "amarillo": 37,
+          "rojo": 23,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "ACH",
+      "ventanas": {
+        "previa": {
+          "verde": 68,
+          "amarillo": 37,
+          "rojo": 26,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 53,
+          "amarillo": 28,
+          "rojo": 16,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "KORU",
+      "ventanas": {
+        "previa": {
+          "verde": 58,
+          "amarillo": 33,
+          "rojo": 25,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 22,
+          "amarillo": 14,
+          "rojo": 10,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "AVAX",
+      "ventanas": {
+        "previa": {
+          "verde": 85,
+          "amarillo": 42,
+          "rojo": 21,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 66,
+          "amarillo": 34,
+          "rojo": 23,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "FET",
+      "ventanas": {
+        "previa": {
+          "verde": 140,
+          "amarillo": 84,
+          "rojo": 47,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 98,
+          "amarillo": 55,
+          "rojo": 31,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "NIGHT",
+      "ventanas": {
+        "previa": {
+          "verde": 66,
+          "amarillo": 35,
+          "rojo": 16,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 95,
+          "amarillo": 53,
+          "rojo": 29,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "SPK",
+      "ventanas": {
+        "previa": {
+          "verde": 74,
+          "amarillo": 47,
+          "rojo": 30,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 94,
+          "amarillo": 53,
+          "rojo": 33,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "BIGTIME",
+      "ventanas": {
+        "previa": {
+          "verde": 61,
+          "amarillo": 39,
+          "rojo": 26,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 74,
+          "amarillo": 40,
+          "rojo": 27,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "RECALL",
+      "ventanas": {
+        "previa": {
+          "verde": 41,
+          "amarillo": 29,
+          "rojo": 11,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 68,
+          "amarillo": 37,
+          "rojo": 19,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "ACT",
+      "ventanas": {
+        "previa": {
+          "verde": 58,
+          "amarillo": 39,
+          "rojo": 19,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 39,
+          "amarillo": 26,
+          "rojo": 13,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "amarillo",
+      "velas": 1731
+    },
+    {
+      "santo": "LINK",
+      "ventanas": {
+        "previa": {
+          "verde": 50,
+          "amarillo": 34,
+          "rojo": 14,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 47,
+          "amarillo": 30,
+          "rojo": 21,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "BABY",
+      "ventanas": {
+        "previa": {
+          "verde": 56,
+          "amarillo": 30,
+          "rojo": 20,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 92,
+          "amarillo": 53,
+          "rojo": 34,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "FIL",
+      "ventanas": {
+        "previa": {
+          "verde": 89,
+          "amarillo": 50,
+          "rojo": 28,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 73,
+          "amarillo": 40,
+          "rojo": 25,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "NOT",
+      "ventanas": {
+        "previa": {
+          "verde": 45,
+          "amarillo": 24,
+          "rojo": 15,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 53,
+          "amarillo": 43,
+          "rojo": 24,
+          "sala": "amarillo"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "SPX",
+      "ventanas": {
+        "previa": {
+          "verde": 139,
+          "amarillo": 85,
+          "rojo": 51,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 80,
+          "amarillo": 45,
+          "rojo": 26,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "BILL",
+      "ventanas": {
+        "previa": {
+          "verde": 81,
+          "amarillo": 58,
+          "rojo": 33,
+          "sala": "amarillo"
+        },
+        "reciente": {
+          "verde": 97,
+          "amarillo": 52,
+          "rojo": 34,
+          "sala": "verde"
+        }
+      },
+      "firma": "espera",
+      "velas": 1731
+    },
+    {
+      "santo": "RESOLV",
+      "ventanas": {
+        "previa": {
+          "verde": 53,
+          "amarillo": 30,
+          "rojo": 19,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 78,
+          "amarillo": 48,
+          "rojo": 35,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1731
+    },
+    {
+      "santo": "ADA",
+      "ventanas": {
+        "previa": {
+          "verde": 71,
+          "amarillo": 31,
+          "rojo": 20,
+          "sala": "verde"
+        },
+        "reciente": {
+          "verde": 48,
+          "amarillo": 30,
+          "rojo": 17,
+          "sala": "verde"
+        }
+      },
+      "firma": "verde",
+      "velas": 1732
+    }
+  ]
+}

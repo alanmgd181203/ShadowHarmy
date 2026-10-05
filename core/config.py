@@ -70,15 +70,16 @@ IGRIS_ESCUDO_BTC_UMBRAL_USD = float(os.getenv("IGRIS_ESCUDO_BTC_UMBRAL_USD", "10
 IGRIS_ESCUDO_BTC_UMBRAL_PCT = float(os.getenv("IGRIS_ESCUDO_BTC_UMBRAL_PCT", "0.01") or 0.01)
 # Polvo / desarme: |neto| ≤ esto → escudo 0 (Monarca 2026-09-24: ±$250)
 IGRIS_ESCUDO_BTC_POLVO_USD = float(os.getenv("IGRIS_ESCUDO_BTC_POLVO_USD", "250") or 250)
-# Peldaños de cobertura: $1000 · arma al primer peldaño (Monarca 2026-09-25)
+# Peldaños de cobertura: $250. La primera silla sigue en $500,
+# un escalón por encima del polvo, para no bailar en el borde (Monarca 2026-09-29)
 # Env ASCII `PELDANO` (sin ñ) para .bat Windows; `PELDAÑO` también vale.
 IGRIS_ESCUDO_BTC_PELDAÑO_USD = float(
     os.getenv("IGRIS_ESCUDO_BTC_PELDANO_USD")
     or os.getenv("IGRIS_ESCUDO_BTC_PELDAÑO_USD")
-    or "1000"
-    or 1000
+    or "250"
+    or 250
 )
-IGRIS_ESCUDO_BTC_ACTIVAR_USD = float(os.getenv("IGRIS_ESCUDO_BTC_ACTIVAR_USD", "1000") or 1000)
+IGRIS_ESCUDO_BTC_ACTIVAR_USD = float(os.getenv("IGRIS_ESCUDO_BTC_ACTIVAR_USD", "500") or 500)
 # Manos del escudo: market (fill ya) — Monarca 2026-09-24. limit opcional por env.
 IGRIS_ESCUDO_BTC_ORD_TIPO = str(
     os.getenv("IGRIS_ESCUDO_BTC_ORD_TIPO", "market") or "market"

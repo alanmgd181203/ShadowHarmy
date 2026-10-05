@@ -102,8 +102,46 @@ class BeruRango:
         if px <= 0:
             return {"ok": False, "motivo": "sin_precio"}
 
+        try:
+            import time as _time
+
+            ahora = _time.time()
+            prev = float(getattr(beru, "_gordura_recon_ts", 0) or 0)
+            if ahora - prev >= 60.0:
+                try:
+                    await self._reconciliar_casa()
+                except Exception:
+                    pass
+                beru._gordura_recon_ts = ahora
+            net, _ = self._bolsa_neta_casa()
+            bolsa = abs(float(net or 0))
+            if bolsa <= 1e-9:
+                bolsa = float(beru_rango.bolsa_casa_desde_informe(self._activo) or 0)
+            beru.bolsa_casa_usd = bolsa
+            beru.bolsa_casa_leida = True
+        except Exception:
+            try:
+                bolsa = float(beru_rango.bolsa_casa_desde_informe(self._activo) or 0)
+                beru.bolsa_casa_usd = bolsa
+                beru.bolsa_casa_leida = True
+            except Exception:
+                pass
+        beru.ultimo_precio = float(px)
+
+        beru_rango.publicar_voz(beru, px)
+
         if beru.estado == "ACECHANDO":
             await self._purgar_altar_acecho(beru)
+            # Tumor: volvió al acecho sin cosechar Oz → oreja apagada y la
+            # sangre ya quedó atrás. Si hay mapa de sangre/relevo, se reabre.
+            if float(getattr(beru, "sangre_adan", 0) or 0) > 0 and (
+                bool(getattr(beru, "es_relevo_cazador", False))
+                or float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0) > 0
+            ):
+                if not bool(getattr(beru, "oreja_sangre_activa", False)):
+                    beru.oreja_sangre_activa = True
+                    if float(getattr(beru, "red_adan", 0) or 0) > 0:
+                        beru.oreja_red_activa = True
             if bool(getattr(beru, "es_relevo_cazador", False)) or float(
                 getattr(beru, "ultima_hoz_tocada_precio", 0) or 0
             ) > 0:
@@ -826,6 +864,9 @@ class BeruRango:
             "red": beru.red_adan,
             "trail_extremo": getattr(beru, "trail_extremo", 0),
             "masa": beru.masa,
+            "voz_intencion": float(getattr(beru, "voz_intencion", 0) or 0),
+            "origen_tramo": str(getattr(beru, "origen_tramo", "") or ""),
+            "engorde_ancla_px": float(getattr(beru, "engorde_ancla_px", 0) or 0),
             "saco_long": float(getattr(beru, "saco_long_usd", 0) or 0),
             "saco_short": float(getattr(beru, "saco_short_usd", 0) or 0),
             "sangre_lado": getattr(beru, "sangre_lado", ""),
@@ -836,6 +877,10 @@ class BeruRango:
             "cosechas": int(getattr(beru, "cosechas_continuas", 0) or 0),
             "escalones_red": int(getattr(beru, "rango_escalones_red", 0) or 0),
             "ultima_hoz_direccion": getattr(beru, "ultima_hoz_direccion", "") or "",
+            "ultima_hoz_tocada_precio": float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0),
+            "bandera_tsunami": str(getattr(beru, "bandera_tsunami", "") or ""),
+            "bandera_desde": float(getattr(beru, "bandera_desde", 0) or 0),
+            "masa_tsunami": float(getattr(beru, "masa_tsunami", 0) or 0),
             "altar_link_id": getattr(beru, "altar_link_id", "") or "",
             "altar_order_id": getattr(beru, "altar_order_id", "") or "",
             "altar_trigger_price": float(getattr(beru, "altar_trigger_price", 0) or 0),

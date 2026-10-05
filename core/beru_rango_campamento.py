@@ -1,9 +1,9 @@
 """Campamentos Beru piedra — escuadrones de N Santos en un cuartel.
 
-Ley dura: cada campamento se completa a N (default 8).
-La mezcla 2V+3A+3R es solo preferencia; si falta un color, se rellena
-con lo que haya (pueden salir campamentos distintos).
-Sobras que no lleguen a N quedan fuera (no se parte a medias).
+Ley: el cuartel es de N (default 8). Los colores se reparten parejos,
+para que ningún cuartel se llene de rojos y se peleen la llamada.
+Si no caben justos, unos cuarteles quedan de N y otros de N+1.
+Con solo_completos, la sobra del color más numeroso se queda fuera.
 
 Prioridad de latido: el que CAZA pasa antes que el que solo acecha
 (comparte el río WS/altar del cuartel).
@@ -217,6 +217,73 @@ def _clasificar(
     return {k: v for k, v in por.items() if v}
 
 
+def _repartir_parejo(
+    pools: dict[str, list[str]],
+    n: int,
+    *,
+    solo_completos: bool,
+) -> list[list[str]]:
+    """Reparte cada color en ronda, con la sobra empezando en cuarteles distintos."""
+    order = ("verde", "amarillo", "rojo")
+    bolsas = {c: sorted(pools.get(c) or []) for c in order}
+    for c, saints in list(pools.items()):
+        if c not in bolsas:
+            bolsas[c] = sorted(saints)
+            order = order + (c,)
+    total = sum(len(v) for v in bolsas.values())
+    if total < 2 or n < 2:
+        return []
+    if solo_completos:
+        if total < n:
+            return []
+        n_camps = total // n
+        sobra = total - n_camps * n
+        if sobra > 0:
+            mayor = max(bolsas, key=lambda c: (len(bolsas[c]), c))
+            if sobra < len(bolsas[mayor]):
+                bolsas[mayor] = bolsas[mayor][:-sobra]
+            else:
+                return []
+    elif total <= n:
+        n_camps = 1
+    else:
+        n_camps = total // n
+    camps: list[list[tuple[str, str]]] = [[] for _ in range(n_camps)]
+    # La sobra de cada color empieza en un punto distinto, no todas en el primero.
+    fases = {
+        "verde": 0,
+        "amarillo": n_camps // 3,
+        "rojo": (2 * n_camps) // 3,
+    }
+    for i, col in enumerate(order):
+        fase = int(fases.get(col, (i * n_camps) // max(1, len(order)))) % n_camps
+        for k, santo in enumerate(bolsas[col]):
+            camps[(k + fase) % n_camps].append((col, santo))
+    _igualar_cuarteles(camps)
+    return [[santo for _col, santo in grupo] for grupo in camps if grupo]
+
+
+def _igualar_cuarteles(camps: list[list[tuple[str, str]]]) -> None:
+    """Pasa amarillos del cuartel gordo al flaco hasta que el tamaño difiera a lo más en 1.
+
+    No mueve rojos: esos siguen parejos.
+    """
+    if len(camps) < 2:
+        return
+    for _ in range(len(camps) * 8):
+        tams = [len(c) for c in camps]
+        hi = max(tams)
+        lo = min(tams)
+        if hi - lo <= 1:
+            return
+        fat = tams.index(hi)
+        thin = tams.index(lo)
+        idx = next((i for i, (col, _s) in enumerate(camps[fat]) if col == "amarillo"), None)
+        if idx is None:
+            idx = len(camps[fat]) - 1
+        camps[thin].append(camps[fat].pop(idx))
+
+
 def empaquetar_campamentos(
     activos: list[str] | None = None,
     *,
@@ -225,44 +292,21 @@ def empaquetar_campamentos(
     receta: dict[str, int] | None = None,
     solo_completos: bool = True,
 ) -> list[dict[str, Any]]:
-    """Arma escuadrones de N. Mezcla preferida; completar a N es la ley.
+    """Arma escuadrones de N con los colores parejos.
 
-    Si solo_completos (default), no emite campamentos a medias.
+    ``receta`` se guarda como nota vieja; el reparto ya no la sigue.
+    Si solo_completos, la sobra del color más numeroso no entra.
     """
     n = max(2, int(tamano if tamano is not None else tamano_campamento()))
     rec = dict(receta or receta_campamento())
     asig = _asignacion(asig_path)
     pools = pools_por_color(activos, asig_path=asig_path)
-    usados: set[str] = set()
+    grupos = _repartir_parejo(pools, n, solo_completos=solo_completos)
     camps: list[dict[str, Any]] = []
-    idx = 0
-
-    def _queda() -> int:
-        return sum(1 for c in pools for a in pools[c] if a not in usados)
-
-    while _queda() > 0:
-        if solo_completos and _queda() < n:
-            break
-        idx += 1
-        miembros: list[str] = []
-        for col in ("verde", "amarillo", "rojo"):
-            want = int(rec.get(col, 0) or 0)
-            if want <= 0:
-                continue
-            got = _tomar(pools.get(col) or [], want, usados)
-            miembros.extend(got)
-        if len(miembros) < n:
-            miembros.extend(_rellenar(n - len(miembros), pools, usados))
-        if not miembros:
-            break
-        if solo_completos and len(miembros) < n:
-            for a in miembros:
-                usados.discard(a)
-            break
-        camp_id = f"CAMP_{idx:03d}"
+    for idx, miembros in enumerate(grupos, start=1):
         camps.append(
             {
-                "id": camp_id,
+                "id": f"CAMP_{idx:03d}",
                 "santos": list(miembros),
                 "n": len(miembros),
                 "por_color": _clasificar(miembros, asig),
@@ -300,7 +344,7 @@ def sellar_manifest(camps: list[dict[str, Any]], *, path: Path | None = None) ->
     payload = {
         "tamano": tamano_campamento(),
         "receta_preferida": receta_campamento(),
-        "nota": "Completar a N es ley; la mezcla por color es preferencia.",
+        "nota": "Reparto parejo por color. Ningún cuartel se llena de rojos.",
         "n_campamentos": len(camps),
         "n_santos": sum(int(c.get("n") or 0) for c in camps),
         "campamentos": camps,

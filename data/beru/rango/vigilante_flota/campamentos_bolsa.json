@@ -1,0 +1,449 @@
+{
+  "tamano": 8,
+  "receta_preferida": {
+    "verde": 2,
+    "amarillo": 3,
+    "rojo": 3
+  },
+  "nota": "Cuarteles de la bolsa. El que no pasa liquidez del dia (medio millon de dolares) sale.",
+  "n_campamentos": 17,
+  "n_santos": 58,
+  "campamentos": [
+    {
+      "id": "CAMP_001",
+      "santos": [
+        "AAPL",
+        "CBRS",
+        "SOXL"
+      ],
+      "n": 3,
+      "por_color": {
+        "verde": [
+          "AAPL"
+        ],
+        "rojo": [
+          "CBRS",
+          "SOXL"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_002",
+      "santos": [
+        "ALAB",
+        "SOXS",
+        "COIN",
+        "SPCX"
+      ],
+      "n": 4,
+      "por_color": {
+        "verde": [
+          "ALAB"
+        ],
+        "amarillo": [
+          "SOXS"
+        ],
+        "rojo": [
+          "COIN",
+          "SPCX"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_003",
+      "santos": [
+        "AVGO"
+      ],
+      "n": 1,
+      "por_color": {
+        "verde": [
+          "AVGO"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_004",
+      "santos": [
+        "CRDO",
+        "QCOM"
+      ],
+      "n": 2,
+      "por_color": {
+        "rojo": [
+          "CRDO",
+          "QCOM"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_005",
+      "santos": [
+        "QNT",
+        "IBM",
+        "CRWV",
+        "RAM"
+      ],
+      "n": 4,
+      "por_color": {
+        "verde": [
+          "QNT"
+        ],
+        "amarillo": [
+          "IBM"
+        ],
+        "rojo": [
+          "CRWV",
+          "RAM"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_006",
+      "santos": [
+        "INTW",
+        "UNITREE"
+      ],
+      "n": 2,
+      "por_color": {
+        "amarillo": [
+          "INTW"
+        ],
+        "rojo": [
+          "UNITREE"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_007",
+      "santos": [
+        "AMZN",
+        "MRNA",
+        "USAR"
+      ],
+      "n": 3,
+      "por_color": {
+        "amarillo": [
+          "AMZN"
+        ],
+        "rojo": [
+          "MRNA",
+          "USAR"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_008",
+      "santos": [
+        "GOOGL",
+        "MSTR"
+      ],
+      "n": 2,
+      "por_color": {
+        "verde": [
+          "GOOGL"
+        ],
+        "rojo": [
+          "MSTR"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_009",
+      "santos": [
+        "APP",
+        "MUU",
+        "UVXY"
+      ],
+      "n": 3,
+      "por_color": {
+        "amarillo": [
+          "APP"
+        ],
+        "rojo": [
+          "MUU",
+          "UVXY"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_010",
+      "santos": [
+        "ARM",
+        "EWY",
+        "RKLB"
+      ],
+      "n": 3,
+      "por_color": {
+        "amarillo": [
+          "ARM"
+        ],
+        "rojo": [
+          "EWY",
+          "RKLB"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_011",
+      "santos": [
+        "IREN",
+        "BE",
+        "MINIMAX",
+        "NFLX",
+        "SAMSUNG"
+      ],
+      "n": 5,
+      "por_color": {
+        "verde": [
+          "IREN"
+        ],
+        "amarillo": [
+          "BE",
+          "MINIMAX"
+        ],
+        "rojo": [
+          "NFLX",
+          "SAMSUNG"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_012",
+      "santos": [
+        "TSLA",
+        "BMNR",
+        "MRVL",
+        "AAOI",
+        "NOK"
+      ],
+      "n": 5,
+      "por_color": {
+        "verde": [
+          "TSLA"
+        ],
+        "amarillo": [
+          "BMNR",
+          "MRVL"
+        ],
+        "rojo": [
+          "AAOI",
+          "NOK"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_013",
+      "santos": [
+        "TSM",
+        "NBIS",
+        "ANTHROPIC",
+        "GLW",
+        "SKDD"
+      ],
+      "n": 5,
+      "por_color": {
+        "verde": [
+          "TSM"
+        ],
+        "amarillo": [
+          "NBIS"
+        ],
+        "rojo": [
+          "ANTHROPIC",
+          "GLW",
+          "SKDD"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_014",
+      "santos": [
+        "MSFT",
+        "COHR",
+        "NVDA",
+        "SKHY"
+      ],
+      "n": 4,
+      "por_color": {
+        "verde": [
+          "MSFT"
+        ],
+        "amarillo": [
+          "COHR",
+          "NVDA"
+        ],
+        "rojo": [
+          "SKHY"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_015",
+      "santos": [
+        "MSTU",
+        "ASTS",
+        "OPENAI",
+        "SKHYNIX"
+      ],
+      "n": 4,
+      "por_color": {
+        "verde": [
+          "MSTU"
+        ],
+        "rojo": [
+          "ASTS",
+          "OPENAI",
+          "SKHYNIX"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_016",
+      "santos": [
+        "MVLL",
+        "WDC",
+        "AXTI",
+        "ORCL",
+        "SNDK"
+      ],
+      "n": 5,
+      "por_color": {
+        "verde": [
+          "MVLL",
+          "WDC"
+        ],
+        "rojo": [
+          "AXTI",
+          "ORCL",
+          "SNDK"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    },
+    {
+      "id": "CAMP_017",
+      "santos": [
+        "SKUU",
+        "PLTR",
+        "SNXX"
+      ],
+      "n": 3,
+      "por_color": {
+        "amarillo": [
+          "SKUU"
+        ],
+        "rojo": [
+          "PLTR",
+          "SNXX"
+        ]
+      },
+      "receta_preferida": {
+        "verde": 2,
+        "amarillo": 3,
+        "rojo": 3
+      },
+      "completo": false
+    }
+  ],
+  "sobra_sin_cuartel": [
+    "XOM",
+    "ZHIPU",
+    "ZHONGJI"
+  ],
+  "manto": "bolsa"
+}

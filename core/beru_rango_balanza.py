@@ -23,6 +23,16 @@ def _f(x: Any, default: float = 0.0) -> float:
         return default
 
 
+def _es_bolsa(activo: str) -> bool:
+    """La casa de las acciones. No entra en el manto de las monedas."""
+    try:
+        from cirugias.escudo_dual.bolsa import es_cazador
+
+        return es_cazador(activo)
+    except Exception:
+        return False
+
+
 def _excluir(activo: str) -> bool:
     a = str(activo or "").strip().upper()
     if not a:
@@ -63,7 +73,7 @@ def medir_desde_okx() -> dict[str, Any]:
         if not inst.endswith("-USDT-SWAP"):
             continue
         act = inst.split("-")[0].upper()
-        if _excluir(act):
+        if _excluir(act) or _es_bolsa(act):
             excluidos.append(act)
             continue
         pos = _f(r.get("pos"))
@@ -143,7 +153,7 @@ def medir_desde_informes(
     for path in sorted(base.glob("*/manos_piedra_informe.json")):
         n_informes += 1
         activo = path.parent.name.upper()
-        if _excluir(activo):
+        if _excluir(activo) or _es_bolsa(activo):
             excluidos.append(activo)
             continue
         age = now - path.stat().st_mtime
@@ -320,6 +330,71 @@ def medir_balanza(*, max_age_s: float = 600.0) -> dict[str, Any]:
         snap["aviso"] = f"okx_fallo_sin_eco:{exc}"
         snap["frase"] = (snap.get("frase") or "") + " · AVISO sellos inestables"
         return snap
+
+
+def medir_bolsa() -> dict[str, Any]:
+    """Solo la casa de las acciones. El metal del escudo no entra en la suma."""
+    from core import okx_rest
+
+    if not okx_rest.credenciales_ok():
+        raise RuntimeError("sin_credenciales_okx")
+    now = time.time()
+    long_usd = 0.0
+    short_usd = 0.0
+    n_long = 0
+    n_short = 0
+    por_santo: list[dict[str, Any]] = []
+    rows = okx_rest.get_private("/api/v5/account/positions", params={"instType": "SWAP"})
+    for r in rows or []:
+        if not isinstance(r, dict):
+            continue
+        inst = str(r.get("instId") or "")
+        if not inst.endswith("-USDT-SWAP"):
+            continue
+        act = inst.split("-")[0].upper()
+        if act in ("US100", "US500") or not _es_bolsa(act):
+            continue
+        pos = _f(r.get("pos"))
+        if abs(pos) <= 1e-12:
+            continue
+        nu = abs(_f(r.get("notionalUsd")))
+        if nu <= 1e-12:
+            px = _f(r.get("markPx") or r.get("last") or r.get("avgPx"))
+            nu = abs(pos) * px if px > 0 else 0.0
+        if nu <= 1e-12:
+            continue
+        pos_side = str(r.get("posSide") or "net").lower()
+        if pos_side == "long" or (pos_side == "net" and pos > 0):
+            long_usd += nu
+            n_long += 1
+            por_santo.append({"activo": act, "long": round(nu, 4), "short": 0.0})
+        else:
+            short_usd += nu
+            n_short += 1
+            por_santo.append({"activo": act, "long": 0.0, "short": round(nu, 4)})
+    total = long_usd + short_usd
+    return {
+        "ts": now,
+        "fuente": "okx_bolsa",
+        "long_usd": round(long_usd, 2),
+        "short_usd": round(short_usd, 2),
+        "total_usd": round(total, 2),
+        "n_long": n_long,
+        "n_short": n_short,
+        "n_santos_con_pos": n_long + n_short,
+        "por_santo": por_santo,
+        "frase": f"bolsa L ${long_usd:.0f} · S ${short_usd:.0f}",
+    }
+
+
+def sellar_balanza_bolsa(*, out: Path | None = None) -> dict[str, Any]:
+    """Sello aparte. No pisa la balanza de las monedas."""
+    snap = medir_bolsa()
+    path = out or (beru_rango_paths.RANGO_DIR / "balanza_bolsa.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(snap, ensure_ascii=False, indent=2), encoding="utf-8")
+    snap["path"] = str(path)
+    return snap
 
 
 def sellar_balanza(

@@ -221,6 +221,37 @@ async def _hilo_beru(
                     px = float(lat.get("last") or 0) or beru_rango_ojos.last_desde_tank(
                         beru_g.tank, activo, MERCADO
                     )
+                if px <= 0:
+                    return
+                from cirugias.hiron import fantasma_vivo
+
+                puerta = cerebro.vacio_adan_pct(beru_g.vivo) if beru_g.vivo is not None else 0.0
+                foto = fantasma_vivo.paso(activo, px, puerta)
+                estado_fant = str(foto.get("estado") or "libre")
+                if estado_fant == "sigue":
+                    if not foto.get("anunciado"):
+                        print(f"[CAMP] {activo} fantasma", flush=True)
+                        fantasma_vivo.marcar(activo, anunciado=True)
+                    if not foto.get("callado") and beru_g.vivo is not None:
+                        try:
+                            from core import beru_rango_altar as altar
+
+                            await altar.cancelar_pendiente(
+                                beru_g.bridge, beru_g.vivo, activo=activo, motivo="FANTASMA",
+                            )
+                        except Exception:
+                            pass
+                        fantasma_vivo.marcar(activo, callado=True)
+                    return
+                if estado_fant == "nacio" and beru_g.vivo is not None:
+                    cerebro.despertar(beru_g.vivo, float(foto.get("cero") or 0), activo=activo)
+                    beru_g.vivo.ultima_hoz_tocada_precio = 0.0
+                    beru_g.vivo.es_relevo_cazador = False
+                    fantasma_vivo.olvidar(activo)
+                    print(
+                        f"[CAMP] {activo} nuevo cero {float(foto.get('cero') or 0):.6f}",
+                        flush=True,
+                    )
                 r = await beru_g.pulso(
                     precio=px if px > 0 else None,
                     latido=lat if px > 0 else None,
@@ -311,6 +342,13 @@ def _escribir_informe_santo(
 ) -> Path:
     path = beru_rango_paths.informe_manos(activo, MERCADO, PERFIL)
     last = beru_rango_ojos.last_desde_tank(tank, activo, MERCADO)
+    if beru_g.vivo is not None:
+        try:
+            from cirugias.escudo_dual.tsunami import marcar_bandera
+
+            marcar_bandera(beru_g.vivo, float(last or 0))
+        except Exception:
+            pass
     informe = {
         "ts": time.time(),
         "duracion_s": round(time.time() - ts0, 1),
@@ -529,6 +567,11 @@ async def _wake_santo(
             await _limpiar_huerfanos(bridge, activo=act, previo=prev)
         except Exception:
             pass
+
+    if beru_g.vivo is not None and isinstance(vivo_prev, dict):
+        cosecha = float(vivo_prev.get("ultima_hoz_tocada_precio") or 0)
+        if cosecha > 0:
+            beru_g.vivo.ultima_hoz_tocada_precio = cosecha
 
     snap0 = beru_g.snapshot()
     if not snap0.get("manos"):
