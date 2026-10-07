@@ -11,8 +11,12 @@ Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
 ## 1) Arranque (obligatorio)
 
 ```
-git pull origin master
+git fetch origin
+git checkout regalo
+git pull origin regalo
 ```
+
+(La cirugía de neto + despertar limpio vive en la rama **regalo** hasta que USA la meta en master.)
 
 Luego **abre solo este archivo** y ejecuta la misión de abajo.
 
