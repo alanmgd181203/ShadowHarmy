@@ -270,3 +270,98 @@ def masa_a_qty_piso_deuda(
     "instId": f.get("instId"),
     "paso_usd": paso_usd,
   }
+
+
+def floor_completo(activo: str) -> bool:
+  """True si el santo tiene piso real en BD (no inventado)."""
+  base = str(activo or "").upper()
+  if not base:
+    return False
+  row = (_cargar_bd().get("activos") or {}).get(base) or {}
+  if not row:
+    return False
+  return (
+    _f(row.get("ctVal")) > 0
+    and _f(row.get("lotSz")) > 0
+    and _f(row.get("tickSz")) > 0
+    and _f(row.get("minSz")) > 0
+  )
+
+
+def asegurar_piso_okx(activo: str) -> dict[str, Any]:
+  """Garantiza piso OKX en BD: lee disco o pide instrumentos públicos.
+
+  Evita tick/lot inventados (tumor Oz). Si la casa no lista el SWAP, devuelve
+  lo que haya (floor_completo=False) para que el campamento haga skip.
+  """
+  base = str(activo or "").upper()
+  if floor_completo(base):
+    return pierna_activo(base)
+
+  inst = beru_mar.activo_a_inst_id(base)
+  try:
+    from core import okx_rest
+
+    rows = okx_rest.get_public(
+      "/api/v5/public/instruments",
+      params={"instType": "SWAP", "instId": inst},
+    ) or []
+  except Exception:
+    rows = []
+  fila = rows[0] if rows and isinstance(rows[0], dict) else None
+  if not fila:
+    return pierna_activo(base)
+
+  min_sz = _f(fila.get("minSz"), 1.0)
+  lot_sz = _f(fila.get("lotSz"), 1.0)
+  ct_val = _f(fila.get("ctVal"), 1.0)
+  tick = _f(fila.get("tickSz"), 0.01)
+  if min_sz <= 0 or lot_sz <= 0 or ct_val <= 0 or tick <= 0:
+    return pierna_activo(base)
+
+  # Precio ref (opcional) para min_usd_est
+  px = 0.0
+  try:
+    from core import okx_rest
+
+    tks = okx_rest.get_public(
+      "/api/v5/market/ticker",
+      params={"instId": inst},
+    ) or []
+    if tks and isinstance(tks[0], dict):
+      px = _f(tks[0].get("last") or tks[0].get("lastPx"))
+  except Exception:
+    px = 0.0
+  min_usd = min_sz * ct_val * px if px > 0 else float(
+    getattr(config, "MIN_ORDER_USD_DEFAULT", 1.0) or 1.0
+  )
+
+  nuevo = {
+    "instId": inst,
+    "frente": f"{base}USDT_LINEAL",
+    "minSz": min_sz,
+    "lotSz": lot_sz,
+    "ctVal": ct_val,
+    "tickSz": tick,
+    "min_usd_est": round(min_usd, 6),
+    "precio_ref": px or None,
+  }
+
+  # Persistir en BD de minimos para no martillar la API en cada wake.
+  ruta = _ruta_bd()
+  try:
+    bd = _cargar_bd()
+    activos = dict(bd.get("activos") or {})
+    activos[base] = nuevo
+    meta = dict(bd.get("meta") or {})
+    meta["n_activos"] = len(activos)
+    out = {"meta": meta, "activos": activos}
+    os.makedirs(os.path.dirname(ruta) or ".", exist_ok=True)
+    tmp = ruta + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+      json.dump(out, f, indent=2, ensure_ascii=False)
+    os.replace(tmp, ruta)
+  except OSError:
+    pass
+  invalidar_cache_bd()
+  return pierna_activo(base)

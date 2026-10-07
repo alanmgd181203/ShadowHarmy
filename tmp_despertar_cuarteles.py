@@ -198,9 +198,10 @@ def main() -> int:
         pid = wmi_bat(bat)
         pids.append(pid)
         print(f"LANZA {i}/{len(camps)} {camp['id']} pid={pid} n={camp['n']}", flush=True)
-        time.sleep(1.4)
+        # Espacio amplio: OKX 50011 tumba el wake si se dispara todo junto.
+        time.sleep(3.2)
     print("ESPERA_ARRANQUE", flush=True)
-    time.sleep(35)
+    time.sleep(55)
     vivos = procesos("arise_beru_rango_campamento")
     manos = procesos("arise_beru_rango_manos")
     santos = []
