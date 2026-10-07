@@ -229,6 +229,7 @@ BERU_RANGO_PERFILES = {
         "TRAILING_PCT": 0.002,
         "ENGORDE_MODO": "linear",
         "ENGORDE_TOPE_USD": 0.0,
+        "MASA_ARMAR_MAX_USD": 0.0,
     },
     "feria": {
         # Monedas violentas: feria apretada (Monarca 2026-08-31: 2,2 / Oz 0,2 / Red 1,2)
@@ -244,9 +245,11 @@ BERU_RANGO_PERFILES = {
         "TRAILING_PCT": 0.002,
         "ENGORDE_MODO": "linear",
         "ENGORDE_TOPE_USD": 0.0,
+        "MASA_ARMAR_MAX_USD": 0.0,
     },
     "piedra": {
         # OKX USDT · Monarca 2026-09-24: engorde +$0.02/0.1% · nace vía semáforo
+        # MASA_ARMAR_MAX: techo al plantar (anti Red@$364 por offset podrido)
         "VACIO_PCT": 0.012,
         "OZ_GAP_PCT": 0.002,
         "RED_DESDE_OZ_PCT": 0.007,
@@ -260,6 +263,7 @@ BERU_RANGO_PERFILES = {
         "TRAILING_PCT": 0.002,
         "ENGORDE_MODO": "peldaños_sumados",
         "ENGORDE_TOPE_USD": 0.0,
+        "MASA_ARMAR_MAX_USD": 25.0,
     },
 }
 
@@ -286,6 +290,7 @@ def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
     global BERU_RANGO_MASA_USD, BERU_RANGO_MASA_RED_USD, BERU_RANGO_MASA_SANGRE_USD
     global BERU_RANGO_ENGORDE_USD, BERU_RANGO_ENGORDE_PASO_PCT, BERU_RANGO_TRAILING_PCT
     global BERU_RANGO_ENGORDE_TOPE_USD, BERU_RANGO_PIEDRA_TIER, BERU_RANGO_ENGORDE_MODO
+    global BERU_RANGO_MASA_ARMAR_MAX_USD
 
     nombre = str(perfil or os.getenv("BERU_RANGO_PERFIL", "normal") or "normal").strip().lower()
     if nombre not in BERU_RANGO_PERFILES:
@@ -307,6 +312,7 @@ def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
     BERU_RANGO_TRAILING_PCT = float(p["TRAILING_PCT"])
     BERU_RANGO_ENGORDE_MODO = str(p.get("ENGORDE_MODO", "linear") or "linear").strip().lower()
     tope_perfil = float(p.get("ENGORDE_TOPE_USD", 0) or 0)
+    BERU_RANGO_MASA_ARMAR_MAX_USD = float(p.get("MASA_ARMAR_MAX_USD", 0) or 0)
     if nombre == "piedra":
         BERU_RANGO_PIEDRA_TIER = _piedra_tier_normalizado(os.getenv("BERU_RANGO_PIEDRA_TIER"))
         tope_perfil = 0.0  # tope vía semáforo en beru_rango_semaforo
@@ -339,9 +345,14 @@ def aplicar_perfil_beru_rango(perfil: str | None = None) -> str:
         BERU_RANGO_ENGORDE_TOPE_USD = float(
             os.getenv("BERU_RANGO_ENGORDE_TOPE_USD") or BERU_RANGO_ENGORDE_TOPE_USD
         )
+    if os.getenv("BERU_RANGO_MASA_ARMAR_MAX_USD"):
+        BERU_RANGO_MASA_ARMAR_MAX_USD = float(
+            os.getenv("BERU_RANGO_MASA_ARMAR_MAX_USD") or BERU_RANGO_MASA_ARMAR_MAX_USD
+        )
     return nombre
 
 
+BERU_RANGO_MASA_ARMAR_MAX_USD = 0.0
 BERU_RANGO_PERFIL = str(os.getenv("BERU_RANGO_PERFIL", "normal") or "normal").strip().lower()
 aplicar_perfil_beru_rango(BERU_RANGO_PERFIL)
 BERU_RANGO_ACTIVO = os.getenv("BERU_RANGO_ACTIVO", "ETH").upper()

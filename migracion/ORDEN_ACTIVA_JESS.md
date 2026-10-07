@@ -4,7 +4,7 @@
 Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`  
 Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
 
-**Actualización 2026-10-07 — Beru arma al tocar (ticket mínimo + lotes OKX)**
+**Actualización 2026-10-07 — cirugía flota: huérfanos + techo masa al armar**
 
 ---
 
@@ -16,17 +16,15 @@ git checkout regalo
 git pull origin regalo
 ```
 
-(La cirugía vive en la rama **regalo**.)
-
 Luego **abre solo este archivo** y ejecuta la misión de abajo.
 
 ---
 
-## 2) Misión — recargar Beru con altar que nace al tocar
+## 2) Misión — cirugía completa del ejército Beru
 
-**Qué es:** Beru ya no se queda sordo tras vacío/sangre/red (centavos sin contrato). Al tocar, pone al menos un contrato en OKX y sigue engordando enmendando. Hay que **traer el código** y **reiniciar la flota Beru** (continuar, no desde cero) para que cargue el pergamino nuevo.
+**Qué es:** Tras reinicio torcido quedó ~80 bolsas SWAP huérfanas (mente ACECHANDO con bolsa abierta) y AEON armó Red con masa loca. Hay que: traer código con **techo $25 al armar**, apagar, aplanar todo SWAP (no BTC spot), sellar, despertar **desde cero**.
 
-**Receta / detalle:** ninguna.
+**Receta / detalle:** ninguna. (USA puede haber corrido ya el ritual; si HEAD ya tiene el techo y flota limpia, solo confirmar.)
 
 ### Comandos exactos (PowerShell, raíz del repo en la viejita)
 
@@ -36,44 +34,45 @@ git fetch origin
 git checkout regalo
 git pull origin regalo
 
-# Confirmar cirugía en el pergamino
-Select-String -Path core\beru_rango_altar.py -Pattern "primer_sello_pide_ticket_min" -SimpleMatch
-Select-String -Path core\lote_okx.py -Pattern "minimos\+parametros" -SimpleMatch
+# Confirmar techo anti-tumor
+Select-String -Path core\beru_rango.py -Pattern "masa_armar_max_usd" -SimpleMatch
+Select-String -Path core\config.py -Pattern "MASA_ARMAR_MAX_USD" -SimpleMatch
 
-# Reiniciar flota Beru con código nuevo (mantiene semilla / --continuar)
-C:\Users\lenovo\AppData\Local\Python\pythoncore-3.14-64\python.exe -u tmp_reiniciar_flota_codigo_nuevo.py
+# Ritual completo (apaga · aplana SWAP · neto · sellar · despertar desde cero)
+powershell -NoProfile -ExecutionPolicy Bypass -File tmp_viejita_recuperar_despertar.ps1
 ```
 
-Espera a que termine el reinicio. Luego pulso corto:
+Si falta `tmp_aplanar_todo_salvo_btc_spot.py` en la viejita, USA lo deja por SCP antes; sin aplanar no despertar.
+
+Espera el despertar (~2–3 min). Luego:
 
 ```
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\_pulso_despertar.ps1
 ```
 
-Opcional — un Santo (NEAR): en el log reciente no debe spam eterno `ALTAR_ESPERA_PISO` tras un ARMAR; si arma, debe haber sello/orden.
-
 ---
 
 ## 3) Qué NO hacer
 
-- No `--desde-cero` (la flota ya despertó limpia; solo recarga código).
-- No apagar Igris / Iron salvo que estén muertos.
-- No tocar `.env` ni secretos.
-- No volver a `long_short_mode` / piernas.
+- No `--continuar` (debe ser **desde cero**).
+- No dejar manos sueltas encima de cuarteles.
+- No tocar `.env` ni BTC spot.
+- No volver a piernas / `long_short_mode`.
 
 ---
 
 ## 4) Qué mirar al terminar
 
-1. `git log -1 --oneline` muestra el commit de ticket mínimo / lotes OKX.
-2. Campamentos Beru vivos de nuevo (`_pulso_despertar`).
-3. Avisar al Monarca: cuántos Santos relanzados y si el HEAD es el nuevo.
+1. HEAD con techo `MASA_ARMAR_MAX` / `masa_armar_max_usd`.
+2. `swap_abiertas` ~0 justo tras aplanar; luego solo lo que Beru abra chico.
+3. 28 cuarteles vivos, 0 manos sueltas.
+4. Avisar al Monarca: cuarteles, SWAP abiertas, si Igris late.
 
 ---
 
 ## 5) HECHO (Jess / Cursor marca)
 
-- [ ] `git pull origin regalo` hecho
-- [ ] Confirmado `primer_sello_pide_ticket_min` en el altar
-- [ ] Flota reiniciada con código nuevo
-- [ ] Pulso OK · Monarca avisado
+- [ ] pull regalo hecho
+- [ ] techo masa confirmado
+- [ ] aplanar + despertar desde cero
+- [ ] pulso OK · Monarca avisado

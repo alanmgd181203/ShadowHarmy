@@ -402,6 +402,14 @@ def masa_tramo_usd() -> float:
     return max(0.0, float(getattr(config, "BERU_RANGO_MASA_USD", 5.0) or 5.0))
 
 
+def masa_armar_max_usd() -> float:
+    """Techo duro al armar Vacío/Sangre/Red. 0 = sin techo.
+
+    Piedra default $25: evita tumor tipo AEON Red@$364 por offset podrido.
+    """
+    return max(0.0, float(getattr(config, "BERU_RANGO_MASA_ARMAR_MAX_USD", 0.0) or 0.0))
+
+
 def masa_red_usd() -> float:
     return max(0.0, float(getattr(config, "BERU_RANGO_MASA_RED_USD", 5.0) or 5.0))
 
@@ -1114,6 +1122,9 @@ def _plantar_trailing(
     if px <= 0:
         return 0.0
     masa_f = float(masa or 0)
+    cap = masa_armar_max_usd()
+    if cap > 0 and masa_f > cap + 1e-12:
+        masa_f = cap
     if masa_f <= 1e-12:
         return 0.0
     beru.direccion = "SHORT" if short else "LONG"
