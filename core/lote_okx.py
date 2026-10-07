@@ -13,27 +13,55 @@ from core import beru_mar
 ModoRedondeo = Literal["floor", "ceil"]
 
 
+def _ruta_raiz() -> str:
+  return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
 def _ruta_bd() -> str:
   override = getattr(config, "OKX_PARAMETROS_PATH", None)
   if override:
     return str(override)
-  root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  root = _ruta_raiz()
   minimos = os.path.join(root, "data", "okx_minimos_orden.json")
   if os.path.exists(minimos):
     return minimos
   return os.path.join(root, "data", "okx_parametros_mercado.json")
 
 
-@lru_cache(maxsize=1)
-def _cargar_bd() -> dict[str, Any]:
-  ruta = _ruta_bd()
-  if not os.path.exists(ruta):
+def _ruta_bd_reserva() -> str:
+  """Catálogo amplio: rellena Santos que no están en minimos_orden."""
+  return os.path.join(_ruta_raiz(), "data", "okx_parametros_mercado.json")
+
+
+def _leer_json_bd(ruta: str) -> dict[str, Any]:
+  if not ruta or not os.path.exists(ruta):
     return {"activos": {}, "meta": {}}
   try:
     with open(ruta, encoding="utf-8") as f:
-      return json.load(f)
+      data = json.load(f)
   except (OSError, json.JSONDecodeError):
     return {"activos": {}, "meta": {}}
+  if not isinstance(data, dict):
+    return {"activos": {}, "meta": {}}
+  if not isinstance(data.get("activos"), dict):
+    data["activos"] = {}
+  return data
+
+
+@lru_cache(maxsize=1)
+def _cargar_bd() -> dict[str, Any]:
+  """Minimos manda; parametros_mercado completa huecos (NEAR, etc.)."""
+  primaria = _leer_json_bd(_ruta_bd())
+  reserva_path = _ruta_bd_reserva()
+  if os.path.normpath(reserva_path) == os.path.normpath(_ruta_bd()):
+    return primaria
+  reserva = _leer_json_bd(reserva_path)
+  unidos = dict(reserva.get("activos") or {})
+  unidos.update(primaria.get("activos") or {})  # minimos pisa
+  meta = dict(reserva.get("meta") or {})
+  meta.update(primaria.get("meta") or {})
+  meta["fuente_lote"] = "minimos+parametros"
+  return {"activos": unidos, "meta": meta}
 
 
 def invalidar_cache_bd() -> None:

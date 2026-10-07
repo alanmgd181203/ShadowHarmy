@@ -592,7 +592,7 @@ class BeruRango:
             return True
         try:
             plan = beru_rango_altar.plan_trailing_entrada(
-                beru, activo=self._activo, masa_usd=masa,
+                beru, activo=self._activo, masa_usd=masa, origen=origen,
             )
             res = await beru_rango_altar.armar_condicional(
                 self.bridge, beru, plan,

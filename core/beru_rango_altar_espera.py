@@ -19,7 +19,11 @@ _MOTIVOS = (
 
 
 def parchar_espera_piso_sello(cls: Any) -> Any:
-    """Envuelve ``_intentar_sello_entrada``: piso insuficiente → aviso 1/min."""
+    """Envuelve ``_intentar_sello_entrada``: piso insuficiente → aviso 1/min.
+
+    Al armar Vacío/Sangre/Red (o caza sin sello) pide ticket mínimo de 1 contrato
+    para que el altar nazca; el engorde a pedazos sigue con floor+deuda.
+    """
     if getattr(cls, "_altar_espera_piso_parchado", False):
         return cls
     orig = cls._intentar_sello_entrada
@@ -34,7 +38,10 @@ def parchar_espera_piso_sello(cls: Any) -> Any:
             return await orig(self, beru, masa, origen=origen)
         try:
             plan = altar.plan_trailing_entrada(
-                beru, activo=self._activo, masa_usd=masa,
+                beru,
+                activo=self._activo,
+                masa_usd=masa,
+                origen=origen,
             )
         except ValueError as exc:
             msg = str(exc)

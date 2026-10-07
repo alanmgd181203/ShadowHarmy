@@ -107,6 +107,24 @@ def link_id_rango(beru: Any, *, proposito: str = "TRAIL") -> str:
     return f"BRG-{proposito.upper()[:3]}-{rev}-{digest}"[:36]
 
 
+def primer_sello_pide_ticket_min(beru: Any, origen: str = "") -> bool:
+    """True al armar Vacío/Sangre/Red o si la caza aún no tiene sello en el mar.
+
+    Acecho = solo cuenta mental. Al tocar, el altar debe nacer: si la doctrina
+    piedra aún no cubre 1 contrato, se pide ticket mínimo (no ACECHO sordo).
+    """
+    o = str(origen or "").upper()
+    if any(t in o for t in ("VACIO", "SANGRE", "RED")):
+        return True
+    if float(getattr(beru, "altar_masa_colocada_usd", 0) or 0) > 1e-12:
+        return False
+    if str(getattr(beru, "altar_link_id", "") or "") or str(
+        getattr(beru, "altar_order_id", "") or ""
+    ):
+        return False
+    return True
+
+
 def _cuantizar_masa_plan(
     beru: Any,
     masa_doctrinal: float,
@@ -121,7 +139,9 @@ def _cuantizar_masa_plan(
     otra vez (tumor: doble conteo doctrina+deuda). La deuda tras el piso es
     solo cola en cabeza = doctrina − notional colocado.
 
-    Candado: en piedra/sumados NUNCA ceil (hincharía de más la orden).
+    Candado: en piedra/sumados NUNCA ceil en engorde (hincharía la orden).
+    Excepción: ``ticket_min_si_cero`` al primer sello (Vacío/Sangre/Red) —
+    1 contrato mínimo para que el altar nazca; la mente se alinea al notional.
     """
     doctrina = max(0.0, float(masa_doctrinal or 0))
     usar_floor = beru_rango.redondeo_floor_manos()
@@ -143,12 +163,20 @@ def _cuantizar_masa_plan(
         ticket_min_si_cero=ticket_min_si_cero,
     )
     if beru is not None and usar_floor:
-        beru_rango.registrar_masa_doctrinal(beru, doctrina)
         if pack.get("ok"):
+            notional = float(pack.get("notional_usd") or 0)
             beru.masa_pendiente_usd = max(0.0, float(pack.get("deuda_usd") or 0))
-            beru.altar_masa_colocada_usd = float(pack.get("notional_usd") or 0)
+            beru.altar_masa_colocada_usd = notional
+            # Primer sello: el piso del mar manda; la cuenta mental se alinea.
+            if pack.get("ticket_min") and notional > doctrina + 1e-9:
+                beru.masa = max(float(getattr(beru, "masa", 0) or 0), notional)
+                beru.masa_tramo_usd = float(beru.masa)
+                beru_rango.registrar_masa_doctrinal(beru, float(beru.masa))
+            else:
+                beru_rango.registrar_masa_doctrinal(beru, doctrina)
         else:
-            # Espera piso: toda la suma queda en cabeza; no hay sello en el mar.
+            # Espera piso (solo engorde a pedazos): suma en cabeza, sin sello.
+            beru_rango.registrar_masa_doctrinal(beru, doctrina)
             beru.masa_pendiente_usd = max(
                 0.0, float(pack.get("deuda_usd") or doctrina),
             )
@@ -163,6 +191,7 @@ def plan_trailing_entrada(
     masa_usd: float | None = None,
     trigger_price: float | None = None,
     ticket_min_si_cero: bool = False,
+    origen: str = "",
 ) -> PlanLinealRango:
     """Oz trailing: SHORT Sell cuando el precio baja a la Oz; LONG Buy al subir."""
     act = str(activo or "").upper()
@@ -181,8 +210,9 @@ def plan_trailing_entrada(
     except Exception:
         pass
     masa = float(masa_usd if masa_usd is not None else getattr(beru, "masa", 0) or beru_rango.masa_tramo_usd())
+    ticket = bool(ticket_min_si_cero) or primer_sello_pide_ticket_min(beru, origen)
     pack = _cuantizar_masa_plan(
-        beru, masa, oz, frente, ticket_min_si_cero=ticket_min_si_cero,
+        beru, masa, oz, frente, ticket_min_si_cero=ticket,
     )
     if not pack.get("ok"):
         motivo = str(pack.get("motivo") or "lote_lineal_invalido")
