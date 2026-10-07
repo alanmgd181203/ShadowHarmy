@@ -79,7 +79,7 @@ def _cuenta_en_piernas() -> bool:
         row = (list(rows or []) or [{}])[0]
         return str(row.get("posMode") or "") == "long_short_mode"
     except Exception:
-        return True  # Beru fuerza piernas; asumir sí
+        return False  # Doctrina 2026-10: neto es la ley; no asumir piernas
 
 
 def cancelar_orden_escudo(
@@ -182,6 +182,8 @@ def plantar_limit_escudo_okx(
         ps = _pos_side_para(lado_u, reduce=reduce_only)
         if ps:
             body["posSide"] = ps
+    else:
+        body["posSide"] = "net"
     if reduce_only:
         body["reduceOnly"] = True
 
@@ -266,6 +268,8 @@ def plantar_market_escudo_okx(
         ps = _pos_side_para(lado_u, reduce=reduce_only)
         if ps:
             body["posSide"] = ps
+    else:
+        body["posSide"] = "net"
     if reduce_only:
         body["reduceOnly"] = True
 

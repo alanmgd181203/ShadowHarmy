@@ -23,10 +23,10 @@ def _okx_client_id(cl: str) -> str:
 
 
 def pos_side_entrada(*, side: str, position_idx=None) -> str:
-  """Pierna OKX de *entrada* Beru (long/short), nunca net.
+  """Solo legado: etiquetar pierna si la cuenta aún estuviera en long_short.
 
-  Doctrina: sangre/Oz abren la caza del lado; no deben atropellar la pierna
-  contraria. En modo neto un Sell se come el long (tumor 2026-09-16).
+  Doctrina 2026-10: Beru caza en neto (un vaso). La contraria *resta*;
+  no se abren dos piernas. Esta etiqueta no se usa en net_mode.
   """
   try:
     idx = int(position_idx) if position_idx is not None else 0
@@ -121,19 +121,16 @@ class OkxBridge:
   def _en_piernas(self) -> bool:
     return str(self._pos_mode or "") == "long_short_mode"
 
-  async def asegurar_modo_piernas(self) -> OrdenResultado:
-    """Intenta long_short_mode (piernas). Si hay basura en neto, opera en neto temporal.
+  async def asegurar_modo_neto(self) -> OrdenResultado:
+    """Fuerza net_mode (un vaso). Contraria reduce; no abre segunda pierna.
 
-    Doctrina: piernas es la meta (Sell no come long). OKX no deja cambiar el
-    modo con posiciones/órdenes abiertas — en ese caso se acepta net_mode
-    para no dejar el ejército ciego, con aviso crítico. Cuando la cuenta
-    quede plana, el próximo ritual arma piernas de verdad.
+    Doctrina 2026-10: piernas (long_short) fue tumor — Beru abría long al lado
+    del short. OKX no deja cambiar con posiciones/órdenes abiertas; con casa
+    plana el switch debe quedar neto. Si falla, se opera con el modo actual
+    (aviso) para no cegar el arise.
     """
-    if self._pos_mode_listo and self._pos_mode in ("long_short_mode", "net_mode"):
-      return OrdenResultado(
-        True,
-        mensaje="piernas_ok" if self._en_piernas() else "neto_temporal_ok",
-      )
+    if self._pos_mode_listo and self._pos_mode == "net_mode":
+      return OrdenResultado(True, mensaje="neto_ok")
     if not self.session:
       return OrdenResultado(False, mensaje="Sin credenciales OKX")
     try:
@@ -141,39 +138,45 @@ class OkxBridge:
       row = (cfg or [{}])[0] if isinstance(cfg, list) else (cfg or {})
       modo = str((row or {}).get("posMode") or "").strip()
       self._pos_mode = modo or None
-      if modo == "long_short_mode":
+      if modo == "net_mode":
         self._pos_mode_listo = True
-        return OrdenResultado(True, mensaje="piernas_ya")
-      data = await asyncio.to_thread(
+        return OrdenResultado(True, mensaje="neto_ya")
+      await asyncio.to_thread(
         okx_rest.post_private,
         "/api/v5/account/set-position-mode",
-        {"posMode": "long_short_mode"},
+        {"posMode": "net_mode"},
       )
-      _ = data
-      self._pos_mode = "long_short_mode"
+      self._pos_mode = "net_mode"
       self._pos_mode_listo = True
       await self.bel.anotar(
-        "OKX_BRIDGE", "MODO_PIERNAS",
-        "Cuenta en long_short_mode (Sell ya no come long).",
+        "OKX_BRIDGE", "MODO_NETO",
+        "Cuenta en net_mode (un vaso: contraria reduce).",
       )
-      return OrdenResultado(True, mensaje="piernas_armadas")
+      return OrdenResultado(True, mensaje="neto_armado")
     except okx_rest.OkxRestError as exc:
       msg = str(exc)
-      # Ya en el modo pedido / cuenta que no admite el switch
-      if "long_short" in msg.lower() and "same" in msg.lower():
-        self._pos_mode = "long_short_mode"
+      if "net" in msg.lower() and ("same" in msg.lower() or "already" in msg.lower()):
+        self._pos_mode = "net_mode"
         self._pos_mode_listo = True
         return OrdenResultado(True, mensaje=msg)
-      # Basura abierta: OKX 59000 — seguir en neto para no matar el arise.
-      modo_ahora = str(self._pos_mode or "net_mode")
-      self._pos_mode = modo_ahora if modo_ahora else "net_mode"
-      self._pos_mode_listo = True
+      # Basura abierta / rechazo: no mentir — recordar modo real si lo leímos.
+      modo_ahora = str(self._pos_mode or "")
+      if modo_ahora in ("net_mode", "long_short_mode"):
+        self._pos_mode_listo = True
       await self.bel.anotar(
-        "OKX_BRIDGE", "MODO_NETO_TEMPORAL",
-        f"Piernas bloqueadas ({msg}). Operando en neto hasta aplanar. "
-        f"Sangre short aún puede atropellar long en esta cuenta.",
+        "OKX_BRIDGE", "MODO_NETO_BLOQUEADO",
+        f"No se pudo forzar neto ({msg}). Modo actual={modo_ahora or '?'}. "
+        f"Con piernas, Beru aún puede abrir bolsa doble.",
       )
-      return OrdenResultado(True, mensaje=f"neto_temporal: {msg}")
+      # Si ya estamos en neto por lectura previa, OK; si no, fallar duro
+      # para no operar creyendo que reduce cuando abre pierna.
+      if modo_ahora == "net_mode":
+        return OrdenResultado(True, mensaje=f"neto_ya: {msg}")
+      return OrdenResultado(False, mensaje=f"sin_neto: {msg}")
+
+  async def asegurar_modo_piernas(self) -> OrdenResultado:
+    """Alias legado → asegurar_modo_neto (ya no se arman piernas)."""
+    return await self.asegurar_modo_neto()
 
   def get_positions(self, **kwargs) -> dict:
     """Compat Bybit → OKX SWAP USDT (Tusk / telemetría). Inverse: lista vacía."""
@@ -386,12 +389,12 @@ class OkxBridge:
   ):
     if not self.session:
       return OrdenResultado(False, mensaje="Sin credenciales OKX")
-    piernas = await self.asegurar_modo_piernas()
-    if not getattr(piernas, "exito", False):
+    neto = await self.asegurar_modo_neto()
+    if not getattr(neto, "exito", False):
       return OrdenResultado(
         False,
         link_id=_okx_client_id(str(link_id or "")),
-        mensaje=f"sin_modo_piernas: {getattr(piernas, 'mensaje', '')}",
+        mensaje=f"sin_modo_neto: {getattr(neto, 'mensaje', '')}",
       )
     inst = self._symbol_to_inst(symbol)
     cl = _okx_client_id(str(link_id or f"BRG{uuid.uuid4().hex[:12]}"))
@@ -401,6 +404,8 @@ class OkxBridge:
     act = beru_mar.inst_id_a_activo(inst)
     frente = f"{act}USDT_LINEAL"
     sz = lote_okx.sz_okx_str(float(qty or 0), frente)
+    # Neto: siempre posSide=net (un vaso). Piernas solo si el switch falló
+    # y la cuenta quedó en long_short (no debería operar — arriba fallamos).
     hedge = self._en_piernas()
     pos_side = pos_side_entrada(side=side, position_idx=position_idx) if hedge else "net"
     reduce = bool(reduce_only) if reduce_only is not None else False
@@ -421,9 +426,8 @@ class OkxBridge:
           "orderPx": "-1",
           "triggerPxType": "last",
           "algoClOrdId": cl,
+          "posSide": pos_side,
         }
-        if hedge:
-          body["posSide"] = pos_side
         if reduce:
           body["reduceOnly"] = True
         data = await asyncio.to_thread(okx_rest.post_private, "/api/v5/trade/order-algo", body)
@@ -442,9 +446,8 @@ class OkxBridge:
         "ordType": "market" if str(order_type).lower() == "market" else "limit",
         "sz": sz,
         "clOrdId": cl,
+        "posSide": pos_side,
       }
-      if hedge:
-        body["posSide"] = pos_side
       if reduce:
         body["reduceOnly"] = True
       if body["ordType"] == "limit" and price is not None:
@@ -537,10 +540,11 @@ class OkxBridge:
         body["newSz"] = lote_okx.sz_okx_str(float(new_qty), f"{act}USDT_LINEAL")
       if new_price is not None:
         body["newPx"] = str(new_price)
-      # Hedge: enmienda debe nombrar la pierna (si el caller la conoce).
-      await self.asegurar_modo_piernas()
+      await self.asegurar_modo_neto()
       if self._en_piernas() and (position_idx is not None or side is not None):
         body["posSide"] = pos_side_entrada(side=str(side or ""), position_idx=position_idx)
+      else:
+        body["posSide"] = "net"
       await asyncio.to_thread(okx_rest.post_private, "/api/v5/trade/amend-algos", body)
       return OrdenResultado(True, order_id=order_id or "", link_id=cl)
     except okx_rest.OkxRestError as exc:

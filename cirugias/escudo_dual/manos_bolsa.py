@@ -91,6 +91,8 @@ def ajustar(meta_signed_usd: float, inst: str) -> dict:
             cuerpo["posSide"] = "long"
         else:
             cuerpo["posSide"] = "short"
+    else:
+        cuerpo["posSide"] = "net"
     data = okx_rest.post_private("/api/v5/trade/order", cuerpo)
     fila = (list(data or [{}]) or [{}])[0]
     if str((fila or {}).get("sCode") or "0") not in ("0", ""):
@@ -154,13 +156,27 @@ def _vivo(okx, inst: str, filtros: dict) -> tuple[float | None, float | None]:
     px = _precio(okx, inst, fila)
     if px <= 0:
         return None, None
-    if fila is None:
+    # En piernas puede haber long y short a la vez: sumar firmados.
+    total = 0.0
+    vio = False
+    for candidata in filas:
+        if not isinstance(candidata, dict) or str(candidata.get("instId")) != inst:
+            continue
+        vio = True
+        try:
+            q = float(candidata.get("pos") or 0)
+        except (TypeError, ValueError):
+            return None, None
+        lado_f = str(candidata.get("posSide") or "net").strip().lower()
+        if lado_f == "short":
+            total += -abs(q)
+        elif lado_f == "long":
+            total += abs(q)
+        else:
+            total += q
+    if not vio:
         return 0.0, px
-    try:
-        pos = float(fila.get("pos") or 0)
-    except (TypeError, ValueError):
-        return None, None
-    return dolares(pos, filtros["ct"], px), px
+    return dolares(total, filtros["ct"], px), px
 
 
 def _en_piernas(okx) -> bool:

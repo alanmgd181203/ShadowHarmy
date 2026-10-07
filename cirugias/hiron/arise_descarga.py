@@ -30,7 +30,17 @@ def _f(valor, default: float = 0.0) -> float:
         return default
 
 
+def _lado_fila(fila: dict) -> str:
+    side = str(fila.get("posSide") or "net").strip().lower()
+    if side == "short":
+        return "SHORT"
+    if side == "long":
+        return "LONG"
+    return "SHORT" if _f(fila.get("pos")) < 0 else "LONG"
+
+
 def _ultimo() -> dict:
+    """Clave nombre:lado → (nacimiento, nota)."""
     try:
         data = json.loads(LIBRO.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -41,14 +51,19 @@ def _ultimo() -> dict:
     for clave, fila in data.items():
         if not isinstance(fila, dict):
             continue
-        nombre, _, ts = str(clave).partition(":")
+        partes = str(clave).split(":")
+        nombre = partes[0].upper() if partes else ""
         try:
-            cuando = int(ts or 0)
+            cuando = int(partes[1]) if len(partes) > 1 else 0
         except ValueError:
             cuando = 0
-        prev = ultimo.get(nombre)
+        lado = partes[2].upper() if len(partes) > 2 else str(fila.get("lado") or "").upper()
+        if not nombre:
+            continue
+        llave = f"{nombre}:{lado}" if lado in ("LONG", "SHORT") else nombre
+        prev = ultimo.get(llave)
         if prev is None or cuando >= prev[0]:
-            ultimo[nombre] = (cuando, fila)
+            ultimo[llave] = (cuando, fila)
     return ultimo
 
 
@@ -73,7 +88,7 @@ def _paso(lado: str, marca: float, fin: float) -> bool:
     return marca <= fin + 1e-12
 
 
-def _cerrar(okx, inst: str, lado: str, contratos: float) -> str:
+def _cerrar(okx, inst: str, lado: str, contratos: float, *, piernas: bool = False) -> str:
     sz = f"{contratos:.8f}".rstrip("0").rstrip(".")
     cuerpo = {
         "instId": inst,
@@ -83,6 +98,7 @@ def _cerrar(okx, inst: str, lado: str, contratos: float) -> str:
         "sz": sz,
         "reduceOnly": True,
         "clOrdId": ("DES" + uuid.uuid4().hex[:16])[:32],
+        "posSide": ("short" if lado == "SHORT" else "long") if piernas else "net",
     }
     data = okx.post_private("/api/v5/trade/order", cuerpo)
     fila = (list(data or [{}]) or [{}])[0]
@@ -136,7 +152,7 @@ def _mirar_ahora(activo: str, lado: str, suelo: float) -> str | None:
     return subida.ahora()
 
 
-def _anotar_sin_clase(okx, estado: dict, candidatas: list[dict]) -> None:
+def _anotar_sin_clase(okx, estado: dict, candidatas: list[dict], *, piernas: bool = False) -> None:
     """Una bolsa por latido. Si todavía camina, no cobra el tramo callado."""
     if not candidatas:
         return
@@ -192,7 +208,7 @@ def _anotar_sin_clase(okx, estado: dict, candidatas: list[dict]) -> None:
     contratos = pasos * lot
     if contratos <= 0 or contratos > abs(pos) + 1e-9:
         return
-    orden = _cerrar(okx, fila["inst"], fila["lado"], contratos)
+    orden = _cerrar(okx, fila["inst"], fila["lado"], contratos, piernas=piernas)
     if orden:
         print(f"{fila['nombre']} suelta {sol:.0f}", flush=True)
 
@@ -201,9 +217,11 @@ def latido() -> None:
     from core import okx_rest
 
     cfg = okx_rest.get_private("/api/v5/account/config") or []
-    if str((list(cfg) or [{}])[0].get("posMode") or "") != "net_mode":
-        print("sin neto", flush=True)
+    modo = str((list(cfg) or [{}])[0].get("posMode") or "")
+    if modo not in ("net_mode", "long_short_mode"):
+        print("sin modo de pierna", flush=True)
         return
+    piernas = modo == "long_short_mode"
     estado = _estado()
     ultimo = _ultimo()
     filas = okx_rest.get_private("/api/v5/account/positions", params={"instType": "SWAP"}) or []
@@ -214,8 +232,9 @@ def latido() -> None:
         inst = str(fila.get("instId") or "")
         if not inst.endswith("-USDT-SWAP"):
             continue
-        nombre = inst.split("-")[0]
-        previo = ultimo.get(nombre)
+        nombre = inst.split("-")[0].upper()
+        lado = _lado_fila(fila)
+        previo = ultimo.get(f"{nombre}:{lado}") or ultimo.get(nombre)
         if previo is None:
             continue
         nace_libro, nota = previo
@@ -226,20 +245,20 @@ def latido() -> None:
                 nace = int(float(fila.get("cTime") or 0))
             except (TypeError, ValueError):
                 continue
-            pos = _f(fila.get("pos"))
+            pos = abs(_f(fila.get("pos")))
             if suelo > 0 and nace == nace_libro and pos != 0 and str(fila.get("mgnMode") or "") == "cross":
                 candidatas.append({
                     "nombre": nombre,
-                    "lado": "SHORT" if pos < 0 else "LONG",
+                    "lado": lado,
                     "suelo": suelo,
                     "marca": _f(fila.get("markPx")),
                     "promedio": _f(fila.get("avgPx")),
                     "usd": abs(_f(fila.get("notionalUsd"))),
-                    "pos": pos,
+                    "pos": pos if lado == "LONG" else -pos,
                     "inst": inst,
                     "ct": 0.0,
                     "lot": 0.0,
-                    "clave": f"{nombre}:{nace}",
+                    "clave": f"{nombre}:{nace}:{lado}",
                 })
             continue
         try:
@@ -248,17 +267,16 @@ def latido() -> None:
             continue
         if nace != nace_libro:
             continue
-        pos = _f(fila.get("pos"))
+        pos = abs(_f(fila.get("pos")))
         if pos == 0 or str(fila.get("mgnMode") or "") != "cross":
             continue
-        lado = "SHORT" if pos < 0 else "LONG"
         marca = _f(fila.get("markPx"))
         promedio = _f(fila.get("avgPx"))
         suelo = _f(nota.get("suelo"))
         d = Descarga(lado, clase, promedio, suelo)
         if not d.habla or d.fin() is None or marca <= 0:
             continue
-        clave = f"{nombre}:{nace}"
+        clave = f"{nombre}:{nace}:{lado}"
         ya = estado.get(clave) if isinstance(estado.get(clave), dict) else {}
         if ya.get("vacia"):
             continue
@@ -272,11 +290,11 @@ def latido() -> None:
         if ct <= 0 or lot <= 0:
             continue
         if _paso(lado, marca, float(d.fin())):
-            pasos = int((abs(pos) / lot) + 1e-9)
+            pasos = int((pos / lot) + 1e-9)
             contratos = pasos * lot
-            if contratos <= 0 or contratos > abs(pos) + 1e-9:
+            if contratos <= 0 or contratos > pos + 1e-9:
                 continue
-            orden = _cerrar(okx_rest, inst, lado, contratos)
+            orden = _cerrar(okx_rest, inst, lado, contratos, piernas=piernas)
             if not orden:
                 print(f"{nombre} no salio", flush=True)
                 continue
@@ -296,15 +314,15 @@ def latido() -> None:
         _guardar(estado)
         if not sol or sol <= 1.0:
             continue
-        monedas = min(abs(pos) * ct, sol / marca) if marca > 0 else 0.0
+        monedas = min(pos * ct, sol / marca) if marca > 0 else 0.0
         pasos = int((monedas / ct) / lot + 1e-9)
         contratos = pasos * lot
-        if contratos <= 0 or contratos > abs(pos) + 1e-9:
+        if contratos <= 0 or contratos > pos + 1e-9:
             continue
-        orden = _cerrar(okx_rest, inst, lado, contratos)
+        orden = _cerrar(okx_rest, inst, lado, contratos, piernas=piernas)
         if orden:
             print(f"{nombre} suelta {sol:.0f}", flush=True)
-    _anotar_sin_clase(okx_rest, estado, candidatas)
+    _anotar_sin_clase(okx_rest, estado, candidatas, piernas=piernas)
 
 
 def main() -> None:

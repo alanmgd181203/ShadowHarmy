@@ -34,6 +34,35 @@ def _f(valor, default: float = 0.0) -> float:
         return default
 
 
+def _lado_fila(fila: dict) -> str:
+    """En piernas, pos es magnitud: el lado manda el signo."""
+    side = str(fila.get("posSide") or "net").strip().lower()
+    if side == "short":
+        return "SHORT"
+    if side == "long":
+        return "LONG"
+    return "LONG" if _f(fila.get("pos")) > 0 else "SHORT"
+
+
+def _pos_firmada(fila: dict) -> float:
+    qty = abs(_f(fila.get("pos")))
+    return qty if _lado_fila(fila) == "LONG" else -qty
+
+
+def _clave_iron(activo: str, nacimiento: int, lado: str) -> str:
+    return f"{activo}:{int(nacimiento)}:{lado}"
+
+
+def _nota_memoria(memoria: dict, activo: str, nacimiento: int, lado: str) -> dict:
+    """Lee sello nuevo (con lado) o el viejo (sin lado)."""
+    clave = _clave_iron(activo, nacimiento, lado)
+    nota = memoria.get(clave)
+    if isinstance(nota, dict):
+        return nota
+    vieja = memoria.get(f"{activo}:{int(nacimiento)}")
+    return vieja if isinstance(vieja, dict) else {}
+
+
 def _color(activo: str) -> str:
     inf = RAIZ / "data" / "beru" / "rango" / activo / "manos_piedra_informe.json"
     try:
@@ -270,8 +299,8 @@ def _iron_vivo(
     monedas: float,
 ) -> dict:
     """Recuerda la prisa y la Oz. No la planta y no cierra."""
-    clave = f"{activo}:{int(nacimiento)}"
-    previo = memoria.get(clave) if isinstance(memoria.get(clave), dict) else {}
+    clave = _clave_iron(activo, nacimiento, lado)
+    previo = _nota_memoria(memoria, activo, nacimiento, lado)
     clase = previo.get("clase") if previo.get("clase") in ("dificil", "normal", "limpia") else None
     en_terreno = False
     if suelo and marca > 0:
@@ -344,6 +373,7 @@ def _iron_vivo(
         "cortado": bool(previo.get("cortado")),
         "orden": previo.get("orden") or "",
         "confia": bool(previo.get("confia")),
+        "lado": lado,
     }
     mira = _mira_iron(lado, suelo_uso, marca, clase if nota["quieto"] or clase else clase)
     if nota["nacido"] and nota["oz"]:
@@ -363,11 +393,11 @@ def _iron_vivo(
 
 def _uno(okx, activo: str, fila: dict, memoria: dict) -> dict:
     inst = f"{activo}-USDT-SWAP"
-    pos = _f(fila.get("pos"))
+    pos = _pos_firmada(fila)
     marca = _f(fila.get("markPx") or fila.get("last"))
     promedio = _f(fila.get("avgPx"))
     notional = abs(_f(fila.get("notionalUsd")))
-    lado = "LONG" if pos > 0 else "SHORT"
+    lado = _lado_fila(fila)
     salida = {
         "activo": activo,
         "lado": lado,
@@ -390,6 +420,13 @@ def _uno(okx, activo: str, fila: dict, memoria: dict) -> dict:
         ts = int(_f(orden.get("ts")))
         if limite > 0 and ts > limite:
             continue
+        # En piernas, long y short comparten el mismo instrumento: solo esta pierna.
+        fill_side = str(orden.get("posSide") or "net").strip().lower()
+        if fill_side in ("long", "short"):
+            if lado == "SHORT" and fill_side != "short":
+                continue
+            if lado == "LONG" and fill_side != "long":
+                continue
         qty = _f(orden.get("fillSz"))
         px = _f(orden.get("fillPx"))
         if qty <= 0 or px <= 0:
@@ -402,18 +439,25 @@ def _uno(okx, activo: str, fila: dict, memoria: dict) -> dict:
                 "px": px,
             }
         )
-    cabe = _afeitar_puerta(piezas, pos)
-    toques = []
-    for pieza in piezas:
-        if pieza["qty"] <= 1e-12:
-            continue
-        qty = pieza["qty"] * contrato
-        cambio = qty if pieza["lado"] == "buy" else -qty
-        toques.append((cambio, abs(cambio) * pieza["px"]))
-    cuenta = cuenta_de_la_pierna(toques, lado)
-    replay = _f(cuenta.get("monedas"))
+    def _replay_de(piezas_uso: list[dict]) -> tuple[list, dict, float]:
+        toques_u: list = []
+        for pieza in piezas_uso:
+            if pieza["qty"] <= 1e-12:
+                continue
+            qty = pieza["qty"] * contrato
+            cambio = qty if pieza["lado"] == "buy" else -qty
+            toques_u.append((cambio, abs(cambio) * pieza["px"]))
+        cuenta_u = cuenta_de_la_pierna(toques_u, lado)
+        return toques_u, cuenta_u, _f(cuenta_u.get("monedas"))
+
+    # Si la pierna ya cuadra sola, no exige afeitar. Si no, recorta la puerta.
+    toques, cuenta, replay = _replay_de(piezas)
     holgura = max(0.02, 0.02 * abs(monedas_casa))
-    cuadra = cabe and (not cortado) and abs(replay - monedas_casa) <= holgura
+    if abs(replay - monedas_casa) > holgura:
+        piezas_try = [dict(p) for p in piezas]
+        if _afeitar_puerta(piezas_try, pos):
+            toques, cuenta, replay = _replay_de(piezas_try)
+    cuadra = (not cortado) and abs(replay - monedas_casa) <= holgura
     pierna = _f(cuenta.get("pierna"))
     promesa = ganancia_de_la_pierna(pierna)
     viaje = Viaje(lado)
@@ -458,14 +502,19 @@ def _uno(okx, activo: str, fila: dict, memoria: dict) -> dict:
             ),
         }
     )
-    clave = f"{activo}:{nacimiento}"
+    clave = _clave_iron(activo, nacimiento, lado)
     if isinstance(memoria.get(clave), dict):
         memoria[clave]["confia"] = bool(cuadra)
+    elif isinstance(memoria.get(f"{activo}:{nacimiento}"), dict):
+        # migra el sello viejo al de la pierna
+        memoria[clave] = dict(memoria[f"{activo}:{nacimiento}"])
+        memoria[clave]["confia"] = bool(cuadra)
+        memoria[clave]["lado"] = lado
     return salida
 
 
 def _lejos_del_quiebre(fila: dict) -> float:
-    pos = _f(fila.get("pos"))
+    pos = _pos_firmada(fila)
     marca = _f(fila.get("markPx") or fila.get("last"))
     promedio = _f(fila.get("avgPx"))
     if abs(pos) <= 1e-12 or marca <= 0 or promedio <= 0:
@@ -492,10 +541,11 @@ def _nombres_del_latido(por_nombre: dict, memoria: dict) -> list[str]:
         if isinstance(nota, dict) and nota.get("nacido"):
             suma(str(clave).split(":")[0])
     candidatos = []
-    for nombre, fila in por_nombre.items():
+    for nombre, filas in por_nombre.items():
         if nombre in vistos or nombre == "BTC":
             continue
-        lejos = _lejos_del_quiebre(fila)
+        piernas = filas if isinstance(filas, list) else [filas]
+        lejos = max((_lejos_del_quiebre(f) for f in piernas), default=0.0)
         if lejos + 1e-12 < LEJOS_PARA_MIRAR:
             continue
         candidatos.append((lejos, nombre))
@@ -507,17 +557,17 @@ def _nombres_del_latido(por_nombre: dict, memoria: dict) -> list[str]:
 
 def _ya_sentado(activo: str, fila: dict, memoria: dict) -> dict | None:
     """Si Iron ya nació en esta bolsa, solo mueve la Oz. No vuelve a leer la pierna."""
-    pos = _f(fila.get("pos"))
+    pos = _pos_firmada(fila)
     marca = _f(fila.get("markPx") or fila.get("last"))
     if abs(pos) <= 1e-12 or marca <= 0:
         return None
     nacimiento = int(_f(fila.get("cTime")))
-    nota = memoria.get(f"{activo}:{nacimiento}")
-    if not isinstance(nota, dict) or not nota.get("nacido") or not nota.get("confia"):
+    lado = _lado_fila(fila)
+    nota = _nota_memoria(memoria, activo, nacimiento, lado)
+    if not nota or not nota.get("nacido") or not nota.get("confia"):
         return None
     if not nota.get("suelo"):
         return None
-    lado = "LONG" if pos > 0 else "SHORT"
     mira = _iron_vivo(
         memoria,
         activo,
@@ -558,21 +608,24 @@ def _guardar_memoria(dato: dict) -> None:
 
 
 def _hacha(okx, fila: dict, memoria: dict) -> str:
-    """Cierra lo condenado, una vez. Si la cuenta no está en neto, no manda."""
+    """Cierra lo condenado, una vez. Sirve en neto y en piernas."""
     if not fila.get("confia"):
         return ""
     nacimiento = int(_f(fila.get("nacimiento")))
-    clave = f"{fila.get('activo')}:{nacimiento}"
-    nota = memoria.get(clave) if isinstance(memoria.get(clave), dict) else None
+    lado = str(fila.get("lado") or "")
+    activo = str(fila.get("activo") or "")
+    clave = _clave_iron(activo, nacimiento, lado)
+    nota = _nota_memoria(memoria, activo, nacimiento, lado)
     if not nota or not nota.get("tocada") or nota.get("cortado") or not nota.get("nacido"):
         return ""
     condenadas = _f(nota.get("condenadas"))
     if condenadas <= 0:
         return ""
     cfg = okx.get_private("/api/v5/account/config") or []
-    if str((list(cfg) or [{}])[0].get("posMode") or "") != "net_mode":
+    modo = str((list(cfg) or [{}])[0].get("posMode") or "")
+    if modo not in ("net_mode", "long_short_mode"):
         return ""
-    inst = f"{fila.get('activo')}-USDT-SWAP"
+    inst = f"{activo}-USDT-SWAP"
     pub = okx.get_public(
         "/api/v5/public/instruments",
         params={"instType": "SWAP", "instId": inst},
@@ -586,26 +639,27 @@ def _hacha(okx, fila: dict, memoria: dict) -> str:
         "/api/v5/account/positions",
         params={"instType": "SWAP", "instId": inst},
     ) or []
-    bolsa = next(
-        (x for x in rows if isinstance(x, dict) and str(x.get("instId")) == inst),
-        None,
-    )
+    bolsa = None
+    for x in rows:
+        if not isinstance(x, dict) or str(x.get("instId")) != inst:
+            continue
+        if int(_f(x.get("cTime"))) != nacimiento:
+            continue
+        if _lado_fila(x) != lado:
+            continue
+        bolsa = x
+        break
     if not bolsa or str(bolsa.get("mgnMode") or "") != "cross":
         return ""
-    if int(_f(bolsa.get("cTime"))) != nacimiento:
+    pos = abs(_f(bolsa.get("pos")))
+    if pos <= 1e-12:
         return ""
-    pos = _f(bolsa.get("pos"))
-    lado = str(fila.get("lado") or "")
-    if lado == "SHORT" and pos >= 0:
-        return ""
-    if lado == "LONG" and pos <= 0:
-        return ""
-    monedas = abs(pos) * ct
+    monedas = pos * ct
     if monedas <= 1e-12:
         return ""
     pasos = int((min(monedas, condenadas) / ct) / lot + 1e-9)
     contratos = pasos * lot
-    if contratos <= 0 or contratos * ct > condenadas + 1e-6 or contratos > abs(pos) + 1e-9:
+    if contratos <= 0 or contratos * ct > condenadas + 1e-6 or contratos > pos + 1e-9:
         return ""
     sz = f"{contratos:.8f}".rstrip("0").rstrip(".")
     cuerpo = {
@@ -616,6 +670,12 @@ def _hacha(okx, fila: dict, memoria: dict) -> str:
         "sz": sz,
         "reduceOnly": True,
         "clOrdId": ("HIR" + uuid.uuid4().hex[:16])[:32],
+        # Neto: un vaso. Piernas (legado): nombrar la bolsa.
+        "posSide": (
+            ("short" if lado == "SHORT" else "long")
+            if modo == "long_short_mode"
+            else "net"
+        ),
     }
     data = okx.post_private("/api/v5/trade/order", cuerpo)
     fila0 = (list(data or [{}]) or [{}])[0]
@@ -629,7 +689,7 @@ def _hacha(okx, fila: dict, memoria: dict) -> str:
         if corte > 0:
             from cirugias.hiron.fantasma_vivo import sellar_corte
 
-            sellar_corte(str(fila.get("activo") or ""), corte)
+            sellar_corte(activo, corte)
     return nota["orden"]
 
 
@@ -639,20 +699,23 @@ def latido() -> dict:
     if not okx_rest.credenciales_ok():
         raise RuntimeError("papel: sin llaves de lectura")
     filas = okx_rest.get_private("/api/v5/account/positions", params={"instType": "SWAP"}) or []
-    por_nombre = {}
+    por_nombre: dict[str, list] = {}
     for fila in filas:
         if not isinstance(fila, dict):
             continue
         inst = str(fila.get("instId") or "")
         if not inst.endswith("-USDT-SWAP"):
             continue
-        por_nombre[inst.split("-")[0].upper()] = fila
+        if abs(_f(fila.get("pos"))) <= 1e-12:
+            continue
+        nombre = inst.split("-")[0].upper()
+        por_nombre.setdefault(nombre, []).append(fila)
     memoria = _cargar_memoria()
     cazadores = []
     for nombre in _nombres_del_latido(por_nombre, memoria):
-        fila = por_nombre.get(nombre) or {}
-        sentado = _ya_sentado(nombre, fila, memoria)
-        cazadores.append(sentado or _uno(okx_rest, nombre, fila, memoria))
+        for fila in por_nombre.get(nombre) or []:
+            sentado = _ya_sentado(nombre, fila, memoria)
+            cazadores.append(sentado or _uno(okx_rest, nombre, fila, memoria))
     ordenes = []
     for fila in cazadores:
         try:
