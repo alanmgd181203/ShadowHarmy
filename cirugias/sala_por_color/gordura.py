@@ -60,6 +60,7 @@ def _cargar() -> dict[str, dict]:
 
 
 def _guardar(filas: dict[str, dict]) -> None:
+    """Escribe con tmp único y reintentos: muchos cuarteles pisan el mismo libro."""
     ruta = _ruta()
     ruta.parent.mkdir(parents=True, exist_ok=True)
     cuerpo = {
@@ -71,14 +72,63 @@ def _guardar(filas: dict[str, dict]) -> None:
         "santos": filas,
         "ts": time.time(),
     }
-    tmp = ruta.with_suffix(".tmp")
-    tmp.write_text(json.dumps(cuerpo, ensure_ascii=False, indent=2), encoding="utf-8")
-    tmp.replace(ruta)
-    try:
-        _MEM["mtime"] = ruta.stat().st_mtime
-    except OSError:
-        _MEM["mtime"] = None
+    texto = json.dumps(cuerpo, ensure_ascii=False, indent=2)
+    # Memoria local siempre: si el disco pelea, el pulso no muere.
     _MEM["filas"] = filas
+    ultimo_err: OSError | None = None
+    for intento in range(8):
+        tmp = ruta.parent / f"gordura.{os.getpid()}.{intento}.{int(time.time() * 1000)}.tmp"
+        try:
+            tmp.write_text(texto, encoding="utf-8")
+            os.replace(str(tmp), str(ruta))
+            try:
+                _MEM["mtime"] = ruta.stat().st_mtime
+            except OSError:
+                _MEM["mtime"] = None
+            return
+        except OSError as exc:
+            ultimo_err = exc
+            try:
+                tmp.unlink(missing_ok=True)
+            except OSError:
+                pass
+            time.sleep(0.02 * (intento + 1))
+    # Fallo de disco: no tumba al Beru; el siguiente pulso reintenta.
+    if ultimo_err is not None:
+        return
+
+
+def actualizar(
+    activo: str,
+    neto: float,
+    *,
+    precio: float = 0.0,
+    frente: str = "",
+) -> str:
+    """Recalcula y guarda la sala por gordura de ese santo."""
+    nombre = str(activo or "").strip().upper()
+    if not nombre:
+        return "verde"
+    try:
+        filas = dict(_cargar())
+        previa = str((filas.get(nombre) or {}).get("sala") or "verde")
+        nueva = sala_por_neto(previa, neto)
+        if _RANGO.get(nueva, 0) > _RANGO.get(color_sala(previa), 0):
+            while nueva != "verde" and not puede_vivir(nueva, precio, frente):
+                if nueva == "rojo":
+                    nueva = "amarillo"
+                else:
+                    nueva = "verde"
+                    break
+        filas[nombre] = {
+            "sala": nueva,
+            "neto": round(abs(float(neto or 0)), 2),
+            "ts": time.time(),
+        }
+        _guardar(filas)
+        return nueva
+    except OSError:
+        return sala_memoria(nombre)
 
 
 def sala_por_neto(sala_ahora: str | None, neto: float) -> str:
@@ -118,20 +168,25 @@ def unir(reloj: str | None, gordura: str | None) -> str:
 
 def puede_vivir(color: str, precio: float, frente: str) -> bool:
     """Si el mínimo del contrato deja nacer en esa sala."""
+    from core import beru_rango
     from core.beru_rango_semaforo import masa_nacimiento_por_bando, tope_serie_por_color
-    from core.lote_okx import filtros_lote, masa_a_qty_piso_deuda
+    from core.lote_okx import filtros_lote, floor_completo, masa_a_qty_piso_deuda
 
     col = color_sala(color)
     px = float(precio or 0)
     fr = str(frente or "").strip()
     if px <= 0 or not fr:
-        return True
+        return False
+    # Sin piso real no adivinar: puerta cerrada (no minSz=1 fantasma).
+    base = fr.replace("USDT_LINEAL", "").replace("-USDT-SWAP", "").upper()
+    if base and not floor_completo(base):
+        return False
     masa = float(masa_nacimiento_por_bando(col, "paz") or 0)
     tope = float(tope_serie_por_color(col) or 0)
     try:
         r = masa_a_qty_piso_deuda(masa, px, fr, ticket_min_si_cero=False)
     except Exception:
-        return True
+        return False
     if r.get("ok"):
         return True
     try:
@@ -141,41 +196,16 @@ def puede_vivir(color: str, precio: float, frente: str) -> bool:
         ct = float(f.get("ctVal") or 1.0)
         min_usd = abs(min_sz) * ct * px
     except Exception:
-        return True
+        return False
     techo = max(masa, tope)
+    cap = float(beru_rango.masa_armar_max_usd() or 0)
+    if cap > 0:
+        techo = min(techo, cap)
+        if min_usd > cap + 1e-9:
+            return False
     return min_usd <= techo + 1e-9
 
 
 def sala_memoria(activo: str) -> str:
     fila = _cargar().get(str(activo or "").upper()) or {}
     return color_sala(str(fila.get("sala") or "verde"))
-
-
-def actualizar(
-    activo: str,
-    neto: float,
-    *,
-    precio: float = 0.0,
-    frente: str = "",
-) -> str:
-    """Recalcula y guarda la sala por gordura de ese santo."""
-    nombre = str(activo or "").strip().upper()
-    if not nombre:
-        return "verde"
-    filas = dict(_cargar())
-    previa = str((filas.get(nombre) or {}).get("sala") or "verde")
-    nueva = sala_por_neto(previa, neto)
-    if _RANGO.get(nueva, 0) > _RANGO.get(color_sala(previa), 0):
-        while nueva != "verde" and not puede_vivir(nueva, precio, frente):
-            if nueva == "rojo":
-                nueva = "amarillo"
-            else:
-                nueva = "verde"
-                break
-    filas[nombre] = {
-        "sala": nueva,
-        "neto": round(abs(float(neto or 0)), 2),
-        "ts": time.time(),
-    }
-    _guardar(filas)
-    return nueva

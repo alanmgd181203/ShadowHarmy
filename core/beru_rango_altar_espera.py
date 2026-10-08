@@ -15,6 +15,8 @@ _MOTIVOS = (
     "qty_cero",
     "bajo_min_usd",
     "masa_o_precio_cero",
+    "ticket_min_sobre_techo",
+    "sin_piso_real",
 )
 
 

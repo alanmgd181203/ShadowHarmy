@@ -273,9 +273,7 @@ class BeruRango:
                     # Ojos / teatro: fill del mapa (sin manos).
                     fill = oz_viva or float(px)
                     masa_real = masa_hecha
-                beru_rango.cosechar_oz_y_mover_cero(
-                    beru, fill, oz_despliegue=oz_viva or None, masa_usd=masa_real,
-                )
+                # Cancelar Stop en el mar ANTES de cosechar (mientras aún hay link).
                 if self._manos():
                     await beru_rango_altar.cancelar_pendiente(
                         self.bridge,
@@ -283,6 +281,10 @@ class BeruRango:
                         activo=self._activo,
                         motivo="POST_OZ_COSECHA",
                     )
+                beru_rango.cosechar_oz_y_mover_cero(
+                    beru, fill, oz_despliegue=oz_viva or None, masa_usd=masa_real,
+                )
+                if self._manos():
                     beru_rango_altar.limpiar_sello_altar(beru)
                 await self.bel.anotar(
                     "BERU_RANGO", "OZ_COSECHA",
@@ -642,6 +644,8 @@ class BeruRango:
                     "qty_cero",
                     "bajo_min_usd",
                     "masa_o_precio_cero",
+                    "ticket_min_sobre_techo",
+                    "sin_piso_real",
                 )
             )
             if soft:
@@ -726,7 +730,14 @@ class BeruRango:
                 return None
             soft = any(
                 x in msg_m
-                for x in ("qty_cero_deuda", "qty_cero", "bajo_min_usd", "masa_o_precio_cero")
+                for x in (
+                    "qty_cero_deuda",
+                    "qty_cero",
+                    "bajo_min_usd",
+                    "masa_o_precio_cero",
+                    "ticket_min_sobre_techo",
+                    "sin_piso_real",
+                )
             )
             if soft:
                 last = float(getattr(beru, "_altar_mkt_aviso_ts", 0) or 0)

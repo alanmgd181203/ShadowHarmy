@@ -239,6 +239,8 @@ def masa_a_qty_piso_deuda(
 
   ``ticket_min_si_cero``: solo al disparar Market cuando la Oz ya tocó y el
   floor sigue en 0 — un contrato minSz (no engorde a pedazos).
+  Puerta: sin piso real en BD → ``sin_piso_real``. Si ese contrato mínimo
+  supera ``masa_armar_max`` → ``ticket_min_sobre_techo`` (anti-HANMI $196).
   """
   f = filtros_lote(frente)
   lot = float(f.get("lotSz") or 1.0)
@@ -267,9 +269,48 @@ def masa_a_qty_piso_deuda(
 
   if qty <= 0:
     if ticket_min_si_cero and objetivo > 0:
+      # Puerta: sin piso real no inventar minSz=1 (tumor HANMI $196).
+      base = ""
+      try:
+        from core import beru_mar as _bm
+
+        base = _bm.base_desde_frente(frente)
+      except Exception:
+        base = str(frente or "").replace("USDT_LINEAL", "").upper()
+      if base and not floor_completo(base):
+        return {
+          "ok": False,
+          "motivo": "sin_piso_real",
+          "qty": 0.0,
+          "notional_usd": 0.0,
+          "deuda_usd": round(objetivo, 6),
+          "instId": f.get("instId"),
+          "paso_usd": paso_usd,
+          "min_usd": round(min_sz * ct * px, 6) if px > 0 else 0.0,
+        }
       qty = _redondear_paso(min_sz, lot, "ceil")
       notional = qty * ct * px if qty > 0 else 0.0
       deuda = max(0.0, objetivo - notional)
+      # Candado no basta: el ticket mínimo no puede saltarse el techo al armar.
+      techo = 0.0
+      try:
+        from core import beru_rango as _br
+
+        techo = float(_br.masa_armar_max_usd() or 0)
+      except Exception:
+        techo = 0.0
+      if techo > 0 and notional > techo + 1e-9:
+        return {
+          "ok": False,
+          "motivo": "ticket_min_sobre_techo",
+          "qty": 0.0,
+          "notional_usd": 0.0,
+          "deuda_usd": round(objetivo, 6),
+          "instId": f.get("instId"),
+          "paso_usd": paso_usd,
+          "min_usd": round(notional, 6),
+          "techo_usd": techo,
+        }
       if qty > 0:
         return {
           "ok": True,

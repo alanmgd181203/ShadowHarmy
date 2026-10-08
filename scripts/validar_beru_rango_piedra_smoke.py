@@ -178,6 +178,47 @@ def main() -> int:
         assert pack_fat.get("ok"), pack_fat
         assert float(pack_fat["qty"]) > 0
         assert abs(2.45 - float(pack_fat["notional_usd"]) - float(pack_fat["deuda_usd"])) < 0.05
+        # Puerta anti-HANMI: ticket_min no puede saltar el techo al armar
+        cap_antes = float(getattr(config, "BERU_RANGO_MASA_ARMAR_MAX_USD", 0) or 0)
+        path_antes = getattr(config, "OKX_PARAMETROS_PATH", None)
+        config.BERU_RANGO_MASA_ARMAR_MAX_USD = 25.0
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False, encoding="utf-8"
+        ) as tf:
+            json.dump(
+                {
+                    "activos": {
+                        "HANMI": {
+                            "instId": "HANMI-USDT-SWAP",
+                            "minSz": 1.0,
+                            "lotSz": 1.0,
+                            "ctVal": 1.0,
+                            "tickSz": 0.01,
+                            "min_usd_est": 195.83,
+                        }
+                    }
+                },
+                tf,
+            )
+            tmp_bd = tf.name
+        try:
+            config.OKX_PARAMETROS_PATH = tmp_bd
+            lokx.invalidar_cache_bd()
+            pack_h = lokx.masa_a_qty_piso_deuda(
+                0.60, 195.83, "HANMIUSDT_LINEAL", ticket_min_si_cero=True,
+            )
+            assert not pack_h.get("ok"), pack_h
+            assert pack_h.get("motivo") == "ticket_min_sobre_techo", pack_h
+            print("  ticket_min sobre techo HANMI bloqueado OK")
+        finally:
+            config.BERU_RANGO_MASA_ARMAR_MAX_USD = cap_antes
+            if path_antes is None:
+                if hasattr(config, "OKX_PARAMETROS_PATH"):
+                    delattr(config, "OKX_PARAMETROS_PATH")
+            else:
+                config.OKX_PARAMETROS_PATH = path_antes
+            lokx.invalidar_cache_bd()
+            os.unlink(tmp_bd)
         br.limpiar_masa_pendiente(b5)
         assert float(b5.masa_pendiente_usd) == 0.0
         print("  floor deuda WLD + espera piso DOGE OK")

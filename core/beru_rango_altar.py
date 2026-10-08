@@ -165,9 +165,25 @@ def _cuantizar_masa_plan(
     if beru is not None and usar_floor:
         if pack.get("ok"):
             notional = float(pack.get("notional_usd") or 0)
+            # Cinturón: si el mar hinchó sobre el techo, no sellar ni alinear mente.
+            cap = float(beru_rango.masa_armar_max_usd() or 0)
+            if cap > 0 and notional > cap + 1e-9:
+                beru_rango.registrar_masa_doctrinal(beru, doctrina)
+                beru.masa_pendiente_usd = max(0.0, doctrina)
+                beru.altar_masa_colocada_usd = 0.0
+                return {
+                    "ok": False,
+                    "motivo": "ticket_min_sobre_techo",
+                    "qty": 0.0,
+                    "notional_usd": 0.0,
+                    "deuda_usd": round(doctrina, 6),
+                    "min_usd": round(notional, 6),
+                    "techo_usd": cap,
+                }
             beru.masa_pendiente_usd = max(0.0, float(pack.get("deuda_usd") or 0))
             beru.altar_masa_colocada_usd = notional
-            # Primer sello: el piso del mar manda; la cuenta mental se alinea.
+            # Primer sello: el piso del mar manda; la cuenta mental se alinea
+            # solo si cabe bajo el techo (nunca promover un HANMI $196).
             if pack.get("ticket_min") and notional > doctrina + 1e-9:
                 beru.masa = max(float(getattr(beru, "masa", 0) or 0), notional)
                 beru.masa_tramo_usd = float(beru.masa)
