@@ -504,18 +504,7 @@ def _uno(okx, activo: str, fila: dict, memoria: dict) -> dict:
     )
     # Campo de masa para Beru (guerra/sangre/masacre). No planta.
     # % sobre posición actual (notional vivo), no sobre pierna histórica gorda.
-    try:
-        from cirugias.hiron.campo_masa import publicar as _pub_campo
-
-        _pub_campo(
-            activo,
-            realizado=_f(fila.get("realizedPnl")),
-            flotante=_f(fila.get("upl")),
-            posicion_usd=notional,
-            pierna_hist_usd=pierna,
-        )
-    except Exception:
-        pass
+    _publicar_campo_masa(activo, fila, pierna_hist_usd=pierna)
     clave = _clave_iron(activo, nacimiento, lado)
     if isinstance(memoria.get(clave), dict):
         memoria[clave]["confia"] = bool(cuadra)
@@ -569,6 +558,22 @@ def _nombres_del_latido(por_nombre: dict, memoria: dict) -> list[str]:
     return nombres
 
 
+def _publicar_campo_masa(activo: str, fila: dict, *, pierna_hist_usd: float = 0.0) -> None:
+    """Sello guerra/sangre/masacre para Beru. % sobre notional vivo."""
+    try:
+        from cirugias.hiron.campo_masa import publicar as _pub_campo
+
+        _pub_campo(
+            activo,
+            realizado=_f(fila.get("realizedPnl")),
+            flotante=_f(fila.get("upl")),
+            posicion_usd=abs(_f(fila.get("notionalUsd"))),
+            pierna_hist_usd=float(pierna_hist_usd or 0),
+        )
+    except Exception:
+        pass
+
+
 def _ya_sentado(activo: str, fila: dict, memoria: dict) -> dict | None:
     """Si Iron ya nació en esta bolsa, solo mueve la Oz. No vuelve a leer la pierna."""
     pos = _pos_firmada(fila)
@@ -582,6 +587,8 @@ def _ya_sentado(activo: str, fila: dict, memoria: dict) -> dict | None:
         return None
     if not nota.get("suelo"):
         return None
+    # Campo de masa: se refresca cada latido (Beru lee el terreno vivo).
+    _publicar_campo_masa(activo, fila, pierna_hist_usd=_f(nota.get("pierna")))
     mira = _iron_vivo(
         memoria,
         activo,
@@ -725,6 +732,10 @@ def latido() -> dict:
         nombre = inst.split("-")[0].upper()
         por_nombre.setdefault(nombre, []).append(fila)
     memoria = _cargar_memoria()
+    # Terreno de masa para Beru: toda bolsa viva, no solo los cazadores del latido.
+    for nombre, piernas in por_nombre.items():
+        for fila in piernas:
+            _publicar_campo_masa(nombre, fila)
     cazadores = []
     for nombre in _nombres_del_latido(por_nombre, memoria):
         for fila in por_nombre.get(nombre) or []:
