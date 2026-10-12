@@ -2,8 +2,8 @@
 
 **Fecha:** 2026-10-12  
 **Checkpoint:** `checkpoint-pre-cirugias-engorde-iron-2026-10-12`  
-**Estado:** plan sellado · **bisturí OFF** hasta orden del Monarca  
-**Manos / arise live:** no tocar hasta humo en seco y sello del Monarca
+**Estado:** **bisturí ON** · humo en seco verde (2026-10-12)  
+**Manos / arise live:** aún no (espera orden del Monarca para pull en viejita)
 
 ---
 
@@ -97,31 +97,22 @@ Mide la pierna con **realizado + flotante** y publica tres suelos que se actuali
 
 ## Orden de batalla (cuando el Monarca diga “adelante”)
 
-### Fase 0 — Ya hecha en este commit
+### Fase 0 — Checkpoint
 - [x] Checkpoint en git + tag
 - [x] Este plan
-- [ ] Bisturí: **no**
 
-### Fase 1 — Doctrina viva (sin manos)
-1. Anotar las tres piezas en `22_DOCTRINA_BERU_RANGO` / nota Iron (lenguaje ejército).
-2. No despertar flota.
+### Fase 1 — Doctrina viva
+- [x] Anotado en `22_DOCTRINA_BERU_RANGO` + `campo_masa` Iron
 
-### Fase 2 — Humo en seco (pieza C primero: la más chica)
-1. Smoke: Red short masa = Red long doctrinal.
-2. Smoke: memoria engorde (pieza A) — cadena Red sin reset; reset solo sangre.
-3. Smoke: multiplicadores por campo (pieza B) — tabla semáforo × campo.
-4. Teatro / papel si hace falta una foto; **manos OFF**.
-
-### Fase 3 — Cableado
-1. Pieza C (Red sorda) — cambio acotado, bajo riesgo.
-2. Pieza A (memoria engorde) — tocar dónde se pisa `engorde_cero` / offset.
-3. Pieza B (Iron campos → factor de masa) — Iron publica campo; Beru lee factor al nacer/engordar.
-4. Tope escala con el mismo factor.
+### Fase 2–3 — Cableado + humo
+- [x] Pieza C: Red short sorda
+- [x] Pieza A: memoria engorde hasta vacío de sangre
+- [x] Pieza B: campos Iron ×1/×2/×3 (nace, paso, tope)
+- [x] Smoke `validar_beru_cirugia_engorde_iron_smoke.py` + piedra OK
 
 ### Fase 4 — Sello
-1. Smokes verdes.
-2. Informe corto al Monarca (qué cambió en lenguaje ejército).
-3. Solo entonces: pull en viejita / un Santo de prueba si el Monarca ordena manos.
+- [x] Smokes verdes
+- [ ] Pull viejita / manos: **solo** con orden del Monarca
 
 ---
 

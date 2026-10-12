@@ -18,23 +18,24 @@ from core.models import BeruShip
 
 
 def _assert_serie_numeros() -> None:
-    assert abs(br.masa_peldaños_sumados_usd(10) - 2.45) < 1e-9
-    assert abs(br.masa_peldaños_sumados_usd(11) - 2.75) < 1e-9
-    assert abs(br.masa_peldaños_sumados_usd(12) - 3.06) < 1e-9
-    assert abs(br.masa_peldaños_sumados_usd(15, offset=10) - 1.60) < 1e-9
-    print("  serie 2.45 / 2.75 / 3.06 / 1.60 OK")
+    # Piedra 2026-09-24: base perfil 0,40 · paso +0,02
+    assert abs(br.masa_peldaños_sumados_usd(10) - 4.90) < 1e-9
+    assert abs(br.masa_peldaños_sumados_usd(11) - 5.50) < 1e-9
+    assert abs(br.masa_peldaños_sumados_usd(12) - 6.12) < 1e-9
+    assert abs(br.masa_peldaños_sumados_usd(15, offset=10) - 3.20) < 1e-9
+    print("  serie 4.90 / 5.50 / 6.12 / 3.20 OK")
 
 
 def _assert_semaforo_pierna() -> None:
     assert sem.semaforo_normalizado("verde") == "verde"
     assert sem.semaforo_normalizado("ancho") == "verde"
     assert sem.semaforo_normalizado("cenido") == "rojo"
-    assert sem.masa_nacimiento_por_bando("amarillo", "paz") == 0.30
-    assert sem.masa_nacimiento_por_bando("amarillo", "medio") == 0.25
-    assert sem.masa_nacimiento_por_bando("verde", "paz") == 0.50
-    assert sem.masa_nacimiento_por_bando("verde", "pesado") == 0.20
-    assert sem.tope_serie_por_color("rojo") == 0.50
-    assert sem.tope_serie_por_color("verde") == 1.00
+    assert sem.masa_nacimiento_por_bando("amarillo", "paz") == 0.60
+    assert sem.masa_nacimiento_por_bando("amarillo", "medio") == 0.60
+    assert sem.masa_nacimiento_por_bando("verde", "paz") == 1.00
+    assert sem.masa_nacimiento_por_bando("verde", "pesado") == 1.00
+    assert sem.tope_serie_por_color("rojo") == 2.00
+    assert sem.tope_serie_por_color("verde") == 2.00
 
     b = BeruShip(uid="RANGO_ETH_CAZA", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
     br.despertar(b, 100.0, activo="ETH")
@@ -74,26 +75,26 @@ def main() -> int:
         _assert_serie_numeros()
         _assert_semaforo_pierna()
 
-        # Vacío rojo: nace $0.20; ~1 % -> $2.45 en la Oz
+        # Vacío rojo: nace $0.40; ~1 % -> $4.90 en la Oz
         b = BeruShip(uid="RANGO_OP_CAZA", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
         br.despertar(b, 100.0, activo="OP")
         br.toca_vacio(b, 100.0)
         m = br.armar_tramo_desde_vacio(b, "ABAJO", precio=98.8)
-        assert abs(m - 0.20) < 1e-9, f"rojo nace $0.20, got {m}"
+        assert abs(m - 0.40) < 1e-9, f"rojo nace $0.40, got {m}"
         br.actualizar_trailing_oz(b, 98.8 * (1.0 - 0.010))
-        assert abs(float(b.masa) - 2.45) < 1e-9, f"1pct engorde sumado -> 2.45, got {b.masa}"
-        print("  vacio 1pct -> Oz 2.45 OK")
+        assert abs(float(b.masa) - 4.90) < 1e-9, f"1pct engorde sumado -> 4.90, got {b.masa}"
+        print("  vacio 1pct -> Oz 4.90 OK")
 
-        # Amarillo default: nace $0.30
+        # Amarillo default: nace $0.60
         os.environ["BERU_RANGO_SEMAFORO"] = "amarillo"
         b7 = BeruShip(uid="RANGO_SOL_CAZA", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
         br.despertar(b7, 100.0, activo="SOL")
         br.toca_vacio(b7, 100.0)
         m7 = br.armar_tramo_desde_vacio(b7, "ABAJO", precio=98.8)
-        assert abs(m7 - 0.30) < 1e-9, f"amarillo nace $0.30, got {m7}"
-        print("  amarillo nace 0.30 OK")
+        assert abs(m7 - 0.60) < 1e-9, f"amarillo nace $0.60, got {m7}"
+        print("  amarillo nace 0.60 OK")
 
-        # Tope rojo: a ~1 % la serie sigue (2,45); el tope capa cada +0,1 % a $0,50
+        # Tope rojo: a ~1 % la serie sigue (4,90); el tope capa cada +0,1 % a $2
         os.environ.pop("BERU_RANGO_PIEDRA_SIN_TOPE", None)
         os.environ["BERU_RANGO_SEMAFORO"] = "rojo"
         b8 = BeruShip(uid="RANGO_DOT_CAZA", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
@@ -101,24 +102,24 @@ def main() -> int:
         br.toca_vacio(b8, 100.0)
         br.armar_tramo_desde_vacio(b8, "ABAJO", precio=98.8)
         br.actualizar_trailing_oz(b8, 98.8 * (1.0 - 0.010))
-        assert abs(float(b8.masa) - 2.45) < 1e-9, f"rojo 1pct serie 2.45, got {b8.masa}"
-        s31 = br.masa_peldaños_sumados_usd(31, base=0.20, tope_por_peldaño=0.50)
-        s32 = br.masa_peldaños_sumados_usd(32, base=0.20, tope_por_peldaño=0.50)
-        assert abs(s32 - s31 - 0.50) < 1e-9, f"peldaño 32+ aporta max 0.50, delta={s32 - s31}"
-        print("  rojo tope por peldaño 0.50 OK")
+        assert abs(float(b8.masa) - 4.90) < 1e-9, f"rojo 1pct serie 4.90, got {b8.masa}"
+        # Sin tope el peldaño 81 aportaría 0.40+80*0.02=2.00; el 82 pediría 2.02 → capa a 2.00
+        s81 = br.masa_peldaños_sumados_usd(81, base=0.40, step=0.02, tope_por_peldaño=2.00)
+        s82 = br.masa_peldaños_sumados_usd(82, base=0.40, step=0.02, tope_por_peldaño=2.00)
+        assert abs(s82 - s81 - 2.00) < 1e-9, f"peldaño 82 aporta max 2.00, delta={s82 - s81}"
+        print("  rojo tope por peldaño 2.00 OK")
         os.environ["BERU_RANGO_PIEDRA_SIN_TOPE"] = "1"
 
-        # Oz cosecha -> sangre +/-1.2 % desde Oz; al armar sangre ya trae ~2.45+ (12 peldaños)
+        # Oz cosecha -> sangre +/-1.2 % desde Oz; al armar sangre ya trae serie doctrinal
         os.environ["BERU_RANGO_SEMAFORO"] = "rojo"
         oz = float(b.oz_adan)
         br.cosechar_oz_y_mover_cero(b, oz, oz_despliegue=oz)
         assert float(b.engorde_cero_oz_px) > 0
         sangre_px = float(b.sangre_adan)
         assert sangre_px > 0
-        n_sangre = br.peldaños_entre(float(b.engorde_cero_oz_px), sangre_px)
-        assert n_sangre >= 11, n_sangre
+        # Tras sangre se limpia memoria y se arma con oz0 doctrinal (~12 peldaños)
         m_s = br.armar_tramo_desde_sangre(b, precio=sangre_px)
-        assert m_s >= 2.45 - 1e-9, f"sangre desde Oz >=2.45, got {m_s}"
+        assert m_s >= 4.90 - 1e-9, f"sangre desde Oz >=4.90, got {m_s}"
         print("  sangre desde ultima Oz OK")
 
         # Red SHORT 0,8 %
@@ -132,7 +133,7 @@ def main() -> int:
         assert abs(b2.red_adan - oz2 * 1.008) < 1e-9
         print("  Red SHORT 0,8 % OK")
 
-        # Beru 2: offset 10 -> red en peldaño 15 ~ $1.60
+        # Beru 2: offset 10 -> red en peldaño 15 ~ $3.20 (short sordo: 1.5%→14 peld. eff.)
         b3 = BeruShip(uid="R3", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
         br.despertar(b3, 100.0, activo="ETH")
         b3.engorde_cero_oz_px = 100.0
@@ -140,14 +141,18 @@ def main() -> int:
         b3.oz_despliegue_px = 100.0
         b3.ultima_hoz_direccion = "SHORT"
         b3.es_relevo_cazador = True
+        b3.origen_tramo = "RED"
         b3.red_adan = 101.5
         b3.oreja_red_activa = True
         px_red = 101.5
+        # 1,5 % reales − 0,1 holgura = 14 peldaños; delta f(14)-f(10)
         m_red = br.armar_tramo_desde_red(b3, precio=px_red)
-        assert abs(m_red - 1.60) < 1e-9, f"Red delta f(15)-f(10)=1.60, got {m_red}"
+        expect_red = br.masa_peldaños_sumados_usd(14, offset=10, base=0.40, step=0.02)
+        assert abs(m_red - expect_red) < 1e-9, f"Red delta got {m_red} expect {expect_red}"
         br.actualizar_trailing_oz(b3, px_red * 1.001)
-        assert abs(float(b3.masa) - 1.95) < 1e-9, f"+0.1pct -> ~1.95, got {b3.masa}"
-        print("  Red Beru2 1.60 -> 1.95 OK")
+        expect_mas = br.masa_peldaños_sumados_usd(15, offset=10, base=0.40, step=0.02)
+        assert abs(float(b3.masa) - expect_mas) < 1e-9, f"+0.1pct -> {expect_mas}, got {b3.masa}"
+        print("  Red Beru2 offset+short sordo OK")
 
         # Floor + deuda: una Oz = floor(suma absoluta). Sin doble conteo +deuda.
         from core import lote_beru as lb
@@ -242,7 +247,7 @@ def main() -> int:
         os.environ.pop("BERU_RANGO_PIEDRA_SIN_TOPE", None)
         br.invalidar_piedra_asignacion()
         assert sem.semaforo_resuelto("WLD") == "verde"
-        assert br.engorde_tope_usd(activo="WLD") == 1.00
+        assert br.engorde_tope_usd(activo="WLD") == 2.00
         os.unlink(tmp_path)
     finally:
         if prev_tier is None:

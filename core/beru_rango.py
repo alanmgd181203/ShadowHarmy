@@ -167,9 +167,13 @@ def _color_sala(beru: Any | None) -> str | None:
     frente = str(getattr(beru, "frente_asignado", "") or "").strip()
     if not frente:
         frente = f"{act}USDT_LINEAL"
-    from cirugias.sala_por_color.gordura import actualizar, unir
+    from cirugias.sala_por_color.gordura import actualizar, sala_memoria, unir
 
-    gorda = actualizar(act, neto, precio=px, frente=frente)
+    try:
+        gorda = actualizar(act, neto, precio=px, frente=frente)
+    except Exception:
+        # Disco pelea entre cuarteles: no tumbar el latido del Beru.
+        gorda = sala_memoria(act)
     return unir(base, gorda)
 
 
@@ -333,7 +337,7 @@ def limpiar_sangre_campana(beru: Any) -> None:
 
 
 def actualizar_sangre_campana(beru: Any, oz_px: float, direccion: str) -> float:
-    """Oz-0 de campaña del estirón — NO es engorde_cero (ese se pisa en cada Oz).
+    """Oz-0 de campaña del estirón — distinto de engorde_cero (memoria de masa).
 
     Primera Oz de este lado (o tras flip): congela el 0.
     Oz siguientes del mismo lado: el 0 no se mueve.
@@ -419,8 +423,17 @@ def masa_sangre_usd() -> float:
     return max(0.0, float(getattr(config, "BERU_RANGO_MASA_SANGRE_USD", 5.0) or 5.0))
 
 
-def engorde_paso_usd() -> float:
-    return max(0.0, float(getattr(config, "BERU_RANGO_ENGORDE_USD", 1.0) or 1.0))
+def engorde_paso_usd(beru: Any | None = None) -> float:
+    """Paso de masa por 0,1 %. Con Beru: × factor del campo Iron (guerra/sangre/masacre)."""
+    base = max(0.0, float(getattr(config, "BERU_RANGO_ENGORDE_USD", 1.0) or 1.0))
+    if beru is None:
+        return base
+    try:
+        from cirugias.hiron.campo_masa import factor_para
+
+        return base * float(factor_para(beru=beru) or 1.0)
+    except Exception:
+        return base
 
 
 def engorde_paso_pct() -> float:
@@ -623,10 +636,10 @@ def _masa_viva_en_px(beru: Any, px: float, *, base: float) -> float:
     ref, offset = _ref_engorde(beru)
     if ref <= 0 or px <= 0:
         return base
-    n = peldaños_entre(ref, px)
+    n = peldaños_para_engorde(beru, ref, px)
     tope = engorde_tope_usd(beru) if engorde_modo_peldaños_sumados() else 0.0
     return _masa_delta_peldaños(
-        n, offset, base, engorde_paso_usd(), tope_por_peldaño=tope,
+        n, offset, base, engorde_paso_usd(beru), tope_por_peldaño=tope,
     )
 
 
@@ -652,7 +665,7 @@ def masa_al_llamado(beru: Any) -> float:
         base = sem.masa_nacimiento_por_bando(color, bando)
     tope = float(engorde_tope_usd(beru) or 0)
     return _masa_delta_peldaños(
-        n, 0, float(base), engorde_paso_usd(), tope_por_peldaño=tope,
+        n, 0, float(base), engorde_paso_usd(beru), tope_por_peldaño=tope,
     )
 
 
@@ -670,7 +683,11 @@ def _preparar_engorde_desde_oz(
     offset = int(getattr(beru, "engorde_peldaño_offset", 0) or 0)
     tope = engorde_tope_usd(beru)
     masa = _masa_delta_peldaños(
-        peldaños_entre(oz0, px), offset, base, engorde_paso_usd(), tope_por_peldaño=tope,
+        peldaños_para_engorde(beru, oz0, px),
+        offset,
+        base,
+        engorde_paso_usd(beru),
+        tope_por_peldaño=tope,
     )
     return masa, oz0
 
@@ -793,6 +810,38 @@ def peldaños_entre(a: float, b: float) -> int:
     if a0 <= 0 or b0 <= 0:
         return 0
     return int(abs(b0 - a0) / a0 / engorde_paso_pct() + 1e-12)
+
+
+def peldaños_holgura_red_short(beru: Any | None = None) -> int:
+    """Peldaños del 0,1 % (o asimetría de sala) que el short no debe engordar."""
+    extra = float(red_activacion_pct("SHORT", beru)) - float(red_activacion_pct("LONG", beru))
+    if extra <= 1e-12:
+        return 0
+    return max(0, int(extra / engorde_paso_pct() + 1e-12))
+
+
+def peldaños_para_engorde(beru: Any, ref: float, px: float) -> int:
+    """Peldaños de masa. En Red SHORT resta la holgura (planta 0,8 / engorda 0,7)."""
+    n = peldaños_entre(ref, px)
+    origen = str(getattr(beru, "origen_tramo", "") or "").upper()
+    d = str(
+        getattr(beru, "direccion", "")
+        or getattr(beru, "ultima_hoz_direccion", "")
+        or ""
+    ).upper()
+    if origen == "RED" and d == "SHORT":
+        return max(0, n - peldaños_holgura_red_short(beru))
+    return n
+
+
+def limpiar_engorde_campana(beru: Any) -> None:
+    """Fin de campaña (vacío de sangre / wake): memoria de engorde a cero."""
+    if beru is None:
+        return
+    beru.engorde_cero_oz_px = 0.0
+    beru.engorde_peldaño_offset = 0
+    beru.engorde_memoria_peldaños = 0
+    beru.engorde_campana_dir = ""
 
 
 def meta_saco_usd(wake: float, precio: float, *, base: float | None = None) -> float:
@@ -1041,6 +1090,15 @@ def despertar(beru: Any, precio: float, *, activo: str = "") -> None:
     beru.red_adan = 0.0
     beru.oz_despliegue_px = 0.0
     beru.trail_extremo = 0.0
+    # Wake limpio: no heredar Stop del tramo anterior (tumor ACECHO_SIN_OZ).
+    beru.altar_link_id = ""
+    beru.altar_order_id = ""
+    beru.altar_order_status = ""
+    beru.altar_trigger_price = 0.0
+    beru.altar_cancel_confirmado = False
+    beru.altar_entrada_disparada = False
+    beru.altar_market_ts = 0.0
+    beru.altar_masa_colocada_usd = 0.0
     beru.llamado_tramo_pct = vacio_adan_pct(beru)
     beru.oreja_sangre_activa = True
     beru.oreja_red_activa = False
@@ -1049,11 +1107,9 @@ def despertar(beru: Any, precio: float, *, activo: str = "") -> None:
     beru.engorde_bloqueado = True
     beru.engorde_peldaños = 0
     beru.engorde_ancla_px = 0.0
-    beru.engorde_cero_oz_px = 0.0
-    beru.engorde_peldaño_offset = 0
+    limpiar_engorde_campana(beru)
     beru.masa_pendiente_usd = 0.0
     beru.masa_doctrinal_usd = 0.0
-    beru.altar_masa_colocada_usd = 0.0
     beru.saco_long_usd = 0.0
     beru.saco_short_usd = 0.0
     beru.sangre_lado = ""
@@ -1616,6 +1672,14 @@ def restaurar_acecho_post_oz(
     beru.trail_extremo = 0.0
     beru.masa = 0.0
     beru.masa_tramo_usd = 0.0
+    # Acecho restaurado: sin Stop colgado del tramo anterior.
+    beru.altar_link_id = ""
+    beru.altar_order_id = ""
+    beru.altar_order_status = ""
+    beru.altar_trigger_price = 0.0
+    beru.altar_cancel_confirmado = False
+    beru.altar_entrada_disparada = False
+    beru.altar_market_ts = 0.0
     beru.sangre_vista_dentro = True
     beru.es_relevo_cazador = True
     beru.engorde_bloqueado = True
@@ -1703,11 +1767,6 @@ def restaurar_acecho_post_oz(
     else:
         beru.engorde_cero_oz_px = 0.0
         beru.engorde_peldaño_offset = 0
-    beru.altar_link_id = ""
-    beru.altar_order_id = ""
-    beru.altar_order_status = ""
-    beru.altar_trigger_price = 0.0
-    beru.altar_cancel_confirmado = False
 
 
 def restaurar_caza_trailing(
@@ -1832,14 +1891,37 @@ def cosechar_oz_y_mover_cero(
         beru.centro_local = wake
         beru.ancla_tramo = wake
         beru.centro_manto = wake
+    # Primero soltar metadatos del Stop: si la sala/gordura truena a mitad,
+    # el siguiente latido no debe matar el altar con ACECHO_SIN_OZ fantasma.
+    # (El cancel en el mar va ANTES de cosechar, en manos.)
+    beru.altar_link_id = ""
+    beru.altar_order_id = ""
+    beru.altar_order_status = ""
+    beru.altar_trigger_price = 0.0
+    beru.altar_cancel_confirmado = False
+    beru.altar_entrada_disparada = False
+    beru.altar_market_ts = 0.0
     beru.estado = "ACECHANDO"
     beru.sangre_vista_dentro = True
     beru.es_relevo_cazador = True
     beru.engorde_bloqueado = True
     beru.engorde_ancla_px = 0.0
     if engorde_modo_peldaños_sumados() and oz_dep > 0:
-        beru.engorde_cero_oz_px = float(oz_dep)
-        beru.engorde_peldaño_offset = peldaños_entre(oz_dep, fill)
+        # Memoria de campaña: el cero es la primera Oz del lado; no se recetea
+        # en cada Oz. El offset guarda peldaños ya caminados (Reds consecutivas).
+        prev = float(getattr(beru, "engorde_cero_oz_px", 0) or 0)
+        prev_d = str(getattr(beru, "engorde_campana_dir", "") or "").upper()
+        if prev <= 0 or prev_d != d:
+            beru.engorde_cero_oz_px = float(oz_dep)
+            beru.engorde_campana_dir = d
+            ref_mem = float(oz_dep)
+        else:
+            ref_mem = prev
+        # Short Red: la holgura 0,1 no entra en la memoria de masa.
+        walked = peldaños_para_engorde(beru, ref_mem, fill)
+        mem = int(getattr(beru, "engorde_memoria_peldaños", 0) or 0)
+        beru.engorde_memoria_peldaños = max(mem, walked)
+        beru.engorde_peldaño_offset = int(beru.engorde_memoria_peldaños)
     elif engorde_modo_hasta_oz() and oz_dep > 0:
         beru.engorde_cero_oz_px = float(oz_dep)
         beru.engorde_peldaño_offset = 0
@@ -1862,14 +1944,6 @@ def cosechar_oz_y_mover_cero(
     actualizar_sangre_campana(beru, oz_dep, d)
     _plantar_orejas_post_oz(beru, ancla, d)
     beru.cosechas_continuas = int(getattr(beru, "cosechas_continuas", 0) or 0) + 1
-    # Acecho: sin Stop heredado de la caza (cancel en manos vía cancelar_pendiente).
-    beru.altar_link_id = ""
-    beru.altar_order_id = ""
-    beru.altar_order_status = ""
-    beru.altar_trigger_price = 0.0
-    beru.altar_cancel_confirmado = False
-    beru.altar_entrada_disparada = False
-    beru.altar_market_ts = 0.0
     return masa_sangre_usd()
 
 
@@ -1886,6 +1960,8 @@ def armar_tramo_desde_sangre(beru: Any, precio: float | None = None) -> float:
     sangre_px = float(getattr(beru, "sangre_adan", 0) or 0)
     # Fin de campaña: el próximo Oz del otro lado nace con estirón 0.
     limpiar_sangre_campana(beru)
+    # Vacío de sangre: memoria de engorde reinicia (Reds consecutivas ya no pesan).
+    limpiar_engorde_campana(beru)
     # Corte 3B: misma puerta — Red expansiva no hereda escalones al otro lado.
     if beru is not None:
         beru.rango_escalones_red = 0

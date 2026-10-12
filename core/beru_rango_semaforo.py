@@ -39,20 +39,34 @@ def semaforo_resuelto(activo: str | None, beru: Any | None = None) -> str:
     return semaforo_normalizado(os.getenv("BERU_RANGO_SEMAFORO"))
 
 
-def masa_nacimiento_por_bando(color: str, bando: str) -> float:
+def masa_nacimiento_por_bando(
+    color: str, bando: str, beru: Any | None = None,
+) -> float:
     m = _mapa_semaforo()
     col = semaforo_normalizado(color)
     b = str(bando or "paz").strip().lower()
     if b not in ("paz", "medio", "pesado"):
         b = "paz"
     row = m.get(col) or {}
-    return float(row.get(b, row.get("paz", 0.20)) or 0.20)
+    base = float(row.get(b, row.get("paz", 0.20)) or 0.20)
+    try:
+        from cirugias.hiron.campo_masa import factor_para
+
+        return base * float(factor_para(beru=beru) or 1.0)
+    except Exception:
+        return base
 
 
-def tope_serie_por_color(color: str) -> float:
+def tope_serie_por_color(color: str, beru: Any | None = None) -> float:
     m = _mapa_semaforo()
     col = semaforo_normalizado(color)
-    return float((m.get(col) or {}).get("tope", 0.80) or 0.80)
+    base = float((m.get(col) or {}).get("tope", 0.80) or 0.80)
+    try:
+        from cirugias.hiron.campo_masa import factor_para
+
+        return base * float(factor_para(beru=beru) or 1.0)
+    except Exception:
+        return base
 
 
 def umbral_pierna_medio() -> float:
@@ -137,7 +151,7 @@ def preparar_nacimiento_tramo(
     pierna = pierna_usd(beru)
     bando = actualizar_bando_pierna(beru, pierna, precio)
     color = semaforo_resuelto(act, beru)
-    base = masa_nacimiento_por_bando(color, bando)
+    base = masa_nacimiento_por_bando(color, bando, beru=beru)
     beru.semaforo_color = color
     beru.serie_masa_base_usd = base
     return base
@@ -167,7 +181,7 @@ def tope_masa_viva(beru: Any | None, activo: str | None = None) -> float:
     color = semaforo_resuelto(act, beru)
     if beru is not None and getattr(beru, "semaforo_color", ""):
         color = semaforo_normalizado(str(getattr(beru, "semaforo_color")))
-    return tope_serie_por_color(color)
+    return tope_serie_por_color(color, beru=beru)
 
 
 def resumen_semaforo(beru: Any | None = None, *, activo: str = "") -> dict[str, Any]:
@@ -180,8 +194,8 @@ def resumen_semaforo(beru: Any | None = None, *, activo: str = "") -> dict[str, 
         "semaforo": color,
         "pierna_bando": bando,
         "pierna_usd": round(pierna_usd(beru), 4) if beru else 0.0,
-        "masa_nacimiento": masa_nacimiento_por_bando(color, bando),
-        "tope_serie": tope_serie_por_color(color),
+        "masa_nacimiento": masa_nacimiento_por_bando(color, bando, beru=beru),
+        "tope_serie": tope_serie_por_color(color, beru=beru),
         "umbral_medio": umbral_pierna_medio(),
         "umbral_pesado": umbral_pierna_pesado(),
         "hist_pct": histéresis_pierna_pct(),

@@ -502,6 +502,18 @@ def _uno(okx, activo: str, fila: dict, memoria: dict) -> dict:
             ),
         }
     )
+    # Campo de masa para Beru (guerra/sangre/masacre). No planta.
+    try:
+        from cirugias.hiron.campo_masa import publicar as _pub_campo
+
+        _pub_campo(
+            activo,
+            realizado=_f(fila.get("realizedPnl")),
+            flotante=_f(fila.get("upl")),
+            pierna_usd=pierna if pierna > 0 else notional,
+        )
+    except Exception:
+        pass
     clave = _clave_iron(activo, nacimiento, lado)
     if isinstance(memoria.get(clave), dict):
         memoria[clave]["confia"] = bool(cuadra)

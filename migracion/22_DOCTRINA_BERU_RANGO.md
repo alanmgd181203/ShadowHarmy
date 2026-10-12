@@ -73,20 +73,21 @@ $env:BERU_RANGO_PERFIL = "feria"
 python scripts/validar_beru_rango_feria_smoke.py
 ```
 
-### Perfil piedra (OKX micro — 2026-08-31)
+### Perfil piedra (OKX micro — 2026-08-31 · sello masa 2026-09-24 · cirugías 2026-10-12)
 
-Misma alma clásica del rango, masa fina para USDT-SWAP OKX. **Una sola orden** que enmienda; engorde **peldaños sumados** ($0,20 + $0,21 + … por cada 0,1 %).
+Misma alma clásica del rango, masa fina para USDT-SWAP OKX. **Una sola orden** que enmienda; engorde **peldaños sumados** (nacimiento semáforo + **+$0,02** / 0,1 %).
 
 | Pieza | Piedra |
 |-------|-------:|
 | Vacío / sangre | ±1,2 % (sangre **desde última Oz** tocada, no wake) |
 | Oz callback | 0,2 % |
-| Red LONG / SHORT | 0,7 % / **0,8 %** |
-| Nacimiento | **$0,20** (peldaño 1 de la serie) |
-| Engorde | **serie sumada** (+$0,01 al peso de cada peldaño) |
-| Oz-0 engorde | **última Oz** del movimiento contrario (recetea ancla) |
+| Red LONG / SHORT | 0,7 % / **0,8 %** (oreja) · short **engorda como 0,7** (el 0,1 holgura no hincha) |
+| Nacimiento | semáforo (rojo **0,40** · amarillo **0,60** · verde **1,00**) |
+| Engorde | **serie sumada** (+$0,02 al peso de cada peldaño) |
+| Oz-0 engorde | **memoria de campaña**: primera Oz del lado; **no** se recetea en cada Oz · limpia al **vacío de sangre** |
+| Campos Iron | guerra ×1 · sangre (+1…+5 %) ×2 · masacre (+5 %+) ×3 — nace, paso y tope |
 
-Ejemplo: 10 peldaños (≈1 %) → **$2,45** en la Oz; +0,1 % → **$2,75**; Red con offset 10 en peldaño 15 → **$1,60**.
+Ejemplo (rojo, sin campo Iron): 10 peldaños (≈1 %) → serie desde 0,40; Red con offset 10 en peldaño 15 → solo el tramo nuevo de la serie.
 
 **Manos (floor + cola):** qty en fracción **inferior** (`lotSz`); deuda = doctrina − notional. La cola se suma al siguiente objetivo; al **tocar sangre inverso** se **borra** (ciclo nuevo).
 
@@ -94,25 +95,21 @@ Ejemplo: 10 peldaños (≈1 %) → **$2,45** en la Oz; +0,1 % → **$2,75**; Red
 
 Asignación en `data/beru/rango/piedra_asignacion.json` (teatro/ranking llena `activos`). Sin entrada → **`BERU_RANGO_SEMAFORO`** (default **amarillo**).
 
-| Color | Nacimiento (paz) | Tope engorde / 0,1 % |
-|-------|-----------------:|---------------------:|
-| Rojo | $0,20 | $0,50 |
-| Amarillo | $0,30 | $0,80 |
-| Verde | $0,50 | $1,00 |
+| Color | Nacimiento | Tope engorde / 0,1 % (guerra) |
+|-------|-----------:|------------------------------:|
+| Rojo | $0,40 | $2,00 |
+| Amarillo | $0,60 | $2,00 |
+| Verde | $1,00 | $2,00 |
 
-#### Bando de pierna (condicional sobre pierna viva)
+Con campo Iron sangre/masacre: nacimiento, paso y tope **×2 / ×3** (guerra = ×1). Rangos % no se tocan.
 
-Pierna viva = max(saco LONG, saco SHORT) + masa del tramo cazando. Al **armar** Vacío / Red / Sangre se recalcula bando y masa nacimiento:
+#### Bando de pierna
 
-| Pierna USD | Rojo | Amarillo | Verde |
-|------------|-----:|---------:|------:|
-| &lt; $100 (paz) | $0,20 | $0,30 | $0,50 |
-| $100–$300 (medio) | $0,20 | $0,25 | $0,30 |
-| &gt; $300 (pesado) | $0,20 | $0,20 | $0,20 |
-
-**Histéresis 80 %** al evolucionar de vuelta: tras involución en $100 → paz si pierna ≤ $80; tras $300 → medio si pierna ≤ $240. Se registra precio al cruzar umbral (`pierna_px_involucion`).
+Pierna viva = max(saco LONG, saco SHORT) + masa del tramo cazando. El bando se sigue anotando; con el mapa 2026-09-24 el nacimiento por color es **plano** (paz = medio = pesado).
 
 Al llegar al **tope por peldaño** (0,1 %), ese escalón deja de subir el peso de la serie (no congela la orden entera). Smoke de geometría pura puede usar `BERU_RANGO_PIEDRA_SIN_TOPE=1` (solo laboratorio).
+
+**Plan / checkpoint:** `PLAN_CIRUGIA_ENGORDE_IRON_CAMPOS_2026-10-12.md` · `checkpoint-pre-cirugias-engorde-iron-2026-10-12`.
 
 ```powershell
 $env:BERU_RANGO_PERFIL = "piedra"
