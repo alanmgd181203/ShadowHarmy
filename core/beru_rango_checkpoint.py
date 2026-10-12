@@ -343,6 +343,10 @@ def aplicar_plan(beru: Any, plan: PlanArranque) -> None:
         sangre_campana_oz0=float(vivo.get("sangre_campana_oz0") or 0),
         sangre_campana_dir=str(vivo.get("sangre_campana_dir") or ""),
         sangre_sello_px=float(vivo.get("sangre") or vivo.get("sangre_adan") or 0),
+        engorde_cero_oz=float(vivo.get("engorde_cero_oz") or 0),
+        engorde_peldaño_offset=int(vivo.get("engorde_peldaño_offset") or 0),
+        engorde_memoria_peldaños=int(vivo.get("engorde_memoria_peldaños") or 0),
+        engorde_campana_dir=str(vivo.get("engorde_campana_dir") or ""),
     )
 
 

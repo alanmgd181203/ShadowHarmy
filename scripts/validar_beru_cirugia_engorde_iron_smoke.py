@@ -116,6 +116,30 @@ def test_memoria_engorde() -> None:
     print("  memoria engorde OK")
 
 
+def test_restaurar_conserva_memoria() -> None:
+    """Al reenganchar acecho, la memoria del sello no se borra."""
+    _perfil_piedra()
+    b = BeruShip(uid="RANGO_HHH_CAZA", centro_local=100.0, masa=0.0, direccion="", estado="ACECHANDO")
+    br.despertar(b, 100.0, activo="HHH")
+    br.restaurar_acecho_post_oz(
+        b,
+        cero=100.0,
+        red=99.2,
+        sangre_lado="ARRIBA",
+        ultima_hoz_direccion="LONG",
+        oz_despliegue=100.0,
+        engorde_cero_oz=100.0,
+        engorde_peldaño_offset=12,
+        engorde_memoria_peldaños=12,
+        engorde_campana_dir="LONG",
+    )
+    assert abs(float(b.engorde_cero_oz_px) - 100.0) < 1e-9
+    assert int(b.engorde_memoria_peldaños) == 12
+    assert int(b.engorde_peldaño_offset) == 12
+    assert str(b.engorde_campana_dir).upper() == "LONG"
+    print("  restaurar conserva memoria OK")
+
+
 def test_factor_iron() -> None:
     os.environ["BERU_RANGO_SEMAFORO"] = "rojo"
     os.environ.pop("BERU_RANGO_PIEDRA_SIN_TOPE", None)
@@ -154,6 +178,7 @@ def main() -> int:
         test_campo_masa_tabla()
         test_red_short_sorda()
         test_memoria_engorde()
+        test_restaurar_conserva_memoria()
         test_factor_iron()
         print("[SMOKE] OK")
         return 0

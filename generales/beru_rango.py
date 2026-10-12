@@ -645,6 +645,7 @@ class BeruRango:
                     "bajo_min_usd",
                     "masa_o_precio_cero",
                     "ticket_min_sobre_techo",
+                    "masa_sobre_techo",
                     "sin_piso_real",
                 )
             )
@@ -714,8 +715,18 @@ class BeruRango:
         beru.altar_order_status = ""
         beru.altar_trigger_price = 0.0
         try:
+            # No reenviar un fill gordo como masa de Market (HANMI $193).
+            masa_mkt = float(masa_hecha or 0)
+            techo = float(beru_rango.masa_armar_max_usd() or 0)
+            if techo > 0 and masa_mkt > techo + 1e-9:
+                await self.bel.anotar(
+                    "BERU_RANGO",
+                    "ALTAR_ESPERA_PISO",
+                    f"{beru.uid}: masa_sobre_techo market {masa_mkt:.2f}>{techo:.2f}",
+                )
+                return None
             mkt = await beru_rango_altar.disparar_entrada_market(
-                self.bridge, beru, activo=self._activo, masa_usd=masa_hecha,
+                self.bridge, beru, activo=self._activo, masa_usd=masa_mkt,
             )
         except ValueError as exc:
             await self.bel.anotar(
@@ -736,6 +747,7 @@ class BeruRango:
                     "bajo_min_usd",
                     "masa_o_precio_cero",
                     "ticket_min_sobre_techo",
+                    "masa_sobre_techo",
                     "sin_piso_real",
                 )
             )
@@ -878,6 +890,10 @@ class BeruRango:
             "voz_intencion": float(getattr(beru, "voz_intencion", 0) or 0),
             "origen_tramo": str(getattr(beru, "origen_tramo", "") or ""),
             "engorde_ancla_px": float(getattr(beru, "engorde_ancla_px", 0) or 0),
+            "engorde_cero_oz": float(getattr(beru, "engorde_cero_oz_px", 0) or 0),
+            "engorde_peldaño_offset": int(getattr(beru, "engorde_peldaño_offset", 0) or 0),
+            "engorde_memoria_peldaños": int(getattr(beru, "engorde_memoria_peldaños", 0) or 0),
+            "engorde_campana_dir": str(getattr(beru, "engorde_campana_dir", "") or ""),
             "saco_long": float(getattr(beru, "saco_long_usd", 0) or 0),
             "saco_short": float(getattr(beru, "saco_short_usd", 0) or 0),
             "sangre_lado": getattr(beru, "sangre_lado", ""),

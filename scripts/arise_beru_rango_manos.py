@@ -639,6 +639,10 @@ async def ritual(
                 saco_short=float(vivo_prev.get("saco_short") or 0),
                 ultima_hoz_direccion=str(vivo_prev.get("ultima_hoz_direccion") or ""),
                 oz_despliegue=float(vivo_prev.get("oz_despliegue") or 0),
+                engorde_cero_oz=float(vivo_prev.get("engorde_cero_oz") or 0),
+                engorde_peldaño_offset=int(vivo_prev.get("engorde_peldaño_offset") or 0),
+                engorde_memoria_peldaños=int(vivo_prev.get("engorde_memoria_peldaños") or 0),
+                engorde_campana_dir=str(vivo_prev.get("engorde_campana_dir") or ""),
             )
             if not beru_g.vivo.uid:
                 beru_g.vivo.uid = (

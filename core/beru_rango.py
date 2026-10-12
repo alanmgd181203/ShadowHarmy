@@ -360,8 +360,8 @@ def actualizar_sangre_campana(beru: Any, oz_px: float, direccion: str) -> float:
 def sangre_estiron_extra_pct(beru: Any, ancla_viva: float) -> float:
     """Extra de mapa: floor(|ancla − Oz0_campaña| / Oz0 / 0,5%) × 0,1%.
 
-    Tumor a evitar: medir con engorde_cero (se actualiza en cada Oz del mismo
-    lado y el estirón casi no crece).
+    Tumor a evitar: medir con engorde_cero de masa (otra memoria). El estirón
+    usa sangre_campana_oz0, no el cero del engorde.
     """
     if not sangre_estiron_activo() or beru is None:
         return 0.0
@@ -662,7 +662,7 @@ def masa_al_llamado(beru: Any) -> float:
     if base is None:
         color = sem.semaforo_resuelto(activo_desde_beru(beru), beru)
         bando = str(getattr(beru, "pierna_bando", "") or "paz")
-        base = sem.masa_nacimiento_por_bando(color, bando)
+        base = sem.masa_nacimiento_por_bando(color, bando, beru=beru)
     tope = float(engorde_tope_usd(beru) or 0)
     return _masa_delta_peldaños(
         n, 0, float(base), engorde_paso_usd(beru), tope_por_peldaño=tope,
@@ -1607,6 +1607,10 @@ def restaurar_acecho_post_oz(
     sangre_campana_oz0: float = 0.0,
     sangre_campana_dir: str = "",
     sangre_sello_px: float = 0.0,
+    engorde_cero_oz: float = 0.0,
+    engorde_peldaño_offset: int = 0,
+    engorde_memoria_peldaños: int = 0,
+    engorde_campana_dir: str = "",
 ) -> None:
     """Reengancha acecho tras sello: wake / Red / sangre (sin nuevo wake).
 
@@ -1761,12 +1765,22 @@ def restaurar_acecho_post_oz(
     beru.cosechas_continuas = int(cosechas or 0)
     beru.saco_long_usd = max(0.0, float(saco_long or 0))
     beru.saco_short_usd = max(0.0, float(saco_short or 0))
-    if (engorde_modo_peldaños_sumados() or engorde_modo_hasta_oz()) and oz_dep > 0:
-        beru.engorde_cero_oz_px = float(oz_dep)
-        beru.engorde_peldaño_offset = 0
+    # Memoria de engorde del sello (no borrar racha de Reds al reiniciar proceso).
+    if engorde_modo_peldaños_sumados() or engorde_modo_hasta_oz():
+        cero_e = float(engorde_cero_oz or 0) or float(oz_dep or 0)
+        if cero_e > 0:
+            beru.engorde_cero_oz_px = cero_e
+            dir_e = str(engorde_campana_dir or "").upper() or hoz
+            beru.engorde_campana_dir = dir_e if dir_e in ("LONG", "SHORT") else ""
+            mem = int(engorde_memoria_peldaños or 0) or int(engorde_peldaño_offset or 0)
+            beru.engorde_memoria_peldaños = max(0, mem)
+            beru.engorde_peldaño_offset = max(
+                0, int(engorde_peldaño_offset or 0) or mem
+            )
+        else:
+            limpiar_engorde_campana(beru)
     else:
-        beru.engorde_cero_oz_px = 0.0
-        beru.engorde_peldaño_offset = 0
+        limpiar_engorde_campana(beru)
 
 
 def restaurar_caza_trailing(
@@ -1789,6 +1803,10 @@ def restaurar_caza_trailing(
     saco_short: float = 0.0,
     ultima_hoz_direccion: str = "",
     oz_despliegue: float = 0.0,
+    engorde_cero_oz: float = 0.0,
+    engorde_peldaño_offset: int = 0,
+    engorde_memoria_peldaños: int = 0,
+    engorde_campana_dir: str = "",
 ) -> None:
     """Reengancha CAZANDO mid-hunt: Oz + extremo + sello del altar (Stop vivo)."""
     if beru is None:
@@ -1833,8 +1851,18 @@ def restaurar_caza_trailing(
     oz_dep = float(oz_despliegue or 0)
     if oz_dep > 0:
         beru.oz_despliegue_px = oz_dep
-        if engorde_modo_peldaños_sumados():
-            beru.engorde_cero_oz_px = oz_dep
+    if engorde_modo_peldaños_sumados():
+        cero_e = float(engorde_cero_oz or 0) or float(oz_dep or 0)
+        if cero_e > 0:
+            beru.engorde_cero_oz_px = cero_e
+            dir_e = str(engorde_campana_dir or "").upper() or d
+            beru.engorde_campana_dir = dir_e if dir_e in ("LONG", "SHORT") else ""
+            mem = int(engorde_memoria_peldaños or 0) or int(engorde_peldaño_offset or 0)
+            beru.engorde_memoria_peldaños = max(0, mem)
+            beru.engorde_peldaño_offset = max(
+                0, int(engorde_peldaño_offset or 0) or mem
+            )
+            beru.engorde_ancla_px = cero_e
     beru.altar_revision = int(altar_revision or 0)
     beru.altar_link_id = str(altar_link_id or "")
     beru.altar_order_id = str(altar_order_id or "")
