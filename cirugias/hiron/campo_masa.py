@@ -2,7 +2,10 @@
 
 Guerra ×1 · sangre (+1 %…+5 %) ×2 · masacre (+5 %+) ×3.
 Iron actualiza el sello; Beru solo lee el factor.
-La ganancia mira realizado + flotante sobre la pierna.
+
+Ganancia = (realizado + flotante) / posición actual (notional vivo).
+No usar la pierna histórica gorda: si ya se desengordó, pedir 1 %/5 %
+sobre esa bolsa vieja aleja de más el campo.
 """
 from __future__ import annotations
 
@@ -21,10 +24,10 @@ _DIR = _RAIZ / "data" / "hiron" / "campos"
 def ganancia_fraccion(
     realizado: float,
     flotante: float,
-    pierna_usd: float,
+    posicion_usd: float,
 ) -> float:
-    """(realizado + flotante) / pierna. Pierna muerta → 0."""
-    base = abs(float(pierna_usd or 0))
+    """(realizado + flotante) / posición actual. Bolsa muerta → 0."""
+    base = abs(float(posicion_usd or 0))
     if base <= 1e-9:
         return 0.0
     return (float(realizado or 0) + float(flotante or 0)) / base
@@ -67,13 +70,18 @@ def publicar(
     *,
     realizado: float,
     flotante: float,
-    pierna_usd: float,
+    posicion_usd: float,
+    pierna_hist_usd: float = 0.0,
 ) -> dict[str, Any]:
-    """Iron escribe el campo del Santo. Beru lo lee después."""
+    """Iron escribe el campo del Santo. Beru lo lee después.
+
+    ``posicion_usd`` = notional vivo ahora (manda el %).
+    ``pierna_hist_usd`` solo se anota para lectura; no divide.
+    """
     act = str(activo or "").strip().upper()
     if not act:
         return {}
-    g = ganancia_fraccion(realizado, flotante, pierna_usd)
+    g = ganancia_fraccion(realizado, flotante, posicion_usd)
     campo = campo_de_ganancia(g)
     factor = factor_de_ganancia(g)
     fila = {
@@ -83,7 +91,10 @@ def publicar(
         "ganancia_frac": round(g, 6),
         "realizado": float(realizado or 0),
         "flotante": float(flotante or 0),
-        "pierna_usd": float(pierna_usd or 0),
+        "posicion_usd": float(posicion_usd or 0),
+        "pierna_hist_usd": float(pierna_hist_usd or 0),
+        # alias viejo: misma cifra que posición (no pierna histórica)
+        "pierna_usd": float(posicion_usd or 0),
     }
     _DIR.mkdir(parents=True, exist_ok=True)
     _ruta(act).write_text(json.dumps(fila, ensure_ascii=False), encoding="utf-8")

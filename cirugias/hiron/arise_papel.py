@@ -503,6 +503,7 @@ def _uno(okx, activo: str, fila: dict, memoria: dict) -> dict:
         }
     )
     # Campo de masa para Beru (guerra/sangre/masacre). No planta.
+    # % sobre posición actual (notional vivo), no sobre pierna histórica gorda.
     try:
         from cirugias.hiron.campo_masa import publicar as _pub_campo
 
@@ -510,7 +511,8 @@ def _uno(okx, activo: str, fila: dict, memoria: dict) -> dict:
             activo,
             realizado=_f(fila.get("realizedPnl")),
             flotante=_f(fila.get("upl")),
-            pierna_usd=pierna if pierna > 0 else notional,
+            posicion_usd=notional,
+            pierna_hist_usd=pierna,
         )
     except Exception:
         pass

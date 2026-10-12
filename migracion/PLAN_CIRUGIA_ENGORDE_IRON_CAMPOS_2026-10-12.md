@@ -42,7 +42,7 @@ Los **rangos** de Red / vacío / sangre **no** se mueven. Solo masa, memoria y b
 
 **Brújula (solo Iron)**
 
-Mide la pierna con **realizado + flotante** y publica tres suelos que se actualizan solos:
+Mide **(realizado + flotante) / posición actual (notional vivo)** — no la pierna histórica gorda — y publica tres campos que se actualizan solos:
 
 | Campo | Zona de ganancia | Multiplicador |
 |-------|------------------|---------------|

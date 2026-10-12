@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Path used below for cleanup of test campo sello
 sys.path.insert(0, str(ROOT))
 
 import core.config as config
@@ -33,6 +34,24 @@ def test_campo_masa_tabla() -> None:
     assert cm.factor_de_ganancia(0.06) == 3.0
     g = cm.ganancia_fraccion(5.0, 5.0, 100.0)
     assert abs(g - 0.10) < 1e-9
+    # Desengorde: misma plata sobre bolsa mitad → % sube (no se aleja el campo)
+    g_llena = cm.ganancia_fraccion(2.0, 2.0, 200.0)  # 2 %
+    g_mitad = cm.ganancia_fraccion(2.0, 2.0, 100.0)  # 4 %
+    assert abs(g_llena - 0.02) < 1e-9
+    assert abs(g_mitad - 0.04) < 1e-9
+    assert cm.campo_de_ganancia(g_llena) == "sangre"
+    assert cm.campo_de_ganancia(g_mitad) == "sangre"
+    # Sobre posición 100: 3+2 = 5 % → masacre. Pierna hist 400 no manda.
+    pub = cm.publicar(
+        "TESTCAMPO", realizado=3.0, flotante=2.0, posicion_usd=100.0, pierna_hist_usd=400.0,
+    )
+    assert pub["campo"] == "masacre"
+    assert abs(float(pub["posicion_usd"]) - 100.0) < 1e-9
+    assert pub["factor"] == 3.0
+    try:
+        (Path(cm._DIR) / "TESTCAMPO.json").unlink(missing_ok=True)
+    except Exception:
+        pass
     print("  campo masa tabla OK")
 
 
