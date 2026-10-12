@@ -4,7 +4,7 @@
 Siempre el mismo path: `migracion/ORDEN_ACTIVA_JESS.md`  
 Los `PEGAR_JESS_*` son **recetas** (anexo). No son la puerta.
 
-**Actualización 2026-10-07 — cirugía flota: huérfanos + techo masa al armar**
+**Actualización 2026-10-12 — solo traer código de cirugías engorde/Iron (SIN despertar)**
 
 ---
 
@@ -20,11 +20,18 @@ Luego **abre solo este archivo** y ejecuta la misión de abajo.
 
 ---
 
-## 2) Misión — cirugía completa del ejército Beru
+## 2) Misión — preparar migración (código listo, ejército dormido en este paso)
 
-**Qué es:** Tras reinicio torcido quedó ~80 bolsas SWAP huérfanas (mente ACECHANDO con bolsa abierta) y AEON armó Red con masa loca. Hay que: traer código con **techo $25 al armar**, apagar, aplanar todo SWAP (no BTC spot), sellar, despertar **desde cero**.
+**Qué es:** Traer a la viejita el paquete de cirugías ya sellado en USA:
+1. Memoria del engorde hasta vacío de sangre  
+2. Campos Iron ×1 / ×2 / ×3 (1 % y 5 % sobre **posición actual**, no pierna histórica)  
+3. Red short: planta 0,8 / engorda como 0,7  
 
-**Receta / detalle:** ninguna. (USA puede haber corrido ya el ritual; si HEAD ya tiene el techo y flota limpia, solo confirmar.)
+**Solo pull + comprobar que el código llegó.**  
+**No despertar Beru, no tocar manos, no aplanar, no reiniciar flota, no Iron live agresivo.**
+
+**Receta / detalle:** `PLAN_CIRUGIA_ENGORDE_IRON_CAMPOS_2026-10-12.md`  
+**Checkpoint si hay que volver:** tag `checkpoint-pre-cirugias-engorde-iron-2026-10-12`
 
 ### Comandos exactos (PowerShell, raíz del repo en la viejita)
 
@@ -34,45 +41,53 @@ git fetch origin
 git checkout regalo
 git pull origin regalo
 
-# Confirmar techo anti-tumor
-Select-String -Path core\beru_rango.py -Pattern "masa_armar_max_usd" -SimpleMatch
-Select-String -Path core\config.py -Pattern "MASA_ARMAR_MAX_USD" -SimpleMatch
+# Confirmar HEAD reciente (debe mencionar cirugia engorde / campo Iron)
+git log -5 --oneline
 
-# Ritual completo (apaga · aplana SWAP · neto · sellar · despertar desde cero)
-powershell -NoProfile -ExecutionPolicy Bypass -File tmp_viejita_recuperar_despertar.ps1
+# Brújula Iron: % sobre posición actual
+Select-String -Path cirugias\hiron\campo_masa.py -Pattern "posicion_usd" -SimpleMatch
+Select-String -Path cirugias\hiron\campo_masa.py -Pattern "SANGRE_PCT" -SimpleMatch
+
+# Memoria engorde (no recetear en cada Oz)
+Select-String -Path core\beru_rango.py -Pattern "engorde_memoria_peldaños" -SimpleMatch
+Select-String -Path core\beru_rango.py -Pattern "limpiar_engorde_campana" -SimpleMatch
+
+# Red short sorda
+Select-String -Path core\beru_rango.py -Pattern "peldaños_holgura_red_short" -SimpleMatch
+
+# Humo en seco (no toca exchange ni despierta)
+$env:PYTHONIOENCODING = "utf-8"
+python scripts\validar_beru_cirugia_engorde_iron_smoke.py
 ```
 
-Si falta `tmp_aplanar_todo_salvo_btc_spot.py` en la viejita, USA lo deja por SCP antes; sin aplanar no despertar.
-
-Espera el despertar (~2–3 min). Luego:
-
-```
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts\_pulso_despertar.ps1
-```
+Si el smoke sale `[SMOKE] OK` y los `Select-String` encuentran las piezas → migración de **código** lista.
 
 ---
 
 ## 3) Qué NO hacer
 
-- No `--continuar` (debe ser **desde cero**).
-- No dejar manos sueltas encima de cuarteles.
-- No tocar `.env` ni BTC spot.
-- No volver a piernas / `long_short_mode`.
+- **No despertar** Beru / cuarteles / campamentos.
+- **No** `arise_*_manos`, **no** ritual recuperar/despertar, **no** aplanar SWAP.
+- **No** reiniciar Igris / Iron / escudo / susurro “por si acaso”.
+- **No** tocar `.env`, secretos, ranking, ni BTC spot.
+- **No** `--continuar` ni `--desde-cero` de flota en este paso.
 
 ---
 
 ## 4) Qué mirar al terminar
 
-1. HEAD con techo `MASA_ARMAR_MAX` / `masa_armar_max_usd`.
-2. `swap_abiertas` ~0 justo tras aplanar; luego solo lo que Beru abra chico.
-3. 28 cuarteles vivos, 0 manos sueltas.
-4. Avisar al Monarca: cuarteles, SWAP abiertas, si Igris late.
+1. `git log -1` en `regalo` con el commit de campo Iron / cirugías engorde.  
+2. Smoke `[SMOKE] OK`.  
+3. Avisar al Monarca en una frase:  
+   - pull OK / HEAD corto  
+   - smoke OK o fallo  
+   - confirmar: **nada despertado**
 
 ---
 
 ## 5) HECHO (Jess / Cursor marca)
 
-- [ ] pull regalo hecho
-- [ ] techo masa confirmado
-- [ ] aplanar + despertar desde cero
-- [ ] pulso OK · Monarca avisado
+- [ ] pull `regalo` hecho
+- [ ] piezas de código confirmadas (campo / memoria / red sorda)
+- [ ] smoke cirugia OK
+- [ ] **nada despertado** · Monarca avisado

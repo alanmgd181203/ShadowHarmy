@@ -112,7 +112,9 @@ Mide **(realizado + flotante) / posición actual (notional vivo)** — no la pie
 
 ### Fase 4 — Sello
 - [x] Smokes verdes
-- [ ] Pull viejita / manos: **solo** con orden del Monarca
+- [x] Brújula Iron: % sobre **posición actual** (no pierna histórica)
+- [x] Orden Jess lista: **solo pull + smoke** (nada despertado) — `ORDEN_ACTIVA_JESS.md`
+- [ ] Despertar / manos en viejita: **solo** con orden explícita del Monarca
 
 ---
 
