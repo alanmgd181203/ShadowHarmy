@@ -123,7 +123,7 @@ def escribir_bats(camps: list[dict]) -> None:
             "set PYTHONUTF8=1\r\n"
             "cd /d C:\\Users\\lenovo\\ShadowHarmy\r\n"
             f"{PY} -u scripts\\arise_beru_rango_campamento.py --santos {santos} "
-            f"--camp-id {cid} --desde-cero --perfil piedra --manos-go "
+            f"--camp-id {cid} --continuar --perfil piedra --manos-go "
             f">> data\\beru\\rango\\vigilante_flota\\campamentos\\{cid}\\stdout.log "
             f"2>> data\\beru\\rango\\vigilante_flota\\campamentos\\{cid}\\stderr.log\r\n",
             encoding="ascii",
