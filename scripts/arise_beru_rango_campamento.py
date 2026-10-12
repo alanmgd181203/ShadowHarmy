@@ -349,6 +349,7 @@ def _escribir_informe_santo(
             marcar_bandera(beru_g.vivo, float(last or 0))
         except Exception:
             pass
+    snap = beru_g.snapshot()
     informe = {
         "ts": time.time(),
         "duracion_s": round(time.time() - ts0, 1),
@@ -360,11 +361,23 @@ def _escribir_informe_santo(
         "santos_camp": list(_SANTOS),
         "contadores": contadores,
         "last": last,
-        "snapshot": beru_g.snapshot(),
+        "snapshot": snap,
         "posicion": beru_rango_panel.posicion_desde_tusk(tusk, activo, MERCADO),
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(informe, ensure_ascii=False, indent=2), encoding="utf-8")
+    try:
+        from core import beru_rango_ficha as ficha
+
+        ficha.escribir_ficha(
+            activo,
+            last=float(last or 0) or None,
+            snapshot=snap,
+            mercado=MERCADO,
+            perfil=PERFIL,
+        )
+    except Exception:
+        pass
     return path
 
 

@@ -417,6 +417,7 @@ def _escribir_informe(
     tusk=None,
 ) -> Path:
     last = beru_rango_ojos.last_desde_tank(tank, activo, MERCADO)
+    snap = beru_g.snapshot()
     informe = {
         "ts": time.time(),
         "duracion_s": round(time.time() - ts0, 1),
@@ -426,7 +427,7 @@ def _escribir_informe(
         "activo": activo,
         "contadores": contadores,
         "last": last,
-        "snapshot": beru_g.snapshot(),
+        "snapshot": snap,
         "eventos_path": str(EVENTOS_PATH),
         "posicion": beru_rango_panel.posicion_desde_tusk(
             tusk or getattr(tank, "tusk", None), activo, MERCADO,
@@ -465,6 +466,18 @@ def _escribir_informe(
                 merge=True,
                 tusk=tusk or getattr(tank, "tusk", None),
             )
+    except Exception:
+        pass
+    try:
+        from core import beru_rango_ficha as ficha
+
+        ficha.escribir_ficha(
+            activo,
+            last=float(last or 0) or None,
+            snapshot=snap,
+            mercado=MERCADO,
+            perfil=PERFIL,
+        )
     except Exception:
         pass
     return INFORME_PATH

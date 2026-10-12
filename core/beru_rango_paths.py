@@ -132,6 +132,11 @@ def manos_piedra_eventos(activo: str) -> Path:
     return dir_santo(activo) / "manos_piedra_eventos.jsonl"
 
 
+def ficha_auditoria(activo: str) -> Path:
+    """Ficha legible para auditorías (no planta; no cambia doctrina)."""
+    return dir_santo(activo) / "ficha_auditoria.json"
+
+
 def informe_manos(
     activo: str,
     mercado: str = "linear",
