@@ -52,10 +52,10 @@ def _print_one(d: dict) -> None:
         f"(last={du.get('last')} ref={du.get('precio_ref')})"
     )
     print(
-        f"  spread_oz_fill≈{q.get('spread_oz_fill_prom_pct')}% "
-        f"camino_oz≈{q.get('camino_entre_oz_prom_pct')}% "
+        f"  spread_oz_fill~{q.get('spread_oz_fill_prom_pct')}% "
+        f"camino_oz~{q.get('camino_entre_oz_prom_pct')}% "
         f"Iron={ir.get('campo')}x{ir.get('factor')} g={ir.get('ganancia_pct')}% "
-        f"prox_redΔ={((d.get('masa') or {}).get('proxima_red_delta_est'))}"
+        f"prox_red_d={((d.get('masa') or {}).get('proxima_red_delta_est'))}"
     )
     al = d.get("alertas") or []
     print(f"  alertas={al or 'ninguna'} ok={d.get('ok_auditoria')}")
