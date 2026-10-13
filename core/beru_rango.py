@@ -1652,6 +1652,7 @@ def restaurar_acecho_post_oz(
     engorde_peldaño_offset: int = 0,
     engorde_memoria_peldaños: int = 0,
     engorde_campana_dir: str = "",
+    ultima_hoz_tocada_precio: float = 0.0,
 ) -> None:
     """Reengancha acecho tras sello: wake / Red / sangre (sin nuevo wake).
 
@@ -1729,6 +1730,10 @@ def restaurar_acecho_post_oz(
     beru.es_relevo_cazador = True
     beru.engorde_bloqueado = True
     beru.ultima_hoz_direccion = hoz
+    # Candado oreja: sin precio de hoz el latido a veces calla la sangre.
+    hoz_px = float(ultima_hoz_tocada_precio or 0) or float(oz_dep or 0)
+    if hoz_px > 0:
+        beru.ultima_hoz_tocada_precio = hoz_px
     beru.sangre_lado = lado or ("ABAJO" if hoz == "SHORT" else "ARRIBA")
     beru.llamado_tramo_pct = sangre_contraria_pct(beru)
     beru.red_adan = red_px

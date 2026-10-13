@@ -347,6 +347,7 @@ def aplicar_plan(beru: Any, plan: PlanArranque) -> None:
         engorde_peldaño_offset=int(vivo.get("engorde_peldaño_offset") or 0),
         engorde_memoria_peldaños=int(vivo.get("engorde_memoria_peldaños") or 0),
         engorde_campana_dir=str(vivo.get("engorde_campana_dir") or ""),
+        ultima_hoz_tocada_precio=float(vivo.get("ultima_hoz_tocada_precio") or 0),
     )
 
 

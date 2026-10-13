@@ -146,16 +146,24 @@ class BeruRango:
 
         if beru.estado == "ACECHANDO":
             await self._purgar_altar_acecho(beru)
-            # Tumor: volvió al acecho sin cosechar Oz → oreja apagada y la
-            # sangre ya quedó atrás. Si hay mapa de sangre/relevo, se reabre.
-            if float(getattr(beru, "sangre_adan", 0) or 0) > 0 and (
+            # Oreja de sangre: si hay mapa post-Oz, siempre oír — también cuando
+            # el precio ya pasó la sangre (no hace falta “cruzar” en este latido).
+            sang_px = float(getattr(beru, "sangre_adan", 0) or 0)
+            hoz_px = float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0)
+            hoz_dir = str(getattr(beru, "ultima_hoz_direccion", "") or "").upper()
+            if sang_px > 0 and (
                 bool(getattr(beru, "es_relevo_cazador", False))
-                or float(getattr(beru, "ultima_hoz_tocada_precio", 0) or 0) > 0
+                or hoz_px > 0
+                or hoz_dir in ("LONG", "SHORT")
             ):
-                if not bool(getattr(beru, "oreja_sangre_activa", False)):
-                    beru.oreja_sangre_activa = True
-                    if float(getattr(beru, "red_adan", 0) or 0) > 0:
-                        beru.oreja_red_activa = True
+                beru.es_relevo_cazador = True
+                beru.oreja_sangre_activa = True
+                if float(getattr(beru, "red_adan", 0) or 0) > 0:
+                    beru.oreja_red_activa = True
+                if hoz_px <= 0 and float(getattr(beru, "oz_despliegue_px", 0) or 0) > 0:
+                    beru.ultima_hoz_tocada_precio = float(
+                        getattr(beru, "oz_despliegue_px", 0) or 0
+                    )
             if bool(getattr(beru, "es_relevo_cazador", False)) or float(
                 getattr(beru, "ultima_hoz_tocada_precio", 0) or 0
             ) > 0:
@@ -182,6 +190,7 @@ class BeruRango:
                         "evento": "ARMAR_SANGRE",
                         "masa": masa,
                         "dir": beru.direccion,
+                        "nota": "sangre_ya_detras_o_toco",
                     }
                 if trig == "RED":
                     pierna_casa = 0.0
@@ -921,6 +930,9 @@ class BeruRango:
             "sangre_adan": float(getattr(beru, "sangre_adan", 0) or 0),
             "sangre_campana_oz0": float(getattr(beru, "sangre_campana_oz0_px", 0) or 0),
             "sangre_campana_dir": str(getattr(beru, "sangre_campana_dir", "") or ""),
+            "oreja_sangre_activa": bool(getattr(beru, "oreja_sangre_activa", False)),
+            "oreja_red_activa": bool(getattr(beru, "oreja_red_activa", False)),
+            "es_relevo_cazador": bool(getattr(beru, "es_relevo_cazador", False)),
             "cosechas": int(getattr(beru, "cosechas_continuas", 0) or 0),
             "escalones_red": int(getattr(beru, "rango_escalones_red", 0) or 0),
             "ultima_hoz_direccion": getattr(beru, "ultima_hoz_direccion", "") or "",
