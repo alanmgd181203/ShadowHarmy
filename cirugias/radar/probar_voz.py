@@ -1,7 +1,9 @@
 """La voz y el salto de mil. En seco. El que caza no lee el asiento."""
 from __future__ import annotations
 
-from cirugias.radar.voz import Escudo, firmar, suma
+from cirugias.radar.voz import Escudo, firmar, suma, voz_de_hoja
+from core import beru_rango
+from core.beru_rango_balanza import cruzar_libreta
 
 
 def _cerca(a: float, b: float, nombre: str) -> None:
@@ -34,10 +36,44 @@ def al_voltear_se_calla() -> None:
     _cerca(escudo.ver(-2500), -2000.0, "el lado nuevo se sienta en el siguiente latido")
 
 
+class _Beru:
+    direccion = "LONG"
+    estado = "CAZANDO"
+    masa = 10.0
+    voz_intencion = 0.0
+
+
+def boca_fina_y_libreta() -> None:
+    b = _Beru()
+    beru_rango.publicar_voz(b, 1.0)
+    # sin fill: firme 0, quiero long negativo
+    _cerca(float(b.voz_quiero), float(b.voz_intencion), "quiero=intencion")
+    beru_rango.registrar_voz_firme(b, 10.0)
+    _cerca(float(b.voz_firme), -10.0, "firme long -10")
+    _cerca(float(b.voz_delta), -10.0, "delta al firmar")
+    hoja = {
+        "voz_quiero": -12.0,
+        "voz_firme": -10.0,
+        "voz_delta": -10.0,
+        "voz_intencion": -12.0,
+    }
+    _cerca(voz_de_hoja(hoja), -10.0, "hoja prioriza firme")
+    cruz, fuente = cruzar_libreta(-10.0, -10.0, calibrar=False)
+    _cerca(cruz, -10.0, "libreta sin calibrar")
+    _cerca(1.0 if fuente == "libreta" else 0.0, 1.0, "fuente libreta")
+    cruz2, fuente2 = cruzar_libreta(-10.0, -5000.0, calibrar=True)
+    _cerca(cruz2, -5000.0, "casa gana si desalineada")
+    _cerca(1.0 if fuente2 == "casa_desalineada" else 0.0, 1.0, "fuente casa")
+    beru_rango.cerrar_voz_firme(b)
+    _cerca(float(b.voz_firme), 0.0, "cerrar firme")
+    print("OK  boca fina + libreta")
+
+
 def main() -> None:
     la_voz_es_el_lado()
     quinientos_no_recortan()
     al_voltear_se_calla()
+    boca_fina_y_libreta()
     print("VOZ_REVISADA")
 
 

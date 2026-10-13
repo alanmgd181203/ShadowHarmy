@@ -1,9 +1,12 @@
-"""La voz de la cabeza. El escudo vivo no lee esto.
+"""La voz de la cabeza — libreta de Igris.
 
-Cada Beru dice, en todo momento, los dólares que ya tiene en la
-cabeza. No espera a firmar la orden ni a que la Oz se toque.
-Igris suma. El escudo solo se mueve de mil en mil. Quinientos de
-menos se ven, y no recortan todavía.
+Cada Beru dice tres cosas en la hoja:
+- quiero: masa en la cabeza (antes del fill)
+- firmé: plata ya confirmada en casa
+- delta: último cambio de firmé
+
+Igris suma la libreta. Solo calibra con OKX de vez en cuando.
+El escudo se mueve de mil en mil. Quinientos de menos se ven y no recortan.
 """
 from __future__ import annotations
 
@@ -29,10 +32,27 @@ def suma(voces: list[float]) -> float:
     return float(sum(float(v or 0) for v in voces))
 
 
-def oir_boca(saltar: set[str] | None = None) -> float | None:
-    """Suma firmada de las bocas vivas. None si no hay ninguna hoja.
+def voz_de_hoja(vivo: dict) -> float | None:
+    """Una hoja → número para la libreta.
 
-    Positiva es más corto. Negativa es más largo. El que calla aporta cero.
+    Prioridad: firmé (si la hoja ya habla fina) → quiero → voz_intencion.
+    Si no hay ninguna clave de voz, None (hoja muda).
+    """
+    if not isinstance(vivo, dict):
+        return None
+    if "voz_firme" in vivo:
+        return float(vivo.get("voz_firme") or 0)
+    if "voz_quiero" in vivo:
+        return float(vivo.get("voz_quiero") or 0)
+    if "voz_intencion" in vivo:
+        return float(vivo.get("voz_intencion") or 0)
+    return None
+
+
+def oir_boca(saltar: set[str] | None = None) -> float | None:
+    """Suma de la libreta Beru. None si no hay ninguna hoja con voz.
+
+    Positiva es más corto. Negativa es más largo.
     ``saltar`` son casas de otro manto: no se oyen aquí.
     """
     import json
@@ -54,10 +74,11 @@ def oir_boca(saltar: set[str] | None = None) -> float | None:
         vivo = data.get("vivo")
         if not isinstance(vivo, dict):
             vivo = (data.get("snapshot") or {}).get("vivo")
-        if not isinstance(vivo, dict) or "voz_intencion" not in vivo:
+        voz = voz_de_hoja(vivo if isinstance(vivo, dict) else {})
+        if voz is None:
             continue
         vistos += 1
-        total += float(vivo.get("voz_intencion") or 0)
+        total += float(voz)
     if vistos == 0:
         return None
     return float(total)

@@ -92,6 +92,29 @@ Paso fijo $10 · peldaños de **$200** · arma a **$400** · margen/PnL en BTC.
 
 ---
 
+## Libreta Beru → Igris (cirugía 2026-10-12)
+
+**Idea:** Beru emite boca fina; Igris cuenta mental; OKX solo calibra.
+
+En cada hoja (`vivo`):
+
+| Campo | Significado |
+|-------|-------------|
+| `voz_quiero` | Masa en la cabeza (antes / sin fill) |
+| `voz_firme` | Plata confirmada (fill / pierna) |
+| `voz_delta` | Último cambio de firmé |
+| `voz_intencion` | Compat = quiero |
+
+**Igris:**
+
+1. Suma libreta (prioriza `voz_firme` → `voz_quiero` → `voz_intencion`).
+2. **No** suma casa+boca (eso doblaba la masa).
+3. Pide foto OKX con TTL (~90 s; ~300 s si el asiento está neutro).
+4. Si al calibrar `|casa − libreta|` > tol (~$1500), gana la casa y se anota desalineada.
+5. Asiento ~0 → latido más lento (`IGRIS_ESCUDO_NEUTRO_S`, default 60).
+
+---
+
 ## Candados
 
 - `IGRIS_ESCUDO_BTC_MODO=sim` (default).  

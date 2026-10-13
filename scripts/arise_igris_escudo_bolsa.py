@@ -22,6 +22,29 @@ _LOG = ROOT / "data" / "logs" / "arise_igris_escudo_bolsa_out.log"
 _ASIENTO = ROOT / "data" / "beru" / "escudo" / "asiento_bolsa.json"
 _SELLO = ROOT / "data" / "beru" / "escudo" / "relacion_sello_bolsa.json"
 _MEMORIA = {"armado": False, "lado": "", "valor": 0.0}
+_ULTIMA_CALIBRA_TS = 0.0
+
+
+def _neutro() -> bool:
+    return (not bool(_MEMORIA.get("armado"))) or abs(float(_MEMORIA.get("valor") or 0)) <= 1.0
+
+
+def _toca_calibrar() -> bool:
+    global _ULTIMA_CALIBRA_TS
+    from core.beru_rango_balanza import ttl_balanza_s
+
+    ttl = ttl_balanza_s(neutro=_neutro())
+    ahora = time.time()
+    if _ULTIMA_CALIBRA_TS <= 0 or (ahora - _ULTIMA_CALIBRA_TS) >= ttl:
+        _ULTIMA_CALIBRA_TS = ahora
+        return True
+    return False
+
+
+def _intervalo_sueño(base: float) -> float:
+    if _neutro():
+        return max(float(base), float(os.environ.get("IGRIS_ESCUDO_NEUTRO_S", "60") or 60))
+    return max(10.0, float(base))
 
 
 def _emit(msg: str) -> None:
@@ -123,20 +146,24 @@ def main() -> int:
         hora = datetime.now().strftime("%H:%M:%S")
         try:
             try:
-                snap = balanza.sellar_balanza_bolsa()
+                calibrar = _toca_calibrar()
+                snap = balanza.sellar_balanza_bolsa(
+                    forzar=calibrar, neutro=_neutro(),
+                )
             except Exception as exc:
                 _emit(f"[{hora}] casa   · ciega, no planto ({exc})")
                 if args.una_vez:
                     return 0
-                time.sleep(max(10.0, float(args.intervalo)))
+                time.sleep(_intervalo_sueño(float(args.intervalo)))
                 continue
             casa = float(snap.get("short_usd") or 0) - float(snap.get("long_usd") or 0)
             boca_bolsa = oir_boca_solo(cazadores())
-            cruzado = casa if boca_bolsa is None else casa + float(boca_bolsa)
+            cruzado, fuente = balanza.cruzar_libreta(
+                boca_bolsa, casa, calibrar=calibrar or boca_bolsa is None,
+            )
             _emit(
-                f"[{hora}] casa   · {casa:.0f}"
-                + ("" if boca_bolsa is None else f" + boca {float(boca_bolsa):.0f}")
-                + f" = {cruzado:.0f}"
+                f"[{hora}] casa   · libreta {float(boca_bolsa or 0):.0f} · "
+                f"casa {casa:.0f} · usa {fuente}={cruzado:.0f}"
             )
             asiento, armado, lado = asiento_en_banda(
                 cruzado,
@@ -199,13 +226,14 @@ def main() -> int:
             _emit(f"[{hora}] error: {exc}")
         if args.una_vez:
             return 0
-        time.sleep(max(10.0, float(args.intervalo)))
+        time.sleep(_intervalo_sueño(float(args.intervalo)))
 
 
 def oir_boca_solo(queda: set[str]) -> float | None:
     """Solo las hojas de esta casa. None si ninguna habla."""
     import json as _json
 
+    from cirugias.radar.voz import voz_de_hoja
     from core.beru_rango_paths import RANGO_DIR
 
     if not RANGO_DIR.is_dir():
@@ -223,10 +251,11 @@ def oir_boca_solo(queda: set[str]) -> float | None:
         vivo = data.get("vivo")
         if not isinstance(vivo, dict):
             vivo = (data.get("snapshot") or {}).get("vivo")
-        if not isinstance(vivo, dict) or "voz_intencion" not in vivo:
+        voz = voz_de_hoja(vivo if isinstance(vivo, dict) else {})
+        if voz is None:
             continue
         vistos += 1
-        total += float(vivo.get("voz_intencion") or 0)
+        total += float(voz)
     if vistos == 0:
         return None
     return float(total)

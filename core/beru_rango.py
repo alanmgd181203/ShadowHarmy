@@ -972,14 +972,55 @@ def intencion_en_cabeza(beru: Any, precio: float | None = None) -> float:
     return masa if lado == "SHORT" else -masa
 
 
+def registrar_voz_firme(
+    beru: Any,
+    masa_usd: float,
+    *,
+    lado: str | None = None,
+) -> float:
+    """Fill confirmado (o progreso de pierna): actualiza firmé + delta."""
+    if beru is None:
+        return 0.0
+    d = str(lado or getattr(beru, "direccion", "") or "").upper()
+    masa = max(0.0, float(masa_usd or 0))
+    if d == "SHORT":
+        nuevo = masa
+    elif d == "LONG":
+        nuevo = -masa
+    else:
+        nuevo = 0.0
+    viejo = float(getattr(beru, "voz_firme", 0) or 0)
+    beru.voz_firme = float(nuevo)
+    beru.voz_delta = float(nuevo - viejo)
+    return float(nuevo)
+
+
+def cerrar_voz_firme(beru: Any) -> float:
+    """Cosecha / acecho: la plata firmada vuelve a cero."""
+    if beru is None:
+        return 0.0
+    viejo = float(getattr(beru, "voz_firme", 0) or 0)
+    beru.voz_delta = float(-viejo) if abs(viejo) > 1e-12 else 0.0
+    beru.voz_firme = 0.0
+    return 0.0
+
+
 def publicar_voz(beru: Any, precio: float | None = None) -> float:
-    """La dice en este latido. Si el cálculo falla, calla en cero."""
+    """Quiero (intención). Firmé solo lo toca el fill / cerrar."""
     try:
         voz = float(intencion_en_cabeza(beru, precio))
     except Exception:
         voz = 0.0
     if beru is not None:
-        beru.voz_intencion = voz
+        beru.voz_quiero = voz
+        beru.voz_intencion = voz  # compat escudo viejo
+        estado = str(getattr(beru, "estado", "") or "").upper()
+        if estado != "CAZANDO":
+            cerrar_voz_firme(beru)
+        elif not hasattr(beru, "voz_firme"):
+            beru.voz_firme = 0.0
+        if not hasattr(beru, "voz_delta"):
+            beru.voz_delta = 0.0
     return voz
 
 

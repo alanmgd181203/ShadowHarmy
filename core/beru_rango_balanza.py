@@ -1,12 +1,12 @@
 """Balanza de la legión — peso LONG vs SHORT (sin BTC).
 
-Oído del Monarca. Fuente primaria = posiciones reales OKX (no sellos locales).
-Los sellos ``manos_piedra_informe`` parpadean vacío en reconciliación Tusk y
-hacían saltar el short (p.ej. 0.7k ↔ 1.4k) sin que la bolsa se moviera.
+Cirugía libreta (Monarca): Igris vive de la boca fina de Beru.
+OKX es sello de calibración, no latido. Cache TTL evita megagolpe.
 """
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 from typing import Any
@@ -14,6 +14,24 @@ from typing import Any
 from core import beru_rango_paths
 
 EXCLUIR_BASES = frozenset({"BTC", "BTCUSDT", "BTCPERP"})
+
+# Última foto OKX en memoria (cripto / bolsa).
+_CACHE_OKX: dict[str, Any] | None = None
+_CACHE_OKX_TS: float = 0.0
+_CACHE_BOLSA: dict[str, Any] | None = None
+_CACHE_BOLSA_TS: float = 0.0
+
+
+def ttl_balanza_s(*, neutro: bool = False) -> float:
+    """Segundos entre golpes OKX. Neutro = asiento ~0 → más lento."""
+    if neutro:
+        return max(60.0, float(os.environ.get("IGRIS_BALANZA_TTL_NEUTRO_S", "300") or 300))
+    return max(30.0, float(os.environ.get("IGRIS_BALANZA_TTL_S", "90") or 90))
+
+
+def tol_desalineada_usd() -> float:
+    """Si |casa − boca| supera esto al calibrar, gana la casa."""
+    return max(250.0, float(os.environ.get("IGRIS_CALIBRAR_TOL_USD", "1500") or 1500))
 
 
 def _f(x: Any, default: float = 0.0) -> float:
@@ -310,35 +328,69 @@ def medir_desde_okx_con_reintento() -> dict[str, Any]:
     raise ultimo
 
 
-def medir_balanza(*, max_age_s: float = 600.0) -> dict[str, Any]:
-    """Casa OKX. Si OKX falla: eco de la última casa buena (NUNCA sellos parpadeantes)."""
+def medir_balanza(
+    *,
+    max_age_s: float = 600.0,
+    forzar: bool = False,
+    neutro: bool = False,
+) -> dict[str, Any]:
+    """Casa OKX con cache. Si OKX falla: eco de la última casa buena."""
+    global _CACHE_OKX, _CACHE_OKX_TS
     _ = max_age_s
+    ttl = ttl_balanza_s(neutro=neutro)
+    ahora = time.time()
+    if (
+        not forzar
+        and _CACHE_OKX is not None
+        and (ahora - _CACHE_OKX_TS) <= ttl
+    ):
+        out = dict(_CACHE_OKX)
+        out["cache"] = True
+        out["cache_age_s"] = round(ahora - _CACHE_OKX_TS, 1)
+        return out
     try:
         from core import okx_rest
 
         if not okx_rest.credenciales_ok():
             raise RuntimeError("sin_credenciales_okx")
         snap = medir_desde_okx_con_reintento()
+        snap["cache"] = False
+        _CACHE_OKX = dict(snap)
+        _CACHE_OKX_TS = ahora
         _guardar_eco_casa(snap)
         return snap
     except Exception as exc:
+        if _CACHE_OKX is not None:
+            out = dict(_CACHE_OKX)
+            out["cache"] = True
+            out["aviso"] = f"okx_fallo_cache:{exc}"
+            return out
         eco = _leer_eco_casa(motivo=f"okx_fallo:{exc}")
         if eco:
             return eco
-        # Solo si nunca hubo casa: sellos con aviso grueso (mejor que cero).
         snap = medir_desde_informes(max_age_s=max_age_s)
         snap["aviso"] = f"okx_fallo_sin_eco:{exc}"
         snap["frase"] = (snap.get("frase") or "") + " · AVISO sellos inestables"
         return snap
 
 
-def medir_bolsa() -> dict[str, Any]:
-    """Solo la casa de las acciones. El metal del escudo no entra en la suma."""
+def medir_bolsa(*, forzar: bool = False, neutro: bool = False) -> dict[str, Any]:
+    """Solo la casa de las acciones. Cache igual que la balanza cripto."""
+    global _CACHE_BOLSA, _CACHE_BOLSA_TS
     from core import okx_rest
 
+    ttl = ttl_balanza_s(neutro=neutro)
+    ahora = time.time()
+    if (
+        not forzar
+        and _CACHE_BOLSA is not None
+        and (ahora - _CACHE_BOLSA_TS) <= ttl
+    ):
+        out = dict(_CACHE_BOLSA)
+        out["cache"] = True
+        return out
     if not okx_rest.credenciales_ok():
         raise RuntimeError("sin_credenciales_okx")
-    now = time.time()
     long_usd = 0.0
     short_usd = 0.0
     n_long = 0
@@ -373,8 +425,8 @@ def medir_bolsa() -> dict[str, Any]:
             n_short += 1
             por_santo.append({"activo": act, "long": 0.0, "short": round(nu, 4)})
     total = long_usd + short_usd
-    return {
-        "ts": now,
+    snap = {
+        "ts": ahora,
         "fuente": "okx_bolsa",
         "long_usd": round(long_usd, 2),
         "short_usd": round(short_usd, 2),
@@ -384,12 +436,21 @@ def medir_bolsa() -> dict[str, Any]:
         "n_santos_con_pos": n_long + n_short,
         "por_santo": por_santo,
         "frase": f"bolsa L ${long_usd:.0f} · S ${short_usd:.0f}",
+        "cache": False,
     }
+    _CACHE_BOLSA = dict(snap)
+    _CACHE_BOLSA_TS = ahora
+    return snap
 
 
-def sellar_balanza_bolsa(*, out: Path | None = None) -> dict[str, Any]:
+def sellar_balanza_bolsa(
+    *,
+    out: Path | None = None,
+    forzar: bool = False,
+    neutro: bool = False,
+) -> dict[str, Any]:
     """Sello aparte. No pisa la balanza de las monedas."""
-    snap = medir_bolsa()
+    snap = medir_bolsa(forzar=forzar, neutro=neutro)
     path = out or (beru_rango_paths.RANGO_DIR / "balanza_bolsa.json")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(snap, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -397,20 +458,42 @@ def sellar_balanza_bolsa(*, out: Path | None = None) -> dict[str, Any]:
     return snap
 
 
+def cruzar_libreta(
+    boca: float | None,
+    casa_neto: float,
+    *,
+    calibrar: bool,
+) -> tuple[float, str]:
+    """Libreta Beru primero. Casa solo calibra o desempata.
+
+    Retorna (cruzado, frase_fuente).
+    """
+    if boca is None:
+        return float(casa_neto), "casa"
+    b = float(boca)
+    if not calibrar:
+        return b, "libreta"
+    tol = tol_desalineada_usd()
+    if abs(float(casa_neto) - b) > tol:
+        return float(casa_neto), "casa_desalineada"
+    return b, "libreta_ok"
+
+
 def sellar_balanza(
     *,
     root: Path | None = None,
     max_age_s: float = 600.0,
     out: Path | None = None,
+    forzar: bool = False,
+    neutro: bool = False,
 ) -> dict[str, Any]:
     """Mide y escribe ``data/beru/rango/balanza_legion.json``."""
     _ = root  # OKX no usa root; se conserva firma
-    snap = medir_balanza(max_age_s=max_age_s)
+    snap = medir_balanza(max_age_s=max_age_s, forzar=forzar, neutro=neutro)
     path = out or beru_rango_paths.balanza_legion()
     path.parent.mkdir(parents=True, exist_ok=True)
     slim = {k: v for k, v in snap.items() if k != "por_santo"}
     slim["top"] = (snap.get("por_santo") or [])[:12]
-    # No pisar un sello OKX bueno con un eco vacío raro: si eco, sí escribir (misma cifra).
     path.write_text(json.dumps(slim, ensure_ascii=False, indent=2), encoding="utf-8")
     snap["path"] = str(path)
     return snap

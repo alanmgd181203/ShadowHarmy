@@ -14,8 +14,11 @@ INST = REINA
 
 _FILTROS_CACHE: dict[str, tuple[float, dict]] = {}
 _PIERNAS_CACHE: tuple[float, bool] | None = None
+# ultimo vivo visto (ts, usd firmados) — solo para REDUCIR si el mar ciega (429)
+_VIVO_CACHE: dict[str, tuple[float, float]] = {}
 _FILTROS_TTL = 300.0
 _PIERNAS_TTL = 120.0
+_VIVO_CACHE_TTL = 240.0
 _REINTENTOS = 5
 
 
@@ -51,12 +54,40 @@ def sentados(insts: tuple[str, ...] | list[str] | None = None) -> dict[str, floa
         if inst not in vivos:
             out[inst] = None
         else:
-            out[inst] = float(vivos[inst]) * f["ct"]
+            usd = float(vivos[inst]) * f["ct"]
+            out[inst] = usd
+            _record_vivo(inst, usd)
     return out
 
 
-def ajustar(meta_signed_usd: float, inst: str = INST) -> dict:
-    """Acerca ese metal a la meta. Cero contra cero no manda orden."""
+def _cache_si_reduce(inst: str, meta: float) -> float | None:
+    """Ultima foto solo si la meta no engorda a ciegas."""
+    cached = _VIVO_CACHE.get(str(inst))
+    if cached is None:
+        return None
+    ts, prev = cached
+    if time.time() - ts > _VIVO_CACHE_TTL:
+        return None
+    if abs(float(meta or 0)) <= abs(float(prev)) + 1.0:
+        return float(prev)
+    return None
+
+
+def _record_vivo(inst: str, usd: float) -> None:
+    _VIVO_CACHE[str(inst)] = (time.time(), float(usd))
+
+
+def ajustar(
+    meta_signed_usd: float,
+    inst: str = INST,
+    *,
+    vivo_usd: float | None = None,
+) -> dict:
+    """Acerca ese metal a la meta. Cero contra cero no manda orden.
+
+    ``vivo_usd``: si el latido ya vio la bolsa, no volver a pedirla al mar
+    (evita 429 eterno en el desengorde).
+    """
     from core import okx_rest
 
     if not okx_rest.credenciales_ok():
@@ -64,11 +95,22 @@ def ajustar(meta_signed_usd: float, inst: str = INST) -> dict:
     filtros = _filtros(okx_rest, inst)
     if filtros is None:
         return {"aplicado": False, "frase": "sin talla"}
-    vivos = _vivos_lote(okx_rest, (inst,))
-    if inst not in vivos:
-        return {"aplicado": False, "frase": "ojo ciego, no planta"}
-    vivo = float(vivos[inst] or 0) * filtros["ct"]
     meta = float(meta_signed_usd or 0)
+    if vivo_usd is not None:
+        vivo = float(vivo_usd)
+        _record_vivo(inst, vivo)
+    else:
+        vivos = _vivos_lote(okx_rest, (inst,))
+        if inst in vivos:
+            vivo = float(vivos[inst] or 0) * filtros["ct"]
+            _record_vivo(inst, vivo)
+        else:
+            vivo_m = _cache_si_reduce(inst, meta)
+            if vivo_m is None:
+                return {"aplicado": False, "frase": "ojo ciego, no planta"}
+            vivo = float(vivo_m)
+            if abs(meta) > abs(vivo) + 1.0:
+                return {"aplicado": False, "frase": "ojo ciego, no engorda a ciegas", "vivo": vivo}
     paso = filtros["ct"] * filtros["lot"]
     if vivo * meta < 0 and abs(vivo) > paso * 0.5:
         meta = 0.0
@@ -179,7 +221,7 @@ def _vivos_lote(okx, insts: tuple[str, ...]) -> dict[str, float]:
             ) or []
         except Exception as exc:
             if _es_atasco(exc) and intento + 1 < _REINTENTOS:
-                time.sleep(0.45 * (intento + 1))
+                _espera_atasco(intento)
                 continue
             return _vivos_uno_a_uno(okx, insts)
         hallados: dict[str, float] = {inst: 0.0 for inst in insts}
@@ -212,7 +254,7 @@ def _vivos_uno_a_uno(okx, insts: tuple[str, ...]) -> dict[str, float]:
                 ) or []
             except Exception as exc:
                 if _es_atasco(exc) and intento + 1 < _REINTENTOS:
-                    time.sleep(0.45 * (intento + 1))
+                    _espera_atasco(intento)
                     continue
                 break
             total = 0.0
@@ -254,7 +296,7 @@ def _con_reintento(fn):
         except Exception as exc:
             ultimo = exc
             if _es_atasco(exc) and intento + 1 < _REINTENTOS:
-                time.sleep(0.45 * (intento + 1))
+                _espera_atasco(intento)
                 continue
             raise
     raise ultimo  # type: ignore[misc]
@@ -264,3 +306,8 @@ def _es_atasco(exc: BaseException) -> bool:
     texto = str(exc).lower()
     code = str(getattr(exc, "code", "") or "")
     return code == "50011" or "50011" in texto or "rate" in texto or "too many" in texto
+
+
+def _espera_atasco(intento: int) -> None:
+    """Backoff ante 50011. Capado: no dormir minutos enteros por latido."""
+    time.sleep(min(12.0, 1.5 * (intento + 1)))

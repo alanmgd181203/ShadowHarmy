@@ -129,6 +129,20 @@ class BeruRango:
         beru.ultimo_precio = float(px)
 
         beru_rango.publicar_voz(beru, px)
+        # Boca fina: si hay fill/progreso de pierna, Igris ya no adivina.
+        if beru.estado == "CAZANDO":
+            if self._manos():
+                pack_voz = self._delta_pierna_tramo(beru)
+                if pack_voz:
+                    beru_rango.registrar_voz_firme(
+                        beru, float(pack_voz.get("masa_usd") or 0),
+                    )
+            else:
+                # Teatro: el mapa es el fill.
+                beru_rango.registrar_voz_firme(
+                    beru, abs(float(getattr(beru, "voz_quiero", 0) or 0)),
+                    lado=str(getattr(beru, "direccion", "") or ""),
+                )
 
         if beru.estado == "ACECHANDO":
             await self._purgar_altar_acecho(beru)
@@ -284,6 +298,7 @@ class BeruRango:
                 beru_rango.cosechar_oz_y_mover_cero(
                     beru, fill, oz_despliegue=oz_viva or None, masa_usd=masa_real,
                 )
+                beru_rango.cerrar_voz_firme(beru)
                 if self._manos():
                     beru_rango_altar.limpiar_sello_altar(beru)
                 await self.bel.anotar(
@@ -888,6 +903,11 @@ class BeruRango:
             "trail_extremo": getattr(beru, "trail_extremo", 0),
             "masa": beru.masa,
             "voz_intencion": float(getattr(beru, "voz_intencion", 0) or 0),
+            "voz_quiero": float(
+                getattr(beru, "voz_quiero", 0) or getattr(beru, "voz_intencion", 0) or 0
+            ),
+            "voz_firme": float(getattr(beru, "voz_firme", 0) or 0),
+            "voz_delta": float(getattr(beru, "voz_delta", 0) or 0),
             "origen_tramo": str(getattr(beru, "origen_tramo", "") or ""),
             "engorde_ancla_px": float(getattr(beru, "engorde_ancla_px", 0) or 0),
             "engorde_cero_oz": float(getattr(beru, "engorde_cero_oz_px", 0) or 0),

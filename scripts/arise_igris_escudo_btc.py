@@ -43,6 +43,31 @@ _LOG = ROOT / "data" / "logs" / "arise_igris_escudo_out.log"
 _ASIENTO = {"armado": False, "lado": "", "valor": 0.0}
 _ASIENTO_PATH = ROOT / "data" / "beru" / "escudo" / "asiento_dual.json"
 _TSUNAMI_PATH = ROOT / "data" / "beru" / "escudo" / "tsunami.json"
+_ULTIMA_CALIBRA_TS = 0.0
+
+
+def _neutro() -> bool:
+    return (not bool(_ASIENTO.get("armado"))) or abs(float(_ASIENTO.get("valor") or 0)) <= 1.0
+
+
+def _toca_calibrar() -> bool:
+    """OKX solo de vez en cuando. Neutro → más raro."""
+    global _ULTIMA_CALIBRA_TS
+    from core.beru_rango_balanza import ttl_balanza_s
+
+    ttl = ttl_balanza_s(neutro=_neutro())
+    ahora = time.time()
+    if _ULTIMA_CALIBRA_TS <= 0 or (ahora - _ULTIMA_CALIBRA_TS) >= ttl:
+        _ULTIMA_CALIBRA_TS = ahora
+        return True
+    return False
+
+
+def _intervalo_sueño(base: float) -> float:
+    """Si el asiento está apagado, el manto puede mirar más despacio."""
+    if _neutro():
+        return max(float(base), float(os.environ.get("IGRIS_ESCUDO_NEUTRO_S", "60") or 60))
+    return max(10.0, float(base))
 
 
 def _cargar_asiento() -> None:
@@ -55,10 +80,9 @@ def _cargar_asiento() -> None:
     _ASIENTO["valor"] = float(data.get("valor") or 0)
 
 
-def _cruzar(snap: dict, boca: float) -> tuple[float, float]:
-    """Casa (corto menos largo) más la boca. El mismo lado se suma, el otro se resta."""
-    casa = float(snap.get("short_usd") or 0) - float(snap.get("long_usd") or 0)
-    return casa + float(boca or 0), casa
+def _casa_neto(snap: dict) -> float:
+    """Corto menos largo en la foto de casa (sin sumar boca)."""
+    return float(snap.get("short_usd") or 0) - float(snap.get("long_usd") or 0)
 
 
 def _proponer_asiento(neto: float) -> tuple[float, bool, str]:
@@ -226,7 +250,9 @@ def main() -> int:
     while True:
         hora = datetime.now().strftime("%H:%M:%S")
         try:
-            snap = balanza.sellar_balanza()
+            calibrar = _toca_calibrar()
+            snap = balanza.sellar_balanza(forzar=calibrar, neutro=_neutro())
+            casa = _casa_neto(snap)
             try:
                 from cirugias.escudo_dual.bolsa import cazadores
 
@@ -236,13 +262,16 @@ def main() -> int:
             from cirugias.radar.voz import oir_boca
 
             boca = oir_boca(saltar=saltar)
+            cruzado, fuente = balanza.cruzar_libreta(
+                boca, casa, calibrar=calibrar or boca is None,
+            )
             if boca is None:
-                cruzado, casa = _cruzar(snap, 0.0)
-                _emit(f"[{hora}] boca    · sin hojas, el escudo sigue con la casa")
+                _emit(f"[{hora}] boca    · sin hojas · {fuente} {cruzado:.0f}")
             else:
-                cruzado, casa = _cruzar(snap, float(boca))
+                marca = "calibra" if calibrar else "cache" if snap.get("cache") else "casa"
                 _emit(
-                    f"[{hora}] boca    · casa {casa:.0f} + boca {float(boca):.0f} = {cruzado:.0f}"
+                    f"[{hora}] boca    · libreta {float(boca):.0f} · "
+                    f"casa {casa:.0f} ({marca}) · usa {fuente}={cruzado:.0f}"
                 )
             if cruzado >= 0:
                 snap["short_usd"] = float(cruzado)
@@ -250,7 +279,9 @@ def main() -> int:
             else:
                 snap["short_usd"] = 0.0
                 snap["long_usd"] = abs(float(cruzado))
-            snap["frase"] = f"casa {casa:.0f} + boca {float(boca or 0):.0f}"
+            snap["frase"] = (
+                f"libreta {float(boca or 0):.0f} · casa {casa:.0f} · {fuente} {cruzado:.0f}"
+            )
             asiento, armado, lado_as = _proponer_asiento(cruzado)
             asiento_mano = asiento
             try:
@@ -299,13 +330,48 @@ def main() -> int:
                 _emit(f"[{hora}] {frase_def}")
                 _emit(f"[{hora}] capa    · {frase_eleccion(elegido)}")
                 from cirugias.escudo_dual.ojo import ver
-                from cirugias.escudo_dual.manos import REINA, REY, ajustar, sentado
+                from cirugias.escudo_dual.manos import REINA, REY, ajustar, sentados
 
                 dato = ver()
-                pos_reina = sentado(REINA)
-                pos_rey = sentado(REY)
-                if pos_reina is None or pos_rey is None:
-                    _emit(f"[{hora}] capa    · un metal no se ve, no planto")
+                pos_reina = pos_rey = None
+                for _intento_ojo in range(5):
+                    foto = sentados((REY, REINA))
+                    pos_rey = foto.get(REY)
+                    pos_reina = foto.get(REINA)
+                    if pos_reina is not None and pos_rey is not None:
+                        break
+                    # desengorde: con un solo ojo ya se puede apagar ese metal
+                    if abs(float(asiento_def)) <= 1.0 and (
+                        pos_reina is not None or pos_rey is not None
+                    ):
+                        break
+                    time.sleep(1.2 * (_intento_ojo + 1))
+
+                apagar = abs(float(asiento_def)) <= 1.0
+                frases = []
+                if apagar:
+                    # Cirugia: al 10% desinflar pide metal 0 — bajar lo que se vea
+                    # (o memoria reciente). No exigir los dos ojos para soltar.
+                    _emit(f"[{hora}] capa    · desengorde: apagar metales")
+                    for nombre, inst, pos in (
+                        ("reina", REINA, pos_reina),
+                        ("rey", REY, pos_rey),
+                    ):
+                        hecho = ajustar(0.0, inst, vivo_usd=pos)
+                        frases.append(f"{nombre} {hecho.get('frase')}")
+                        if pos is None and "ciego" in str(hecho.get("frase") or ""):
+                            _emit(
+                                f"[{hora}] capa    · {nombre} ciego aun en desengorde"
+                            )
+                        elif abs(float(pos or 0)) > 1.0:
+                            _emit(
+                                f"[{hora}] capa    · {nombre} vivo={float(pos):.0f} -> 0"
+                            )
+                elif pos_reina is None or pos_rey is None:
+                    _emit(
+                        f"[{hora}] capa    · un metal no se ve, "
+                        f"no engordo a ciegas (reina={pos_reina} rey={pos_rey})"
+                    )
                 else:
                     meta_reina, meta_rey = _reparto(
                         asiento_def,
@@ -316,22 +382,24 @@ def main() -> int:
                         relacion_rey=relacion["rey"],
                         relacion_reina=relacion["reina"],
                     )
-                    frases = []
                     for nombre, inst, meta, pos in (
                         ("reina", REINA, meta_reina, pos_reina),
                         ("rey", REY, meta_rey, pos_rey),
                     ):
                         if abs(meta - pos) <= 1.0:
                             continue
-                        hecho = ajustar(meta, inst)
+                        hecho = ajustar(meta, inst, vivo_usd=pos)
                         frases.append(f"{nombre} {hecho.get('frase')}")
-                    if not frases:
+                if not frases and not apagar and pos_reina is not None and pos_rey is not None:
+                    _sellar_asiento(asiento, armado, lado_as)
+                    _emit(f"[{hora}] capas   · ya en la capa")
+                elif frases:
+                    if all(
+                        "rechaz" not in f and "ciego" not in f and "sin " not in f
+                        for f in frases
+                    ):
                         _sellar_asiento(asiento, armado, lado_as)
-                        _emit(f"[{hora}] capas   · ya en la capa")
-                    else:
-                        if all("rechaz" not in f and "ciego" not in f and "sin " not in f for f in frases):
-                            _sellar_asiento(asiento, armado, lado_as)
-                        _emit(f"[{hora}] capas   · {' · '.join(frases)}")
+                    _emit(f"[{hora}] capas   · {' · '.join(frases)}")
                 if elegido is None and abs(float(cruzado)) + 1e-9 >= escudo.escudo_activar_usd():
                     _emit(f"[{hora}] capa    · nadie acompaña, no entra capa nueva")
             except Exception as exc_ojo:
@@ -361,7 +429,7 @@ def main() -> int:
 
         if args.una_vez:
             return 0
-        time.sleep(max(10.0, float(args.intervalo)))
+        time.sleep(_intervalo_sueño(float(args.intervalo)))
 
 
 if __name__ == "__main__":
